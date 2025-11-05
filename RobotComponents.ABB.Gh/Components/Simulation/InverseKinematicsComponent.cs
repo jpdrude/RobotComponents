@@ -52,6 +52,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         private bool _hideMesh = false;
         private bool _outputConfigurationDataParameter = false;
         private bool _outputMeshParameter = false;
+        private bool _outputPosedPlanesParameter = false;
         private readonly int _fixedParamNumInput = 2;
         private readonly int _fixedParamNumOutput = 2;
         #endregion
@@ -196,6 +197,12 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
                 ind = Params.Output.FindIndex(x => x.NickName.Equality(_variableOutputParameters[1].NickName));
                 DA.SetDataTree(ind, this.GetPosedMeshesDataTree(DA.Iteration));
             }
+
+            if (Params.Output.Any(x => x.NickName.Equality(_variableOutputParameters[2].NickName)))
+            {
+                ind = Params.Output.FindIndex(x => x.NickName.Equality(_variableOutputParameters[2].NickName));
+                DA.SetDataTree(ind, this.GetPosedPlanesDataTree(DA.Iteration));
+            }
         }
 
         /// <summary>
@@ -264,6 +271,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Output Configuration Data", MenuItemClickOutputConfigurationData, true, _outputConfigurationDataParameter);
             Menu_AppendItem(menu, "Output Posed Meshes", MenuItemClickOutputMesh, true, _outputMeshParameter);
+            Menu_AppendItem(menu, "Output Posed Axis Planes", MenuItemClickOutputPlanes, true, _outputPosedPlanesParameter);
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Closest Robot Joint Position", MenuItemClickClosestRobotJointPosition, true, _closestRobotJointPosition);
 
@@ -331,6 +339,29 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         }
 
         /// <summary>
+        /// Handles the event when the custom menu item "Output Posed Planes" is clicked. 
+        /// </summary>
+        /// <param name="sender"> The object that raises the event. </param>
+        /// <param name="e"> The event data. </param>
+        private void MenuItemClickOutputPlanes(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Output Posed Axis Planes");
+            _outputMeshParameter = !_outputMeshParameter;
+            AddOutputParameter(2);
+
+            // Disable default mesh preview
+            if (_outputMeshParameter == true)
+            {
+                IGH_Param param = Params.Output.Find(x => x.NickName.Equality(_variableOutputParameters[2].NickName));
+
+                if (param is IGH_PreviewObject previewObject)
+                {
+                    previewObject.Hidden = true;
+                }
+            }
+        }
+
+        /// <summary>
         /// Add our own fields. Needed for (de)serialization of the variable input parameters.
         /// </summary>
         /// <param name="writer"> Provides access to a subset of GH_Chunk methods used for writing archives. </param>
@@ -340,6 +371,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             writer.SetBoolean("Set Hide Mesh", _hideMesh);
             writer.SetBoolean("Output Configuration Data", _outputConfigurationDataParameter);
             writer.SetBoolean("Output Posed Meshes", _outputMeshParameter);
+            writer.SetBoolean("Output Posed Planes", _outputPosedPlanesParameter);
             writer.SetBoolean("Closest Robot Joint Position", _closestRobotJointPosition);
             writer.SetByteArray("Previous Robot Joint Positions", RobotComponents.Utils.Serialization.ObjectToByteArray(_previousRobotJointPositions));
             return base.Write(writer);
@@ -355,6 +387,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             _hideMesh = reader.GetBoolean("Set Hide Mesh");
             _outputConfigurationDataParameter = reader.GetBoolean("Output Configuration Data");
             _outputMeshParameter = reader.GetBoolean("Output Posed Meshes");
+            _outputPosedPlanesParameter = reader.GetBoolean("Output Posed Planes");
             _closestRobotJointPosition = reader.GetBoolean("Closest Robot Joint Position");
             _previousRobotJointPositions.Clear();
             _previousRobotJointPositions.AddRange((List<RobotJointPosition>)RobotComponents.Utils.Serialization.ByteArrayToObject(reader.GetByteArray("Previous Robot Joint Positions")));
@@ -630,6 +663,44 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
 
             // Return the data tree stucture
             return meshes;
+        }
+
+        /// <summary>
+        /// Transform the posed axis planes from the forward kinematics to a datatree
+        /// </summary>
+        /// <param name="iteration"> Iteration number of SolveInstance method. </param>
+        /// <returns> The data tree structure with all the posed axis planes. </returns>
+        private GH_Structure<GH_Plane> GetPosedPlanesDataTree(int iteration)
+        {
+            // Create data tree for output of alle posed meshes
+            GH_Structure<GH_Plane> planes = new GH_Structure<GH_Plane>();
+
+            // Robot pose meshes
+            Plane[] posedInternalAxisPlanes = _forwardKinematics[iteration].PosedInternalAxisPlanes;
+
+            // Data tree path
+            GH_Path path = new GH_Path(new int[2] { iteration, 0 });
+
+            // Save the posed meshes
+            for (int i = 0; i < posedInternalAxisPlanes.Length; i++)
+            {
+                planes.Append(new GH_Plane(posedInternalAxisPlanes[i]), path);
+            }
+
+            // Extenal axis meshes
+            Plane[] posedExternalAxisPlanes = _forwardKinematics[iteration].PosedExternalAxisPlanes;
+
+            // Data tree path
+            path = new GH_Path(new int[2] { iteration, 1 });
+
+            // Save the posed meshes
+            for (int i = 0; i < posedExternalAxisPlanes.Length; i++)
+            {
+                planes.Append(new GH_Plane(posedExternalAxisPlanes[i]), path);
+            }
+
+            // Return the data tree stucture
+            return planes;
         }
         #endregion
     }
