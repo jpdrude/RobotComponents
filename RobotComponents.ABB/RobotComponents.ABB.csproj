@@ -20,6 +20,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="RhinoCommon" Version="8.0.23304.9001" />
   </ItemGroup>
 
