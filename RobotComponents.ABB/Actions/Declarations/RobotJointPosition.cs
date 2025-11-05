@@ -298,6 +298,28 @@ namespace RobotComponents.ABB.Actions.Declarations
 
         #region method
         /// <summary>
+        /// Checks wether the value of a JointPosition is the same as another.
+        /// </summary>
+        /// <param name="obj"> object for comparison. </param>
+        /// <returns> 
+        /// Equality between the two values. 
+        /// </returns>
+        public bool SameAs(object obj)
+        {
+            if (obj is RobotJointPosition p)
+            {
+                if (_val1 != p._val1) { return false; }
+                if (_val2 != p._val2) { return false; }
+                if (_val3 != p._val3) { return false; }
+                if (_val4 != p._val4) { return false; }
+                if (_val5 != p._val5) { return false; }
+                if (_val6 != p._val6) { return false; }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns> 

@@ -16,6 +16,8 @@ using Rhino.Runtime;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Kinematics.IkGeo.Geometry;
+// Math.Net for Jacobian Matrix generation
+using MathNet.Numerics.LinearAlgebra;
 
 namespace RobotComponents.ABB.Kinematics.IkGeo
 {
@@ -37,10 +39,17 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
         private readonly Plane _base = Plane.WorldYZ;
         private Robot _robot;
 
+        //Singularities Arrays
+        private bool[] _wristSingularities = new bool[8];
+        private bool[] _elbowSingularities = new bool[8];
+        private bool[] _shoulderSingularities = new bool[8];
+        private bool[] _noSolverResults = new bool[8];
+
         // Constants
         private const double _pi = Math.PI;
         private const double _rad2deg = 180.0 / _pi;
         private const double _deg2rad = _pi / 180.0;
+        private const double _jacobianTol = 2e-4;
 
         // sentinel for missing IK solutions
         private const double _missingJointValue = 9e9;
@@ -65,6 +74,11 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
         {
             _numSolutions = 0;
             _robotJointPositions.Clear();
+
+            _wristSingularities = new bool[8];
+            _elbowSingularities = new bool[8];
+            _shoulderSingularities = new bool[8];
+            _noSolverResults = new bool[8];
         }
 
         /// <summary>
@@ -153,6 +167,8 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
 
             //Arrange joint positions into Cfx ordering
             ArrangeJointPositions();
+            //Compute near singularities in Cfx orddering
+            ComputeSingularities();
         }
 
         /// <summary>
@@ -269,6 +285,162 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
             }
 
         }
+
+        /// <summary>
+        /// Detects near-singular robot configurations among arranged IK solutions.
+        /// </summary>
+        /// <remarks>
+        /// For each arranged solution this method:
+        /// - Marks and then skips empty/sentinel solutions (9e9).
+        /// - Computes forward kinematics, builds the 6x6 Jacobian, and applies an SVD-based test for near singularity.
+        /// - If near-singular, classifies the singularity as wrist, elbow or shoulder using geometric alignment angles.
+        /// Uses MathNet.Svd for singular values and a relative tolerance defined by <see cref="jacobianTol"/>.
+        /// </remarks>
+        private void ComputeSingularities()
+        {
+            RobotJointPosition jointPos;
+            ForwardKinematics fk = new ForwardKinematics(_robot);
+
+            //Millimeters to File Units
+            double mm2FileUnits = 1;
+            if (RhinoDoc.ActiveDoc != null)
+                mm2FileUnits = RhinoMath.UnitScale(UnitSystem.Millimeters, RhinoDoc.ActiveDoc.ModelUnitSystem);
+
+            for (int i = 0; i < 8; i++)
+            {
+                _wristSingularities[i] = false;
+                _elbowSingularities[i] = false;
+                _shoulderSingularities[i] = false;
+
+                jointPos = _robotJointPositionsArranged[i];
+
+                if (!jointPos.IsValid || jointPos.SameAs(new RobotJointPosition(Enumerable.Repeat(_missingJointValue, 6).ToList())))
+                {
+                    _noSolverResults[i] = true;
+                    continue;
+                }
+
+                fk.Calculate(jointPos);
+
+                //Check Jacobian for close singularity
+                Matrix<double> J = BuildJacobian(fk);
+                bool nearSingularity = CheckJacobianSingularity(J);
+
+                if (!nearSingularity)
+                    continue;
+
+                //Wrist alignment angle (Angle between joints 4 and 6)
+                Rhino.Geometry.Vector3d z4 = fk.PosedInternalAxisPlanes[3].ZAxis; // Joint 4
+                Rhino.Geometry.Vector3d z6 = fk.PosedInternalAxisPlanes[5].ZAxis; // Joint 6
+
+                double wristAngle = Rhino.Geometry.Vector3d.VectorAngle(z4, z6) * _rad2deg;
+                if (wristAngle > Math.Abs(wristAngle - 180))
+                    wristAngle = Math.Abs(wristAngle - 180);
+
+
+                //Elbow alignment angle (Angle between vector from joint 2 to joint 3 and vector from joint 2 to wrist center)
+                //Compute wrist center
+                Plane p4 = fk.PosedInternalAxisPlanes[3]; // Joint 4 plane
+                Plane p6 = fk.PosedInternalAxisPlanes[5]; // Joint 6 plane
+                Line l4 = new Line(p4.Origin, p4.Origin + p4.ZAxis * 1000000 * mm2FileUnits); // Line following Joint 4 z axis
+                p6 = new Plane(p6.Origin, p6.ZAxis, p6.XAxis);
+
+                Point3d wc;
+                double l4t;
+                if (Rhino.Geometry.Intersect.Intersection.LinePlane(l4, p6, out l4t))
+                    wc = l4.PointAt(l4t);
+                else
+                    throw new Exception("No wrist intersection found!");
+
+                //Alignment angle
+                Rhino.Geometry.Vector3d v23 = fk.PosedInternalAxisPlanes[2].Origin - fk.PosedInternalAxisPlanes[1].Origin; // Vector from Joint 2 to 3
+                Rhino.Geometry.Vector3d v2wc = wc - fk.PosedInternalAxisPlanes[1].Origin; // Vector from Joint 2 to wrist center
+
+                double elbowAngle = Rhino.Geometry.Vector3d.VectorAngle(v23, v2wc) * _rad2deg;
+
+
+                //Shoulder alignment angle (Angle between joint 1 and the vector from joint 1 to joint 6)
+                Point3d o1 = fk.PosedInternalAxisPlanes[0].Origin; // Joint 1 Origin
+                Point3d o6 = fk.PosedInternalAxisPlanes[5].Origin; // Joint 6 Origin
+
+                Rhino.Geometry.Vector3d v1z = fk.PosedInternalAxisPlanes[0].ZAxis;
+                Rhino.Geometry.Vector3d v16 = o6 - o1;
+
+                double shoulderAngle = Rhino.Geometry.Vector3d.VectorAngle(v1z, v16);
+
+                //Apply singularity type check
+                if (wristAngle < elbowAngle && wristAngle < shoulderAngle)
+                    _wristSingularities[i] = true;
+                else if (elbowAngle < wristAngle && elbowAngle < shoulderAngle)
+                    _elbowSingularities[i] = true;
+                else
+                    _shoulderSingularities[i] = true;
+            }
+        }
+
+        /// <summary>
+        /// Builds the 6x6 Jacobian matrix from the posed internal axis planes contained in the provided ForwardKinematics instance.
+        /// </summary>
+        /// <param name="fk">A computed ForwardKinematics instance with posed internal axis planes and TCP plane.</param>
+        /// <returns>A 6-by-6 MathNet matrix representing the manipulator Jacobian (first three rows: linear part in Rhino file unity; last three rows: angular part).</returns>
+        private Matrix<double> BuildJacobian(ForwardKinematics fk)
+        {
+            Matrix<double> J = Matrix<double>.Build.Dense(6, 6);
+
+            Point3d[] jointPoints = new Point3d[6];
+
+            Transform T06 = Transform.PlaneToPlane(fk.PosedInternalAxisPlanes[0], fk.TCPPlane);
+            Rhino.Geometry.Vector3d d06 = new Rhino.Geometry.Vector3d(T06.M03, T06.M13, T06.M23);
+
+            for (int i = 0; i < 6; ++i)
+            {
+                Transform Ti = Transform.PlaneToPlane(fk.PosedInternalAxisPlanes[0], fk.PosedInternalAxisPlanes[i]);
+                Rhino.Geometry.Vector3d di = new Rhino.Geometry.Vector3d(Ti.M03, Ti.M13, Ti.M23);
+
+                Rhino.Geometry.Vector3d zi = Rhino.Geometry.Vector3d.ZAxis;
+                zi.Transform(Ti);
+                zi.Unitize();
+
+                Rhino.Geometry.Vector3d jv = Rhino.Geometry.Vector3d.CrossProduct(zi, d06 - di);
+                Rhino.Geometry.Vector3d jw = zi;
+
+                J[0, i] = jv[0];
+                J[1, i] = jv[1];
+                J[2, i] = jv[2];
+                J[3, i] = jw[0];
+                J[4, i] = jw[1];
+                J[5, i] = jw[2];
+            }
+
+            return J;
+        }
+
+        /// <summary>
+        /// Tests the Jacobian for near-singularity using singular value decomposition (SVD).
+        /// </summary>
+        /// <param name="J">Jacobian matrix to test.</param>
+        /// <returns>True when the Jacobian is considered near-singular according to the configured tolerance; otherwise false.</returns>
+        /// <remarks>
+        /// The method computes the SVD of J and compares the smallest and largest singular values.
+        /// It uses a relative threshold (<see cref="_jacobianTol"/>) and condition-number check to determine near-singularity.
+        /// </remarks>
+        private bool CheckJacobianSingularity(Matrix<double> J)
+        {
+            //Compute singular values
+            var svd = J.Svd(computeVectors: true);
+            var s = svd.S;
+
+            //get min and max singular values
+            double sigmaMax = s[0];
+            double sigmaMin = s[s.Count - 1];
+
+            double cond = (sigmaMin == 0.0) ? double.PositiveInfinity : sigmaMax / sigmaMin;
+
+            // relative test
+            bool isNearSingular = sigmaMin / sigmaMax <= _jacobianTol || cond > 1.0 / _jacobianTol;
+
+            return isNearSingular;
+        }
         #endregion
 
         #region properties
@@ -286,6 +458,50 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
         public int NumSolutions
         {
             get { return _numSolutions; }
+        }
+
+        /// <summary>
+        /// Gets wrist singularities as a boolean array aligned with the Cfx indexed solutions (length = 8).
+        /// </summary>
+        /// <remarks>
+        /// true indicates the corresponding arranged solution is classified as a wrist singularity.
+        /// </remarks>
+        public bool[] WristSingularities
+        {
+            get { return _wristSingularities.ToArray(); }
+        }
+
+        /// <summary>
+        /// Gets elbow singularities as a boolean array aligned with the Cfx indexed solutions (length = 8).
+        /// </summary>
+        /// <remarks>
+        /// true indicates the corresponding arranged solution is classified as an elbow singularity.
+        /// </remarks>
+        public bool[] ElbowSingularities
+        {
+            get { return _elbowSingularities.ToArray(); }
+        }
+
+        /// <summary>
+        /// Gets shoulder singularities as a boolean array aligned with the Cfx indexed solutions (length = 8).
+        /// </summary>
+        /// <remarks>
+        /// true indicates the corresponding arranged solution is classified as a shoulder singularity.
+        /// </remarks>
+        public bool[] ShoulderSingularities
+        {
+            get { return _shoulderSingularities.ToArray(); }
+        }
+
+        /// <summary>
+        /// Gets missing robot configurations as a boolean array aligned with the Cfx indexed solutions (length = 8).
+        /// </summary>
+        /// <remarks>
+        /// true indicates the corresponding arranged solution is missing (solver did not find a solution for that Cfx).
+        /// </remarks> 
+        public bool[] NoSolverResults
+        {
+            get { return _noSolverResults.ToArray(); }
         }
         #endregion
 
