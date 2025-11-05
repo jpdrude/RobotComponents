@@ -41,6 +41,9 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
         private const double _pi = Math.PI;
         private const double _rad2deg = 180.0 / _pi;
         private const double _deg2rad = _pi / 180.0;
+
+        // sentinel for missing IK solutions
+        private const double _missingJointValue = 9e9;
         #endregion
 
         #region constructor
@@ -148,7 +151,123 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
                 freeIKMemory_CRB15000(jointsPtr);
             }
 
-            _robotJointPositionsArranged = _robotJointPositions;
+            //Arrange joint positions into Cfx ordering
+            ArrangeJointPositions();
+        }
+
+        /// <summary>
+        /// Arranges IK solutions into the 8-slot Cfx ordering used by RAPID.
+        /// </summary>
+        /// <remarks>
+        /// Cfx is a 3-bit bitmask composed from Cf1 (shoulder side), Cf4 (wrist-center side) and Cf6 (sign of joint 5).
+        /// This method:
+        /// - Initializes an array of eight default positions (_missingJointValue = 9e9) and fills slots according to computed Cf1/Cf4/Cf6.
+        /// - Uses ForwardKinematics to determine Cf bits by geometric tests.
+        /// Missing solver solutions remain as the default sentinel values so callers can detect absent configurations.
+        /// </remarks>
+        private void ArrangeJointPositions()
+        {
+            // Cfx parameter defintion:
+            //
+            //Cfx is a bitmask of the axis related values Cf1, Cf4, and Cf6
+            //
+            //Cf1 relies on a line BT from the robot base to the TCP
+            //      Cf1 = 0: the shoulder is on the right side of BT
+            //      Cf1 = 1: the shoulder is on the left side of BT
+            //
+            //Cf4 relies in a line SE from the robots second to third joints     
+            //      Cf4 = 0: the TCP is on the right side of SE
+            //      Cf4 = 1: the TCP is on the left side of SE
+            //
+            //Cf6 relies on the angle of axis 5
+            //      Cf6 = 0: angle5 > 0
+            //      Cf6 = 1: angle5 < 0
+
+            ForwardKinematics fk = new ForwardKinematics(_robot, true);
+
+            //Millimeters to File Units
+            double mm2FileUnits = 1;
+            if (RhinoDoc.ActiveDoc != null)
+                mm2FileUnits = RhinoMath.UnitScale(UnitSystem.Millimeters, RhinoDoc.ActiveDoc.ModelUnitSystem);
+
+            // Initialize 8 robot joint positions with default values
+            _robotJointPositionsArranged.Clear();
+
+            for (int i = 0; i < 8; i++)
+            {
+                _robotJointPositionsArranged.Add(new RobotJointPosition(Enumerable.Repeat(_missingJointValue, 6).ToList()));
+            }
+
+            RobotJointPosition jointPos;
+
+            for (int i = 0; i < NumSolutions; i++)
+            {
+                //initialize Cf1, Cf4, and Cf6
+                int Cf1 = 0;
+                int Cf4 = 0;
+                int Cf6 = 0;
+
+                //get posed robot
+                jointPos = _robotJointPositions[i];
+                fk.Calculate(jointPos);
+
+                //determine value of Cf1
+                Point3d robotBase = fk.PosedInternalAxisPlanes[0].Origin;
+                Point3d TCP = fk.TCPPlane.Origin;
+                Point3d shoulderPos = fk.PosedInternalAxisPlanes[1].Origin;
+                //Move shoulder position outwards
+                shoulderPos.Transform(Transform.Translation(fk.PosedInternalAxisPlanes[1].ZAxis * -100 * mm2FileUnits));
+                //Project to 2D space
+                robotBase.Z = 0;
+                TCP.Z = 0;
+                shoulderPos.Z = 0;
+
+                //define related vectors
+                Rhino.Geometry.Vector3d base2tcp = new Rhino.Geometry.Vector3d(TCP - robotBase);
+                Rhino.Geometry.Vector3d base2shoulder = new Rhino.Geometry.Vector3d(shoulderPos - robotBase);
+
+                //if cross product of these vectors is larger than 0 -> Cf1 = 1
+                if (Rhino.Geometry.Vector3d.CrossProduct(base2tcp, base2shoulder).Z > 0)
+                    Cf1 = 1;
+
+
+                //determine value of Cf4
+                shoulderPos = fk.PosedInternalAxisPlanes[1].Origin;
+                Point3d elbowPos = fk.PosedInternalAxisPlanes[2].Origin;
+                TCP = fk.TCPPlane.Origin;
+                //Transform points into 2D space
+                shoulderPos.Transform(Transform.PlaneToPlane(fk.PosedInternalAxisPlanes[1], Plane.WorldXY));
+                elbowPos.Transform(Transform.PlaneToPlane(fk.PosedInternalAxisPlanes[1], Plane.WorldXY));
+                TCP.Transform(Transform.PlaneToPlane(fk.PosedInternalAxisPlanes[1], Plane.WorldXY));
+                shoulderPos.Z = 0;
+                elbowPos.Z = 0;
+                TCP.Z = 0;
+
+                //define related vectors
+                Rhino.Geometry.Vector3d shoulder2elbow = new Rhino.Geometry.Vector3d(elbowPos - shoulderPos);
+                Rhino.Geometry.Vector3d shoulder2tcp = new Rhino.Geometry.Vector3d(TCP - shoulderPos);
+
+                //if cross product of these vectors is smaller than 0 -> Cf1 = 1
+                if (Rhino.Geometry.Vector3d.CrossProduct(shoulder2elbow, shoulder2tcp).Z < 0)
+                    Cf4 = 1;
+
+                //if Cf1: invert Cf4, due to plane orientations
+                if (Cf1 == 1)
+                    Cf4 = Math.Abs(Cf4 - 1);
+
+
+                //determine value of Cf6
+                if (jointPos[4] < 0)
+                    Cf6 = 1;
+
+
+                //define Cfx through bitshifting into a bitmask
+                int Cfx = Cf1 << 2 | Cf4 << 1 | Cf6;
+
+                //Sort result into correct array position in regards to Cfx
+                _robotJointPositionsArranged[Cfx] = jointPos;
+            }
+
         }
         #endregion
 
