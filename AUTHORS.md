@@ -16,6 +16,7 @@
 
 ## Contributors
 
-- [Andrea Rossi](https://github.com/ar0551) [[EDEK Uni Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/home) (2018-2025)] <<rossi@uni-kassel.de>>
+- [Andrea Rossi](https://github.com/ar0551) [[EDEK Uni Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/startseite.html) (2018-2025)] <<rossi@uni-kassel.de>>
+- [Jan Philipp Drude](https://github.com/jpdrude) [[EDEK Uni Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/startseite.html) (2025)] <<janphilipp.drude@asl.uni-kassel.de>>
 - [Mohamed Dawod](https://github.com/dawodx) [[EDEK Uni Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/home) (2018-2020)]
 - [Zuardin Akbar](https://github.com/zuardinakbar) [[EDEK Uni Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/home) (2018-2020)]
