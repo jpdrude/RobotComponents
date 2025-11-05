@@ -59,9 +59,11 @@ namespace RobotComponents.ABB.Kinematics
         private bool _shoulderSingularity = false;
         private bool _elbowSingularity = false;
         private bool _wristSingularity = false;
+        private bool _noSolverResult = false;
         private bool[] _shoulderSingularities = Enumerable.Repeat(false, 8).ToArray();
         private bool[] _elbowSingularities = Enumerable.Repeat(false, 8).ToArray();
         private bool[] _wristSingularities = Enumerable.Repeat(false, 8).ToArray();
+        private bool[] _noSolverResults = Enumerable.Repeat(false, 8).ToArray();
         private readonly List<string> _errorText = new List<string>();
         private readonly RobotJointPosition[] _robotJointPositions = new RobotJointPosition[8].Select(item => new RobotJointPosition()).ToArray();
         private RobotJointPosition _robotJointPosition = new RobotJointPosition();
@@ -71,6 +73,8 @@ namespace RobotComponents.ABB.Kinematics
         // Constants
         private const double _pi = Math.PI;
         private const double _rad2deg = 180 / _pi;
+        // sentinel for missing IK solutions
+        private const double _missingJointValue = 9e9;
 
         // Kinematics solver fields
         private static readonly double[] _offsets = new double[6] { 0, 0, -_pi / 2, 0, 0, 0 };
@@ -250,13 +254,15 @@ namespace RobotComponents.ABB.Kinematics
                         // Select solution
                         _robotJointPosition = _robotJointPositions[robotTarget.ConfigurationData.Cfx].Duplicate();
 
-                        _wristSingularities = new bool[8];
-                        _elbowSingularities = new bool[8];
-                        _shoulderSingularities = new bool[8];
+                        _wristSingularities = solver.WristSingularities;
+                        _elbowSingularities = solver.ElbowSingularities;
+                        _shoulderSingularities = solver.ShoulderSingularities;
+                        _noSolverResults = solver.NoSolverResults;
 
                         _wristSingularity = _wristSingularities[robotTarget.ConfigurationData.Cfx];
                         _elbowSingularity = _elbowSingularities[robotTarget.ConfigurationData.Cfx];
                         _shoulderSingularity = _shoulderSingularities[robotTarget.ConfigurationData.Cfx];
+                        _noSolverResult = _noSolverResults[robotTarget.ConfigurationData.Cfx];
                     }
                     catch
                     {
@@ -428,6 +434,7 @@ namespace RobotComponents.ABB.Kinematics
                     _shoulderSingularity = _shoulderSingularities[i];
                     _wristSingularity = _wristSingularities[i];
                     _elbowSingularity = _elbowSingularities[i];
+                    _noSolverResult = _noSolverResults[i];
                     _selectedSolution = i;
                     min = norm;
                 }
@@ -587,6 +594,7 @@ namespace RobotComponents.ABB.Kinematics
             _wristSingularity = false;
             _elbowSingularity = false;
             _shoulderSingularity = false;
+            _noSolverResult = false;
         }
 
         /// <summary>
@@ -682,6 +690,8 @@ namespace RobotComponents.ABB.Kinematics
         {
             for (int i = 0; i < _robotJointPosition.Length; i++)
             {
+                if (_robotJointPosition[i] == _missingJointValue) continue; //Skips IkGeo empty solutions
+
                 if (_robot.InternalAxisLimits[i].IncludesParameter(_robotJointPosition[i], false) == false)
                 {
                     _errorText.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: The position of robot joint {i + 1} is not in range.");
@@ -703,6 +713,12 @@ namespace RobotComponents.ABB.Kinematics
             if (_shoulderSingularity == true)
             {
                 _errorText.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: The robot is near a shoulder singularity.");
+            }
+
+            if (_noSolverResult == true)
+            {
+                _errorText.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: IkGeo solver returned no result (singularity or out of reach).");
+                _isInLimits = false;
             }
         }
 
