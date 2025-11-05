@@ -81,10 +81,11 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         /// <summary>
         /// Stores the variable output parameters in an array.
         /// </summary>
-        private readonly IGH_Param[] _variableOutputParameters = new IGH_Param[2]
+        private readonly IGH_Param[] _variableOutputParameters = new IGH_Param[3]
         {
             new Param_ConfigurationData() { Name = "Configuration Data", NickName = "CD", Description = "The Configuration Data of the calculated robot pose.", Access = GH_ParamAccess.item},
-            new Param_Mesh() { Name = "Posed Meshes", NickName = "PM", Description = "Posed Robot and External Axis meshes.", Access = GH_ParamAccess.tree}
+            new Param_Mesh() { Name = "Posed Meshes", NickName = "PM", Description = "Posed Robot and External Axis meshes.", Access = GH_ParamAccess.tree},
+            new Param_Plane() {Name = "Posed Internal Planes", NickName = "IP", Description = "Posed Robot Joint Planes.", Access = GH_ParamAccess.tree}
         };
 
         /// <summary>
