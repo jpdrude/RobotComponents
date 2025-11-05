@@ -304,21 +304,21 @@ namespace RobotComponents.ABB.Presets.Enumerations
         /// <summary>
         /// IRB6640-185/2.80
         /// </summary>
-        IRB6640_185_280
+        IRB6640_185_280,
 
-        // <summary>
-        // CRB15000-5/0.95
-        // </summary>
-        //CRB15000_5_095,
+        /// <summary>
+        /// CRB15000-5/0.95
+        /// </summary>
+        CRB15000_5_095,
 
-        // <summary>
-        // CRB15000-12/1.27
-        // </summary>
-        //CRB15000_12_127,
+        /// <summary>
+        /// CRB15000-12/1.27
+        /// </summary>
+        CRB15000_12_127,
 
-        // <summary>
-        // CRB15000-10/1.52
-        // </summary>
-        //CRB15000_10_152
+        /// <summary>
+        /// CRB15000-10/1.52
+        /// </summary>
+        CRB15000_10_152
     }
 }
