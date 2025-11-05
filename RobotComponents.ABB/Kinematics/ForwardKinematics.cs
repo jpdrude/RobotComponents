@@ -42,6 +42,7 @@ namespace RobotComponents.ABB.Kinematics
         private readonly List<List<Transform>> _externalAxisTransforms = new List<List<Transform>>();
 
         private Plane _positionPlane = Plane.Unset;
+        private Plane[] _posedInternalAxisPlanes = new Plane[6];
         private Plane[] _posedExternalAxisPlanes;
         private Plane _tcpPlane = Plane.Unset;
 
@@ -160,7 +161,7 @@ namespace RobotComponents.ABB.Kinematics
             }
 
             _externalAxisTransforms.Clear();
-
+            _posedInternalAxisPlanes = new Plane[6];
         }
 
         /// <summary>
@@ -294,6 +295,14 @@ namespace RobotComponents.ABB.Kinematics
             // TCP plane
             _tcpPlane = new Plane(_robot.ToolPlane);
             _tcpPlane.Transform(_robotTransforms[6]);
+
+            // Internal axis planes
+            for (int i = 0; i < 6; i++)
+            {
+                Plane axisPlane = new Plane(_robot.InternalAxisPlanes[i]);
+                axisPlane.Transform(_robotTransforms[i + 1]);
+                _posedInternalAxisPlanes[i] = axisPlane;
+            }
         }
 
         /// <summary>
@@ -469,6 +478,16 @@ namespace RobotComponents.ABB.Kinematics
         public Transform[] RobotTransforms
         {
             get { return _robotTransforms; }
+        }
+        /// <summary>
+        /// Gets the latest calculated posed internal axis planes.
+        /// </summary>
+        /// <remarks>
+        /// Similar to <see cref="RobotTransforms"/>, this array contains six planes. One for each joint.
+        /// </remarks>
+        public Plane[] PosedInternalAxisPlanes
+        {
+            get { return _posedInternalAxisPlanes; }
         }
 
         /// <summary>
