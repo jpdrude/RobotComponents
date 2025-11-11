@@ -92,12 +92,12 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
         /// <remarks>
         /// This method:
         /// - Slightly perturbs targets aligned with world Z to avoid degeneracies.
+        /// - Slightly offsets targets with X = 0 to avoid degeneracies.
         /// - Rotates the target by 90° about the tool X axis to match the native ik-geo reference frame.
         /// - Converts pose information to the native geometry types and calls the unmanaged solver.
         /// - Releases unmanaged memory after copying solutions.
         /// - After receiving solutions (in radians) it converts them to degrees and arranges them according to the robot's Cfx configuration.
         /// - Computes singularities for each solution based on Jacobian analysis and alignment angles.
-        /// - Relies on an active Rhino document to determine unit conversion factors. Falls back to mm.
         /// </remarks>
         public void Compute_CRB15000(Plane endPlane)
         {
@@ -114,8 +114,6 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
 
             //To meters conversion factor from Rhino Doc settings (Needs active Rhino Docs to run)
             double toMeters = 0.001;
-            if (RhinoDoc.ActiveDoc != null)
-                toMeters = RhinoMath.UnitScale(RhinoDoc.ActiveDoc.ModelUnitSystem, Rhino.UnitSystem.Meters);
 
             // Check if target z-axis is co-linear to world z-axis, rotate slightly if true (this is due to a bug in the native IkGeo implementation)
             if (Rhino.Geometry.Vector3d.VectorAngle(targetPlane.ZAxis, new Rhino.Geometry.Vector3d(0, 0, 1)) * _rad2deg < 0.01 ||
@@ -205,11 +203,6 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
 
             ForwardKinematics fk = new ForwardKinematics(_robot, true);
 
-            //Millimeters to File Units
-            double mm2FileUnits = 1;
-            if (RhinoDoc.ActiveDoc != null)
-                mm2FileUnits = RhinoMath.UnitScale(UnitSystem.Millimeters, RhinoDoc.ActiveDoc.ModelUnitSystem);
-
             // Initialize 8 robot joint positions with default values
             _robotJointPositionsArranged.Clear();
 
@@ -236,7 +229,7 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
                 Point3d TCP = fk.TCPPlane.Origin;
                 Point3d shoulderPos = fk.PosedInternalAxisPlanes[1].Origin;
                 //Move shoulder position outwards
-                shoulderPos.Transform(Transform.Translation(fk.PosedInternalAxisPlanes[1].ZAxis * -100 * mm2FileUnits));
+                shoulderPos.Transform(Transform.Translation(fk.PosedInternalAxisPlanes[1].ZAxis * -100));
                 //Project to 2D space
                 robotBase.Z = 0;
                 TCP.Z = 0;
@@ -305,11 +298,6 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
             RobotJointPosition jointPos;
             ForwardKinematics fk = new ForwardKinematics(_robot);
 
-            //Millimeters to File Units
-            double mm2FileUnits = 1;
-            if (RhinoDoc.ActiveDoc != null)
-                mm2FileUnits = RhinoMath.UnitScale(UnitSystem.Millimeters, RhinoDoc.ActiveDoc.ModelUnitSystem);
-
             for (int i = 0; i < 8; i++)
             {
                 _wristSingularities[i] = false;
@@ -346,7 +334,7 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
                 //Compute wrist center
                 Plane p4 = fk.PosedInternalAxisPlanes[3]; // Joint 4 plane
                 Plane p6 = fk.PosedInternalAxisPlanes[5]; // Joint 6 plane
-                Line l4 = new Line(p4.Origin, p4.Origin + p4.ZAxis * 1000000 * mm2FileUnits); // Line following Joint 4 z axis
+                Line l4 = new Line(p4.Origin, p4.Origin + p4.ZAxis * 1000000); // Line following Joint 4 z axis
                 p6 = new Plane(p6.Origin, p6.ZAxis, p6.XAxis);
 
                 Point3d wc;
