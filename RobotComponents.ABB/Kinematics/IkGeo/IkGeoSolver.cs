@@ -122,6 +122,10 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
                 Rhino.Geometry.Vector3d.VectorAngle(targetPlane.ZAxis, new Rhino.Geometry.Vector3d(0, 0, -1)) * _rad2deg < 0.01)
                 targetPlane.Transform(Transform.Rotation(0.01 * _deg2rad, targetPlane.XAxis, targetPlane.Origin));
 
+            // Check if the target x is exactly aligned with world x, offset slightly if true (this is due to a bug in the native IkGeo implementation)
+            if (Math.Abs(targetPlane.Origin.X) < 0.001)
+                targetPlane.Transform(Transform.Translation(Rhino.Geometry.Vector3d.XAxis * 0.001));
+
             // Target rotated 90 degrees (probably due to inconsistent end effector definition)
             targetPlane.Rotate(0.5 * _pi, targetPlane.XAxis, targetPlane.Origin);
 
