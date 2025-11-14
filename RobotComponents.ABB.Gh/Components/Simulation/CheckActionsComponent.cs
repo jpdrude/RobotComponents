@@ -1,14 +1,12 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
-// This file is part of Robot Components
-// Project: https://github.com/RobotComponents/RobotComponents
+// This file is part of Robot Components (Modified)
+// Original project: https://github.com/RobotComponents/RobotComponents
+// Modified project: https://github.com/jpdrude/RobotComponents
 //
-// Copyright (c) 2018-2020 EDEK Uni Kassel
-// Copyright (c) 2020-2025 Arjen Deetman
+// Copyright (c) 2025 EDEK Uni Kassel
 //
-// Authors:
-//   - Gabriel Rumph (2018-2020)
-//   - Benedikt Wannemacher (2018-2020)
-//   - Arjen Deetman (2019-2025)
+// Author:
+//   - Jan Philipp Drude (2025)
 //
 // For license details, see the LICENSE file in the project root.
 

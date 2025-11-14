@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// This file is part of Robot Components
-// Project: https://github.com/RobotComponents/RobotComponents
+// This file is part of Robot Components (Modified)
+// Original project: https://github.com/RobotComponents/RobotComponents
+// Modified project: https://github.com/jpdrude/RobotComponents
 //
 // Copyright (c) 2018-2020 EDEK Uni Kassel
 // Copyright (c) 2020-2024 Arjen Deetman
+// Copyright (c) 2025 EDEK Uni Kassel
 //
-// Authors:
+// Original Authors:
 //   - Gabriel Rumph (2018-2020)
 //   - Benedikt Wannemacher (2018-2020)
 //   - Arjen Deetman (2019-2024)
+//
+// Modified by:
+//   - Jan Philipp Drude (2025)
 //
 // For license details, see the LICENSE file in the project root.
 
@@ -229,8 +234,35 @@ namespace RobotComponents.ABB.Kinematics
 
             if (_movement.Target is RobotTarget robotTarget)
             {
-                // GoFa CRB15000 with IKGeo solver
-                if (_robot.Name.Contains("CRB15000"))
+                // OPW kinematics solver
+                if (_robot.RobotKinematicParameters.A3 == 0)
+                {
+                    // Calculate inverse kinematics
+                    _opw.Inverse(_localEndPlane);
+
+                    // Set Robot Joint Positions
+                    for (int i = 0; i < 8; i++)
+                    {
+                        for (int j = 0; j < 6; j++)
+                        {
+                            _robotJointPositions[i][j] = _rad2deg * _opw.Solutions[_order[i]][j];
+                        }
+                    }
+
+                    // Select solution
+                    _robotJointPosition = _robotJointPositions[robotTarget.ConfigurationData.Cfx].Duplicate();
+
+                    _wristSingularities = _order.Select(index => _opw.IsWristSingularity[index]).ToArray();
+                    _elbowSingularities = _order.Select(index => _opw.IsElbowSingularity[index]).ToArray();
+                    _shoulderSingularities = _order.Select(index => _opw.IsShoulderSingularity[index]).ToArray();
+
+                    _wristSingularity = _wristSingularities[robotTarget.ConfigurationData.Cfx];
+                    _elbowSingularity = _elbowSingularities[robotTarget.ConfigurationData.Cfx];
+                    _shoulderSingularity = _shoulderSingularities[robotTarget.ConfigurationData.Cfx];
+                }
+
+                // Wrist Offset Robots with IKGeo Solver
+                else
                 {
                     //IKGeo Solver
                     IkGeoSolver solver = new IkGeoSolver(_robot);
@@ -268,71 +300,17 @@ namespace RobotComponents.ABB.Kinematics
                     {
                         throw new Exception("Error in solution selection");
                     }
+                    
                 }
-                else
-                {
-                    // OPW kinematics solver
-                    if (_robot.RobotKinematicParameters.A3 == 0)
-                    {
-                        // Calculate inverse kinematics
-                        _opw.Inverse(_localEndPlane);
 
-                        // Set Robot Joint Positions
-                        for (int i = 0; i < 8; i++)
-                        {
-                            for (int j = 0; j < 6; j++)
-                            {
-                                _robotJointPositions[i][j] = _rad2deg * _opw.Solutions[_order[i]][j];
-                            }
-                        }
+                // Check configuration data cf1, cf4 and cf6
+                AdjustJoint(0, robotTarget.ConfigurationData.Cf1);
+                AdjustJoint(3, robotTarget.ConfigurationData.Cf4);
+                AdjustJoint(5, robotTarget.ConfigurationData.Cf6);
 
-                        // Select solution
-                        _robotJointPosition = _robotJointPositions[robotTarget.ConfigurationData.Cfx].Duplicate();
-
-                        _wristSingularities = _order.Select(index => _opw.IsWristSingularity[index]).ToArray();
-                        _elbowSingularities = _order.Select(index => _opw.IsElbowSingularity[index]).ToArray();
-                        _shoulderSingularities = _order.Select(index => _opw.IsShoulderSingularity[index]).ToArray();
-
-                        _wristSingularity = _wristSingularities[robotTarget.ConfigurationData.Cfx];
-                        _elbowSingularity = _elbowSingularities[robotTarget.ConfigurationData.Cfx];
-                        _shoulderSingularity = _shoulderSingularities[robotTarget.ConfigurationData.Cfx];
-                    }
-
-                    // Wrist Offset kinematics solver
-                    else
-                    {
-                        // Calculate inverse kinematics
-                        _wok.Inverse(_localEndPlane);
-
-                        // Set Robot Joint Positions
-                        for (int i = 0; i < 8; i++)
-                        {
-                            for (int j = 0; j < 6; j++)
-                            {
-                                _robotJointPositions[i][j] = _rad2deg * _wok.Solutions[_order[i]][j];
-                            }
-                        }
-
-                        // Select solution
-                        _robotJointPosition = _robotJointPositions[robotTarget.ConfigurationData.Cfx].Duplicate();
-
-                        _wristSingularities = _order.Select(index => _wok.IsWristSingularity[index]).ToArray();
-                        _elbowSingularities = _order.Select(index => _wok.IsElbowSingularity[index]).ToArray();
-                        _shoulderSingularities = _order.Select(index => _wok.IsShoulderSingularity[index]).ToArray();
-
-                        _wristSingularity = _wristSingularities[robotTarget.ConfigurationData.Cfx];
-                        _elbowSingularity = _elbowSingularities[robotTarget.ConfigurationData.Cfx];
-                        _shoulderSingularity = _shoulderSingularities[robotTarget.ConfigurationData.Cfx];
-                    }
-                }
-                    // Check configuration data cf1, cf4 and cf6
-                    AdjustJoint(0, robotTarget.ConfigurationData.Cf1);
-                    AdjustJoint(3, robotTarget.ConfigurationData.Cf4);
-                    AdjustJoint(5, robotTarget.ConfigurationData.Cf6);
-
-                    // Set configuration data
-                    _selectedSolution = robotTarget.ConfigurationData.Cfx;
-                    SetConfigurationData(robotTarget.ConfigurationData.Name);
+                // Set configuration data
+                _selectedSolution = robotTarget.ConfigurationData.Cfx;
+                SetConfigurationData(robotTarget.ConfigurationData.Name);
             }
 
             else if (_movement.Target is JointTarget jointTarget)
