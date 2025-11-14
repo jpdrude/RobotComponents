@@ -12,6 +12,48 @@ param(
     [switch]$IncludeDate
 )
 
+# Function to clean up commit message text
+function Clean-CommitText {
+    param([string]$text)
+    
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        return ""
+    }
+    
+    # First, normalize line endings to just \n
+    $text = $text -replace "`r`n", "`n"
+    $text = $text -replace "`r", "`n"
+    
+    # Replace newlines that are NOT preceded by a period with a space
+    # Use a temporary marker for period+newline combinations
+    $text = $text -replace '\.[\s]*\n', ".<KEEPBREAK>"
+    
+    # Now remove all remaining newlines (these don't follow periods)
+    $text = $text -replace '\n', ' '
+    
+    # Restore the newlines after periods
+    $text = $text -replace '<KEEPBREAK>', "`n"
+    
+    # Split by the preserved line breaks
+    $lines = $text -split "`n"
+    
+    $cleanedLines = @()
+    
+    foreach ($line in $lines) {
+        # Clean up whitespace
+        $line = $line.Trim() -replace '\s+', ' '
+        
+        # Skip empty lines
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            continue
+        }
+        
+        $cleanedLines += $line
+    }
+    
+    return $cleanedLines
+}
+
 $Branch = "ikgeo"
 $SinceCommit = "34f534fe"
 
@@ -20,6 +62,8 @@ if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
     Write-Error "Not a git repository: $RepoPath"
     exit 1
 }
+
+$RepoPath = (Resolve-Path $RepoPath).Path
 
 # Change to repository directory
 Push-Location $RepoPath
@@ -96,48 +140,47 @@ $changelogContent += "---"
 $changelogContent += "`n"
 
 foreach ($commit in $commits) {
-    #$changelogContent += "$($commit.Subject)"
-
-    #if (-not [string]::IsNullOrWhiteSpace($commit.Body)) {
-    #    $changelogContent += $commit.Body
-    #}
-
-    $fullText = "$($commit.Subject)"
-    if (-not [string]::IsNullOrWhiteSpace($commit.Body)) {
-        $fullText += $commit.Body
-    }
-
-    # Split by line breaks and filter out empty lines
-    $paragraphs = $fullText -split "`n" | Where-Object { $_.Trim() -ne "" }
-    
-    # Add bullets to each paragraph
-    foreach ($paragraph in $paragraphs) {
-        $changelogContent += "- $($paragraph.Trim())"
+        # Combine subject and body
+        $fullText = "$($commit.Subject)`n$($commit.Body)"
+        
+        # Clean and split into lines
+        $cleanedLines = Clean-CommitText -text $fullText
+        
+        # Add bullet points for each line
+        foreach ($line in $cleanedLines) {
+            if ($line.StartsWith("-")) {
+                # Line already has a bullet, keep it as-is
+                $changelogContent += "`t"
+                $changelogContent += $line
+            } else {
+                # Add bullet point
+                $changelogContent += "- $line"
+            }
+            $changelogContent += "`n"
+        }
+        
+        $changelogContent += ""
+        
+        # Build metadata line
+        $metadata = "  **Commit:** ``$($commit.Hash.Substring(0, 7))``"
+        
+        if ($IncludeDate) {
+            $metadata += " | **Date:** $($commit.Date)"
+        }
+        
+        if ($IncludeAuthor) {
+            $metadata += " | **Author:** $($commit.Author)"
+        }
+        
+        $changelogContent += "`n"
+        $changelogContent += $metadata
+        $changelogContent += "`n"
+        $changelogContent += "`n"
+        $changelogContent += "---"
+        $changelogContent += "`n"
         $changelogContent += "`n"
     }
 
-    # Build metadata line
-    $changelogContent += "`n"
-    $changelogContent += "`t"
-    $metadata = "**Commit:** ``$($commit.Hash.Substring(0, 7))``"
-        
-    if ($IncludeDate) {
-        $metadata += " | **Date:** $($commit.Date)"
-    }
-        
-    if ($IncludeAuthor) {
-        $metadata += " | **Author:** $($commit.Author)"
-    }
-        
-    $changelogContent += $metadata
-    $changelogContent += ""
-        
-    $changelogContent += "`n"
-    $changelogContent += "`n"
-    $changelogContent += "---"
-    $changelogContent += "`n"
-    $changelogContent += "`n"
-}
 
 
 $changelog = @"
@@ -148,6 +191,11 @@ $changelog = @"
 $changelogContent
 
 "@
+
+# Make sure RepoPath is set to current directory if not specified
+if ([string]::IsNullOrEmpty($RepoPath)) {
+    $RepoPath = Get-Location
+}
 
 $changelog | Out-File -FilePath (Join-Path $RepoPath "CHANGELOG.md") -Encoding UTF8
 Write-Host "Changelog generated"
