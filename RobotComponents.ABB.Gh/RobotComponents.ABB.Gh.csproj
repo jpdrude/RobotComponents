@@ -56,7 +56,7 @@
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Release&quot; powershell -ExecutionPolicy Bypass -File &quot;$(ProjectDir)CreateRelease.ps1&quot; -OutputPath $(TargetDir)" />
+    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(ProjectDir)UpdateChangeLog.ps1&quot; -RepoPath $(SolutionDir) -IncludeDate&#xD;&#xA;if &quot;$(ConfigurationName)&quot; == &quot;Release&quot; powershell -ExecutionPolicy Bypass -File &quot;$(ProjectDir)CreateRelease.ps1&quot; -OutputPath $(TargetDir)" />
   </Target>
   
 </Project>
