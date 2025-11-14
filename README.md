@@ -6,11 +6,23 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/RobotComponents/RobotComponents?label=stable">
-  <img src="https://img.shields.io/github/v/release/RobotComponents/RobotComponents?label=latest&include_prereleases">
-  <img src="https://img.shields.io/github/license/RobotComponents/RobotComponents">
-  <a href="https://doi.org/10.5281/zenodo.5773814"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.5773814.svg" alt="DOI"></a>
+  <img src="https://img.shields.io/github/v/release/jpdrude/RobotComponents?label=stable">
+  <img src="https://img.shields.io/github/v/release/jpdrude/RobotComponents?label=latest&include_prereleases">
+  <img src="https://img.shields.io/github/license/jpdrude/RobotComponents">
 </p>
+
+---
+
+> **⚠️ MODIFIED VERSION**  
+> This is a modified version of [Robot Components](https://github.com/RobotComponents/RobotComponents) by Arjen Deetman and contributors.  
+> For the original project, visit: https://github.com/RobotComponents/RobotComponents  
+> 
+> **Modifications include:**
+> - Inclusion of the [IkGeo solver](https://github.com/rpiRobotics/ik-geo/tree/cpp) by Alex Elias for Wrist-Offset robots.
+> - Added Check Actions component to check a list of actions for validity.
+> - Changed Configuration Data component, so it can be build from individual Cf1, Cf4 and Cf6 inputs.
+> - Introduced smaller changes to the Inverse Kinematics component.
+> - See [CHANGELOG.md](CHANGELOG.md) for complete list.
 
 ---
 
@@ -28,7 +40,7 @@ Robot Components is a plugin for intuitive robot programming for ABB robots insi
 
 ## Getting Started
 ### Installation
-If you are using **Rhino 7 or higher**, you can install Robot Components via the **Package Manager**. For other versions, download the latest release directly from the repository's [releases page](https://github.com/RobotComponents/RobotComponents/releases) or from [Food4Rhino](https://www.food4rhino.com/app/robot-components). 
+If you are using **Rhino 7 or higher**, you can install Robot Components via the **Package Manager**. For other versions, download the latest release directly from the repository's [releases page](https://github.com/jpdrude/RobotComponents/releases).
 
 After downloading, unzip the archive and copy all files into the Grasshopper Components folder (in Grasshopper, navigate to *File > Special Folders > Components Folder*). Ensure that all files are unblocked by right-clicking each file, selecting *Properties*, and clicking *Unblock* on the *General* tab. Restart Rhino, and you're ready to go!
 
@@ -53,7 +65,7 @@ If you encounter issues with establishing a real-time connection from Grasshoppe
 ### Quick Links
 For easy sharing of the download link and documentation (e.g., with students), you can also use our [Linktree](https://linktr.ee/RobotComponents).
 
-## Credits
+## Credits - Original Project
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Utility/Logo/edek_logo_white.png">
   <img alt="Light color mode" src="Utility/Logo/edek_logo_black.png">
@@ -63,13 +75,19 @@ For easy sharing of the download link and documentation (e.g., with students), y
   <img alt="Light color mode" src="Utility/Logo/logo_arjen_black.png">
 </picture>
 
-Robot Components is an open-source project that was initiated by the chair of [Experimental and Digital Design and Construction of the University of Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/home). The plugin is currently being actively developed and maintained by [Arjen Deetman](http://www.arjendeetman.nl). A complete list of developers and contributors is available [here](https://github.com/RobotComponents/RobotComponents/blob/master/AUTHORS.md).
+Robot Components is an open-source project that was initiated by the chair of [Experimental and Digital Design and Construction of the University of Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/startseite.html). The plugin is currently being actively developed and maintained by [Arjen Deetman](http://www.arjendeetman.nl). A complete list of developers and contributors is available [here](https://github.com/RobotComponents/RobotComponents/blob/master/AUTHORS.md).
 
 Robot Components integrates the ABB PC SDK for real-time communication with ABB robots. You can access the SDK used in this project [here](https://developercenter.robotstudio.com/pc-sdk).
 
 Robot Components utilizes the OPW kinematics solver, as described in the paper ['_An Analytical Solution of the Inverse Kinematics Problem of Industrial Serial Manipulators with an Ortho-parallel Basis and a Spherical Wrist_'](https://www.researchgate.net/publication/264212870_An_Analytical_Solution_of_the_Inverse_Kinematics_Problem_of_Industrial_Serial_Manipulators_with_an_Ortho-parallel_Basis_and_a_Spherical_Wrist) by Mathias Brandstötter, Arthur Angerer, and Michael Hofbaur.
 
 We would like to acknowledge [Jose Luis Garcia del Castillo](https://github.com/garciadelcastillo) and [Vicente Soler](https://github.com/visose) for their Grasshopper plugins [RobotExMachina](https://github.com/RobotExMachina) and [Robots](https://github.com/visose/Robots). While our approach differs, it was helpful for us to see how they implemented certain functionalities and approached certain issues. 
+
+## Credits - Modified Version
+This modified version of Robot Components is further developed at the chair of [Experimental and Digital Design and Construction of the University of Kassel](https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/startseite.html). This modified version is based on the original Robot Components project. All original contributors and their work are acknowledged above.
+
+**Developer:**
+- Jan Philipp Drude (https://github.com/jpdrude) (2025-present)
 
 ## Known Issues
 Known issues are listed [here](https://github.com/RobotComponents/RobotComponents/issues). If you find a bug, please help us solve it by filing a [report](https://github.com/RobotComponents/RobotComponents/issues/new).
@@ -114,7 +132,8 @@ An overview of the projects wherein the software is used can be found [here](USE
 
 ## License
 Copyright (c) 2018-2020 EDEK Uni Kassel\
-Copyright (c) 2020-2025 Arjen Deetman
+Copyright (c) 2020-2025 Arjen Deetman\
+Copyright (c) 2025 EDEK Uni Kassel
 
 Robot Components is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License version 3.0 as published by the Free Software Foundation. 
 
