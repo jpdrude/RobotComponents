@@ -54,5 +54,9 @@
   <Target Name="Rename" AfterTargets="AfterBuild" Condition="'$(ContinuePackingAfterGeneratingNuspec)' != 'true'">
     <Move SourceFiles="$(TargetPath)" DestinationFiles="$(TargetDir)$(Product).gha" />
   </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Release&quot; powershell -ExecutionPolicy Bypass -File &quot;$(ProjectDir)CreateRelease.ps1&quot; -OutputPath $(TargetDir)" />
+  </Target>
   
 </Project>

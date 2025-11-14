@@ -112,7 +112,7 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
 
             Plane targetPlane = endPlane;
 
-            //To meters conversion factor from Rhino Doc settings (Needs active Rhino Docs to run)
+            //To meters conversion factor.
             double toMeters = 0.001;
 
             // Check if target z-axis is co-linear to world z-axis, rotate slightly if true (this is due to a bug in the native IkGeo implementation)
