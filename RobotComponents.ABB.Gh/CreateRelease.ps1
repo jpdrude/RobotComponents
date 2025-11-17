@@ -8,21 +8,27 @@ function Create-InstallMarkdown {
 
 ## Download and Install
 
-1. **Download** the latest release files from the [Releases page](https://github.com/jpdrude/RobotComponents/releases)
+1. **Clean old installations**:
+   - If you previously installed Robot Components via the Package Manager, uninstall it.
+   - Open Rhino
+   - Call the command ``PackageManager``
+   - Find "Robot Components" in the Installed tab and uninstall it.
 
-2. **Unblock the zip file** (important to prevent Windows security warnings):
+2. **Download** the latest release files from the [Releases page](https://github.com/jpdrude/RobotComponents/releases)
+
+3. **Unblock the zip file** (important to prevent Windows security warnings):
    - Right-click the downloaded zip file
    - Select **Properties**
    - Check the **Unblock** checkbox at the bottom
    - Click **OK**
 
-3. **Extract** the zip file contents
+4. **Extract** the zip file contents
 
-4. **Install** the plugin:
+5. **Install** the plugin:
    - Open File Explorer and navigate to: ``%appdata%\Grasshopper\Libraries``
    - Paste all extracted files into this folder
 
-5. **Restart** Rhino and Grasshopper
+6. **Restart** Rhino and Grasshopper
 
 The components should now be available in Grasshopper.
 "@
@@ -34,7 +40,7 @@ The components should now be available in Grasshopper.
 $OutputPath = $OutputPath.TrimEnd('\').Trim()
 
 Add-Type -AssemblyName Microsoft.VisualBasic
-$version = [Microsoft.VisualBasic.Interaction]::InputBox("Enter version (e.g., 0.1.0) or leave empty to skip", "Create Release")
+$version = [Microsoft.VisualBasic.Interaction]::InputBox("Enter version (e.g., v1.0.0) or leave empty to skip", "Create Release")
 
 if ([string]::IsNullOrWhiteSpace($version)) {
     Write-Host "Skipping release"
@@ -46,7 +52,7 @@ if (-not (Test-Path $OutputPath)) {
     exit 1
 }
 
-$files = Get-ChildItem -Path $OutputPath -Recurse | Where-Object { $_.Extension -in '.dll','.gha' }
+$files = Get-ChildItem -Path $OutputPath -Recurse | Where-Object { $_.Extension -in '.dll','.gha','.txt' }
 
 if ($files.Count -eq 0) {
     Write-Error "No files found"
