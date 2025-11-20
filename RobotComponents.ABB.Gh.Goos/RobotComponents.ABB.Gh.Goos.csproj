@@ -18,10 +18,10 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="RhinoCommon" Version="8.0.23304.9001" />
-    <PackageReference Include="Grasshopper" Version="8.0.23304.9001" />
+    <PackageReference Include="Grasshopper" Version="7.36.23346.16351" />
+    <PackageReference Include="RhinoCommon" Version="7.36.23346.16351" />
   </ItemGroup>
 
   <ItemGroup>

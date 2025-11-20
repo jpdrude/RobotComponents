@@ -31,6 +31,8 @@ function Create-InstallMarkdown {
 6. **Restart** Rhino and Grasshopper
 
 The components should now be available in Grasshopper.
+
+The RobotComponentsEDEK.gha assembly can be installed in the same manner. It is a current built from the [RobotComponents-EDEK-Presets](https://github.com/EDEK-UniKassel/RobotComponents-EDEK-Presets) repository.
 "@
     
     $content | Out-File -FilePath $Path -Encoding UTF8
