@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2025-11-20 12:10 
+ Generated on: 2025-11-20 12:12 
  --- 
+ - Changed Rhino Common version to 7.36. 
+  
+   **Commit:** `a2d199b` | **Date:** 2025-11-20 
+ 
+ --- 
+ 
  - Included dependency license files. 
   
    **Commit:** `ec3cb54` | **Date:** 2025-11-17 
