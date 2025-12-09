@@ -299,7 +299,7 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
         /// - Marks and then skips empty/sentinel solutions (9e9).
         /// - Computes forward kinematics, builds the 6x6 Jacobian, and applies an SVD-based test for near singularity.
         /// - If near-singular, classifies the singularity as wrist, elbow or shoulder using geometric alignment angles.
-        /// Uses MathNet.Svd for singular values and a relative tolerance defined by <see cref="jacobianTol"/>.
+        /// Uses MathNet.Svd for singular values and a relative tolerance defined by <see cref="_jacobianTol"/>.
         /// </remarks>
         private void ComputeSingularities()
         {

@@ -72,7 +72,7 @@ namespace RobotComponents.ABB.Kinematics.IkGeo.Geometry
         /// <summary>
         /// Converts the current vector to a <see cref="Rhino.Geometry.Vector3d"/> instance.
         /// </summary>
-        /// returns>
+        /// <returns>
         /// A <see cref="Rhino.Geometry.Vector3d"/> representing the point with the same X, Y, and Z coordinates as the current instance.
         /// </returns>
         public Rhino.Geometry.Vector3d ToRhinoVector3d()
