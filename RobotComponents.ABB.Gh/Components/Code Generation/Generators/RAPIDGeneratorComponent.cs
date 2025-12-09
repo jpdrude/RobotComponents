@@ -28,6 +28,8 @@ using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions;
+using Grasshopper;
+using System.Drawing.Printing;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -48,7 +50,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _loaddataOutputParam = false;
         private bool _tooldataOutputParam = false;
         private bool _wobjdataOutputParam = false;
+        private bool _localRoutine = false;
         private readonly int _fixedParamNumOutput = 1;
+
+        private List<RAPIDGenerator> _rapidGenerators = new List<RAPIDGenerator>();
         #endregion
 
         /// <summary>
@@ -203,14 +208,21 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Updates the rapid Progam and System code
             if (update == true)
             {
+
+                if (DA.Iteration == 0)
+                    _rapidGenerators.Clear();
+
                 // Initiaties the rapidGenerator
-                _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName);
+                _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, _localRoutine);
 
                 // Generator code
                 _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
 
                 // Check if the first movement is an absolute joint movement. 
                 _firstMovementIsMoveAbsJ = _rapidGenerator.IsFirstMovementMoveAbsJ;
+
+                //Add current generator for retreiving multiple results
+                _rapidGenerators.Add(_rapidGenerator);
             }
 
             // Checks if first Movement is MoveAbsJ
@@ -232,23 +244,23 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             // Fixed output parameter
-            DA.SetDataList(0, _rapidGenerator.Module);
+            DA.SetDataList(0, _rapidGenerators[DA.Iteration].Module);
 
             // Variable output parameters
             if (Params.Output.Any(x => x.NickName.Equality(_variableOutputParameters[0].NickName)))
             {
                 int ind = Params.Output.FindIndex(x => x.NickName.Equality(_variableOutputParameters[0].NickName));
-                DA.SetDataList(ind, _rapidGenerator.ProgramDeclarationsLoadData);
+                DA.SetDataList(ind, _rapidGenerators[DA.Iteration].ProgramDeclarationsLoadData);
             }
             if (Params.Output.Any(x => x.NickName.Equality(_variableOutputParameters[1].NickName)))
             {
                 int ind = Params.Output.FindIndex(x => x.NickName.Equality(_variableOutputParameters[1].NickName));
-                DA.SetDataList(ind, _rapidGenerator.ProgramDeclarationsToolData);
+                DA.SetDataList(ind, _rapidGenerators[DA.Iteration].ProgramDeclarationsToolData);
             }
             if (Params.Output.Any(x => x.NickName.Equality(_variableOutputParameters[2].NickName)))
             {
                 int ind = Params.Output.FindIndex(x => x.NickName.Equality(_variableOutputParameters[2].NickName));
-                DA.SetDataList(ind, _rapidGenerator.ProgramDeclarationsWorkObjectData);
+                DA.SetDataList(ind, _rapidGenerators[DA.Iteration].ProgramDeclarationsWorkObjectData);
             }
         }
 
@@ -304,6 +316,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Menu_AppendItem(menu, "Add Load Data", MenuItemClickLoaddata, true, _addLoaddataInputParam);
             Menu_AppendItem(menu, "Add Tool Data", MenuItemClickTooldata, true, _addTooldataInputParam);
             Menu_AppendItem(menu, "Add Work Object Data", MenuItemClickWobjdata, true, _addWobjdataInputParam);
+            Menu_AppendItem(menu, "Declare Routine as LOCAL", MenuItemClickRoutineLocal, true, _localRoutine);
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Output Load Data", MenuItemClickOutputLoaddata, true, _loaddataOutputParam);
             Menu_AppendItem(menu, "Output Tool Data", MenuItemClickOutputTooldata, true, _tooldataOutputParam);
@@ -372,6 +385,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             RecordUndoEvent("Add Work Object Data");
             _addWobjdataInputParam = !_addWobjdataInputParam;
             AddInputParameter(4);
+        }
+
+        /// <summary>
+        /// Handles the event when the custom menu item "Declare Routine as LOCAL" is clicked.
+        /// </summary>
+        /// <param name="sender"> The object thatt raises the event. </param>
+        /// <param name="e"> The event data. </param>
+        private void MenuItemClickRoutineLocal(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Declare Routine as LOCAL");
+            _localRoutine = !_localRoutine;
         }
 
         /// <summary>
@@ -462,6 +486,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             writer.SetBoolean("Module Name", _moduleNameInputParam);
             writer.SetBoolean("Routine Name", _routineNameInputParam);
+            writer.SetBoolean("Routine LOCAL", _localRoutine);
             writer.SetBoolean("Add loaddata", _addLoaddataInputParam);
             writer.SetBoolean("Add tooldata", _addTooldataInputParam);
             writer.SetBoolean("Add wobjdata", _addWobjdataInputParam);
@@ -480,6 +505,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             _moduleNameInputParam = reader.GetBoolean("Module Name");
             _routineNameInputParam = reader.GetBoolean("Routine Name");
+            _localRoutine = reader.GetBoolean("Routine LOCAL");
             _addLoaddataInputParam = reader.GetBoolean("Add loaddata");
             _addTooldataInputParam = reader.GetBoolean("Add tooldata");
             _addWobjdataInputParam = reader.GetBoolean("Add wobjdata");

@@ -60,6 +60,7 @@ namespace RobotComponents.ABB.Actions
         private readonly List<string> _module = new List<string>();
         private string _moduleName;
         private string _procedureName;
+        private string _localRoutine = "";
 
         // Checks
         private readonly List<string> _errorText = new List<string>();
@@ -92,11 +93,14 @@ namespace RobotComponents.ABB.Actions
         /// <param name="robot"> The robot info wherefore the code should be created. </param>
         /// <param name="moduleName"> The name of the program module </param>
         /// <param name="routineName"> The name of the RAPID procedure </param>
-        public RAPIDGenerator(Robot robot, string moduleName, string routineName)
+        /// <param name="localRoutine"> Specifies whether the RAPID procedure is declared as LOCAL. </param>
+        public RAPIDGenerator(Robot robot, string moduleName, string routineName, bool localRoutine = false)
         {
             _robot = robot.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
             _moduleName = moduleName;
             _procedureName = routineName;
+            if (localRoutine) _localRoutine = "LOCAL";
+            else _localRoutine = "";
         }
 
         /// <summary>
@@ -110,6 +114,7 @@ namespace RobotComponents.ABB.Actions
             _procedureName = generator.ProcedureName;
             _robot = generator.Robot.Duplicate();
             _isFirstMovementMoveAbsJ = generator.IsFirstMovementMoveAbsJ;
+            _localRoutine = generator.LocalRoutine;
         }
 
         /// <summary>
@@ -283,7 +288,7 @@ namespace RobotComponents.ABB.Actions
             if (_programInstructions.Count != 0)
             {
                 // Create Program
-                _module.Add("    " + $"PROC {_procedureName}()");
+                _module.Add("    " + $"{_localRoutine} PROC {_procedureName}()");
 
                 // Add instructions
                 _module.AddRange(_programInstructions);
@@ -412,6 +417,15 @@ namespace RobotComponents.ABB.Actions
         {
             get { return _procedureName; }
             set { _procedureName = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets wether the RAPID procedure is declared as LOCAL.
+        /// </summary>
+        public string LocalRoutine
+        {
+            get { return _localRoutine; }
+            set { _localRoutine = value; }
         }
 
         /// <summary>

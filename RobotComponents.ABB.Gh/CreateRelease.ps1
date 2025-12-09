@@ -6,6 +6,9 @@ function Create-InstallMarkdown {
     $content = @"
 # Installation Instructions
 
+## Limitations  
+   - Only works for Rhino 8
+
 ## Download and Install
 
 1. **Clean old installations**:
@@ -62,7 +65,7 @@ if ($files.Count -eq 0) {
 }
 
 Write-Host "Creating zip file..."
-$zipPath = Join-Path $OutputPath "RobotComponents-v$version.zip"
+$zipPath = Join-Path $OutputPath "RobotComponents-$version.zip"
 Compress-Archive -Path $files.FullName -DestinationPath $zipPath -Force
 
 $installMd = Join-Path $OutputPath "INSTALL.md"
