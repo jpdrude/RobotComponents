@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2025-12-09 12:13 
+ Generated on: 2026-01-03 20:42 
  --- 
+ - Add LOCAL routine option to RAPIDGeneratorComponent - Added context menu option to declare RAPID routines as LOCAL - Updated RAPIDGenerator to support LOCAL keyword in code output - Preserved LOCAL setting in serialization and duplication - Improved multi-iteration handling in RAPIDGeneratorComponent - Fixed minor documentation and comment issues 
+  
+   **Commit:** `39ce824` | **Date:** 2025-12-09 
+ 
+ --- 
+ 
  - Update Changelog. 
   
    **Commit:** `a2b0718` | **Date:** 2025-11-20 

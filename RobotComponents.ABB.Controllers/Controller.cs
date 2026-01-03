@@ -16,6 +16,7 @@ using System.Linq;
 using System.Collections.Generic;
 // Rhino Libs
 using Rhino.Geometry;
+using Grasshopper;
 // Robot Components Libs
 using RobotComponents.ABB.Utils;
 using RobotComponents.ABB.Actions.Declarations;
@@ -26,6 +27,7 @@ using IOSystemDomainNS = ABB.Robotics.Controllers.IOSystemDomain;
 using ConfigurationDomainNS = ABB.Robotics.Controllers.ConfigurationDomain;
 using ABB.Robotics.Controllers.Discovery;
 using ABB.Robotics.Controllers.MotionDomain;
+using Grasshopper.Kernel.Data;
 
 namespace RobotComponents.ABB.Controllers
 {
@@ -73,7 +75,9 @@ namespace RobotComponents.ABB.Controllers
         private bool _isInitialized = false;
 
         private static readonly string _remoteDirectory = Path.Combine("Robot Components", "temp");
+        private static readonly string _remoteAdditionalDirectory = Path.Combine("Robot Components", "Additional Modules");
         private static readonly string _localDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "temp");
+        private static readonly string _localAdditionalDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "tempAdd");
         #endregion
 
         #region constructors
@@ -1087,6 +1091,154 @@ namespace RobotComponents.ABB.Controllers
         }
 
         /// <summary>
+        /// Uploads an additional module to the controller's storage. 
+        /// </summary>
+        /// <param name="taskName"> The task to upload to. </param>
+        /// <param name="module"> The module to upload. </param>
+        /// <param name="status"> The status message. </param>
+        /// <returns> 
+        /// True on success, false on failure. 
+        /// </returns>
+        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status)
+        {
+            status = "Started the upload of an additional RAPID module.";
+            Log(status);
+
+            #region checks
+            if (_isEmpty == true)
+            {
+                status = "Could not upload the module: The controller is empty.";
+                Log(status);
+                return false;
+            }
+
+            if (TryPickTask(taskName, out RapidDomainNS.Task task) == false)
+            {
+                status = "Could not pick the task from the controller: The task name is invalid.";
+                Log(status);
+                return false;
+            }
+
+            if (task.ExecutionStatus == RapidDomainNS.TaskExecutionStatus.Running)
+            {
+                status = "Could not upload the module: The task is still running.";
+                Log(status);
+                return false;
+            }
+
+            if (modules.BranchCount == 0)
+            {
+                status = "Could not upload modules: No module defined.";
+                Log(status);
+                return false;
+            }
+            #endregion
+
+            #region write temporary files to local directory
+            try
+            {
+                if (!Directory.Exists(_localAdditionalDirectory))
+                {
+                    Directory.CreateDirectory(_localAdditionalDirectory);
+
+                    status = $"Created the local temporary directory: {_localAdditionalDirectory}";
+                    Log(status);
+                }
+            }
+            catch
+            {
+                status = $"Could not create the local temporary directory: {_localAdditionalDirectory}";
+                Log(status);
+                return false;
+            }
+
+            //Iterating over modules to create files
+            foreach (GH_Path path in modules.Paths)
+            {
+                List<string> module = modules.Branch(path);
+
+                status = $"Attempting to write module in branch {path}";
+                Log(status);
+
+                if (!module[0].StartsWith("MODULE "))
+                {
+                    status = $"Branch is not a module. Skipping branch.";
+                    Log(status);
+                    continue;
+                }
+
+                if (!module[module.Count - 1].Equals("ENDMODULE"))
+                {
+                    status = $"Branch is not a module. Skipping branch.";
+                    Log(status);
+                    continue;
+                }
+
+                status = "Retreiving Module name from module content.";
+                Log(status);
+                string moduleName = module[0].Substring(7).Trim() + ".MOD";
+                status = $"Module name retreived: {moduleName}";
+
+                string filePathLocal = Path.Combine(_localAdditionalDirectory, moduleName);
+
+                try
+                {
+                    using (StreamWriter writer = new StreamWriter(filePathLocal, false))
+                    {
+                        for (int i = 0; i < module.Count; i++)
+                        {
+                            writer.WriteLine(module[i]);
+                        }
+                    }
+
+                    status = "Wrote the module to the local temporary directory.";
+                    Log(status);
+                }
+                catch (Exception ex)
+                {
+                    status = $"Could not write the module to the local temporary directory: {ex.Message}";
+                    Log(status);
+                    return false;
+                }
+            }
+            #endregion
+
+            #region put local directory on controller
+            try
+            {
+                _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.WriteFtp);
+                status = "Acquired the WriteFTP grant.";
+                Log(status);
+            }
+            catch
+            {
+                status = "Could not acquire the WriteFTP grant for the current user.";
+                Log(status);
+
+                // No return false: keep trying to the put the local directory on the controller disk.
+            }
+            try
+            {
+                _controller.FileSystem.PutDirectory(_localAdditionalDirectory, _remoteAdditionalDirectory, true);
+
+                status = "Put the local temporary directory to the filesytem of the controller.";
+                Log(status);
+            }
+            catch
+            {
+                status = $"Could not put the local temporary directory to the filesystem of the controller.";
+                Log(status);
+                return false;
+            }
+            #endregion
+
+            status = "Uploaded the RAPID module.";
+            Log(status);
+
+            return true;
+        }
+
+        /// <summary>
         /// Removes all the files from the local folder with temporary files. 
         /// </summary>
         /// <returns> True on success, false on failure. </returns>
@@ -1097,6 +1249,17 @@ namespace RobotComponents.ABB.Controllers
                 if (Directory.Exists(_localDirectory))
                 {
                     DirectoryInfo directory = new DirectoryInfo(_localDirectory);
+                    FileInfo[] files = directory.GetFiles();
+
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        files[i].Delete();
+                    }
+                }
+
+                if (Directory.Exists(_localAdditionalDirectory))
+                {
+                    DirectoryInfo directory = new DirectoryInfo(_localAdditionalDirectory);
                     FileInfo[] files = directory.GetFiles();
 
                     for (int i = 0; i < files.Length; i++)
