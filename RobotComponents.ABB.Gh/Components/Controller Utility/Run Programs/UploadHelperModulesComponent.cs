@@ -1,0 +1,280 @@
+﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// This file is part of Robot Components
+// Project: https://github.com/RobotComponents/RobotComponents
+//
+// Copyright (c) 2022-2025 Arjen Deetman
+//
+// Authors:
+//   - Arjen Deetman (2022-2025)
+//
+// For license details, see the LICENSE file in the project root.
+
+// System Libs
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+// Grasshopper Libs
+using Grasshopper;
+using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using GH_IO.Serialization;
+// Robot Components Libs
+using RobotComponents.ABB.Controllers;
+using RobotComponents.ABB.Controllers.Forms;
+using RobotComponents.ABB.Gh.Parameters.Controllers;
+using RobotComponents.ABB.Gh.Utils;
+using Grasshopper.Kernel.Data;
+using Grasshopper.Kernel.Types;
+
+namespace RobotComponents.ABB.Gh.Components.ControllerUtility
+{
+    /// <summary>
+    /// Represents the component that uploads modules to a defined controller.
+    /// </summary>
+    public class UploadHelperModulesComponent : GH_RobotComponent
+    {
+        #region fields
+        private Controller _controller = new Controller();
+        private bool _fromMenu = true;
+        private string _taskName = "-";
+        private string _status = "-";
+        private bool _succeeded = true;
+        #endregion
+
+        /// <summary>
+        /// Initializes a new instance of the UploadProgramComponent class.
+        /// </summary>
+        public UploadHelperModulesComponent() : base("Upload Helper Modules", "UH", "Controller Utility",
+              "Uploads helper RAPID modules to a real or virtual ABB controller's storage."
+                + System.Environment.NewLine + System.Environment.NewLine +
+                "This component uses the ABB PC SDK.")
+        {
+            this.Message = _taskName;
+        }
+
+        /// <summary>
+        /// Registers all the input parameters for this component.
+        /// </summary>
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
+        {
+            pManager.AddParameter(new Param_Controller(), "Controller", "C", "Controller as Controller", GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Upload", "U", "Upload as bool", GH_ParamAccess.item, false);
+            pManager.AddTextParameter("Modules", "M", "Modules as a tree of modules, where each branch contains all necessary code lines", GH_ParamAccess.tree);
+
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
+        }
+
+        /// <summary>
+        /// Registers all the output parameters for this component.
+        /// </summary>
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
+        {
+            pManager.AddTextParameter("Status", "S", "Controller status", GH_ParamAccess.item);
+        }
+
+        /// <summary>
+        /// This is the method that actually does the work.
+        /// </summary>
+        /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
+        protected override void SolveInstance(IGH_DataAccess DA)
+        {
+            // Check the operating system
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "This component is only supported on Windows operating systems.");
+                return;
+            }
+
+            // Declare input variables
+            bool upload = false;
+            DataTree<string> modules = new DataTree<string>();
+            GH_Structure<GH_String> gh_modules = new GH_Structure<GH_String>();
+
+            // Catch the input data
+            if (!DA.GetData(0, ref _controller)) { return; }
+            if (!DA.GetData(1, ref upload)) { upload = false; }
+            if (!DA.GetDataTree(2,out gh_modules)) { gh_modules = new GH_Structure<GH_String>(); }
+
+            //Convert GH_Structure to DataTree
+            foreach (GH_Path path in gh_modules.Paths)
+            {
+                List<string> moduleLines = new List<string>();
+                foreach (GH_String gh_str in gh_modules.get_Branch(path))
+                {
+                    moduleLines.Add(gh_str.Value);
+                }
+                modules.AddRange(moduleLines, path);
+            }   
+
+            if (_fromMenu)
+            {
+                _fromMenu = false;
+                _succeeded = GetTaskName();
+                this.Message = _taskName;
+                this.ExpirePreview(true);
+            }
+
+            if (upload)
+            {
+                if (_taskName == "-")
+                {
+                    _succeeded = false;
+                    _status = "No task defined.";
+                }
+                else
+                {
+                    _succeeded = _controller.UploadHelperModules(_taskName, modules, out _status);
+                }
+            }
+
+            if (_succeeded == false)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, _status);
+            }
+
+            // Output
+            DA.SetData(0, _status);
+        }
+
+        #region properties
+        /// <summary>
+        /// Override the component exposure (makes the tab subcategory).
+        /// Can be set to hidden, primary, secondary, tertiary, quarternary, quinary, senary, septenary and obscure
+        /// </summary>
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
+        }
+
+        /// <summary>
+        /// Gets whether this object is obsolete.
+        /// </summary>
+        public override bool Obsolete
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Provides an Icon for the component.
+        /// </summary>
+        protected override System.Drawing.Bitmap Icon
+        {
+            get { return Properties.Resources.Upload_Icon; }
+        }
+
+        /// <summary>
+        /// Gets the unique ID for this component. Do not change this ID after release.
+        /// </summary>
+        public override Guid ComponentGuid
+        {
+            get { return new Guid("A7C3F912-8D4E-4B29-9F6A-2E5D8C1B7A3F"); }
+        }
+        #endregion
+
+        #region menu items
+        /// <summary>
+        /// Adds the additional item "Pick controller" to the context menu of the component. 
+        /// </summary>
+        /// <param name="menu"> The context menu of the component. </param>
+        public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
+        {
+            Menu_AppendSeparator(menu);
+            Menu_AppendItem(menu, "Pick Task", MenuItemClick);
+
+            base.AppendAdditionalComponentMenuItems(menu);
+        }
+
+        /// <summary>
+        /// Registers the event when the custom menu item is clicked. 
+        /// </summary>
+        /// <param name="sender"> The object that raises the event. </param>
+        /// <param name="e"> The event data. </param>
+        private void MenuItemClick(object sender, EventArgs e)
+        {
+            _fromMenu = true;
+            ExpireSolution(true);
+            _fromMenu = false;
+        }
+        #endregion
+
+        #region serialization
+        /// <summary>
+        /// Add our own fields. Needed for (de)serialization of the variable input parameters.
+        /// </summary>
+        /// <param name="writer"> Provides access to a subset of GH_Chunk methods used for writing archives. </param>
+        /// <returns> True on success, false on failure. </returns>
+        public override bool Write(GH_IWriter writer)
+        {
+            writer.SetString("Task Name", _taskName);
+            writer.SetBoolean("From Menu", _fromMenu);
+            return base.Write(writer);
+        }
+
+        /// <summary>
+        /// Read our own fields. Needed for (de)serialization of the variable input parameters.
+        /// </summary>
+        /// <param name="reader"> Provides access to a subset of GH_Chunk methods used for reading archives. </param>
+        /// <returns> True on success, false on failure. </returns>
+        public override bool Read(GH_IReader reader)
+        {
+            _taskName = reader.GetString("Task Name");
+            _fromMenu = reader.GetBoolean("From Menu");
+
+            this.Message = _taskName;
+            this.ExpirePreview(true);
+
+            return base.Read(reader);
+        }
+        #endregion
+
+        #region pick task
+        /// <summary>
+        /// Get the task name
+        /// </summary>
+        /// <returns> Indicates whether or not a task was picked successfully. </returns>
+        private bool GetTaskName()
+        {
+            if (_controller.IsEmpty)
+            {
+                _status = "The controller is empty.";
+                return false;
+            }
+
+            else if (_controller.TaskNames.Count == 0)
+            {
+                _status = "No task found.";
+                return false;
+            }
+
+            else if (_controller.TaskNames.Count == 1)
+            {
+                _status = "Task picked from the controller.";
+                _taskName = _controller.TaskNames[0];
+                return true;
+            }
+
+            else if (_controller.TaskNames.Count > 1)
+            {
+                PickTaskForm form = new PickTaskForm(_controller);
+                bool result = form.ShowModal(Grasshopper.Instances.EtoDocumentEditor);
+
+                if (result)
+                {
+                    _status = "Task picked from the controller.";
+                    _taskName = form.TaskName;
+                    return true;
+                }
+                else
+                {
+                    _status = "No task picked from the menu";
+                    return false;
+                }
+            }
+
+            _status = "No task picked from the menu.";
+            return false;
+        }
+        #endregion
+    }
+}

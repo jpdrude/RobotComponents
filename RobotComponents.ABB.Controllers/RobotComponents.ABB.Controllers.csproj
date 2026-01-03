@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grasshopper" Version="7.36.23346.16351" />
     <PackageReference Include="RhinoCommon" Version="7.36.23346.16351" />
   </ItemGroup>
 

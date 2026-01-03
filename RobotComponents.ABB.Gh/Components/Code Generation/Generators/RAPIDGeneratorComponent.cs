@@ -43,6 +43,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _firstMovementIsMoveAbsJ = true;
         private bool _moduleNameInputParam = false;
         private bool _routineNameInputParam = false;
+        private bool _addMainModuleInputParam = false;
         private bool _addLoaddataInputParam = false;
         private bool _addTooldataInputParam = false;
         private bool _addWobjdataInputParam = false;
@@ -71,10 +72,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Stores the variable input parameters in an array.
         /// </summary>
-        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[6]
+        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[7]
         {
             new Param_String() { Name = "Module Name", NickName = "MN", Description = "The name of the module as a text. The default name is MainModule.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Procedure Name", NickName = "RN", Description = "The name of the RAPID routine as a text. The default name is main.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_String() { Name = "Superordinate Main Method", NickName = "MM", Description = "The contents of the superordinate main method if this routine is called from another routine.", Access = GH_ParamAccess.list, Optional = true},
             new Param_Boolean() { Name = "Add loaddata", NickName = "AL", Description = "Indicates if the loaddata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Add tooldata", NickName = "AT", Description = "Indicates if the tooldata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Add wobjdata", NickName = "AW", Description = "Indicates if the wobjdata should be added the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
@@ -99,7 +101,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddParameter(new Param_Robot(), "Robot", "R", "Robot that is used as Robot.", GH_ParamAccess.item);
             pManager.AddParameter(new Param_Action(), "Actions", "A", "Actions as list of instructive and declarative Actions.", GH_ParamAccess.list);
 
-            AddInputParameter(5);
+            AddInputParameter(6);
         }
 
         /// <summary>
@@ -122,6 +124,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             List<RobotComponents.ABB.Actions.IAction> actions = new List<RobotComponents.ABB.Actions.IAction>();
             string moduleName = "MainModule";
             string routineName = "main";
+            List<string> mainModule = new List<string>();
             bool addTooldata = true;
             bool addLoaddata = true;
             bool addWobjdata = true;
@@ -148,28 +151,35 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[2].Name))
             {
-                if (!DA.GetData(_variableInputParameters[2].Name, ref addLoaddata))
+                if (!DA.GetDataList(_variableInputParameters[2].Name, mainModule))
                 {
-                    addLoaddata = true;
+                    mainModule = null;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[3].Name))
             {
-                if (!DA.GetData(_variableInputParameters[3].Name, ref addTooldata))
+                if (!DA.GetData(_variableInputParameters[3].Name, ref addLoaddata))
                 {
-                    addTooldata = true;
+                    addLoaddata = true;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[4].Name))
             {
-                if (!DA.GetData(_variableInputParameters[4].Name, ref addWobjdata))
+                if (!DA.GetData(_variableInputParameters[4].Name, ref addTooldata))
                 {
-                    addWobjdata = true;
+                    addTooldata = true;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[5].Name))
             {
-                if (!DA.GetData(_variableInputParameters[5].Name, ref update))
+                if (!DA.GetData(_variableInputParameters[5].Name, ref addWobjdata))
+                {
+                    addWobjdata = true;
+                }
+            }
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[6].Name))
+            {
+                if (!DA.GetData(_variableInputParameters[6].Name, ref update))
                 {
                     update = true;
                 }
@@ -213,7 +223,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     _rapidGenerators.Clear();
 
                 // Initiaties the rapidGenerator
-                _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, _localRoutine);
+                _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, _localRoutine, mainModule);
 
                 // Generator code
                 _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
@@ -313,6 +323,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Overwrite Module Name", MenuItemClickProgramName, true, _moduleNameInputParam);
             Menu_AppendItem(menu, "Overwrite Routine Name", MenuItemClickRoutineName, true, _routineNameInputParam);
+            Menu_AppendItem(menu, "Add Superordinate Main Method", MenuItemClickMainModule, true, _addMainModuleInputParam);
             Menu_AppendItem(menu, "Add Load Data", MenuItemClickLoaddata, true, _addLoaddataInputParam);
             Menu_AppendItem(menu, "Add Tool Data", MenuItemClickTooldata, true, _addTooldataInputParam);
             Menu_AppendItem(menu, "Add Work Object Data", MenuItemClickWobjdata, true, _addWobjdataInputParam);
@@ -352,6 +363,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
+        /// Handles the event when the custom menu item "Add Superordinate Main Method" is clicked.
+        /// </summary>
+        /// <param name="sender">The object that raises the event.</param>
+        /// <param name="e">The event data.</param>
+        private void MenuItemClickMainModule(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Add Superordinate Main Method");
+            _addMainModuleInputParam = !_addMainModuleInputParam;
+            AddInputParameter(2);
+        }
+
+        /// <summary>
         /// Handles the event when the custom menu item "Add Load Data" is clicked. 
         /// </summary>
         /// <param name="sender"> The object that raises the event. </param>
@@ -360,7 +383,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Load Data");
             _addLoaddataInputParam = !_addLoaddataInputParam;
-            AddInputParameter(2);
+            AddInputParameter(3);
         }
 
         /// <summary>
@@ -372,7 +395,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Tool Data");
             _addTooldataInputParam = !_addTooldataInputParam;
-            AddInputParameter(3);
+            AddInputParameter(4);
         }
 
         /// <summary>
@@ -384,7 +407,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Work Object Data");
             _addWobjdataInputParam = !_addWobjdataInputParam;
-            AddInputParameter(4);
+            AddInputParameter(5);
         }
 
         /// <summary>
@@ -486,6 +509,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             writer.SetBoolean("Module Name", _moduleNameInputParam);
             writer.SetBoolean("Routine Name", _routineNameInputParam);
+            writer.SetBoolean("Main Module", _addMainModuleInputParam);
             writer.SetBoolean("Routine LOCAL", _localRoutine);
             writer.SetBoolean("Add loaddata", _addLoaddataInputParam);
             writer.SetBoolean("Add tooldata", _addTooldataInputParam);
@@ -505,6 +529,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             _moduleNameInputParam = reader.GetBoolean("Module Name");
             _routineNameInputParam = reader.GetBoolean("Routine Name");
+            _addMainModuleInputParam = reader.GetBoolean("Main Module");
             _localRoutine = reader.GetBoolean("Routine LOCAL");
             _addLoaddataInputParam = reader.GetBoolean("Add loaddata");
             _addTooldataInputParam = reader.GetBoolean("Add tooldata");
