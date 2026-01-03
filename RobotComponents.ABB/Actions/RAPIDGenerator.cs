@@ -13,13 +13,16 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
-using System.IO;
-using System.Collections.Generic;
+using Microsoft.SqlServer.Server;
+using Rhino.Render;
+using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Actions.Dynamic;
+using RobotComponents.ABB.Actions.Instructions;
 // RobotComponents Libs
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Enumerations;
-using RobotComponents.ABB.Actions.Declarations;
-using RobotComponents.ABB.Actions.Instructions;
+using System.Collections.Generic;
+using System.IO;
 
 namespace RobotComponents.ABB.Actions
 {
@@ -61,6 +64,7 @@ namespace RobotComponents.ABB.Actions
         private string _moduleName;
         private string _procedureName;
         private string _localRoutine = "";
+        private HashSet<string> _globalDeclarations = new HashSet<string>();
 
         // Checks
         private readonly List<string> _errorText = new List<string>();
@@ -94,13 +98,17 @@ namespace RobotComponents.ABB.Actions
         /// <param name="moduleName"> The name of the program module </param>
         /// <param name="routineName"> The name of the RAPID procedure </param>
         /// <param name="localRoutine"> Specifies whether the RAPID procedure is declared as LOCAL. </param>
-        public RAPIDGenerator(Robot robot, string moduleName, string routineName, bool localRoutine = false)
+        /// <param name="mainModule"> Optionally provides a Main Module whose global declarations are skipped in helper modules.</param>
+        public RAPIDGenerator(Robot robot, string moduleName, string routineName, bool localRoutine = false, List<string> mainModule = null)
         {
             _robot = robot.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
             _moduleName = moduleName;
             _procedureName = routineName;
             if (localRoutine) _localRoutine = "LOCAL";
             else _localRoutine = "";
+
+            if (mainModule != null)
+                _globalDeclarations = GetMainModuleDeclarations(mainModule);
         }
 
         /// <summary>
@@ -115,6 +123,7 @@ namespace RobotComponents.ABB.Actions
             _robot = generator.Robot.Duplicate();
             _isFirstMovementMoveAbsJ = generator.IsFirstMovementMoveAbsJ;
             _localRoutine = generator.LocalRoutine;
+            _globalDeclarations = generator.GlobalDeclarations;
         }
 
         /// <summary>
@@ -235,53 +244,112 @@ namespace RobotComponents.ABB.Actions
             if (addLoaddata == true && _programDeclarationsLoadData.Count != 0)
             {
                 _programDeclarationsLoadData.Sort();
-                _module.Add("    " + "! User defined loaddata");
-                _module.AddRange(_programDeclarationsLoadData);
-                _module.Add("    ");
+
+                List<string> uniqueDecls = new List<string>();
+
+                foreach (string decl in _programDeclarationsLoadData)
+                    if (DeclarationIsUnique(decl))
+                        uniqueDecls.Add(decl);
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! User defined loaddata");
+                    _module.AddRange(uniqueDecls);
+                    _module.Add("    ");
+                }
             }
 
             // Add the tooldata
             if (addTooldata == true && _programDeclarationsToolData.Count != 0)
             {
                 _programDeclarationsToolData.Sort();
-                _module.Add("    " + "! User defined tooldata");
-                _module.AddRange(_programDeclarationsToolData);
-                _module.Add("    ");
+
+                List<string> uniqueDecls = new List<string>();
+
+                foreach (string decl in _programDeclarationsToolData)
+                    if (DeclarationIsUnique(decl))
+                        uniqueDecls.Add(decl);
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! User defined tooldata");
+                    _module.AddRange(uniqueDecls);
+                    _module.Add("    ");
+                }
             }
 
             // Add the wobjdata
             if (addWobjdata == true && _programDeclarationsWorkObjectData.Count != 0)
             {
                 _programDeclarationsWorkObjectData.Sort();
-                _module.Add("    " + "! User defined wobjdata");
-                _module.AddRange(_programDeclarationsWorkObjectData);
-                _module.Add("    ");
+
+                List<string> uniqueDecls = new List<string>();
+
+                foreach (string decl in _programDeclarationsWorkObjectData)
+                    if (DeclarationIsUnique(decl))
+                        uniqueDecls.Add(decl);
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! User defined wobjdata");
+                    _module.AddRange(uniqueDecls);
+                    _module.Add("    ");
+                }
             }
 
             // Add the custom Code Lines
             if (_programDeclarationsCustom.Count != 0)
             {
-                _module.Add("    " + "! User definied code lines");
-                _module.AddRange(_programDeclarationsCustom);
-                _module.Add("    ");
+                List<string> uniqueDecls = new List<string>();
+
+                foreach (string decl in _programDeclarationsCustom)
+                    if (DeclarationIsUnique(decl))
+                        uniqueDecls.Add(decl);
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! User definied code lines");
+                    _module.AddRange(uniqueDecls);
+                    _module.Add("    ");
+                }
             }
 
             // Add the multi move declarations
             if (_programDeclarationsMultiMove.Count != 0)
             {
                 _programDeclarationsMultiMove.Sort();
-                _module.Add("    " + "! Declarations for multi move programming");
-                _module.AddRange(_programDeclarationsMultiMove);
-                _module.Add("    ");
+
+                List<string> uniqueDecls = new List<string>();
+
+                foreach (string decl in _programDeclarationsMultiMove)
+                    if (DeclarationIsUnique(decl))
+                        uniqueDecls.Add(decl);
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! Declarations for multi move programming");
+                    _module.AddRange(uniqueDecls);
+                    _module.Add("    ");
+                }
             }
 
             // Add all other declarations
             if (_programDeclarations.Count != 0)
             {
                 _programDeclarations.Sort();
-                _module.Add("    " + "! Declarations generated by Robot Components");
-                _module.AddRange(_programDeclarations);
-                _module.Add("    ");
+
+                List<string> uniqueDecls = new List<string>();
+
+                foreach (string decl in _programDeclarations)
+                    if (DeclarationIsUnique(decl))
+                        uniqueDecls.Add(decl);
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! Declarations generated by Robot Components");
+                    _module.AddRange(uniqueDecls);
+                    _module.Add("    ");
+                }
             }
 
             // Add the instructions
@@ -376,6 +444,143 @@ namespace RobotComponents.ABB.Actions
 
             return true;
         }
+
+        /// <summary>
+        /// Creates a collection of GLOBAL declararions from a mainModule.
+        /// </summary>
+        /// <param name="mainModule">Main Module as List of RAPID code lines.</param>
+        /// <returns>HashSet of used global declaration names for quick lookup.</returns>
+        private HashSet<string> GetMainModuleDeclarations(List<string> mainModule)
+        {
+            // Use case-insensitive set for RAPID identifiers
+            HashSet<string> decl = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+
+            foreach (string rawLine in mainModule)
+            {
+                if (string.IsNullOrWhiteSpace(rawLine))
+                    continue;
+
+                string line = rawLine.Trim();
+
+                // Split on whitespace and remove empty entries (handles multiple spaces/tabs)
+                string[] parts = line.Split(new char[] { ' ', '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length == 0)
+                    continue;
+
+                // Stop collecting when the first PROC is encountered (declarations section finished)
+                if (parts[0].ToUpperInvariant() == "PROC")
+                    break;
+
+                // GLOBAL declarations: try to find the variable name robustly
+                if (parts[0].ToUpperInvariant() == "GLOBAL")
+                {
+                    string name = null;
+
+                    // Typical forms:
+                    // GLOBAL <type> <name> ...
+                    // GLOBAL VAR <type> <name> ...
+                    // GLOBAL PERS <type> <name> ...
+                    for (int i = 1; i < parts.Length; i++)
+                    {
+                        string token = parts[i];
+
+                        // skip RAPID storage keywords if present
+                        if (token.Equals("VAR", System.StringComparison.OrdinalIgnoreCase) ||
+                            token.Equals("PERS", System.StringComparison.OrdinalIgnoreCase) ||
+                            token.Equals("CONST", System.StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        // strip trailing punctuation like '[', ';', ':', '='
+                        string candidate = token.Split(new char[] { '[', ';', ':', '=' })[0];
+
+                        if (!string.IsNullOrEmpty(candidate))
+                        {
+                            name = candidate;
+                            break;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(name))
+                        decl.Add(name);
+
+                    continue;
+                }
+
+                // VAR / PERS / CONST declarations at module level
+                string first = parts[0].ToUpperInvariant();
+                if (first == "VAR" || first == "PERS" || first == "CONST")
+                {
+                    if (parts.Length >= 3)
+                    {
+                        string name = parts[2].Split(new char[] { '[', ';', ':', '=' })[0];
+                        if (!string.IsNullOrEmpty(name))
+                            decl.Add(name);
+                    }
+                }
+            }
+
+            return decl;
+        }
+
+        /// <summary>
+        /// Checks whether a declaration is unique or already defined in the MainModule.
+        /// </summary>
+        /// <param name="decl">Declaration code line.</param>
+        /// <returns>True if Unique.</returns>
+        private bool DeclarationIsUnique(string decl)
+        {
+            string name = GetDeclarationName(decl);
+            if (name == null) return true;
+
+            // _globalDeclarations was created with case-insensitive comparer in GetMainModuleDeclarations
+            return !_globalDeclarations.Contains(name);
+        }
+
+        /// <summary>
+        /// Seperates the variable name from a declaration.
+        /// </summary>
+        /// <param name="codeLine">Code line to retreive name from.</param>
+        /// <returns> Declaration name string.</returns>
+        private string GetDeclarationName(string codeLine)
+        {
+            if (string.IsNullOrWhiteSpace(codeLine))
+                return null;
+
+            string line = codeLine.Trim();
+            string[] parts = line.Split(new char[] { ' ', '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length == 0) return null;
+
+            string first = parts[0].ToUpperInvariant();
+
+            if (first == "GLOBAL")
+            {
+                for (int i = 1; i < parts.Length; i++)
+                {
+                    string token = parts[i];
+
+                    if (token.Equals("VAR", System.StringComparison.OrdinalIgnoreCase) ||
+                        token.Equals("PERS", System.StringComparison.OrdinalIgnoreCase) ||
+                        token.Equals("CONST", System.StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    string candidate = token.Split(new char[] { '[', ';', ':', '=' })[0];
+                    if (!string.IsNullOrEmpty(candidate))
+                        return candidate;
+                }
+
+                return null;
+            }
+
+            if (first == "VAR" || first == "PERS" || first == "CONST")
+            {
+                if (parts.Length >= 3)
+                    return parts[2].Split(new char[] { '[', ';', ':', '=' })[0];
+            }
+
+            return null;
+        }
         #endregion
 
         #region properties
@@ -434,6 +639,14 @@ namespace RobotComponents.ABB.Actions
         public List<string> Module
         {
             get { return _module; }
+        }
+
+        /// <summary>
+        /// Gets the global RAPID declarations provided in an optional MainModule.
+        /// </summary>
+        public HashSet<string> GlobalDeclarations
+        {
+            get { return _globalDeclarations; }
         }
 
         /// <summary>
