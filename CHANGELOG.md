@@ -3,8 +3,19 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-03 20:42 
+ Generated on: 2026-01-03 20:45 
  --- 
+ - Add helper module upload & modular RAPID code support 
+   - Added Controller.UploadHelperModules for uploading additional RAPID modules to controller storage without overwriting the main program. 
+ 	 - Introduced UploadHelperModulesComponent for Grasshopper, enabling users to upload helper modules. 
+ 	 - Enhanced RAPIDGenerator and RAPIDGeneratorComponent to support a "Superordinate Main Method" input, filtering out duplicate global declarations in helper modules. 
+ 	 - Improved input parameter management and context menu in RAPIDGeneratorComponent. 
+ 	 - Updated changelog and project file for new features and dependencies. 
+  
+   **Commit:** `7bf7d6e` | **Date:** 2026-01-03 
+ 
+ --- 
+ 
  - Add LOCAL routine option to RAPIDGeneratorComponent - Added context menu option to declare RAPID routines as LOCAL - Updated RAPIDGenerator to support LOCAL keyword in code output - Preserved LOCAL setting in serialization and duplication - Improved multi-iteration handling in RAPIDGeneratorComponent - Fixed minor documentation and comment issues 
   
    **Commit:** `39ce824` | **Date:** 2025-12-09 
