@@ -1152,6 +1152,21 @@ namespace RobotComponents.ABB.Controllers
                 return false;
             }
 
+            //Delete all files in the local additional directory before writing new ones.
+            foreach (string file in Directory.GetFiles(_localAdditionalDirectory))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    status = $"Could not delete file {file} from the local additional directory: {ex.Message}";
+                    Log(status);
+                    return false;
+                }
+            }
+
             //Iterating over modules to create files
             foreach (GH_Path path in modules.Paths)
             {
