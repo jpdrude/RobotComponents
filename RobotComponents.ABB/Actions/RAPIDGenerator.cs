@@ -472,40 +472,6 @@ namespace RobotComponents.ABB.Actions
                 if (parts[0].ToUpperInvariant() == "PROC")
                     break;
 
-                // GLOBAL declarations: try to find the variable name robustly
-                if (parts[0].ToUpperInvariant() == "GLOBAL")
-                {
-                    string name = null;
-
-                    // Typical forms:
-                    // GLOBAL <type> <name> ...
-                    // GLOBAL VAR <type> <name> ...
-                    // GLOBAL PERS <type> <name> ...
-                    for (int i = 1; i < parts.Length; i++)
-                    {
-                        string token = parts[i];
-
-                        // skip RAPID storage keywords if present
-                        if (token.Equals("VAR", System.StringComparison.OrdinalIgnoreCase) ||
-                            token.Equals("PERS", System.StringComparison.OrdinalIgnoreCase) ||
-                            token.Equals("CONST", System.StringComparison.OrdinalIgnoreCase))
-                            continue;
-
-                        // strip trailing punctuation like '[', ';', ':', '='
-                        string candidate = token.Split(new char[] { '[', ';', ':', '=' })[0];
-
-                        if (!string.IsNullOrEmpty(candidate))
-                        {
-                            name = candidate;
-                            break;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(name))
-                        decl.Add(name);
-
-                    continue;
-                }
 
                 // VAR / PERS / CONST declarations at module level
                 string first = parts[0].ToUpperInvariant();
