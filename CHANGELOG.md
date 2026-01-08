@@ -3,10 +3,16 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-03 20:45 
+ Generated on: 2026-01-08 17:42 
  --- 
- - Add helper module upload & modular RAPID code support 
-   - Added Controller.UploadHelperModules for uploading additional RAPID modules to controller storage without overwriting the main program. 
+ - Fixed helper module upload & modular RAPID code support - Controller now clears local additional directory before writing new files to prevent stale files. 
+ 	 - Removed legacy GLOBAL declaration parsing from RAPIDGenerator, as a GLOBAL keyword doesn't exist in RAPID. 
+  
+   **Commit:** `4c36ed8` | **Date:** 2026-01-07 
+ 
+ --- 
+ 
+ - Add helper module upload & modular RAPID code support - Added Controller.UploadHelperModules for uploading additional RAPID modules to controller storage without overwriting the main program. 
  	 - Introduced UploadHelperModulesComponent for Grasshopper, enabling users to upload helper modules. 
  	 - Enhanced RAPIDGenerator and RAPIDGeneratorComponent to support a "Superordinate Main Method" input, filtering out duplicate global declarations in helper modules. 
  	 - Improved input parameter management and context menu in RAPIDGeneratorComponent. 

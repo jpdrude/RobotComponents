@@ -160,7 +160,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.Upload_Icon; }
+            get { return Properties.Resources.UploadHelper_Icon; }
         }
 
         /// <summary>
