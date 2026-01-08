@@ -63,8 +63,15 @@ namespace RobotComponents.ABB.Actions
         private readonly List<string> _module = new List<string>();
         private string _moduleName;
         private string _procedureName;
-        private string _localRoutine = "";
+        private string _scope = "";
+
+        // Data related to subordinate main module
+        private List<string> _mainModule = null;
         private HashSet<string> _globalDeclarations = new HashSet<string>();
+
+        //Additional RAPID routines
+        private List<Routine> _additionalRoutines = new List<Routine>();
+        private List<RAPIDGenerator> _additionalRoutineGenerators = new List<RAPIDGenerator>();
 
         // Checks
         private readonly List<string> _errorText = new List<string>();
@@ -97,18 +104,17 @@ namespace RobotComponents.ABB.Actions
         /// <param name="robot"> The robot info wherefore the code should be created. </param>
         /// <param name="moduleName"> The name of the program module </param>
         /// <param name="routineName"> The name of the RAPID procedure </param>
-        /// <param name="localRoutine"> Specifies whether the RAPID procedure is declared as LOCAL. </param>
+        /// <param name="scope"> Specifies whether the RAPID procedure is declared as LOCAL. </param>
         /// <param name="mainModule"> Optionally provides a Main Module whose global declarations are skipped in helper modules.</param>
-        public RAPIDGenerator(Robot robot, string moduleName, string routineName, bool localRoutine = false, List<string> mainModule = null)
+        /// <param name="additionalRoutines"> Optionally provides additional routines to be included in the RAPID module. </param>
+        public RAPIDGenerator(Robot robot, string moduleName, string routineName, Scope scope = Scope.GLOBAL, List<string> mainModule = null, List<Routine> additionalRoutines = null)
         {
             _robot = robot.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
             _moduleName = moduleName;
             _procedureName = routineName;
-            if (localRoutine) _localRoutine = "LOCAL";
-            else _localRoutine = "";
-
-            if (mainModule != null)
-                _globalDeclarations = GetMainModuleDeclarations(mainModule);
+            _additionalRoutines = additionalRoutines;
+            _scope = scope != Scope.GLOBAL ? " " + scope.ToString() : "";
+            _mainModule = mainModule;
         }
 
         /// <summary>
@@ -122,8 +128,9 @@ namespace RobotComponents.ABB.Actions
             _procedureName = generator.ProcedureName;
             _robot = generator.Robot.Duplicate();
             _isFirstMovementMoveAbsJ = generator.IsFirstMovementMoveAbsJ;
-            _localRoutine = generator.LocalRoutine;
-            _globalDeclarations = generator.GlobalDeclarations;
+            _scope = generator.RoutineScope;
+            _mainModule = generator._mainModule;
+            _additionalRoutines = generator._additionalRoutines;
         }
 
         /// <summary>
@@ -190,6 +197,9 @@ namespace RobotComponents.ABB.Actions
             _taskLists.Clear();
             _syncidents.Clear();
 
+            _additionalRoutineGenerators.Clear();
+            _globalDeclarations.Clear();
+
             _module.Clear();
             _errorText.Clear();
             _isSynchronized = false;
@@ -200,6 +210,10 @@ namespace RobotComponents.ABB.Actions
 
             // Check if the first movement is an Absolute Joint Movement
             _isFirstMovementMoveAbsJ = CheckFirstMovement(actions);
+
+            // Check optional main module for global declarations
+            if (_mainModule != null)
+                _globalDeclarations = GetMainModuleDeclarations(_mainModule);
 
             // Initial tool
             _robot.Tool.ToRAPIDGenerator(this);
@@ -220,6 +234,32 @@ namespace RobotComponents.ABB.Actions
                 else
                 {
                     actions[i].ToRAPIDGenerator(this);
+                }
+            }
+
+            //Creates the code lines for additional routines using helper RAPIDGenerator instances
+            if (_additionalRoutines != null)
+            {
+                foreach (Routine routine in _additionalRoutines)
+                {
+                    RAPIDGenerator routineGenerator = this.Duplicate();
+                    _additionalRoutineGenerators.Add(routineGenerator);
+
+                    for (int i = 0; i < routine.Actions.Count; i++)
+                    {
+                        IAction action = routine.Actions[i];
+                        if (_isSynchronized == true && action is Movement movement)
+                        {
+                            movement.SyncID = syncID;
+                            movement.ToRAPIDGenerator(routineGenerator);
+                            movement.SyncID = -1;
+                            syncID += 10;
+                        }
+                        else
+                        {
+                            action.ToRAPIDGenerator(routineGenerator);
+                        }
+                    }
                 }
             }
             #endregion
@@ -255,6 +295,7 @@ namespace RobotComponents.ABB.Actions
                 {
                     _module.Add("    " + "! User defined loaddata");
                     _module.AddRange(uniqueDecls);
+                    AddUniqueIdentifiers(uniqueDecls);
                     _module.Add("    ");
                 }
             }
@@ -274,6 +315,7 @@ namespace RobotComponents.ABB.Actions
                 {
                     _module.Add("    " + "! User defined tooldata");
                     _module.AddRange(uniqueDecls);
+                    AddUniqueIdentifiers(uniqueDecls);
                     _module.Add("    ");
                 }
             }
@@ -293,6 +335,7 @@ namespace RobotComponents.ABB.Actions
                 {
                     _module.Add("    " + "! User defined wobjdata");
                     _module.AddRange(uniqueDecls);
+                    AddUniqueIdentifiers(uniqueDecls);
                     _module.Add("    ");
                 }
             }
@@ -310,6 +353,7 @@ namespace RobotComponents.ABB.Actions
                 {
                     _module.Add("    " + "! User definied code lines");
                     _module.AddRange(uniqueDecls);
+                    AddUniqueIdentifiers(uniqueDecls);
                     _module.Add("    ");
                 }
             }
@@ -329,6 +373,7 @@ namespace RobotComponents.ABB.Actions
                 {
                     _module.Add("    " + "! Declarations for multi move programming");
                     _module.AddRange(uniqueDecls);
+                    AddUniqueIdentifiers(uniqueDecls);
                     _module.Add("    ");
                 }
             }
@@ -348,6 +393,54 @@ namespace RobotComponents.ABB.Actions
                 {
                     _module.Add("    " + "! Declarations generated by Robot Components");
                     _module.AddRange(uniqueDecls);
+                    AddUniqueIdentifiers(uniqueDecls);
+                    _module.Add("    ");
+                }
+            }
+
+            // Add additional routine declarations
+            if (_additionalRoutines != null && _additionalRoutines.Count != 0)
+            {
+                List<string> uniqueDecls = new List<string>();
+                foreach (RAPIDGenerator routineGenerator in _additionalRoutineGenerators)
+                {
+                    List<string> routineUniques = new List<string>();
+
+                    //Add all declarations from the additional routine generators
+                    foreach (string decl in routineGenerator._programDeclarationsToolData)
+                        if (DeclarationIsUnique(decl))
+                            routineUniques.Add(decl);
+
+                    foreach (string decl in routineGenerator._programDeclarationsLoadData)
+                        if (DeclarationIsUnique(decl))
+                            routineUniques.Add(decl);
+
+                    foreach (string decl in routineGenerator._programDeclarationsWorkObjectData)
+                        if (DeclarationIsUnique(decl))
+                            routineUniques.Add(decl);
+
+                    foreach (string decl in routineGenerator._programDeclarationsCustom)
+                        if (DeclarationIsUnique(decl))
+                            routineUniques.Add(decl);
+
+                    foreach (string decl in routineGenerator._programDeclarationsMultiMove)
+                        if (DeclarationIsUnique(decl))
+                            routineUniques.Add(decl);
+
+                    foreach (string decl in routineGenerator._programDeclarations)
+                        if (DeclarationIsUnique(decl))
+                            routineUniques.Add(decl);
+
+                    foreach(string name in routineUniques)
+                        _globalDeclarations.Add(name);
+
+                    uniqueDecls.AddRange(routineUniques);
+                }
+
+                if (uniqueDecls.Count != 0)
+                {
+                    _module.Add("    " + "! Declarations generated in Additional Routines");
+                    _module.AddRange(uniqueDecls);
                     _module.Add("    ");
                 }
             }
@@ -356,7 +449,7 @@ namespace RobotComponents.ABB.Actions
             if (_programInstructions.Count != 0)
             {
                 // Create Program
-                _module.Add("    " + $"{_localRoutine} PROC {_procedureName}()");
+                _module.Add("   " + $"{_scope} PROC {_procedureName}()");
 
                 // Add instructions
                 _module.AddRange(_programInstructions);
@@ -364,6 +457,34 @@ namespace RobotComponents.ABB.Actions
                 // Closes Program
                 _module.Add("    " + "ENDPROC");
                 _module.Add("    ");
+            }
+
+            //Add additional routines
+            if (_additionalRoutines != null)
+            {
+                for (int i = 0; i < _additionalRoutines.Count; ++i)
+                {
+                    Routine routine = _additionalRoutines[i];
+                    RAPIDGenerator routineGenerator = _additionalRoutineGenerators[i];
+
+                    string scope = "";
+                    if (routine.RoutineScope != Scope.GLOBAL)
+                        scope = " " + routine.RoutineScope.ToString();
+
+                    if (routine.Type == RoutineType.PROC)
+                    {
+                        _module.Add("   " + $"{scope} PROC {routine.Name}()");
+                    }
+                    else if (routine.Type == RoutineType.TRAP)
+                    {
+                        _module.Add("   " + $"{scope} TRAP {routine.Name}");
+                    }
+
+                    _module.AddRange(routineGenerator._programInstructions);
+
+                    _module.Add("    " + $"END{routine.Type.ToString()}");
+                    _module.Add("    ");
+                }
             }
 
             // Close / end
@@ -490,6 +611,22 @@ namespace RobotComponents.ABB.Actions
         }
 
         /// <summary>
+        /// Adds unique declaration identifiers to the global declarations collection.
+        /// </summary>
+        /// <param name="codeLines"></param>
+        private void AddUniqueIdentifiers(List<string> codeLines)
+        {
+            foreach (string line in codeLines)
+            {
+                string name = GetDeclarationName(line);
+                if (name != null && !_globalDeclarations.Contains(name))
+                {
+                    _globalDeclarations.Add(name);
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks whether a declaration is unique or already defined in the MainModule.
         /// </summary>
         /// <param name="decl">Declaration code line.</param>
@@ -591,12 +728,12 @@ namespace RobotComponents.ABB.Actions
         }
 
         /// <summary>
-        /// Gets or sets wether the RAPID procedure is declared as LOCAL.
+        /// Gets or sets the RAPID procedure scope.
         /// </summary>
-        public string LocalRoutine
+        public string RoutineScope
         {
-            get { return _localRoutine; }
-            set { _localRoutine = value; }
+            get { return _scope; }
+            set { _scope = value; }
         }
 
         /// <summary>
