@@ -1403,6 +1403,36 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap RoutineArgument_Icon {
+            get {
+                object obj = ResourceManager.GetObject("RoutineArgument_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RoutineArgument_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("RoutineArgument_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RoutineCall_Icon {
+            get {
+                object obj = ResourceManager.GetObject("RoutineCall_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap RoutineParameter_Icon {
             get {
                 object obj = ResourceManager.GetObject("RoutineParameter_Icon", resourceCulture);

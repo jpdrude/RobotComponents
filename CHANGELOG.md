@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-08 17:42 
+ Generated on: 2026-01-21 18:34 
  --- 
+ - Add simple RAPID routine definition. Procedures (PROC) and Interrupts (TRAP) can now be defined. No functions or arguments are supported. 
+ 	 - Introduce Routine class for user-defined PROC/TRAP routines with scope (GLOBAL/LOCAL/TASK). 
+ 	 - Add Param_Routine and GH_Routine for Grasshopper integration. 
+ 	 - Implement AdditionalRoutineComponent for custom routines. 
+ 	 - Update RAPIDGenerator and RAPIDGeneratorComponent to handle additional routines and routine scope. 
+ 	 - Add ScopeValueList and RoutineTypeValueList components for easy selection. 
+ 	 - Update icons/resources for new features. 
+ 	 - Update Scope declaration in RAPID Code generation. 
+  
+   **Commit:** `772002b` | **Date:** 2026-01-08 
+ 
+ --- 
+ 
  - Fixed helper module upload & modular RAPID code support - Controller now clears local additional directory before writing new files to prevent stale files. 
  	 - Removed legacy GLOBAL declaration parsing from RAPIDGenerator, as a GLOBAL keyword doesn't exist in RAPID. 
   

@@ -32,6 +32,7 @@ namespace RobotComponents.ABB.Actions.Declarations
         private RoutineType _type;
         private string _name;
         private Scope _scope;
+        private List<RoutineArgument> _arguments;
         #endregion
 
         #region (de)serialization
@@ -47,6 +48,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             _type = (RoutineType)info.GetValue("Routine Type", typeof(RoutineType));
             _name = (string)info.GetValue("Routine Name", typeof(string));
             _scope = (Scope)info.GetValue("Routine Scope", typeof(Scope));
+            _arguments = (List<RoutineArgument>)info.GetValue("Routine Arguments", typeof(List<RoutineArgument>));
         }
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             info.AddValue("Routine Type", _type, typeof(RoutineType));
             info.AddValue("Routine Name", _name, typeof(string));
             info.AddValue("Routine Scope", _scope, typeof(Scope));
+            info.AddValue("Routine Arguments", _arguments, typeof(List<RoutineArgument>));
         }
         #endregion
 
@@ -74,7 +77,7 @@ namespace RobotComponents.ABB.Actions.Declarations
         }
 
         /// <summary>
-        /// Initializes a new instance of the Method class with the Routine Type set as PROC.
+        /// Initializes a new instance of the Routine class with the Routine Type set as PROC.
         /// </summary>
         /// <param name="actions"> The content of the routine. </param>
         /// <param name="name"> The identifier of the routine. </param>
@@ -93,12 +96,17 @@ namespace RobotComponents.ABB.Actions.Declarations
         /// <param name="type"> The routine Type (PROC, TRAP). </param>
         /// <param name="name"> The identifier of the routine. </param>
         /// <param name="scope"> The scope of the routine. </param>
-        public Routine(List<IAction> actions, RoutineType type, string name, Scope scope = Scope.GLOBAL)
+        /// <param name="arguments"> Optional arguments for the routine. </param>
+        public Routine(List<IAction> actions, RoutineType type, string name, Scope scope = Scope.GLOBAL, List<RoutineArgument> arguments = null)
         {
             _actions = actions;
             _type = type;
             _name = name;
             _scope = scope;
+            _arguments = arguments;
+
+            if (arguments != null && arguments.Count == 0)
+                arguments = null;
         }
 
 
@@ -118,6 +126,16 @@ namespace RobotComponents.ABB.Actions.Declarations
             _type = routine._type;
             _name = routine._name;
             _scope = routine._scope;
+            _arguments = null;
+
+            if (routine._arguments != null)
+            {
+                _arguments = new List<RoutineArgument>();
+                foreach (RoutineArgument arg in routine._arguments)
+                {
+                    _arguments.Add(arg.Duplicate());
+                }
+            }
         }
 
         /// <summary>
@@ -226,6 +244,14 @@ namespace RobotComponents.ABB.Actions.Declarations
         {
             get { return _scope; }
             set { _scope = value; }
+        }
+
+        /// <summary>
+        /// Gets the Routine Arguments.
+        /// </summary>
+        public List<RoutineArgument> Arguments
+        { 
+            get { return _arguments; } 
         }
         #endregion
     }
