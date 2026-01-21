@@ -646,4 +646,13 @@
   <data name="RoutineParameter_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\RoutineParameter_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="RoutineArgument_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RoutineArgument_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RoutineArgument_Parameter_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RoutineArgument_Parameter_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RoutineCall_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\RoutineCall_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

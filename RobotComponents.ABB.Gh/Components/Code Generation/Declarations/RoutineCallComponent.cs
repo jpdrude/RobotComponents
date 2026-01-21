@@ -27,19 +27,17 @@ using RobotComponents.ABB.Gh.Utils;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.ComTypes;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
     /// <summary>
     /// RobotComponents Routine Declaration Component.
     /// </summary>
-    public class AdditionalRoutineComponent : GH_RobotComponent, IGH_VariableParameterComponent
+    public class RoutineCallComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
-        private bool _expire = false;
-        private bool _isTrap = false;
-        private bool _previousIsTrap = false;
-        private const int staticInputCount = 4;
+        private const int staticInputCount = 1;
         #endregion
 
         /// <summary>
@@ -47,8 +45,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public AdditionalRoutineComponent() : base("Routine", "R", "Code Generation", 
-            "Defines manually a PROC or TRAP declaration.")
+        public RoutineCallComponent() : base("RoutineCall", "RC", "Code Generation", 
+            "Creates a routine call code line.")
         {
         }
 
@@ -57,13 +55,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new Param_Action(), "Actions", "A", "Actions as list of instructive Actions. Declarations will be added to the module scope.", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Type", "T", "Type of the routine. Use 0 for adding a PROC. Use 1 for adding a TRAP.", GH_ParamAccess.item, 0);
-            pManager.AddTextParameter("Name", "N", "Routine Identifier", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Scope", "S", "Scope of the routine. Use 0 for GLOBAL scope, 1 for LOCAL scope and 2 for TASK scope.", GH_ParamAccess.item, 0);
-
-            pManager[1].Optional = true;
-            pManager[3].Optional = true;
+            pManager.AddTextParameter("Routine Name", "N", "Name of the routine.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -77,8 +69,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <returns><see langword="true"/> if a parameter can be inserted at the specified index on the input side; otherwise,
         /// <see langword="false"/>.</returns>
         public bool CanInsertParameter(GH_ParameterSide side, int index)
-        {
-            if (_isTrap) return false;
+        { 
             return side == GH_ParameterSide.Input && index >= staticInputCount;
         }
 
@@ -94,7 +85,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// langword="false"/>.</returns>
         public bool CanRemoveParameter(GH_ParameterSide side, int index)
         {
-            if (_isTrap) return false;
             return side == GH_ParameterSide.Input && index >= staticInputCount && Params.Input.Count > staticInputCount;
         }
 
@@ -118,11 +108,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         public IGH_Param CreateParameter(GH_ParameterSide side, int index)
         {
             int varIndex = index - staticInputCount;
-            var param = new Param_RoutineArgument()
+            var param = new Param_GenericObject()
             {
-                Name = $"Argument {varIndex + 1}",
-                NickName = $"Arg{varIndex + 1}",
-                Description = "Routine Argument",
+                Name = $"Argument Value {varIndex + 1}",
+                NickName = $"Val{varIndex + 1}",
+                Description = "Argument Value",
                 Access = GH_ParamAccess.item,
                 Optional = true
             };
@@ -140,8 +130,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             for (int i = staticInputCount; i < Params.Input.Count; i++)
             {
-                Params.Input[i].Name = $"Argument {i - staticInputCount + 1}";
-                Params.Input[i].NickName = $"Arg{i - staticInputCount + 1}";
+                Params.Input[i].Name = $"Argument Value {i - staticInputCount + 1}";
+                Params.Input[i].NickName = $"Val{i - staticInputCount + 1}";
             }
         }
 
@@ -150,7 +140,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_Routine(), "Routine", "R", "Resulting Routine", GH_ParamAccess.item);
             pManager.RegisterParam(new Param_CodeLine(), "Routine Call", "C", "Call to routine to enter into RAPID Code", GH_ParamAccess.list);
         }
 
@@ -161,145 +150,37 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Creates the input value list and attachs it to the input parameter
-            if (this.Params.Input[1].SourceCount == 0)
+            string routineName = "";
+            List<string> argValues = new List<string>();
+
+            if (!DA.GetData(0, ref routineName)) { return; }
+
+            for (int i = staticInputCount; i < Params.Input.Count; i++)
             {
-                _expire = true;
-                HelperMethods.CreateValueList(this, typeof(RoutineType), 1);
-            }
-            if (this.Params.Input[3].SourceCount == 0)
-            {
-                _expire = true;
-                HelperMethods.CreateValueList(this, typeof(Scope), 3);
-            }
-
-            // Expire solution of this component
-            if (_expire == true)
-            {
-                _expire = false;
-                this.ExpireSolution(true);
-                return;
-            }
-
-            // Input variables
-            List<IAction> actions = new List<IAction>();
-            int type = 0;
-            string name = "";
-            int scope = 0;
-            List<RoutineArgument> arguments = new List<RoutineArgument>();
-
-            // Catch the input data
-            if (!DA.GetDataList(0, actions)) { return; }
-            if (!DA.GetData(1, ref type)) { return; }
-            if (!DA.GetData(2, ref name)) { return; }
-            if (!DA.GetData(3, ref scope)) { return; }
-
-            // Check if a right value is used for the method type and scope
-            if (type < (int)RoutineType.PROC || type > (int)RoutineType.TRAP)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Routine type <" + type + "> is invalid. " +
-                    "It can only be set to 0 or 1. Use 0 for PROC and 1 for TRAP. Other routine types as well as routines with arguments are not supported.");
-            }
-            if (scope < (int)Scope.GLOBAL || scope > (int)Scope.TASK)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Routine scope <" + scope + "> is invalid. " +
-                    "It can only be set to 0, 1, or 2. Use 0 for GLOBAL scope, 1 for LOCAL scope and 2 for TASK scope.");
-            }
-
-            // Check if routine is a TRAP and remove variable parameters
-            _isTrap = type == (int)RoutineType.TRAP;
-            if (_isTrap != _previousIsTrap)
-            {
-                _previousIsTrap = _isTrap;
-
-                DA.SetData(0, null);
-                DA.SetDataList(1, null);
-
-                UpdateVariableParameters(_isTrap);
-
-                return;
-            }
-
-            if (!_isTrap)
-            {
-                // Get routine arguments from variable input parameters
-                for (int i = staticInputCount; i < Params.Input.Count; i++)
+                object arg = null;
+                if (DA.GetData(i, ref arg))
                 {
-                    RoutineArgument arg = null;
-                    if (DA.GetData(i, ref arg))
+                    if (arg.GetType() == typeof(GH_RoutineArgument))
                     {
-                        arguments.Add(arg);
+                        RoutineArgument routineArg = ((GH_RoutineArgument)arg).Value;
+
+                        argValues.Add(routineArg.ToCallString());
+                    }
+                    else
+                    {
+                        argValues.Add(arg.ToString());
                     }
                 }
             }
 
-            // Checks if routine name starts with a number
-            if (HelperMethods.StringStartsWithNumber(name))
+            string call = $"{routineName}";
+            if (argValues.Count > 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The routine name starts with a number which is not allowed in RAPID code.");
+                call += " " + string.Join(", ", argValues);
             }
-            if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The routine name exceeds the character limit of 32 characters.");
-            }
+            call += ";";    
 
-            //Generates Output
-            Routine method = new Routine(actions, (RoutineType)type, name, (Scope)scope, arguments);
-
-            //Generates Routine Call if PROC
-            List<CodeLine> routineCall = new List<CodeLine>();
-            if (method.Type == RoutineType.PROC)
-            {
-                string call = method.Name;
-
-                if (arguments != null && arguments.Count > 0)
-                {
-                    List <string> argValues = new List<string>();
-                    foreach (RoutineArgument arg in arguments)
-                    {
-                        argValues.Add(arg.ToCallString());
-                    }
-
-                    call += " " + string.Join(", ", argValues);
-                }
-
-                call += ";";
-
-                routineCall.Add(new CodeLine(call, CodeType.Instruction));
-            }
-
-            // Sets Output
-            DA.SetData(0, method);
-            DA.SetDataList(1, routineCall);
-
-            if (method.Type == RoutineType.TRAP)
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "TRAP routines need to be connected using custom code and interrupt logic.");
-        }
-
-        /// <summary>
-        /// Updates the set of variable input parameters. Interrupts (Traps) do not support arguments.
-        /// </summary>
-        /// <remarks>This method schedules the update operation and triggers parameter change
-        /// notifications. If the document context is unavailable, no update occurs.</remarks>
-        /// <param name="isTrap">Indicates whether the routine type is an interrupt and deletes argument inputs accordingly.
-        /// If <see langword="true"/>, input parameters beyond the static count are unregistered.</param>
-        private void UpdateVariableParameters(bool isTrap)
-        {
-            var doc = OnPingDocument();
-            if (doc == null) return;
-
-            doc.ScheduleSolution(5, d =>
-            {
-                if (isTrap)
-                {
-                    while (Params.Input.Count > staticInputCount)
-                    {
-                        Params.UnregisterInputParameter(Params.Input[Params.Input.Count - 1], true);
-                    }
-                }
-
-                Params.OnParametersChanged();
-            });
+            DA.SetData(0, new CodeLine(call, CodeType.Instruction));
         }
 
         #region properties
@@ -326,7 +207,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.Routine_Icon; }
+            get { return Properties.Resources.RoutineCall_Icon; }
         }
 
         /// <summary>
@@ -336,7 +217,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("4A1C9E7B-3F82-4D56-B0A3-8E2D6C4F5A91"); }
+            get { return new Guid("9D4F2A8C-6B71-4E35-A9C2-3E8D7F1B5A64"); }
         }
         #endregion
     }
