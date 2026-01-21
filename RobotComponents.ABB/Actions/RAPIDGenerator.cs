@@ -473,7 +473,20 @@ namespace RobotComponents.ABB.Actions
 
                     if (routine.Type == RoutineType.PROC)
                     {
-                        _module.Add("   " + $"{scope} PROC {routine.Name}()");
+                        if (routine.Arguments == null)
+                        {
+                            _module.Add("   " + $"{scope} PROC {routine.Name}()");
+                        }
+                        else
+                        {
+                            List<string> argValues = new List<string>();
+                            foreach (RoutineArgument arg in routine.Arguments)
+                            {
+                                argValues.Add(arg.ToDeclString());
+                            }
+
+                            _module.Add("   " + $"{scope} PROC {routine.Name}({string.Join(", ", argValues)})");
+                        }
                     }
                     else if (routine.Type == RoutineType.TRAP)
                     {

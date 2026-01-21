@@ -22,50 +22,50 @@ using RobotComponents.ABB.Definitions;
 namespace RobotComponents.ABB.Gh.Goos.Definitions
 {
     /// <summary>
-    /// Routine Goo wrapper class, makes sure the Routine class can be used in Grasshopper.
+    /// RoutineArgument Goo wrapper class, makes sure the RoutineArgument class can be used in Grasshopper.
     /// </summary>
-    public class GH_Routine : GH_Goo<Routine>, GH_ISerializable
+    public class GH_RoutineArgument : GH_Goo<RoutineArgument>, GH_ISerializable
     {
         #region constructors
         /// <summary>
         /// Blank constructor
         /// </summary>
-        public GH_Routine()
+        public GH_RoutineArgument()
         {
             Value = null;
         }
 
         /// <summary>
-        /// Data constructor: Create a Routine Goo instance from a Routine instance.
+        /// Data constructor: Create a RoutineArgument Goo instance from a RoutineArgument instance.
         /// </summary>
-        /// <param name="routine"> Routine Value to store inside this Goo instance. </param>
-        public GH_Routine(Routine routine)
+        /// <param name="argument"> Argument Value to store inside this Goo instance. </param>
+        public GH_RoutineArgument(RoutineArgument argument)
         {
-            Value = routine;
+            Value = argument;
         }
 
         /// <summary>
-        /// Data constructor: Creates a Routine Goo instance from another Routine Goo instance.
-        /// This creates a shallow copy of the passed Routine Goo instance. 
+        /// Data constructor: Creates a RoutineArgument Goo instance from another RoutineArgument Goo instance.
+        /// This creates a shallow copy of the passed RoutineArgument Goo instance. 
         /// </summary>
-        /// <param name="routineGoo"> Routine Goo instance to copy. </param>
-        public GH_Routine(GH_Routine routineGoo)
+        /// <param name="argumentGoo"> RoutineArgument Goo instance to copy. </param>
+        public GH_RoutineArgument(GH_RoutineArgument argumentGoo)
         {
-            if (routineGoo == null)
+            if (argumentGoo == null)
             {
-                routineGoo = new GH_Routine();
+                argumentGoo = new GH_RoutineArgument();
             }
 
-            Value = routineGoo.Value;
+            Value = argumentGoo.Value;
         }
 
         /// <summary>
         /// Make a complete duplicate of this Goo instance. No shallow copies.
         /// </summary>
-        /// <returns> A duplicate of the RoutineGoo. </returns>
+        /// <returns> A duplicate of the RoutineArgumentGoo. </returns>
         public override IGH_Goo Duplicate()
         {
-            return new GH_Routine(Value == null ? new Routine() : Value.Duplicate());
+            return new GH_RoutineArgument(Value == null ? new RoutineArgument() : Value.Duplicate());
         }
         #endregion
 
@@ -90,9 +90,9 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         {
             get
             {
-                if (Value == null) { return "No internal Routine instance"; }
+                if (Value == null) { return "No internal RoutineArgument instance"; }
                 if (Value.IsValid) { return string.Empty; }
-                return "Invalid Routine instance: Did you correctly specify name and type?";
+                return "Invalid Routine Argument";
             }
         }
 
@@ -102,7 +102,7 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         /// <returns></returns>
         public override string ToString()
         {
-            if (Value == null) { return "Null Routine"; }
+            if (Value == null) { return "Null Argument"; }
             else { return Value.ToString(); }
         }
 
@@ -111,7 +111,7 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         /// </summary>
         public override string TypeName
         {
-            get { return "Routine"; }
+            get { return "Routine Argument"; }
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         /// </summary>
         public override string TypeDescription
         {
-            get { return "Defines a Routine (PROC or TRAP)"; }
+            get { return "Defines a Routine Argument (type name = value)"; }
         }
         #endregion
 
@@ -133,15 +133,15 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         public override bool CastTo<Q>(ref Q target)
         {
             //Cast to Method Goo
-            if (typeof(Q).IsAssignableFrom(typeof(GH_Routine)))
+            if (typeof(Q).IsAssignableFrom(typeof(GH_RoutineArgument)))
             {
-                if (Value == null) { target = (Q)(object)new GH_Routine(); }
-                else { target = (Q)(object)new GH_Routine(Value); }
+                if (Value == null) { target = (Q)(object)new GH_RoutineArgument(); }
+                else { target = (Q)(object)new GH_RoutineArgument(Value); }
                 return true;
             }
 
             //Cast to Method
-            if (typeof(Q).IsAssignableFrom(typeof(Routine)))
+            if (typeof(Q).IsAssignableFrom(typeof(RoutineArgument)))
             {
                 if (Value == null) { target = (Q)(object)null; }
                 else { target = (Q)(object)Value; }
@@ -161,10 +161,10 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         {
             if (source == null) { return false; }
 
-            //Cast from Routine
-            if (typeof(Routine).IsAssignableFrom(source.GetType()))
+            //Cast from RoutineArgument
+            if (typeof(RoutineArgument).IsAssignableFrom(source.GetType()))
             {
-                Value = source as Routine;
+                Value = source as RoutineArgument;
                 return true;
             }
 
@@ -176,7 +176,7 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         /// <summary>
         /// IO key for (de)serialisation of the value inside this Goo.
         /// </summary>
-        private const string IoKey = "Routine";
+        private const string IoKey = "RoutineArgument";
 
         /// <summary>
         /// This method is called whenever the instance is required to serialize itself.
@@ -208,7 +208,7 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
             }
 
             byte[] array = reader.GetByteArray(IoKey);
-            Value = (Routine)RobotComponents.Utils.Serialization.ByteArrayToObject(array);
+            Value = (RoutineArgument)RobotComponents.Utils.Serialization.ByteArrayToObject(array);
 
             return true;
         }
