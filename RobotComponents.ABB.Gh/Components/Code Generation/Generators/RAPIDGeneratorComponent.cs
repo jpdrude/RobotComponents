@@ -43,6 +43,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         #region fields
         private RAPIDGenerator _rapidGenerator = new RAPIDGenerator();
         private bool _firstMovementIsMoveAbsJ = true;
+        private bool _isSystemModuleInputParam = false;
         private bool _moduleNameInputParam = false;
         private bool _routineNameInputParam = false;
         private bool _routineScopeParam = false;
@@ -75,8 +76,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Stores the variable input parameters in an array.
         /// </summary>
-        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[9]
+        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[10]
         {
+            new Param_Boolean() { Name = "Is System Moudle", NickName = "SM", Description = "Indicates whether this module should be uploaded as a System Module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Module Name", NickName = "MN", Description = "The name of the module as a text. The default name is MainModule.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Procedure Name", NickName = "RN", Description = "The name of the RAPID routine as a text. The default name is main.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Integer() { Name = "Routine Scope", NickName = "RS", Description = "The scope of the RAPID routine. Use 0 for GLOBAL scope, 1 for LOCAL scope and 2 for TASK scope.", Access = GH_ParamAccess.item, Optional = true},
@@ -106,7 +108,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddParameter(new Param_Robot(), "Robot", "R", "Robot that is used as Robot.", GH_ParamAccess.item);
             pManager.AddParameter(new Param_Action(), "Actions", "A", "Actions as list of instructive and declarative Actions.", GH_ParamAccess.list);
 
-            AddInputParameter(8);
+            AddInputParameter(9);
         }
 
         /// <summary>
@@ -127,6 +129,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Input variables
             Robot robot = new Robot();
             List<RobotComponents.ABB.Actions.IAction> actions = new List<RobotComponents.ABB.Actions.IAction>();
+            bool isSystemModule = false;
             string moduleName = "MainModule";
             string routineName = "main";
             int scope = (int)Scope.GLOBAL;
@@ -152,63 +155,70 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Catch the input data from the variable parameteres
             if (Params.Input.Any(x => x.Name == _variableInputParameters[0].Name))
             {
-                if (!DA.GetData(_variableInputParameters[0].Name, ref moduleName))
+                if (!DA.GetData(_variableInputParameters[0].Name, ref isSystemModule))
                 {
-                    moduleName = "MainModule";
+                    isSystemModule = false;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[1].Name))
             {
-                if (!DA.GetData(_variableInputParameters[1].Name, ref routineName))
+                if (!DA.GetData(_variableInputParameters[1].Name, ref moduleName))
                 {
-                    routineName = "main";
+                    moduleName = "MainModule";
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[2].Name))
             {
-                if (!DA.GetData(_variableInputParameters[2].Name, ref scope))
+                if (!DA.GetData(_variableInputParameters[2].Name, ref routineName))
                 {
-                    scope = (int)Scope.GLOBAL;
+                    routineName = "main";
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[3].Name))
             {
-                if (!DA.GetDataList(_variableInputParameters[3].Name, mainModule))
+                if (!DA.GetData(_variableInputParameters[3].Name, ref scope))
                 {
-                    mainModule = null;
+                    scope = (int)Scope.GLOBAL;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[4].Name))
             {
-                if (!DA.GetDataList(_variableInputParameters[4].Name, additionalRoutines))
+                if (!DA.GetDataList(_variableInputParameters[4].Name, mainModule))
                 {
-                    additionalRoutines = new List<Routine>();
+                    mainModule = null;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[5].Name))
             {
-                if (!DA.GetData(_variableInputParameters[5].Name, ref addLoaddata))
+                if (!DA.GetDataList(_variableInputParameters[5].Name, additionalRoutines))
                 {
-                    addLoaddata = true;
+                    additionalRoutines = new List<Routine>();
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[6].Name))
             {
-                if (!DA.GetData(_variableInputParameters[6].Name, ref addTooldata))
+                if (!DA.GetData(_variableInputParameters[6].Name, ref addLoaddata))
                 {
-                    addTooldata = true;
+                    addLoaddata = true;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[7].Name))
             {
-                if (!DA.GetData(_variableInputParameters[7].Name, ref addWobjdata))
+                if (!DA.GetData(_variableInputParameters[7].Name, ref addTooldata))
                 {
-                    addWobjdata = true;
+                    addTooldata = true;
                 }
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[8].Name))
             {
-                if (!DA.GetData(_variableInputParameters[8].Name, ref update))
+                if (!DA.GetData(_variableInputParameters[8].Name, ref addWobjdata))
+                {
+                    addWobjdata = true;
+                }
+            }
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[9].Name))
+            {
+                if (!DA.GetData(_variableInputParameters[9].Name, ref update))
                 {
                     update = true;
                 }
@@ -244,6 +254,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The routine name contains special characters which is not allowed in RAPID code.");
             }
 
+            //Checks for System Module
+            if (isSystemModule && moduleName == "MainModule")
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module name 'MainModule' is not allowed in System Modules. Please change the module name.");
+            }
+            if (isSystemModule && routineName == "main")
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The routine name 'main' is not allowed in System Modules. Please change the routine name.");
+            }
+
             // Updates the rapid Progam and System code
             if (update == true)
             {
@@ -252,7 +272,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     _rapidGenerators.Clear();
 
                 // Initiaties the rapidGenerator
-                _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, (Scope)scope, mainModule, additionalRoutines);
+                _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, (Scope)scope, mainModule, additionalRoutines, isSystemModule);
 
                 // Generator code
                 _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
@@ -350,7 +370,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendSeparator(menu);
-            Menu_AppendItem(menu, "Overwrite Module Name", MenuItemClickProgramName, true, _moduleNameInputParam);
+            Menu_AppendItem(menu, "Is System Module", MenuItemClickIsSystemModule, true, _isSystemModuleInputParam);
+            Menu_AppendItem(menu, "Overwrite Module Name", MenuItemClickModuleName, true, _moduleNameInputParam);
             Menu_AppendItem(menu, "Overwrite Routine Name", MenuItemClickRoutineName, true, _routineNameInputParam);
             Menu_AppendItem(menu, "Specify Routine Scope", MenuItemClickRoutineScope, true, _routineScopeParam);
             Menu_AppendItem(menu, "Add Superordinate Main Method", MenuItemClickMainModule, true, _addMainModuleInputParam);
@@ -369,15 +390,27 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
-        /// Handles the event when the custom menu item "Set Program Module Name" is clicked. 
+        /// Handles the event when the custom menu item "Is System Module" is clicked. 
         /// </summary>
         /// <param name="sender"> The object that raises the event. </param>
         /// <param name="e"> The event data. </param>
-        private void MenuItemClickProgramName(object sender, EventArgs e)
+        private void MenuItemClickIsSystemModule(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Overwrite Is System Module");
+            _isSystemModuleInputParam = !_isSystemModuleInputParam;
+            AddInputParameter(0);
+        }
+
+        /// <summary>
+        /// Handles the event when the custom menu item "Overwrite Module Name" is clicked. 
+        /// </summary>
+        /// <param name="sender"> The object that raises the event. </param>
+        /// <param name="e"> The event data. </param>
+        private void MenuItemClickModuleName(object sender, EventArgs e)
         {
             RecordUndoEvent("Overwrite Module Name");
             _moduleNameInputParam = !_moduleNameInputParam;
-            AddInputParameter(0);
+            AddInputParameter(1);
         }
 
         /// <summary>
@@ -389,14 +422,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Overwrite Routine Name");
             _routineNameInputParam = !_routineNameInputParam;
-            AddInputParameter(1);
+            AddInputParameter(2);
         }
 
         private void MenuItemClickRoutineScope(object sender, EventArgs e)
         {
             RecordUndoEvent("Specify Routine Scope");
             _routineScopeParam = !_routineScopeParam;
-            AddInputParameter(2);
+            AddInputParameter(3);
         }
 
         /// <summary>
@@ -408,7 +441,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Superordinate Main Method");
             _addMainModuleInputParam = !_addMainModuleInputParam;
-            AddInputParameter(3);
+            AddInputParameter(4);
         }
 
         /// <summary>
@@ -420,7 +453,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Additional Routines");
             _addAdditionalRoutinesInputParam = !_addAdditionalRoutinesInputParam;
-            AddInputParameter(4);
+            AddInputParameter(5);
         }
 
         /// <summary>
@@ -432,7 +465,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Load Data");
             _addLoaddataInputParam = !_addLoaddataInputParam;
-            AddInputParameter(5);
+            AddInputParameter(6);
         }
 
         /// <summary>
@@ -444,7 +477,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Tool Data");
             _addTooldataInputParam = !_addTooldataInputParam;
-            AddInputParameter(6);
+            AddInputParameter(7);
         }
 
         /// <summary>
@@ -456,7 +489,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Add Work Object Data");
             _addWobjdataInputParam = !_addWobjdataInputParam;
-            AddInputParameter(7);
+            AddInputParameter(8);
         }
 
         /// <summary>
@@ -545,6 +578,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <returns> True on success, false on failure. </returns>
         public override bool Write(GH_IWriter writer)
         {
+            writer.SetBoolean("Is System Module", _isSystemModuleInputParam);
             writer.SetBoolean("Module Name", _moduleNameInputParam);
             writer.SetBoolean("Routine Name", _routineNameInputParam);
             writer.SetBoolean("Main Module", _addMainModuleInputParam);
@@ -566,6 +600,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <returns> True on success, false on failure. </returns>
         public override bool Read(GH_IReader reader)
         {
+            _isSystemModuleInputParam = reader.GetBoolean("Is System Module");
             _moduleNameInputParam = reader.GetBoolean("Module Name");
             _routineNameInputParam = reader.GetBoolean("Routine Name");
             _addMainModuleInputParam = reader.GetBoolean("Main Module");
