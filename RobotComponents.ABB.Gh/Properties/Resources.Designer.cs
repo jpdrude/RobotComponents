@@ -353,6 +353,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap DeconstructGroupSignal_Icon {
+            get {
+                object obj = ResourceManager.GetObject("DeconstructGroupSignal_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DeconstructJointTarget_Icon {
             get {
                 object obj = ResourceManager.GetObject("DeconstructJointTarget_Icon", resourceCulture);
@@ -683,6 +693,26 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap GetGroupInput_Icon {
+            get {
+                object obj = ResourceManager.GetObject("GetGroupInput_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GetGroupOutput_Icon {
+            get {
+                object obj = ResourceManager.GetObject("GetGroupOutput_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap GetJointTarget_Icon {
             get {
                 object obj = ResourceManager.GetObject("GetJointTarget_Icon", resourceCulture);
@@ -756,6 +786,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap GetToolPlane_Icon {
             get {
                 object obj = ResourceManager.GetObject("GetToolPlane_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap GroupOutput_Icon {
+            get {
+                object obj = ResourceManager.GetObject("GroupOutput_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1506,6 +1546,26 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap SetDigitalOutput_Icon {
             get {
                 object obj = ResourceManager.GetObject("SetDigitalOutput_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SetGroupInput_Icon {
+            get {
+                object obj = ResourceManager.GetObject("SetGroupInput_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SetGroupOutput_Icon {
+            get {
+                object obj = ResourceManager.GetObject("SetGroupOutput_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
