@@ -3,8 +3,16 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-21 18:34 
+ Generated on: 2026-01-22 14:09 
  --- 
+ - Adds support for user-defined RAPID routine arguments. 
+ 	 - Introduces RoutineArgument class and Grasshopper components for defining and calling routines with arguments. 
+ 	 - Updates code generation, serialization, and UI to support variable arguments in PROC routines, with new icons and changelog entries. 
+  
+   **Commit:** `4da12b6` | **Date:** 2026-01-21 
+ 
+ --- 
+ 
  - Add simple RAPID routine definition. Procedures (PROC) and Interrupts (TRAP) can now be defined. No functions or arguments are supported. 
  	 - Introduce Routine class for user-defined PROC/TRAP routines with scope (GLOBAL/LOCAL/TASK). 
  	 - Add Param_Routine and GH_Routine for Grasshopper integration. 
