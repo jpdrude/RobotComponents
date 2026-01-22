@@ -61,6 +61,7 @@ namespace RobotComponents.ABB.Actions
 
         // The RAPID module
         private readonly List<string> _module = new List<string>();
+        private bool _isSystemModule = false;
         private string _moduleName;
         private string _procedureName;
         private string _scope = "";
@@ -107,7 +108,7 @@ namespace RobotComponents.ABB.Actions
         /// <param name="scope"> Specifies whether the RAPID procedure is declared as LOCAL. </param>
         /// <param name="mainModule"> Optionally provides a Main Module whose global declarations are skipped in helper modules.</param>
         /// <param name="additionalRoutines"> Optionally provides additional routines to be included in the RAPID module. </param>
-        public RAPIDGenerator(Robot robot, string moduleName, string routineName, Scope scope = Scope.GLOBAL, List<string> mainModule = null, List<Routine> additionalRoutines = null)
+        public RAPIDGenerator(Robot robot, string moduleName, string routineName, Scope scope = Scope.GLOBAL, List<string> mainModule = null, List<Routine> additionalRoutines = null, bool isSystemModule = false)
         {
             _robot = robot.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
             _moduleName = moduleName;
@@ -115,6 +116,7 @@ namespace RobotComponents.ABB.Actions
             _additionalRoutines = additionalRoutines;
             _scope = scope != Scope.GLOBAL ? " " + scope.ToString() : "";
             _mainModule = mainModule;
+            _isSystemModule = isSystemModule;
         }
 
         /// <summary>
@@ -131,6 +133,7 @@ namespace RobotComponents.ABB.Actions
             _scope = generator.RoutineScope;
             _mainModule = generator._mainModule;
             _additionalRoutines = generator._additionalRoutines;
+            _isSystemModule = generator._isSystemModule;
         }
 
         /// <summary>
@@ -265,7 +268,10 @@ namespace RobotComponents.ABB.Actions
             #endregion
 
             #region write the module
-            _module.Add($"MODULE {_moduleName}");
+            if (!_isSystemModule)
+                _module.Add($"MODULE {_moduleName}");
+            else
+                _module.Add($"MODULE {_moduleName} (SYSMODULE)");
             _module.Add("    ");
 
             // Add comment lines for tracking which version of RC was used
@@ -720,6 +726,14 @@ namespace RobotComponents.ABB.Actions
         {
             get { return _robot; }
             set { _robot = value; }
+        }
+
+        /// <summary>
+        /// Gets wether the module is a system module.
+        /// </summary>
+        public bool IsSystemModule
+        {
+            get { return _isSystemModule; }
         }
 
         /// <summary>

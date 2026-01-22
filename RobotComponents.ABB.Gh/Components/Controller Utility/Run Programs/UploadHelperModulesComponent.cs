@@ -60,6 +60,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             pManager.AddParameter(new Param_Controller(), "Controller", "C", "Controller as Controller", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Upload", "U", "Upload as bool", GH_ParamAccess.item, false);
             pManager.AddTextParameter("Modules", "M", "Modules as a tree of modules, where each branch contains all necessary code lines", GH_ParamAccess.tree);
+            pManager.AddBooleanParameter("Load To Task", "L", "Loads the uploaded modules to the task after upload.", GH_ParamAccess.item, false);
 
             pManager[1].Optional = true;
             pManager[2].Optional = true;
@@ -90,11 +91,13 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             bool upload = false;
             DataTree<string> modules = new DataTree<string>();
             GH_Structure<GH_String> gh_modules = new GH_Structure<GH_String>();
+            bool loadToTask = false;
 
             // Catch the input data
             if (!DA.GetData(0, ref _controller)) { return; }
             if (!DA.GetData(1, ref upload)) { upload = false; }
             if (!DA.GetDataTree(2,out gh_modules)) { gh_modules = new GH_Structure<GH_String>(); }
+            if (!DA.GetData(3, ref loadToTask)) { loadToTask = false; }
 
             //Convert GH_Structure to DataTree
             foreach (GH_Path path in gh_modules.Paths)
@@ -124,7 +127,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
                 }
                 else
                 {
-                    _succeeded = _controller.UploadHelperModules(_taskName, modules, out _status);
+                    _succeeded = _controller.UploadHelperModules(_taskName, modules, out _status, loadToTask);
                 }
             }
 

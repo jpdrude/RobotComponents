@@ -3,8 +3,19 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-22 14:09 
+ Generated on: 2026-01-22 21:18 
  --- 
+ - Adds support for group signals. Group signals are bitmasks used to communicate groups of digital signals. 
+ - Comprehensive support for group inputs/outputs: - Controller class now manages group signals with new retrieval methods and properties. 
+ 	 - Added Grasshopper components for getting/setting group inputs/outputs, including bitmask support and signal picking UI. 
+ 	 - Introduced SetGroupOutput instruction, Goo, and parameter classes for RAPID code generation. 
+ 	 - New DeconstructGroupSignal component for bitwise signal analysis. 
+ 	 - Updated resources and icons for new components. 
+  
+   **Commit:** `e3f491e` | **Date:** 2026-01-22 
+ 
+ --- 
+ 
  - Adds support for user-defined RAPID routine arguments. 
  	 - Introduces RoutineArgument class and Grasshopper components for defining and calling routines with arguments. 
  	 - Updates code generation, serialization, and UI to support variable arguments in PROC routines, with new icons and changelog entries. 
