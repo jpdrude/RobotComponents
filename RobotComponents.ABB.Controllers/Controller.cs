@@ -1059,6 +1059,8 @@ namespace RobotComponents.ABB.Controllers
         {
             status = "Started the upload of the RAPID module.";
             Log(status);
+            bool isSystemModule = false;
+            string moduleName = "";
 
             #region checks
             if (_isEmpty == true)
@@ -1095,13 +1097,28 @@ namespace RobotComponents.ABB.Controllers
                 Log(status);
                 return false;
             }
-           
+
+            if (module[0].Contains("SYSMODULE"))
+            {
+                isSystemModule = true;
+            }
+
             if (!module[module.Count - 1].Equals("ENDMODULE"))
             {
                 status = "Could not upload the module: The provided module is invalid. Provide a module that ends with ENDMODULE.";
                 Log(status);
                 return false;
             }
+            status = "Retreiving Module name from module content.";
+            Log(status);
+            moduleName = module[0].Substring(7).Trim();
+            moduleName = moduleName.Split(' ')[0];
+            
+            if (!isSystemModule)
+                moduleName += ".MOD";
+            else
+                moduleName += ".SYS";
+            status = $"Module name retreived: {moduleName}";
             #endregion
 
             #region write temporary file to local directory
@@ -1122,8 +1139,23 @@ namespace RobotComponents.ABB.Controllers
                 return false;
             }
 
-            string filePathLocal = Path.Combine(_localDirectory, "temp.mod");
+            //Delete all files in the local directory before writing new ones.
+            foreach (string file in Directory.GetFiles(_localDirectory))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    status = $"Could not delete file {file} from the local directory: {ex.Message}";
+                    Log(status);
+                    return false;
+                }
+            }
 
+            string filePathLocal = Path.Combine(_localDirectory, moduleName);
+            
             try
             {
                 using (StreamWriter writer = new StreamWriter(filePathLocal, false))
@@ -1183,7 +1215,8 @@ namespace RobotComponents.ABB.Controllers
                     _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
 
                     // Load the new program from the drive
-                    string filePathRemote = Path.Combine(_remoteDirectory, "temp.mod");
+                    string filePathRemote = Path.Combine(_remoteDirectory, moduleName);
+
                     task.LoadModuleFromFile(filePathRemote, RapidDomainNS.RapidLoadMode.Replace);
 
                     status = "Loaded the module from the filesystem of the controller to the controller task.";
@@ -1212,13 +1245,16 @@ namespace RobotComponents.ABB.Controllers
         /// Uploads an additional module to the controller's storage. 
         /// </summary>
         /// <param name="taskName"> The task to upload to. </param>
-        /// <param name="module"> The module to upload. </param>
+        /// <param name="modules"> The modules to upload. </param>
         /// <param name="status"> The status message. </param>
+        /// <param name="loadToTask"> If true, the module will be loaded to the task after upload. </param>
         /// <returns> 
         /// True on success, false on failure. 
         /// </returns>
-        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status)
+        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status, bool loadToTask = false)
         {
+            List<string> remotefilePaths = new List<string>();
+
             status = "Started the upload of an additional RAPID module.";
             Log(status);
 
@@ -1309,10 +1345,13 @@ namespace RobotComponents.ABB.Controllers
 
                 status = "Retreiving Module name from module content.";
                 Log(status);
-                string moduleName = module[0].Substring(7).Trim() + ".MOD";
+                string moduleName = module[0].Substring(7).Trim();
+                moduleName = moduleName.Split(' ')[0];
+                moduleName += ".MOD";
                 status = $"Module name retreived: {moduleName}";
 
                 string filePathLocal = Path.Combine(_localAdditionalDirectory, moduleName);
+                remotefilePaths.Add(Path.Combine(_remoteAdditionalDirectory, moduleName));
 
                 try
                 {
@@ -1365,7 +1404,42 @@ namespace RobotComponents.ABB.Controllers
             }
             #endregion
 
-            status = "Uploaded the RAPID module.";
+            //Complete method it not load to task
+            if (!loadToTask)
+            {
+                status = "Uploaded the RAPID module.";
+                Log(status);
+                return true;
+            }
+                
+            #region load module from directory
+            using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
+            {
+                foreach (string filePathRemote in remotefilePaths)
+                {
+                    try
+                    {
+                        // Grant acces
+                        _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
+
+                        // Load the new program from the drive
+                        task.LoadModuleFromFile(filePathRemote, RapidDomainNS.RapidLoadMode.Replace);
+
+                        status = "Loaded a module from the filesystem of the controller to the controller task.";
+                        Log(status);
+                    }
+                    catch (Exception e)
+                    {
+                        status = $"Could not load the module from the filesystem of the controller to the controller task: {e.Message}.";
+                        Log(status);
+                        return false;
+                    }
+                }
+                master.Release();
+            }
+            #endregion
+
+            status = "Uploaded and loaded the RAPID module(s).";
             Log(status);
 
             return true;
