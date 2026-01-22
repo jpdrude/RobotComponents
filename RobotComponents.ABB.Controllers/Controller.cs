@@ -70,6 +70,8 @@ namespace RobotComponents.ABB.Controllers
         private readonly List<Signal> _analogOutputs = new List<Signal>();
         private readonly List<Signal> _digitalInputs = new List<Signal>();
         private readonly List<Signal> _digitalOutputs = new List<Signal>();
+        private readonly List<Signal> _groupInputs = new List<Signal>();
+        private readonly List<Signal> _groupOutputs = new List<Signal>();
 
         private bool _isEmpty = true;
         private bool _isInitialized = false;
@@ -221,6 +223,8 @@ namespace RobotComponents.ABB.Controllers
             _analogOutputs.AddRange(GetAnalogOutputs());
             _digitalInputs.AddRange(GetDigitalInputs());
             _digitalOutputs.AddRange(GetDigitalOutputs());
+            _groupInputs.AddRange(GetGroupInputs());
+            _groupOutputs.AddRange(GetGroupOutputs());
             #endregion
 
             SetDefaultUser();
@@ -257,11 +261,15 @@ namespace RobotComponents.ABB.Controllers
             _analogOutputs.ConvertAll(item => item.Dispose());
             _digitalInputs.ConvertAll(item => item.Dispose());
             _digitalOutputs.ConvertAll(item => item.Dispose());
+            _groupOutputs.ConvertAll(item => item.Dispose());
+            _groupInputs.ConvertAll(item => item.Dispose());
 
             _analogInputs.Clear();
             _analogOutputs.Clear();
             _digitalInputs.Clear();
             _digitalOutputs.Clear();
+            _groupInputs.Clear();
+            _groupOutputs.Clear();
 
             Log("Cleared the fields and properties of the controller.");
         }
@@ -697,6 +705,31 @@ namespace RobotComponents.ABB.Controllers
         }
 
         /// <summary>
+        /// Returns the group output signals. 
+        /// </summary>
+        /// <returns> 
+        /// A list with group output signals. 
+        /// </returns>
+        private List<Signal> GetGroupOutputs()
+        {
+            if (_isEmpty == true)
+            {
+                Log($"Could not get the group outputs: The controller is empty.");
+                return new List<Signal>();
+            }
+
+            IOSystemDomainNS.SignalCollection signals = _controller.IOSystem.GetSignals(filter: IOSystemDomainNS.IOFilterTypes.Output | IOSystemDomainNS.IOFilterTypes.Group);
+            List<Signal> result = new List<Signal>();
+
+            for (int i = 0; i < signals.Count; i++)
+            {
+                result.Add(new Signal(signals[i], _controller));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Returns the analog inputs. 
         /// </summary>
         /// <returns> 
@@ -736,6 +769,31 @@ namespace RobotComponents.ABB.Controllers
             }
 
             IOSystemDomainNS.SignalCollection signals = _controller.IOSystem.GetSignals(filter: IOSystemDomainNS.IOFilterTypes.Input | IOSystemDomainNS.IOFilterTypes.Digital);
+            List<Signal> result = new List<Signal>();
+
+            for (int i = 0; i < signals.Count; i++)
+            {
+                result.Add(new Signal(signals[i], _controller));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the group inputs. 
+        /// </summary>
+        /// <returns> 
+        /// A list with group inputs. 
+        /// </returns>
+        private List<Signal> GetGroupInputs()
+        {
+            if (_isEmpty == true)
+            {
+                Log($"Could not get the group inputs: The controller is empty.");
+                return new List<Signal>();
+            }
+
+            IOSystemDomainNS.SignalCollection signals = _controller.IOSystem.GetSignals(filter: IOSystemDomainNS.IOFilterTypes.Input | IOSystemDomainNS.IOFilterTypes.Group);
             List<Signal> result = new List<Signal>();
 
             for (int i = 0; i < signals.Count; i++)
@@ -905,6 +963,66 @@ namespace RobotComponents.ABB.Controllers
             else
             {
                 return _digitalOutputs[index];
+            }
+        }
+
+        /// <summary>
+        /// Returns the group input signal from the controller. 
+        /// </summary>
+        /// <param name="name"> The name of the signal. </param>
+        /// <param name="index"> The index number of the signal. The index is -1 if no signal was found. </param>
+        /// <returns> 
+        /// The group input signal. Returns an empty signal if no signal was found. 
+        /// </returns>
+        public Signal GetGroupInput(string name, out int index)
+        {
+            if (_isEmpty == true)
+            {
+                index = -1;
+                Log($"Could not get the signal {name}: The controller is empty.");
+                return new Signal();
+            }
+
+            index = _groupInputs.FindIndex(item => item.Name == name);
+
+            if (index == -1)
+            {
+                Log($"Could not get the signal {name}: Signal not found.");
+                return new Signal();
+            }
+            else
+            {
+                return _groupInputs[index];
+            }
+        }
+
+        /// <summary>
+        /// Returns the group output signal from the controller. 
+        /// </summary>
+        /// <param name="name"> The name of the signal. </param>
+        /// <param name="index"> The index number of the signal. The index is -1 if no signal was found. </param>
+        /// <returns> 
+        /// The group output signal. Returns an empty signal if no signal was found. 
+        /// </returns>
+        public Signal GetGroupOutput(string name, out int index)
+        {
+            if (_isEmpty == true)
+            {
+                index = -1;
+                Log($"Could not get the signal {name}: The controller is empty.");
+                return new Signal();
+            }
+
+            index = _groupOutputs.FindIndex(item => item.Name == name);
+
+            if (index == -1)
+            {
+                Log($"Could not get the signal {name}: Signal not found.");
+                return new Signal();
+            }
+            else
+            {
+                return _groupOutputs[index];
             }
         }
 
@@ -1667,6 +1785,22 @@ namespace RobotComponents.ABB.Controllers
         public List<Signal> DigitalOutputs
         {
             get { return _digitalOutputs; }
+        }
+
+        /// <summary>
+        /// Gets the group inputs. 
+        /// </summary>
+        public List<Signal> GroupInputs
+        {
+            get { return _groupInputs; }
+        }
+
+        /// <summary>
+        /// Gets the group outputs. 
+        /// </summary>
+        public List<Signal> GroupOutputs
+        {
+            get { return _groupOutputs; }
         }
         #endregion
 
