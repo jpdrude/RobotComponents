@@ -20,15 +20,15 @@ using RobotComponents.ABB.Gh.Goos.Actions.Instructions;
 namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
 {
     /// <summary>
-    /// Group Output parameter
+    /// Wait for Digital Output parameter
     /// </summary>
-    public class Param_SetGroupOutput : GH_RobotParam<GH_SetGroupOutput>
+    public class Param_WaitDO : GH_RobotParam<GH_WaitDO>
     {
         /// <summary>
-        /// Initializes a new instance of the Param_SetAnalogOutput class
+        /// Initializes a new instance of the Param_WaitDO class
         /// </summary>
-        public Param_SetGroupOutput() : base("Set Group Output Parameter", "SGOP", "Parameters",
-                "Contains the data of a Set Group Output instruction.")
+        public Param_WaitDO() : base("Wait for Digital Output Parameter", "WDO", "Parameters",
+                "Contains the data of a Wait for Digital Output instruction.")
         {
         }
 
@@ -38,13 +38,13 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <returns> A string representation of the parameter. </returns>
         public override string ToString()
         {
-            return "Set Group Output";
+            return "Wait for Digital Output";
         }
 
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Set Group Output"; set => base.Name = value; }
+        public override string Name { get => "Wait for Digital Output"; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 
@@ -52,7 +52,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.GroupOutput_Parameter_Icon; }
+            get { return Properties.Resources.WaitDO_Parameter_Icon; }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("E9C1D5A3-7F2B-4E8A-B6D4-1A3C5E7F9B2D"); }
+            get { return new Guid("8E189E0A-1B12-4733-8549-8927605DD4B1"); }
         }
     }
 }
