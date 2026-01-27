@@ -3,8 +3,19 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-22 21:18 
+ Generated on: 2026-01-27 11:06 
  --- 
+ - Adds support for RAPID System Modules and Option for loading additional modules into the task. 
+ 	 - RAPIDGenerator and controller methods now support system modules (.SYS), generating correct RAPID headers and file extensions. 
+ 	 - Grasshopper RAPIDGeneratorComponent exposes "Is System Module" input and UI. 
+ 	 - UploadHelperModulesComponent adds "Load To Task" input. 
+ 	 - Improved module name extraction and file cleanup. 
+ 	 - Warnings for invalid system module/routine names. 
+  
+   **Commit:** `b716218` | **Date:** 2026-01-22 
+ 
+ --- 
+ 
  - Adds support for group signals. Group signals are bitmasks used to communicate groups of digital signals. 
  - Comprehensive support for group inputs/outputs: - Controller class now manages group signals with new retrieval methods and properties. 
  	 - Added Grasshopper components for getting/setting group inputs/outputs, including bitmask support and signal picking UI. 
