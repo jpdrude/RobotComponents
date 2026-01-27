@@ -803,6 +803,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap GroupOutput_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("GroupOutput_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap InequalitySymbolValueList_Icon {
             get {
                 object obj = ResourceManager.GetObject("InequalitySymbolValueList_Icon", resourceCulture);
@@ -1813,6 +1823,26 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap WaitAO_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitAO_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitAO_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitAO_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap WaitDI_Icon {
             get {
                 object obj = ResourceManager.GetObject("WaitDI_Icon", resourceCulture);
@@ -1826,6 +1856,66 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap WaitDI_Parameter_Icon {
             get {
                 object obj = ResourceManager.GetObject("WaitDI_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitDO_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitDO_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitDO_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitDO_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitGI_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitGI_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitGI_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitGI_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitGO_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitGO_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitGO_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitGO_Parameter_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
