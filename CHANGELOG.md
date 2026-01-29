@@ -3,8 +3,18 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-01-27 11:06 
+ Generated on: 2026-01-28 21:35 
  --- 
+ - Add WaitAO/DO/GI/GO instructions and GH components and parameters. 
+ 	 - Introduced WaitAO, WaitDO, WaitGI, and WaitGO instruction classes with serialization and RAPID code generation. 
+ 	 - Added corresponding Grasshopper components, parameter types, and Goo wrappers for each wait instruction. 
+ 	 - Updated icons and resources for new types. 
+ 	 - Updated CHANGELOG. 
+  
+   **Commit:** `dcbc844` | **Date:** 2026-01-27 
+ 
+ --- 
+ 
  - Adds support for RAPID System Modules and Option for loading additional modules into the task. 
  	 - RAPIDGenerator and controller methods now support system modules (.SYS), generating correct RAPID headers and file extensions. 
  	 - Grasshopper RAPIDGeneratorComponent exposes "Is System Module" input and UI. 

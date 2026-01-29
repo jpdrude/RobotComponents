@@ -6,7 +6,7 @@
 // Copyright (c) 2025 EDEK Uni Kassel
 //
 // Author:
-//   - Jan Philipp Drude (2025)
+//   - Jan Philipp Drude (2026)
 //
 // For license details, see the LICENSE file in the project root.
 

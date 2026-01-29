@@ -37,7 +37,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
     public class RoutineCallComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
-        private const int staticInputCount = 1;
+        private const int staticInputCount = 2;
         #endregion
 
         /// <summary>
@@ -55,7 +55,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
+            pManager.AddTextParameter("Module Name", "M", "Name of the module where the routine is declared.", GH_ParamAccess.item);
             pManager.AddTextParameter("Routine Name", "N", "Name of the routine.", GH_ParamAccess.item);
+
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -150,10 +153,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            string moduleName = "";
             string routineName = "";
             List<string> argValues = new List<string>();
 
-            if (!DA.GetData(0, ref routineName)) { return; }
+            if (!DA.GetData(0, ref moduleName)) { moduleName = null; }
+            if (!DA.GetData(1, ref routineName)) { return; }
 
             for (int i = staticInputCount; i < Params.Input.Count; i++)
             {
@@ -174,6 +179,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             string call = $"{routineName}";
+            
+            if (moduleName != null && moduleName != "")
+            {
+                call = $"%\"{moduleName}:{routineName}\"%";
+            }
+
             if (argValues.Count > 0)
             {
                 call += " " + string.Join(", ", argValues);

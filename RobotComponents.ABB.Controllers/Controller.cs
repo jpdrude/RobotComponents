@@ -1,33 +1,41 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
-// This file is part of Robot Components
-// Project: https://github.com/RobotComponents/RobotComponents
+// This file is part of Robot Components (Modified)
+// Original project: https://github.com/RobotComponents/RobotComponents
+// Modified project: https://github.com/jpdrude/RobotComponents
 //
 // Copyright (c) 2022-2024 Arjen Deetman
+// Copyright (c) 2025 EDEK Uni Kassel
 //
-// Authors:
+// Original Authors:
 //   - Arjen Deetman (2022-2024)
+//
+// Modified by:
+//   - Jan Philipp Drude (2025-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-// Rhino Libs
-using Rhino.Geometry;
-using Grasshopper;
-// Robot Components Libs
-using RobotComponents.ABB.Utils;
-using RobotComponents.ABB.Actions.Declarations;
-// ABB Libs
-using ControllersNS = ABB.Robotics.Controllers;
-using RapidDomainNS = ABB.Robotics.Controllers.RapidDomain;
-using IOSystemDomainNS = ABB.Robotics.Controllers.IOSystemDomain;
-using ConfigurationDomainNS = ABB.Robotics.Controllers.ConfigurationDomain;
+using ABB.Robotics.Controllers;
+using ABB.Robotics.Controllers.ConfigurationDomain;
 using ABB.Robotics.Controllers.Discovery;
 using ABB.Robotics.Controllers.MotionDomain;
+using Grasshopper;
 using Grasshopper.Kernel.Data;
+// Rhino Libs
+using Rhino.Geometry;
+using RobotComponents.ABB.Actions.Declarations;
+// Robot Components Libs
+using RobotComponents.ABB.Utils;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using ConfigurationDomainNS = ABB.Robotics.Controllers.ConfigurationDomain;
+// ABB Libs
+using ControllersNS = ABB.Robotics.Controllers;
+using IOSystemDomainNS = ABB.Robotics.Controllers.IOSystemDomain;
+using RapidDomainNS = ABB.Robotics.Controllers.RapidDomain;
+using CfgType = ABB.Robotics.Controllers.ConfigurationDomain.Type;
 
 namespace RobotComponents.ABB.Controllers
 {
@@ -78,8 +86,10 @@ namespace RobotComponents.ABB.Controllers
 
         private static readonly string _remoteDirectory = Path.Combine("Robot Components", "temp");
         private static readonly string _remoteAdditionalDirectory = Path.Combine("Robot Components", "Additional Modules");
+        private static readonly string _remoteSystemDirectory = Path.Combine("Robot Components", "System Modules");
         private static readonly string _localDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "temp");
         private static readonly string _localAdditionalDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "tempAdd");
+        private static readonly string _localSystemDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "tempSys");
         #endregion
 
         #region constructors
@@ -1059,7 +1069,6 @@ namespace RobotComponents.ABB.Controllers
         {
             status = "Started the upload of the RAPID module.";
             Log(status);
-            bool isSystemModule = false;
             string moduleName = "";
 
             #region checks
@@ -1098,9 +1107,11 @@ namespace RobotComponents.ABB.Controllers
                 return false;
             }
 
+            //Check System Module!
             if (module[0].Contains("SYSMODULE"))
             {
-                isSystemModule = true;
+                status = "Module is System Module. Passing on to UploadSystem Module Method.";
+                return UploadSystemModule(taskName, module, out status, true);
             }
 
             if (!module[module.Count - 1].Equals("ENDMODULE"))
@@ -1113,11 +1124,8 @@ namespace RobotComponents.ABB.Controllers
             Log(status);
             moduleName = module[0].Substring(7).Trim();
             moduleName = moduleName.Split(' ')[0];
-            
-            if (!isSystemModule)
-                moduleName += ".MOD";
-            else
-                moduleName += ".SYS";
+            moduleName += ".MOD";
+
             status = $"Module name retreived: {moduleName}";
             #endregion
 
@@ -1436,6 +1444,303 @@ namespace RobotComponents.ABB.Controllers
                     }
                 }
                 master.Release();
+            }
+            #endregion
+
+            status = "Uploaded and loaded the RAPID module(s).";
+            Log(status);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Uploads a shared system module to the controller. Warmstart will be necessary. 
+        /// </summary>
+        /// <param name="taskName"> The task to upload to. </param>
+        /// <param name="module"> The module to upload. </param>
+        /// <param name="status"> The status message. </param>
+        /// <returns> 
+        /// True on success, false on failure. 
+        /// </returns>
+        public bool UploadSystemModule(string taskName, List<string> module, out string status, bool shared)
+        {
+            status = "Started the upload of a system RAPID module.";
+            Log(status);
+
+            #region checks
+            if (_isEmpty == true)
+            {
+                status = "Could not upload the module: The controller is empty.";
+                Log(status);
+                return false;
+            }
+
+            if (!shared)
+            {
+                if (TryPickTask(taskName, out RapidDomainNS.Task task) == false)
+                {
+                    status = "Could not pick the task from the controller: The task name is invalid.";
+                    Log(status);
+                    return false;
+                }
+
+
+                if (!shared && task.ExecutionStatus == RapidDomainNS.TaskExecutionStatus.Running)
+                {
+                    status = "Could not upload the module: The task is still running.";
+                    Log(status);
+                    return false;
+                }
+            }
+            #endregion
+
+            #region write temporary files to local directory
+            try
+            {
+                if (!Directory.Exists(_localSystemDirectory))
+                {
+                    Directory.CreateDirectory(_localSystemDirectory);
+
+                    status = $"Created the local temporary directory: {_localSystemDirectory}";
+                    Log(status);
+                }
+            }
+            catch
+            {
+                status = $"Could not create the local temporary directory: {_localSystemDirectory}";
+                Log(status);
+                return false;
+            }
+
+            //Delete all files in the local additional directory before writing new ones.
+            foreach (string file in Directory.GetFiles(_localSystemDirectory))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    status = $"Could not delete file {file} from the local additional directory: {ex.Message}";
+                    Log(status);
+                    return false;
+                }
+            }
+
+            status = $"Attempting to write module";
+            Log(status);
+
+            if (!module[0].StartsWith("MODULE "))
+            {
+                status = $"Branch is not a module. Skipping branch.";
+                Log(status);
+                return false;
+            }
+
+            if (!module[module.Count - 1].Equals("ENDMODULE"))
+            {
+                status = $"Branch is not a module. Skipping branch.";
+                Log(status);
+                return false;
+            }
+
+            status = "Retreiving Module name from module content.";
+            Log(status);
+            string moduleName = module[0].Substring(7).Trim();
+            moduleName = moduleName.Split(' ')[0];
+            moduleName += ".SYS";
+            status = $"Module name retreived: {moduleName}";
+
+            string filePathLocal = Path.Combine(_localSystemDirectory, moduleName);
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(filePathLocal, false))
+                {
+                    for (int i = 0; i < module.Count; i++)
+                    {
+                        writer.WriteLine(module[i]);
+                    }
+                }
+
+                status = "Wrote the module to the local temporary directory.";
+                Log(status);
+            }
+            catch (Exception ex)
+            {
+                status = $"Could not write the module to the local temporary directory: {ex.Message}";
+                Log(status);
+                return false;
+            }
+            #endregion
+
+            #region put local directory on controller
+            try
+            {
+                _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.WriteFtp);
+                status = "Acquired the WriteFTP grant.";
+                Log(status);
+            }
+            catch
+            {
+                status = "Could not acquire the WriteFTP grant for the current user.";
+                Log(status);
+
+                // No return false: keep trying to the put the local directory on the controller disk.
+            }
+            try
+            {
+                _controller.FileSystem.PutDirectory(_localSystemDirectory, _remoteSystemDirectory, true);
+
+                status = "Put the local temporary directory to the filesytem of the controller.";
+                Log(status);
+            }
+            catch
+            {
+                status = $"Could not put the local temporary directory to the filesystem of the controller.";
+                Log(status);
+                return false;
+            }
+            #endregion
+
+            #region add module to Automatic Loading of Modules List
+            //Clear existing entries pointing to HOME:/Robot Components/System Modules
+            ConfigurationDatabase cfgDb = _controller.Configuration;
+
+            try
+            {
+                string localTemp = Path.Combine(Path.GetTempPath(), "SYS.cfg");
+
+                using (Mastership.Request(_controller))
+                {
+
+                    // Get the domain using IndexOf
+                    Domain sysDomain = _controller.Configuration.Domains[_controller.Configuration.Domains.IndexOf("SYS")];
+                    sysDomain.Save(localTemp);
+                }                   
+
+                // 2. Read and modify
+                string content = File.ReadAllText(localTemp);
+
+                string filePath = $"HOME:/Robot Components/System Modules/{moduleName}";
+                string modName = Path.GetFileNameWithoutExtension(moduleName);
+
+                // Remove existing entries pointing to our directory
+                var lines = content.Split('\n').ToList();
+
+                List<string> newLines = new List<string>();
+                bool inCabTaskModules = false;
+                bool skipEntry = false;
+                bool entryAdded = false;
+                bool inContinuation = false;
+
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    string line = lines[i];
+
+                    // Detect section start
+                    if (line.Trim().StartsWith("CAB_TASK_MODULES:"))
+                    {
+                        inCabTaskModules = true;
+                        newLines.Add(line);
+                        
+                        // Add our new entry once right after the section header
+                        if (!entryAdded)
+                        {
+                            newLines.Add($"      -File \"{filePath}\" -ModName \"{modName}\" -Shared -AllTask");
+                            entryAdded = true;
+                        }
+                        continue;
+                    }
+
+                    // Detect next section (starts with #)
+                    if (inCabTaskModules && line.TrimStart().StartsWith("#"))
+                    {
+                        inCabTaskModules = false;
+                    }
+                    else if (inCabTaskModules && !string.IsNullOrWhiteSpace(line) && !char.IsWhiteSpace(line[0]) && !line.Trim().StartsWith("-"))
+                    {
+                        inCabTaskModules = false;
+                    }
+
+                    // If in CAB_TASK_MODULES section, filter entries
+                    if (inCabTaskModules)
+                    {
+                        string trimmed = line.Trim();
+
+                        // Skip empty lines
+                        if (string.IsNullOrWhiteSpace(trimmed))
+                            continue;
+
+                        // Check if this is a new entry (starts with -File)
+                        if (trimmed.StartsWith("-File"))
+                        {
+                            // Check if this entry should be skipped
+                            skipEntry = line.Contains("HOME:/Robot Components/System Modules");
+                            inContinuation = line.TrimEnd().EndsWith("\\");
+
+                            if (skipEntry)
+                                continue;
+                        }
+                        // This is a continuation or orphaned flag
+                        else if (trimmed.StartsWith("-"))
+                        {
+                            // If we're skipping an entry, skip its continuations too
+                            if (skipEntry)
+                            {
+                                if (!line.TrimEnd().EndsWith("\\"))
+                                {
+                                    skipEntry = false;
+                                    inContinuation = false;
+                                }
+                                continue;
+                            }
+
+                            // If we're in a valid continuation, keep it
+                            if (inContinuation)
+                            {
+                                if (!line.TrimEnd().EndsWith("\\"))
+                                {
+                                    inContinuation = false;
+                                }
+                                // Keep this line - it's a valid continuation
+                            }
+                            else
+                            {
+                                // Orphaned flag - skip it
+                                continue;
+                            }
+                        }
+                    }
+                    newLines.Add(line);
+                }
+
+                content = string.Join("\n", newLines);
+
+                File.WriteAllText(localTemp, content);
+
+                using (Mastership.Request(_controller))
+                {
+                    _controller.Rapid.Stop();
+
+                    if (!_controller.Configuration.IsMaster)
+                    {
+                        status = "Could not upload the system module: Could not acquire mastership of the configuration.";
+                        Log(status);
+                        return false;
+                    }
+                    // 3. Upload modified config to controller
+                    _controller.Configuration.Load(localTemp, LoadMode.ResetAndAdd);
+
+                    _controller.Restart(ControllerStartMode.Warm);
+                }
+               
+            }
+            catch (Exception e)
+            {
+                status = $"{e.GetBaseException().Message}: {e.StackTrace}.";
+                Log(status);
+                return false;
             }
             #endregion
 
