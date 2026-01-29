@@ -1,14 +1,19 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
-// This file is part of Robot Components
-// Project: https://github.com/RobotComponents/RobotComponents
+// This file is part of Robot Components (Modified)
+// Original project: https://github.com/RobotComponents/RobotComponents
+// Modified project: https://github.com/jpdrude/RobotComponents
 //
 // Copyright (c) 2018-2020 EDEK Uni Kassel
-// Copyright (c) 2020-2025 Arjen Deetman
+// Copyright (c) 2020-2024 Arjen Deetman
+// Copyright (c) 2025 EDEK Uni Kassel
 //
-// Authors:
+// Original Authors:
 //   - Gabriel Rumph (2018-2020)
 //   - Benedikt Wannemacher (2018-2020)
-//   - Arjen Deetman (2019-2025)
+//   - Arjen Deetman (2019-2024)
+//
+// Modified by:
+//   - Jan Philipp Drude (2025-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
@@ -145,7 +150,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!DA.GetDataList(1, actions)) { return; }
 
             // Creates the input value list for the scope and attachs it to the input parameter
-            int scopeParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[2].Name);
+            int scopeParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[3].Name);
             if (_routineScopeParam && scopeParamIndex != -1 && this.Params.Input[scopeParamIndex].SourceCount == 0)
             {
                 HelperMethods.CreateValueList(this, typeof(Scope), scopeParamIndex);
