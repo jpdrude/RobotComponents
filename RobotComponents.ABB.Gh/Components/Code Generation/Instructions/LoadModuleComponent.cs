@@ -3,7 +3,7 @@
 // Original project: https://github.com/RobotComponents/RobotComponents
 // Modified project: https://github.com/jpdrude/RobotComponents
 //
-// Copyright (c) 2026 EDEK Uni Kassel
+// Copyright (c) 2025 EDEK Uni Kassel
 //
 // Author:
 //   - Jan Philipp Drude (2026)
@@ -11,28 +11,32 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
-using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+using RobotComponents.ABB.Actions.Dynamic;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
 using RobotComponents.ABB.Gh.Utils;
+using System;
+using System.IO;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
     /// <summary>
-    /// RobotComponents Action : Wait for Digital Output component.
+    /// RobotComponents Action : Load Module instruction.
     /// </summary>
-    public class WaitGOComponent : GH_RobotComponent
+    public class LoadModuleComponent : GH_RobotComponent
     {
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public WaitGOComponent() : base("Wait for Group Output", "WGO", "Code Generation",
-              "Defines an instruction to wait for the signal of a Group Output from the ABB robot controller.")
+        public LoadModuleComponent() : base("Load Module", "LM", "Code Generation",
+              "Defines code to load and unload RAPID modules.")
         {
         }
 
@@ -41,8 +45,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Name", "N", "Name of the group output signal as text.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("State", "S", "Desired state of the group output signal as integer.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Module Name", "N", "Name of the module as text.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Load Session Name", "LS", "Name of the load session for async loading.", GH_ParamAccess.item, "");
+
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -50,7 +56,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitGO(), "Wait GO", "WGO", "Resulting Wait for Group Output instruction");
+            pManager.RegisterParam(new Param_CodeLine(), "Load Module", "L", "RAPID code to load RAPID module.");
+            pManager.RegisterParam(new Param_CodeLine(), "Unload Module", "U", "RAPID code to unload RAPID module.");
+            pManager.RegisterParam(new Param_CodeLine(), "Load Session Declaration", "LS", "RAPID declaration to reference code session. Use for async loading.");
+            pManager.RegisterParam(new Param_CodeLine(), "Start Load Module", "SL", "RAPID code to start asynchronous loading of RAPID module.");
+            pManager.RegisterParam(new Param_CodeLine(), "Wait Load Module", "WL", "RAPID code to wait until RAPID module has been loaded asynchronously.");
         }
 
         /// <summary>
@@ -61,33 +71,43 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Input variables
             string name = "";
-            int value = 0;
+            string loadSessionName = "";
 
             // Catch the input data
             if (!DA.GetData(0, ref name)) { return; }
-            if (!DA.GetData(1, ref value)) { return; }
+            if (!DA.GetData(1, ref loadSessionName)) { loadSessionName = "loadSession01"; }
 
             // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
 
             if (HelperMethods.StringExeedsCharacterLimit32(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name exceeds character limit of 32 characters.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Module name exceeds character limit of 32 characters.");
             }
             if (HelperMethods.StringStartsWithNumber(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name starts with a number which is not allowed in RAPID code.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Module name starts with a number which is not allowed in RAPID code.");
             }
             if (HelperMethods.StringStartsWithNumber(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name constains special characters which is not allowed in RAPID code.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Module name constains special characters which is not allowed in RAPID code.");
             }
 
-            // Create the action
-            WaitGO waitGO = new WaitGO(name, value);
+            string remoteAdditionalDirectory = "HOME:/Robot Components/Additional Modules/";
+            CodeLine load = new CodeLine($"LOAD \\Dynamic, \"{remoteAdditionalDirectory}\" \\FILE:=\"{name}.MOD\";", CodeType.Instruction);
+            CodeLine unload = new CodeLine($"UNLOAD \"{remoteAdditionalDirectory}{name}.MOD\";", CodeType.Instruction);
+
+            CodeLine loadSessionDeclaration = new CodeLine($"VAR loadsession {loadSessionName};", CodeType.Declaration);
+            CodeLine startLoad = new CodeLine($"STARTLOAD \\Dynamic, \"{remoteAdditionalDirectory}\" \\FILE:=\"{name}.MOD\", {loadSessionName};", CodeType.Instruction);
+            CodeLine waitLoad = new CodeLine($"WAITLOAD {loadSessionName};", CodeType.Instruction);
+
 
             // Sets Output
-            DA.SetData(0, waitGO);
+            DA.SetData(0, load);
+            DA.SetData(1, unload);
+            DA.SetData(2, loadSessionDeclaration);
+            DA.SetData(3, startLoad);
+            DA.SetData(4, waitLoad);
         }
 
         #region properties
@@ -97,7 +117,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.secondary; }
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>
@@ -114,7 +134,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.WaitGO_Icon; }
+            get { return Properties.Resources.LoadModule_Icon; }
         }
 
         /// <summary>
@@ -124,7 +144,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("033CE9DF-7550-48D8-AD55-EE2BDCC4A04C"); }
+            get { return new Guid("A7F3E2B1-8C4D-4E6F-9A2B-1D5C8E7F3A9B"); }
         }
         #endregion
     }
