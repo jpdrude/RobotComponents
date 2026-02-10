@@ -1933,6 +1933,26 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap WaitRob_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitRob_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WaitRob_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WaitRob_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap WaitSyncTask_Icon {
             get {
                 object obj = ResourceManager.GetObject("WaitSyncTask_Icon", resourceCulture);
