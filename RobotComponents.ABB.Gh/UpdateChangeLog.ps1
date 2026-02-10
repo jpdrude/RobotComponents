@@ -57,6 +57,8 @@ function Clean-CommitText {
 $Branch = "ikgeo"
 $SinceCommit = "34f534fe"
 
+Set-Location $RepoPath
+
 # Verify we're in a git repository
 if (-not (Test-Path (Join-Path $RepoPath ".git"))) {
     Write-Error "Not a git repository: $RepoPath"
@@ -134,7 +136,7 @@ Write-Host "Found $($commits.Count) commits"
 $changelogContent = @()
 $changelogContent += "### Changelog"
 $changelogContent += "`n"
-$changelogContent += "Generated on: $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+$changelogContent += "Generated on: " + (Get-Date -Format 'yyyy-MM-dd HH:mm')
 $changelogContent += "`n"
 $changelogContent += "---"
 $changelogContent += "`n"
