@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-10 14:33 
+ Generated on: 2026-02-10 16:36 
  --- 
+ - Improve routine call arg handling - Clarify "Keyword" input description in RoutineArgumentComponent - Enhance RoutineCallComponent to call ToRAPID on objects implementing iDeclaration. 
+  
+   **Commit:** `b4517f2` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
  - Add RAPID WaitRob instruction and GH component support - Implement WaitRob class for RAPID WaitRob instruction (InPos/ZeroSpeed) - Add GH_WaitRob Goo, WaitRobComponent, and Param_WaitRob - Register new icons and update resources for WaitRob 
   
    **Commit:** `39531f5` | **Date:** 2026-02-10 
