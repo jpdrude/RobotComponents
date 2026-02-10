@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-10 08:31 
+ Generated on: 2026-02-10 14:33 
  --- 
+ - Add RAPID WaitRob instruction and GH component support - Implement WaitRob class for RAPID WaitRob instruction (InPos/ZeroSpeed) - Add GH_WaitRob Goo, WaitRobComponent, and Param_WaitRob - Register new icons and update resources for WaitRob 
+  
+   **Commit:** `39531f5` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
  - Add RAPID system module support and module loading tools - Added UploadSystemModule to Controller for .SYS module upload, config, and warm restart - UploadModule now detects and delegates system modules - Added LoadModuleComponent for RAPID module load/unload code generation - RoutineCallComponent: support for cross-module routine calls - Fixed routine scope input index in RAPIDGeneratorComponent - Added new icons and registered in resources - Updated copyright and CHANGELOG - Minor codegen warnings and documentation improvements 
   
    **Commit:** `55cc675` | **Date:** 2026-01-29 

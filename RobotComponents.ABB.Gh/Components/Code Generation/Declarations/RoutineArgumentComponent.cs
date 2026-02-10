@@ -54,7 +54,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Keyword", "K", "Argument keyword (INOUT, VAR, PERS)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Keyword", "K", "Optional Argument keyword (INOUT, PERS)", GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Argument Data Type", GH_ParamAccess.item);
             pManager.AddTextParameter("Name", "N", "Argument Name", GH_ParamAccess.item);
             pManager.AddGenericParameter("Value", "V", "Argument Value", GH_ParamAccess.item);
