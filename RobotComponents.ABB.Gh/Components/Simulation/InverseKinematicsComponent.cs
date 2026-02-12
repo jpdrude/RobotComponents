@@ -352,11 +352,11 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         private void MenuItemClickOutputPlanes(object sender, EventArgs e)
         {
             RecordUndoEvent("Output Posed Axis Planes");
-            _outputMeshParameter = !_outputMeshParameter;
+            _outputPosedPlanesParameter = !_outputPosedPlanesParameter;
             AddOutputParameter(2);
 
             // Disable default mesh preview
-            if (_outputMeshParameter == true)
+            if (_outputPosedPlanesParameter == true)
             {
                 IGH_Param param = Params.Output.Find(x => x.NickName.Equality(_variableOutputParameters[2].NickName));
 
