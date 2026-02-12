@@ -62,7 +62,7 @@ namespace RobotComponents.ABB.Actions.Instructions
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Name", _name, typeof(string));
             info.AddValue("Value", _value, typeof(double));
-            info.AddValue("Inequality Symbol", _value, typeof(InequalitySymbol));
+            info.AddValue("Inequality Symbol", _inequalitySymbol, typeof(InequalitySymbol));
             info.AddValue("Max Time", _maxTime, typeof(double));
         }
         #endregion
