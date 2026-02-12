@@ -149,6 +149,7 @@ namespace RobotComponents.ABB.Controllers
             if (_isEmpty == true)
             {
                 msg = $"Could not set the value of the signal. No signal defined.";
+                return false;
             }
 
             if (_limits.IncludesParameter(value, false) == false)
