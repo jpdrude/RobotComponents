@@ -220,7 +220,7 @@ namespace RobotComponents.ABB.Definitions
             _loadData = robotTool.LoadData.Duplicate();
             
             if (duplicateMesh == true) { _mesh = robotTool.Mesh.DuplicateMesh(); }
-            else { } //_mesh = new Mesh(); }
+            else { _mesh = new Mesh(); }
             
             Initialize();
         }
