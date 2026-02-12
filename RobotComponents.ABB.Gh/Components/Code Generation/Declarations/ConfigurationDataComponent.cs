@@ -4,13 +4,13 @@
 // Modified project: https://github.com/jpdrude/RobotComponents
 //
 // Copyright (c) 2023-2025 Arjen Deetman
-// Copyright (c) 2025 EDEK Uni Kassel
+// Copyright (c) 2025-2026 EDEK Uni Kassel
 //
 // Original Author:
 //   - Arjen Deetman (2023-2025)
 //
 // Modified by:
-//   - Jan Philipp Drude (2025)
+//   - Jan Philipp Drude (2025-2026)
 //
 // For license details, see the LICENSE file in the project root.
 

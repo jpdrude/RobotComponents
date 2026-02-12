@@ -3,10 +3,10 @@
 // Original project: https://github.com/RobotComponents/RobotComponents
 // Modified project: https://github.com/jpdrude/RobotComponents
 //
-// Copyright (c) 2025 EDEK Uni Kassel
+// Copyright (c) 2025-2026 EDEK Uni Kassel
 //
 // Authors:
-//   - Jan Philipp Drude (2025)
+//   - Jan Philipp Drude (2025-2026)
 //   - Johannes Pfleging (2025)
 //
 // For license details, see the LICENSE file in the project root.
