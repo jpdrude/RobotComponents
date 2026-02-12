@@ -124,6 +124,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 if (doc != null)
                 {
+                    doc.ObjectsDeleted -= this.DocumentObjectsDeleted;
                     doc.ObjectsDeleted += this.DocumentObjectsDeleted;
                 }
                 #endregion
