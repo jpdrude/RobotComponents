@@ -368,7 +368,7 @@ namespace RobotComponents.ABB.Definitions
 
             for (int i = 0; i < _forwardKinematics.PosedExternalAxisMeshes.Count; i++)
             {
-                _meshes.AddRange(_forwardKinematics.PosedExternalAxisMeshes[i]);
+                meshes.AddRange(_forwardKinematics.PosedExternalAxisMeshes[i]);
             }
 
             return meshes;
