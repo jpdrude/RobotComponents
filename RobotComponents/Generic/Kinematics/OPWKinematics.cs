@@ -334,13 +334,11 @@ namespace RobotComponents.Generic.Kinematics
             _elbowSingularities[7] = singularity2;
 
             // Shoulder singularity
-            if ((Math.Abs(cx0) < 1e-3) & (Math.Abs(cy0) < 1e-3))
+            bool shoulderSingularity = (Math.Abs(cx0) < 1e-3) && (Math.Abs(cy0) < 1e-3);
+
+            for (int i = 0; i < 8; i++)
             {
-                _shoulderSingularities.Select(item => item = true);
-            }
-            else
-            {
-                _shoulderSingularities.Select(item => item = false);
+                _shoulderSingularities[i] = shoulderSingularity;
             }
 
             // Corrections
