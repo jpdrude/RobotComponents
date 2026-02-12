@@ -313,6 +313,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ConnectInterrupt_Icon {
+            get {
+                object obj = ResourceManager.GetObject("ConnectInterrupt_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DeconstructConfigurationData_Icon {
             get {
                 object obj = ResourceManager.GetObject("DeconstructConfigurationData_Icon", resourceCulture);
@@ -1586,6 +1596,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap SetGroupOutput_Icon {
             get {
                 object obj = ResourceManager.GetObject("SetGroupOutput_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SignalTypeValueList_Icon {
+            get {
+                object obj = ResourceManager.GetObject("SignalTypeValueList_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
