@@ -1423,9 +1423,9 @@ namespace RobotComponents.ABB.Controllers
             #region load module from directory
             using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
             {
-                foreach (string filePathRemote in remotefilePaths)
+                try
                 {
-                    try
+                    foreach (string filePathRemote in remotefilePaths)
                     {
                         // Grant acces
                         _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
@@ -1436,14 +1436,17 @@ namespace RobotComponents.ABB.Controllers
                         status = "Loaded a module from the filesystem of the controller to the controller task.";
                         Log(status);
                     }
-                    catch (Exception e)
-                    {
-                        status = $"Could not load the module from the filesystem of the controller to the controller task: {e.Message}.";
-                        Log(status);
-                        return false;
-                    }
                 }
-                master.Release();
+                catch (Exception e)
+                {
+                    status = $"Could not load the module from the filesystem of the controller to the controller task: {e.Message}.";
+                    Log(status);
+                    return false;
+                }
+                finally
+                {
+                    master.Release();
+                }
             }
             #endregion
 
