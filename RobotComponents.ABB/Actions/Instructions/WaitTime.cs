@@ -58,7 +58,7 @@ namespace RobotComponents.ABB.Actions.Instructions
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Duration", _duration, typeof(double));
-            info.AddValue("In Postion", _inPosition, typeof(bool));
+            info.AddValue("In Position", _inPosition, typeof(bool));
         }
         #endregion
 

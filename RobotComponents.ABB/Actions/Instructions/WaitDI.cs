@@ -64,7 +64,7 @@ namespace RobotComponents.ABB.Actions.Instructions
             info.AddValue("Name", _name, typeof(string));
             info.AddValue("Value", _value, typeof(bool));
             info.AddValue("Max Time", _maxTime, typeof(double));
-            info.AddValue("Time Flag", _timeFlag, typeof(double));
+            info.AddValue("Time Flag", _timeFlag, typeof(bool));
         }
         #endregion
 
