@@ -116,6 +116,7 @@ namespace RobotComponents.ABB.Gh.Components.Definitions
             catch (Exception ex)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, ex.Message);
+                return;
             }
 
             // Output
