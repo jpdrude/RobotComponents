@@ -172,6 +172,37 @@ namespace RobotComponents.ABB.Enumerations
     }
 
     /// <summary>
+    /// Defines the signal type for interrupts.
+    /// </summary>
+    public enum SignalType : int
+    {
+        /// <summary>
+        /// Digital input signal
+        /// </summary>
+        DigitalInput = 0,
+        /// <summary>
+        /// Digital output signal
+        /// </summary>
+        DigitalOutput = 1,
+        /// <summary>
+        /// Analog input signal
+        /// </summary>
+        AnalogInput = 2,
+        /// <summary>
+        /// Analog output signal
+        /// </summary>
+        AnalogOutput = 3,
+        /// <summary>
+        /// Group input signal
+        /// </summary>
+        GroupInput = 4,
+        /// <summary>
+        /// Group output signal
+        /// </summary>
+        GroupOutput = 5
+    }
+
+    /// <summary>
     /// Defines inequalities (less than, greater than)
     /// </summary>
     public enum InequalitySymbol : int
