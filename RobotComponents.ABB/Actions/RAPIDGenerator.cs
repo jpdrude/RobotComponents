@@ -5,7 +5,7 @@
 //
 // Copyright (c) 2018-2020 EDEK Uni Kassel
 // Copyright (c) 2020-2024 Arjen Deetman
-// Copyright (c) 2025 EDEK Uni Kassel
+// Copyright (c) 2025-2026 EDEK Uni Kassel
 //
 // Original Authors:
 //   - Gabriel Rumph (2018-2020)
