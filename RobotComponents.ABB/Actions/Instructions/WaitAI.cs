@@ -97,6 +97,7 @@ namespace RobotComponents.ABB.Actions.Instructions
         {
             _name = WaitAI.Name;
             _value = WaitAI.Value;
+            _inequalitySymbol = WaitAI.InequalitySymbol;
             _maxTime = WaitAI.MaxTime;
         }
 
