@@ -1419,9 +1419,9 @@ namespace RobotComponents.ABB.Controllers
             #region load module from directory
             using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
             {
-                foreach (string filePathRemote in remotefilePaths)
+                try
                 {
-                    try
+                    foreach (string filePathRemote in remotefilePaths)
                     {
                         // Grant acces
                         _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
@@ -1432,14 +1432,17 @@ namespace RobotComponents.ABB.Controllers
                         status = "Loaded a module from the filesystem of the controller to the controller task.";
                         Log(status);
                     }
-                    catch (Exception e)
-                    {
-                        status = $"Could not load the module from the filesystem of the controller to the controller task: {e.Message}.";
-                        Log(status);
-                        return false;
-                    }
                 }
-                master.Release();
+                catch (Exception e)
+                {
+                    status = $"Could not load the module from the filesystem of the controller to the controller task: {e.Message}.";
+                    Log(status);
+                    return false;
+                }
+                finally
+                {
+                    master.Release();
+                }
             }
             #endregion
 
@@ -1949,8 +1952,14 @@ namespace RobotComponents.ABB.Controllers
             {
                 using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
                 {
-                    _controller.Rapid.Start(RapidDomainNS.RegainMode.Continue, RapidDomainNS.ExecutionMode.Continuous, RapidDomainNS.ExecutionCycle.Once, RapidDomainNS.StartCheck.CallChain);
-                    master.Release();
+                    try
+                    {
+                        _controller.Rapid.Start(RapidDomainNS.RegainMode.Continue, RapidDomainNS.ExecutionMode.Continuous, RapidDomainNS.ExecutionCycle.Once, RapidDomainNS.StartCheck.CallChain);
+                    }
+                    finally
+                    {
+                        master.Release();
+                    }
                 }
 
                 status = "Program started.";
@@ -1986,8 +1995,14 @@ namespace RobotComponents.ABB.Controllers
             {
                 using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
                 {
-                    _controller.Rapid.Stop(RapidDomainNS.StopMode.Instruction);
-                    master.Release();
+                    try
+                    {
+                        _controller.Rapid.Stop(RapidDomainNS.StopMode.Instruction);
+                    }
+                    finally
+                    {
+                        master.Release();
+                    }
                 }
 
                 status = "Program stopped.";
