@@ -136,6 +136,7 @@ namespace RobotComponents.ABB.Gh.Components.Definitions
 
                 if (doc != null)
                 {
+                    doc.ObjectsDeleted -= this.DocumentObjectsDeleted;
                     doc.ObjectsDeleted += this.DocumentObjectsDeleted;
                 }
                 #endregion
