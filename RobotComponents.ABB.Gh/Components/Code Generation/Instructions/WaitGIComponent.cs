@@ -78,9 +78,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group input name starts with a number which is not allowed in RAPID code.");
             }
-            if (HelperMethods.StringStartsWithNumber(name))
+            if (HelperMethods.StringHasSpecialCharacters(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group input name constains special characters which is not allowed in RAPID code.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group input name contains special characters which is not allowed in RAPID code.");
             }
 
             // Create the action
