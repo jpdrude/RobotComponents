@@ -558,7 +558,7 @@ namespace RobotComponents.ABB.Controllers
 
             for (int i = 0; i < _externalAxes.Count; i++)
             {
-                RapidDomainNS.JointTarget jointTarget = _mechanicalUnits[i].GetPosition();
+                RapidDomainNS.JointTarget jointTarget = _externalAxes[i].GetPosition();
 
                 for (int j = 0; j < _externalAxes[i].NumberOfAxes; j++)
                 {
