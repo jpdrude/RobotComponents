@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-10 16:36 
+ Generated on: 2026-02-12 15:05 
  --- 
+ - Updated CHANGELOG to reflect current status. Updated UpdateChangeLog script to actually generate correct changelogs... 
+  
+   **Commit:** `ad3ff92` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
  - Improve routine call arg handling - Clarify "Keyword" input description in RoutineArgumentComponent - Enhance RoutineCallComponent to call ToRAPID on objects implementing iDeclaration. 
   
    **Commit:** `b4517f2` | **Date:** 2026-02-10 

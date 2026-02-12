@@ -212,12 +212,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 _previousIsTrap = _isTrap;
 
-                DA.SetData(0, null);
-                DA.SetDataList(1, null);
-
                 UpdateVariableParameters(_isTrap);
-
-                return;
             }
 
             if (!_isTrap)
