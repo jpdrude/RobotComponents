@@ -116,6 +116,7 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
 
                 if (doc != null)
                 {
+                    doc.ObjectsDeleted -= this.DocumentObjectsDeleted;
                     doc.ObjectsDeleted += this.DocumentObjectsDeleted;
                 }
                 #endregion
