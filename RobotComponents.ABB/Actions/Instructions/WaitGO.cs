@@ -20,10 +20,10 @@ using RobotComponents.ABB.Definitions;
 namespace RobotComponents.ABB.Actions.Instructions
 {
     /// <summary>
-    /// Represents a Wait for Digital Output instruction.
+    /// Represents a Wait for Group Output instruction.
     /// </summary>
     /// <remarks>
-    /// This action is used to wait until a digital output is set.
+    /// This action is used to wait until a group output is set.
     /// </remarks>
     [Serializable()]
     public class WaitGO : IAction, IInstruction, ISerializable
@@ -175,7 +175,7 @@ namespace RobotComponents.ABB.Actions.Instructions
         {
             if (_maxTime > 0)
             {
-                string result = $"WaitDI {_name}, {_value} ";
+                string result = $"WaitGO {_name}, {_value} ";
                 result += $"\\MaxTime:={_maxTime:0.###}";
                 //result += $"{(_timeFlag ? $"\\TimeFlag:=TRUE" : $"\\TimeFlag:=FALSE")}";
                 result += ";";
@@ -184,7 +184,7 @@ namespace RobotComponents.ABB.Actions.Instructions
             }
             else
             {
-                return $"WaitDI {_name}, {_value};";
+                return $"WaitGO {_name}, {_value};";
             }
         }
 
