@@ -3,10 +3,10 @@
 // Project: https://github.com/RobotComponents/RobotComponents
 //
 // Copyright (c) 2020 EDEK Uni Kassel
-// Copyright (c) 2020-2025 Arjen Deetman
+// Copyright (c) 2020-2026 Arjen Deetman
 //
 // Authors:
-//   - Arjen Deetman (2020-2025)
+//   - Arjen Deetman (2020-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
