@@ -38,7 +38,7 @@ jobs:
         uses: Malcolmnixon/Setup-VSTest@v4
 
       - name: Run tests
-        run: vstest.console.exe "RobotComponents.Tests\bin\${{ inputs.configuration }}\net48\RobotComponents.Tests.dll" /Logger:"trx;LogFileName=TestResults.trx"
+        run: vstest.console.exe "RobotComponents.Tests\bin\${{ inputs.configuration }}\net48\RobotComponents.Tests.dll" /TestCaseFilter:"Category!=RequiresRhino" /Logger:"trx;LogFileName=TestResults.trx"
 
       - name: Collect plugin files
         shell: pwsh
