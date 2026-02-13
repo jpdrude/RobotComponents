@@ -42,13 +42,13 @@ namespace RobotComponents.Tests.Actions
         }
 
         [Fact]
-        public void Constructor_PredefinedNearest25_SnapsToV20()
+        public void Constructor_PredefinedNearest25_SnapsToV30()
         {
-            // |25-20| == |25-30| == 5, but Aggregate < keeps first match (v20)
+            // |25-20| == |25-30| == 5, tie goes to v30
             SpeedData sd = new SpeedData(25.0);
 
-            Assert.Equal("v20", sd.Name);
-            Assert.Equal(20, sd.V_TCP);
+            Assert.Equal("v30", sd.Name);
+            Assert.Equal(30, sd.V_TCP);
             Assert.True(sd.IsPreDefined);
             Assert.False(sd.IsExactPredefinedValue);
         }
