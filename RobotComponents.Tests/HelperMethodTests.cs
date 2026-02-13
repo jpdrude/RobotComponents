@@ -27,6 +27,7 @@ namespace RobotComponents.Tests
 
         #region Quaternion / Plane round-trip
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void PlaneToQuaternion_ThenQuaternionToPlane_ReturnsOriginalPlane()
         {
             Plane original = new Plane(new Point3d(10, 20, 30), new Vector3d(1, 0, 0), new Vector3d(0, 1, 0));
@@ -43,6 +44,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void PlaneToQuaternion_ThenQuaternionToPlane_RotatedPlane_ReturnsOriginalPlane()
         {
             // A rotated plane (45 degrees around Z)
@@ -65,6 +67,7 @@ namespace RobotComponents.Tests
 
         #region Known quaternion values
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IdentityQuaternion_ProducesWorldXYPlane()
         {
             Quaternion identity = new Quaternion(1, 0, 0, 0);
@@ -81,6 +84,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void QuaternionToPlane_WithComponentOverload_MatchesQuaternionOverload()
         {
             Point3d origin = new Point3d(1, 2, 3);
@@ -95,6 +99,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void QuaternionToPlane_XYZOverload_SetsCorrectOrigin()
         {
             Plane result = HelperMethods.QuaternionToPlane(10.0, 20.0, 30.0, 1, 0, 0, 0);
@@ -107,6 +112,7 @@ namespace RobotComponents.Tests
 
         #region FlipPlaneX / FlipPlaneY
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void FlipPlaneX_NegatesXAxis_OriginUnchanged()
         {
             Plane original = new Plane(new Point3d(1, 2, 3), Vector3d.XAxis, Vector3d.YAxis);
@@ -122,6 +128,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void FlipPlaneY_NegatesYAxis_OriginUnchanged()
         {
             Plane original = new Plane(new Point3d(1, 2, 3), Vector3d.XAxis, Vector3d.YAxis);
@@ -137,6 +144,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void FlipPlaneX_FlipsNormal()
         {
             Plane original = Plane.WorldXY;
@@ -150,6 +158,7 @@ namespace RobotComponents.Tests
 
         #region Slerp
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Slerp_AtZero_ReturnsFirstQuaternion()
         {
             Quaternion q1 = new Quaternion(1, 0, 0, 0);
@@ -166,6 +175,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Slerp_AtOne_ReturnsSecondQuaternion()
         {
             Quaternion q1 = new Quaternion(1, 0, 0, 0);
@@ -181,6 +191,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Slerp_AtHalf_ReturnsMidpointRotation()
         {
             Quaternion q1 = new Quaternion(1, 0, 0, 0);
@@ -299,6 +310,7 @@ namespace RobotComponents.Tests
 
         #region DotProduct
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void DotProduct_IdenticalQuaternions_ReturnsOne()
         {
             Quaternion q = new Quaternion(1, 0, 0, 0);
@@ -310,6 +322,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void DotProduct_OrthogonalQuaternions_ReturnsZero()
         {
             // Two orthogonal unit quaternions
@@ -323,6 +336,7 @@ namespace RobotComponents.Tests
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void DotProduct_OppositeQuaternions_ReturnsNegativeOne()
         {
             Quaternion q1 = new Quaternion(1, 0, 0, 0);
