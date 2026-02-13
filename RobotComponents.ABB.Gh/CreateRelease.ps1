@@ -1,5 +1,11 @@
 param([string]$OutputPath)
 
+# Skip in non-interactive environments (e.g. CI)
+if ($env:CI -or $env:GITHUB_ACTIONS -or ![Environment]::UserInteractive) {
+    Write-Host "Non-interactive environment detected, skipping CreateRelease.ps1"
+    exit 0
+}
+
 function Create-InstallMarkdown {
     param([string]$Path)
     
