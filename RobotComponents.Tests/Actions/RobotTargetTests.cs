@@ -10,6 +10,7 @@ using Rhino.Geometry;
 using Xunit;
 // Robot Components Libs
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Enumerations;
 
 namespace RobotComponents.Tests.Actions
 {
@@ -202,6 +203,34 @@ namespace RobotComponents.Tests.Actions
             bool result = RobotTarget.TryParse("garbage", out RobotTarget rt);
 
             Assert.False(result);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void TryParse_WrongDatatype_ReturnsFalse()
+        {
+            bool result = RobotTarget.TryParse("VAR speeddata v100 := [100, 500, 5000, 1000];", out RobotTarget rt);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void TryParse_TooFewValues_ReturnsFalse()
+        {
+            bool result = RobotTarget.TryParse("VAR robtarget t := [100, 200, 300];", out RobotTarget rt);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void Parse_ConstVariableType_SetsConst()
+        {
+            RobotTarget rt = RobotTarget.Parse("CONST robtarget t1 := [[100, 200, 300], [1, 0, 0, 0], [0, 0, 0, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];");
+
+            Assert.Equal(VariableType.CONST, rt.VariableType);
+            Assert.Equal("t1", rt.Name);
         }
         #endregion
     }

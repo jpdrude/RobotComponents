@@ -282,6 +282,40 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void TryParse_WrongDatatype_ReturnsFalse()
+        {
+            bool result = ZoneData.TryParse("VAR speeddata v100 := [100, 500, 5000, 1000];", out ZoneData zd);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void TryParse_TooFewValues_ReturnsFalse()
+        {
+            bool result = ZoneData.TryParse("VAR zonedata z := [FALSE, 5, 10];", out ZoneData zd);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Parse_ConstVariableType_SetsConst()
+        {
+            ZoneData zd = ZoneData.Parse("CONST zonedata myZone := [FALSE, 5, 10, 10, 1, 10, 1];");
+
+            Assert.Equal(VariableType.CONST, zd.VariableType);
+            Assert.Equal("myZone", zd.Name);
+        }
+
+        [Fact]
+        public void Parse_LocalScope_SetsLocalScope()
+        {
+            ZoneData zd = ZoneData.Parse("LOCAL VAR zonedata myZone := [FALSE, 5, 10, 10, 1, 10, 1];");
+
+            Assert.Equal(Scope.LOCAL, zd.Scope);
+            Assert.Equal("myZone", zd.Name);
+        }
         #endregion
 
         #region Static Helpers

@@ -289,6 +289,49 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void TryParse_WrongDatatype_ReturnsFalse()
+        {
+            bool result = SpeedData.TryParse("VAR zonedata myZone := [FALSE, 5, 10, 10, 1, 10, 1];", out SpeedData sd);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void TryParse_TooFewValues_ReturnsFalse()
+        {
+            bool result = SpeedData.TryParse("VAR speeddata s := [100, 500, 5000];", out SpeedData sd);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Parse_ConstVariableType_SetsConst()
+        {
+            SpeedData sd = SpeedData.Parse("CONST speeddata mySpeed := [200, 500, 5000, 1000];");
+
+            Assert.Equal(VariableType.CONST, sd.VariableType);
+            Assert.Equal("mySpeed", sd.Name);
+        }
+
+        [Fact]
+        public void Parse_LocalScope_SetsLocalScope()
+        {
+            SpeedData sd = SpeedData.Parse("LOCAL VAR speeddata mySpeed := [200, 500, 5000, 1000];");
+
+            Assert.Equal(Scope.LOCAL, sd.Scope);
+            Assert.Equal("mySpeed", sd.Name);
+            Assert.Equal(200, sd.V_TCP);
+        }
+
+        [Fact]
+        public void Parse_PersVariableType_SetsPers()
+        {
+            SpeedData sd = SpeedData.Parse("PERS speeddata mySpeed := [200, 500, 5000, 1000];");
+
+            Assert.Equal(VariableType.PERS, sd.VariableType);
+        }
         #endregion
 
         #region Static Helpers

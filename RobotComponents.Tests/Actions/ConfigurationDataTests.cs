@@ -152,6 +152,41 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void TryParse_WrongDatatype_ReturnsFalse()
+        {
+            bool result = ConfigurationData.TryParse("VAR speeddata v100 := [100, 500, 5000, 1000];", out ConfigurationData cd);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void TryParse_TooFewValues_ReturnsFalse()
+        {
+            bool result = ConfigurationData.TryParse("CONST confdata c := [1, 2];", out ConfigurationData cd);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Parse_VarVariableType_SetsVar()
+        {
+            ConfigurationData cd = ConfigurationData.Parse("VAR confdata conf1 := [1, 2, 3, 4];");
+
+            Assert.Equal(VariableType.VAR, cd.VariableType);
+            Assert.Equal("conf1", cd.Name);
+        }
+
+        [Fact]
+        public void Parse_LocalScope_SetsLocalScope()
+        {
+            ConfigurationData cd = ConfigurationData.Parse("LOCAL CONST confdata conf1 := [1, 2, 3, 4];");
+
+            Assert.Equal(Scope.LOCAL, cd.Scope);
+            Assert.Equal(VariableType.CONST, cd.VariableType);
+            Assert.Equal("conf1", cd.Name);
+        }
         #endregion
     }
 }

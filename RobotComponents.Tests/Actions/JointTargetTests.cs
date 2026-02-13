@@ -8,6 +8,7 @@
 using Xunit;
 // Robot Components Libs
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Enumerations;
 
 namespace RobotComponents.Tests.Actions
 {
@@ -158,6 +159,41 @@ namespace RobotComponents.Tests.Actions
             bool result = JointTarget.TryParse("garbage", out JointTarget jt);
 
             Assert.False(result);
+        }
+
+        [Fact]
+        public void TryParse_WrongDatatype_ReturnsFalse()
+        {
+            bool result = JointTarget.TryParse("VAR speeddata v100 := [100, 500, 5000, 1000];", out JointTarget jt);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void TryParse_TooFewValues_ReturnsFalse()
+        {
+            bool result = JointTarget.TryParse("VAR jointtarget jt := [10, 20, 30];", out JointTarget jt);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Parse_ConstVariableType_SetsConst()
+        {
+            JointTarget jt = JointTarget.Parse("CONST jointtarget jt1 := [[0, 0, 0, 0, 0, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];");
+
+            Assert.Equal(VariableType.CONST, jt.VariableType);
+            Assert.Equal("jt1", jt.Name);
+        }
+
+        [Fact]
+        public void Parse_TaskScope_SetsTaskScope()
+        {
+            JointTarget jt = JointTarget.Parse("TASK VAR jointtarget jt1 := [[10, 20, 30, 40, 50, 60], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];");
+
+            Assert.Equal(Scope.TASK, jt.Scope);
+            Assert.Equal("jt1", jt.Name);
+            Assert.Equal(10, jt.RobotJointPosition[0]);
         }
         #endregion
     }
