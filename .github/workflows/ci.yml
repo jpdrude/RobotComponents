@@ -32,8 +32,8 @@ jobs:
         uses: Malcolmnixon/Setup-VSTest@v4
 
       - name: Run tests
-        run: vstest.console.exe "RobotComponents.Tests\bin\Release\net48\RobotComponents.Tests.dll" /Logger:"trx;LogFileName=TestResults.trx"
-
+        run: vstest.console.exe "RobotComponents.Tests\bin\Release\net48\RobotComponents.Tests.dll" /TestCaseFilter:"Category!=RequiresRhino" /Logger:"trx;LogFileName=TestResults.trx"
+        
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
