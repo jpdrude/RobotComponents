@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -27,3 +28,5 @@ using System.Runtime.InteropServices;
 // x.x.0 ---> PATCH version when you make backwards compatible bug fixes
 [assembly: AssemblyVersion(RobotComponents.VersionNumbering.CurrentVersion)]
 [assembly: AssemblyFileVersion(RobotComponents.VersionNumbering.CurrentVersion)]
+
+[assembly: InternalsVisibleTo("RobotComponents.Tests")]
