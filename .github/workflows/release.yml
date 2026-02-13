@@ -1,0 +1,183 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate tag matches VersionNumbering.cs
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $tagVersion = $tag -replace '^v', ''
+
+          $versionFile = Get-Content "RobotComponents\VersionNumbering.cs" -Raw
+          if ($versionFile -match 'CurrentVersion\s*=\s*"([^"]+)"') {
+            $codeVersion = $Matches[1]
+          } else {
+            Write-Error "Could not parse version from VersionNumbering.cs"
+            exit 1
+          }
+
+          Write-Host "Tag version:  $tagVersion"
+          Write-Host "Code version: $codeVersion"
+
+          if ($tagVersion -ne $codeVersion) {
+            Write-Error "Tag version ($tagVersion) does not match VersionNumbering.cs ($codeVersion). Update VersionNumbering.cs before tagging."
+            exit 1
+          }
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore
+
+      - name: Build solution (Release)
+        run: msbuild /t:Restore,Build /p:Configuration=Release
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          $vstest = Get-ChildItem "C:\Program Files" -Recurse -Filter "vstest.console.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $vstest) {
+            Write-Error "vstest.console.exe not found on this runner."
+            exit 1
+          }
+
+          $testDll = Get-ChildItem -Recurse "RobotComponents.Tests\bin" -Filter "RobotComponents.Tests.dll" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "Release" -and $_.FullName -match "net48" } |
+            Select-Object -First 1
+
+          if (-not $testDll) {
+            Write-Error "Test DLL not found under RobotComponents.Tests\bin"
+            exit 1
+          }
+
+          & "$($vstest.FullName)" "$($testDll.FullName)" /Logger:"trx;LogFileName=TestResults.trx"
+
+      - name: Collect release files
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          $outDir = "release-staging"
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+
+          # Collect .gha from the Gh project
+          $ghaBin = "RobotComponents.ABB.Gh\bin\Release\net48"
+          Get-ChildItem -Path $ghaBin -Filter "*.gha" -ErrorAction SilentlyContinue | Copy-Item -Destination $outDir
+
+          # Collect all project DLLs (exclude test and GH2 assemblies)
+          $projects = @(
+            "RobotComponents",
+            "RobotComponents.ABB",
+            "RobotComponents.ABB.Presets",
+            "RobotComponents.ABB.Gh.Goos",
+            "RobotComponents.ABB.Controllers"
+          )
+          foreach ($proj in $projects) {
+            $dll = "$proj\bin\Release\net48\$proj.dll"
+            if (Test-Path $dll) {
+              Copy-Item $dll -Destination $outDir
+            }
+          }
+
+          # Include license
+          if (Test-Path "LICENSE") {
+            Copy-Item "LICENSE" -Destination $outDir
+          }
+
+          Write-Host "Release files:"
+          Get-ChildItem $outDir | Format-Table Name, Length
+
+          # Create zip
+          $zipPath = "RobotComponents-$version.zip"
+          Compress-Archive -Path "$outDir\*" -DestinationPath $zipPath -Force
+          Write-Host "Created: $zipPath"
+
+      - name: Extract changelog for this version
+        id: changelog
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag -replace '^v', ''
+
+          # Read the full changelog
+          $changelog = Get-Content "CHANGELOG.md" -Raw -ErrorAction SilentlyContinue
+
+          if (-not $changelog) {
+            $notes = "Release $tag"
+          } else {
+            # Use the changelog content up to a reasonable length as release notes
+            # The changelog format uses --- separators between entries
+            $sections = $changelog -split '---'
+            $relevantSections = $sections | Select-Object -First 5
+            $notes = ($relevantSections -join "`n---`n").Trim()
+
+            if ($notes.Length -gt 10000) {
+              $notes = $notes.Substring(0, 10000) + "`n`n... (see CHANGELOG.md for full details)"
+            }
+          }
+
+          # Write to file for the release step
+          $notes | Out-File -FilePath "release-notes.md" -Encoding UTF8
+
+      - name: Generate install instructions
+        shell: pwsh
+        run: |
+          $content = @"
+          # Installation Instructions
+
+          ## Limitations
+          - Only works for Rhino 8
+
+          ## Download and Install
+
+          1. **Download** the latest release zip from this page
+
+          2. **Unblock the zip file** (important to prevent Windows security warnings):
+             - Right-click the downloaded zip file
+             - Select **Properties**
+             - Check the **Unblock** checkbox at the bottom
+             - Click **OK**
+
+          3. **Extract** the zip file contents
+
+          4. **Install** the plugin:
+             - Open File Explorer and navigate to: ``%appdata%\Grasshopper\Libraries``
+             - Paste all extracted files into this folder
+
+          5. **Restart** Rhino and Grasshopper
+
+          The components should now be available in Grasshopper.
+          "@
+
+          $content | Out-File -FilePath "release-staging\INSTALL.md" -Encoding UTF8
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          gh release create ${{ github.ref_name }}
+          "RobotComponents-${{ github.ref_name }}.zip"
+          "release-staging/INSTALL.md"
+          --title "Release ${{ github.ref_name }}"
+          --notes-file release-notes.md
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults.trx'
