@@ -1,0 +1,101 @@
+name: Build Artifacts (On-Demand)
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: 'Build configuration'
+        required: false
+        default: 'Release'
+        type: choice
+        options:
+          - Release
+          - Debug
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore
+
+      - name: Build solution
+        run: msbuild /t:Restore,Build /p:Configuration=${{ inputs.configuration }}
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          $vstest = Get-ChildItem "C:\Program Files" -Recurse -Filter "vstest.console.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $vstest) {
+            Write-Error "vstest.console.exe not found on this runner."
+            exit 1
+          }
+
+          $testDll = Get-ChildItem -Recurse "RobotComponents.Tests\bin" -Filter "RobotComponents.Tests.dll" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "${{ inputs.configuration }}" -and $_.FullName -match "net48" } |
+            Select-Object -First 1
+
+          if (-not $testDll) {
+            Write-Error "Test DLL not found under RobotComponents.Tests\bin"
+            exit 1
+          }
+
+          & "$($vstest.FullName)" "$($testDll.FullName)" /Logger:"trx;LogFileName=TestResults.trx"
+
+      - name: Collect plugin files
+        shell: pwsh
+        run: |
+          $config = "${{ inputs.configuration }}"
+          $outDir = "artifact-staging"
+          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+
+          # Collect .gha from the Gh project
+          $ghaBin = "RobotComponents.ABB.Gh\bin\$config\net48"
+          Get-ChildItem -Path $ghaBin -Filter "*.gha" -ErrorAction SilentlyContinue | Copy-Item -Destination $outDir
+
+          # Collect all project DLLs (exclude test and GH2 assemblies)
+          $projects = @(
+            "RobotComponents",
+            "RobotComponents.ABB",
+            "RobotComponents.ABB.Presets",
+            "RobotComponents.ABB.Gh.Goos",
+            "RobotComponents.ABB.Controllers"
+          )
+          foreach ($proj in $projects) {
+            $dll = "$proj\bin\$config\net48\$proj.dll"
+            if (Test-Path $dll) {
+              Copy-Item $dll -Destination $outDir
+            }
+          }
+
+          # Include license
+          if (Test-Path "LICENSE") {
+            Copy-Item "LICENSE" -Destination $outDir
+          }
+
+          Write-Host "Staged files:"
+          Get-ChildItem $outDir | Format-Table Name, Length
+
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RobotComponents-${{ inputs.configuration }}-${{ github.sha }}
+          path: artifact-staging/
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults.trx'
