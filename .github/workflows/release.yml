@@ -47,25 +47,11 @@ jobs:
       - name: Build solution (Release)
         run: msbuild /t:Restore,Build /p:Configuration=Release
 
+      - name: Setup VSTest
+        uses: Malcolmnixon/Setup-VSTest@v4
+
       - name: Run tests
-        shell: pwsh
-        run: |
-          $vstest = Get-ChildItem "C:\Program Files" -Recurse -Filter "vstest.console.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $vstest) {
-            Write-Error "vstest.console.exe not found on this runner."
-            exit 1
-          }
-
-          $testDll = Get-ChildItem -Recurse "RobotComponents.Tests\bin" -Filter "RobotComponents.Tests.dll" -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match "Release" -and $_.FullName -match "net48" } |
-            Select-Object -First 1
-
-          if (-not $testDll) {
-            Write-Error "Test DLL not found under RobotComponents.Tests\bin"
-            exit 1
-          }
-
-          & "$($vstest.FullName)" "$($testDll.FullName)" /Logger:"trx;LogFileName=TestResults.trx"
+        run: vstest.console.exe "RobotComponents.Tests\bin\Release\net48\RobotComponents.Tests.dll" /Logger:"trx;LogFileName=TestResults.trx"
 
       - name: Collect release files
         shell: pwsh
