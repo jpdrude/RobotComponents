@@ -5,9 +5,11 @@ BeforeAll {
 Describe 'Collect-ReleaseFiles' {
 
     BeforeEach {
-        # Build a fake repo tree in TestDrive
+        # Clean up from previous test runs (TestDrive persists between It blocks)
         $script:RepoRoot = Join-Path $TestDrive 'repo'
         $script:OutDir   = Join-Path $TestDrive 'staging'
+        Remove-Item -Path $script:RepoRoot -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path $script:OutDir -Recurse -Force -ErrorAction SilentlyContinue
 
         # Create .gha
         $ghaDir = Join-Path $script:RepoRoot 'RobotComponents.ABB.Gh' 'bin' 'Release' 'net48'
