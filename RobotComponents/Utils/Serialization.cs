@@ -55,6 +55,7 @@ namespace RobotComponents.Utils
             if (data == null) return null;
 
             BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Binder = new AllowedTypesSerializationBinder();
 
             using (MemoryStream stream = new MemoryStream(data))
             {
