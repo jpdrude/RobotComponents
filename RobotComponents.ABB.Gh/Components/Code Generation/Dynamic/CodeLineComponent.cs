@@ -107,7 +107,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             for (int i = 0; i < lines.Length; i++)
             {
-                codeLines.Add(new CodeLine(lines[i], (CodeType)type));
+                CodeLine codeLine = new CodeLine(lines[i], (CodeType)type);
+
+                foreach (string warning in codeLine.Warnings)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warning);
+                }
+
+                codeLines.Add(codeLine);
             }
 
             // Sets Output

@@ -9,6 +9,7 @@ using Xunit;
 // Robot Components Libs
 using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Utils;
 
 namespace RobotComponents.Tests.Actions
 {
@@ -76,6 +77,184 @@ namespace RobotComponents.Tests.Actions
             CodeLine cl = new CodeLine();
 
             Assert.False(cl.IsValid);
+        }
+    }
+
+    public class CodeLineSanitizationTests
+    {
+        [Fact]
+        public void Sanitize_NormalCode_NoWarnings()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("MoveL p1, v100, fine, tool0;");
+
+            Assert.Equal("MoveL p1, v100, fine, tool0;", result.Code);
+            Assert.Empty(result.Warnings);
+        }
+
+        [Fact]
+        public void Sanitize_StripsNewlines()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("line1\nline2");
+
+            Assert.Equal("line1 line2", result.Code);
+            Assert.Single(result.Warnings);
+        }
+
+        [Fact]
+        public void Sanitize_StripsCarriageReturnNewline()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("line1\r\nline2");
+
+            Assert.Equal("line1 line2", result.Code);
+            Assert.Single(result.Warnings);
+        }
+
+        [Fact]
+        public void Sanitize_DetectsEndProc()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("ENDPROC");
+
+            Assert.True(result.HasWarnings);
+            Assert.Contains(result.Warnings, w => w.Contains("ENDPROC"));
+        }
+
+        [Fact]
+        public void Sanitize_DetectsEndModule()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("ENDMODULE");
+
+            Assert.True(result.HasWarnings);
+            Assert.Contains(result.Warnings, w => w.Contains("ENDMODULE"));
+        }
+
+        [Fact]
+        public void Sanitize_DetectsProc()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("PROC myproc()");
+
+            Assert.True(result.HasWarnings);
+            Assert.Contains(result.Warnings, w => w.Contains("PROC"));
+        }
+
+        [Fact]
+        public void Sanitize_DetectsCaseInsensitive()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("endproc");
+
+            Assert.True(result.HasWarnings);
+            Assert.Contains(result.Warnings, w => w.Contains("ENDPROC"));
+        }
+
+        [Fact]
+        public void Sanitize_AllowsProcInContext()
+        {
+            // "proc" as part of a longer word should NOT trigger a warning
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("MoveL proc_target, v50, fine, tool0;");
+
+            Assert.False(result.HasWarnings);
+        }
+
+        [Fact]
+        public void Sanitize_MultipleIssues()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("ENDPROC\nENDMODULE");
+
+            // Should have: newline warning + ENDPROC warning + ENDMODULE warning
+            Assert.True(result.Warnings.Count >= 3);
+        }
+
+        [Fact]
+        public void Sanitize_NullInput_NoWarnings()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize(null);
+
+            Assert.Null(result.Code);
+            Assert.Empty(result.Warnings);
+        }
+
+        [Fact]
+        public void Sanitize_EmptyInput_NoWarnings()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("");
+
+            Assert.Equal("", result.Code);
+            Assert.Empty(result.Warnings);
+        }
+
+        [Fact]
+        public void Sanitize_DetectsModule()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("MODULE evil");
+
+            Assert.True(result.HasWarnings);
+            Assert.Contains(result.Warnings, w => w.Contains("MODULE"));
+        }
+
+        [Fact]
+        public void Sanitize_DetectsTrap()
+        {
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("TRAP myhandler");
+
+            Assert.True(result.HasWarnings);
+            Assert.Contains(result.Warnings, w => w.Contains("TRAP"));
+        }
+
+        [Fact]
+        public void CodeLine_WithStructuralKeyword_IsInvalid()
+        {
+            CodeLine cl = new CodeLine("ENDPROC");
+
+            Assert.False(cl.IsValid);
+            Assert.NotEmpty(cl.Warnings);
+        }
+
+        [Fact]
+        public void CodeLine_WithSafeCode_IsValid()
+        {
+            CodeLine cl = new CodeLine("MoveL p1, v100, fine, tool0;");
+
+            Assert.True(cl.IsValid);
+            Assert.Empty(cl.Warnings);
+        }
+
+        [Fact]
+        public void CodeLine_SetterSanitizes()
+        {
+            CodeLine cl = new CodeLine("safe code;");
+            Assert.True(cl.IsValid);
+
+            cl.Code = "ENDPROC";
+            Assert.False(cl.IsValid);
+            Assert.NotEmpty(cl.Warnings);
+        }
+
+        [Fact]
+        public void CodeLine_NewlinesSanitizedInOutput()
+        {
+            CodeLine cl = new CodeLine("MoveL p1;\nMoveL p2;");
+
+            // Newlines should be replaced with spaces
+            Assert.DoesNotContain("\n", cl.Code);
+            Assert.Equal("MoveL p1; MoveL p2;", cl.Code);
+        }
+
+        [Fact]
+        public void CodeLine_VarDeclaration_IsValid()
+        {
+            CodeLine cl = new CodeLine("VAR num x := 5;", CodeType.Declaration);
+
+            Assert.True(cl.IsValid);
+            Assert.Empty(cl.Warnings);
+        }
+
+        [Fact]
+        public void CodeLine_InjectionWithSemicolon_NoStructuralWarning()
+        {
+            // Semicolons are normal in RAPID — only structural keywords are flagged
+            CodeLine cl = new CodeLine("SetDO signal1, 1;");
+
+            Assert.True(cl.IsValid);
+            Assert.Empty(cl.Warnings);
         }
     }
 
