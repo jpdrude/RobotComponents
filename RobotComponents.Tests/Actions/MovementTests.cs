@@ -265,6 +265,35 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
+        #region Time
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveL_WithTime_AppendsBackslashT()
+        {
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            Movement move = new Movement(MovementType.MoveL, target, new SpeedData(100), new ZoneData(10));
+            move.Time = 2.5;
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("\\T:=2.5", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveL_DefaultTime_NoBackslashT()
+        {
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            Movement move = new Movement(MovementType.MoveL, target, new SpeedData(100), new ZoneData(10));
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.DoesNotContain("\\T", joined);
+        }
+        #endregion
+
         #region IsValid
         [Fact]
         [Trait("Category", "RequiresRhino")]
