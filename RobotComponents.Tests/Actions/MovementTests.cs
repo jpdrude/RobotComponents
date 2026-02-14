@@ -187,6 +187,55 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
+        #region MoveLDO / MoveJDO
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveL_WithDigitalOutput_ProducesMoveLDO()
+        {
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            SetDigitalOutput sdo = new SetDigitalOutput("DO_1", true);
+            Movement move = new Movement(MovementType.MoveL, target, new SpeedData(100), new ZoneData(10), sdo);
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MoveLDO", joined);
+            Assert.Contains("DO_1", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveJ_WithDigitalOutput_ProducesMoveJDO()
+        {
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            SetDigitalOutput sdo = new SetDigitalOutput("DO_1", false);
+            Movement move = new Movement(MovementType.MoveJ, target, new SpeedData(100), new ZoneData(10), sdo);
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MoveJDO", joined);
+            Assert.Contains("DO_1", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveAbsJ_WithDigitalOutput_ProducesSeparateSetDO()
+        {
+            RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt1", rjp);
+            SetDigitalOutput sdo = new SetDigitalOutput("DO_1", true);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10), sdo);
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MoveAbsJ", joined);
+            Assert.Contains("SetDO", joined);
+            Assert.Contains("DO_1", joined);
+        }
+        #endregion
+
         #region IsValid
         [Fact]
         [Trait("Category", "RequiresRhino")]
