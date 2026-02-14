@@ -6,6 +6,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 // Xunit Libs
 using Xunit;
 // Robot Components Libs
@@ -58,6 +59,19 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Equal(0, rjp[0]);
         }
+
+        [Fact]
+        public void Constructor_ListOfDoubles_SetsValues()
+        {
+            RobotJointPosition rjp = new RobotJointPosition(new List<double> { 10, 20, 30, 40, 50, 60 });
+
+            Assert.Equal(10, rjp[0]);
+            Assert.Equal(20, rjp[1]);
+            Assert.Equal(30, rjp[2]);
+            Assert.Equal(40, rjp[3]);
+            Assert.Equal(50, rjp[4]);
+            Assert.Equal(60, rjp[5]);
+        }
         #endregion
 
         #region ToRAPID
@@ -93,6 +107,24 @@ namespace RobotComponents.Tests.Actions
             RobotJointPosition rjp = new RobotJointPosition(10, 20, 30, 40, 50, 60);
 
             Assert.Equal(string.Empty, rjp.ToRAPIDDeclaration(null));
+        }
+
+        [Fact]
+        public void ToRAPIDDeclaration_LocalScope_IncludesScopePrefix()
+        {
+            RobotJointPosition rjp = new RobotJointPosition("rj1", 0, 0, 0, 0, 0, 0);
+            rjp.Scope = Scope.LOCAL;
+
+            Assert.Equal("LOCAL VAR robjoint rj1 := [0, 0, 0, 0, 0, 0];", rjp.ToRAPIDDeclaration(null));
+        }
+
+        [Fact]
+        public void ToRAPIDDeclaration_TaskScope_IncludesScopePrefix()
+        {
+            RobotJointPosition rjp = new RobotJointPosition("rj1", 0, 0, 0, 0, 0, 0);
+            rjp.Scope = Scope.TASK;
+
+            Assert.Equal("TASK VAR robjoint rj1 := [0, 0, 0, 0, 0, 0];", rjp.ToRAPIDDeclaration(null));
         }
         #endregion
 

@@ -172,7 +172,7 @@ namespace RobotComponents.Tests.Actions
             List<string> module = GenerateModule(new List<IAction> { move });
             string joined = string.Join(Environment.NewLine, module);
 
-            Assert.Contains("MoveC", joined);
+            Assert.Contains("MoveC ", joined);
             Assert.Contains("via1", joined);
         }
 
@@ -187,7 +187,7 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
-        #region MoveLDO / MoveJDO
+        #region MoveLDO / MoveJDO / MoveCDO
         [Fact]
         [Trait("Category", "RequiresRhino")]
         public void MoveL_WithDigitalOutput_ProducesMoveLDO()
@@ -200,7 +200,7 @@ namespace RobotComponents.Tests.Actions
             string joined = string.Join(Environment.NewLine, module);
 
             Assert.Contains("MoveLDO", joined);
-            Assert.Contains("DO_1", joined);
+            Assert.Contains("DO_1, 1", joined);
         }
 
         [Fact]
@@ -233,6 +233,24 @@ namespace RobotComponents.Tests.Actions
             Assert.Contains("MoveAbsJ", joined);
             Assert.Contains("SetDO", joined);
             Assert.Contains("DO_1", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveC_WithDigitalOutput_ProducesMoveCDO()
+        {
+            RobotTarget cirPoint = new RobotTarget("via1", new Plane(new Point3d(200, 100, 400), Vector3d.ZAxis));
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            SetDigitalOutput sdo = new SetDigitalOutput("DO_1", true);
+            Movement move = new Movement(MovementType.MoveC, target, new SpeedData(100), new ZoneData(10), sdo);
+            move.CircularPoint = cirPoint;
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MoveCDO", joined);
+            Assert.Contains("via1", joined);
+            Assert.Contains("DO_1, 1", joined);
         }
         #endregion
 
