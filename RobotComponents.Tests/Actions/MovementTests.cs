@@ -159,6 +159,34 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
+        #region MoveC
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveC_RobotTarget_ProducesCorrectInstruction()
+        {
+            RobotTarget cirPoint = new RobotTarget("via1", new Plane(new Point3d(200, 100, 400), Vector3d.ZAxis));
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            Movement move = new Movement(MovementType.MoveC, target, new SpeedData(100), new ZoneData(10));
+            move.CircularPoint = cirPoint;
+
+            List<string> module = GenerateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MoveC", joined);
+            Assert.Contains("via1", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void MoveC_UnsetCircularPoint_ThrowsException()
+        {
+            RobotTarget target = new RobotTarget("rt1", new Plane(new Point3d(300, 0, 500), Vector3d.ZAxis));
+            Movement move = new Movement(MovementType.MoveC, target, new SpeedData(100), new ZoneData(10));
+
+            Assert.Throws<Exception>(() => GenerateModule(new List<IAction> { move }));
+        }
+        #endregion
+
         #region IsValid
         [Fact]
         [Trait("Category", "RequiresRhino")]
