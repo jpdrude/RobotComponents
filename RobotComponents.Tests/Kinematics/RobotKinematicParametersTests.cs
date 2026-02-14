@@ -92,6 +92,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region GetAxisPlanes
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GetAxisPlanes_IRB120_ReturnsSixPlanes()
         {
             RobotKinematicParameters p = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
@@ -101,6 +102,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GetAxisPlanes_IRB120_Plane0AtOrigin()
         {
             RobotKinematicParameters p = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
@@ -113,6 +115,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GetAxisPlanes_IRB120_Plane1AtA1C1()
         {
             RobotKinematicParameters p = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
@@ -124,6 +127,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GetAxisPlanes_IRB120_Plane5AtWrist()
         {
             RobotKinematicParameters p = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
@@ -136,6 +140,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GetAxisPlanes_OutputsMountingFrame()
         {
             RobotKinematicParameters p = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
@@ -147,6 +152,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GetAxisPlanes_WithOffsetBase_TransformsPlanes()
         {
             RobotKinematicParameters p = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
@@ -160,6 +166,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region Round-trip
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void RoundTrip_ValuesToPlanesThenBackToValues_MatchesOriginal()
         {
             // Create parameters from values
@@ -183,6 +190,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void RoundTrip_LargeRobotParameters_MatchesOriginal()
         {
             // IRB6700-like parameters with non-zero lateral offset

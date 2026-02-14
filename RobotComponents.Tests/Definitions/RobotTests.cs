@@ -45,6 +45,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Constructor
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_WithKinematicParameters_ProducesValidRobot()
         {
             Robot robot = CreateTestRobot();
@@ -63,6 +64,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_WorldXYBase_SetsBasePlane()
         {
             Robot robot = CreateTestRobot();
@@ -71,6 +73,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_OffsetBase_SetsBasePlane()
         {
             Plane basePlane = new Plane(new Point3d(1000, 500, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -83,6 +86,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Axis Planes
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void InternalAxisPlanes_FromKinematicParameters_HasSixPlanes()
         {
             Robot robot = CreateTestRobot();
@@ -91,6 +95,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void InternalAxisPlanes_Axis1_AtBaseOrigin()
         {
             Robot robot = CreateTestRobot();
@@ -103,6 +108,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void InternalAxisPlanes_Axis2_AtC1Height()
         {
             Robot robot = CreateTestRobot();
@@ -115,6 +121,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void InternalAxisPlanes_Axis3_AtC1PlusC2Height()
         {
             Robot robot = CreateTestRobot();
@@ -128,6 +135,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Mounting Frame
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void MountingFrame_IRB120Parameters_CorrectPosition()
         {
             Robot robot = CreateTestRobot();
@@ -142,6 +150,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Tool
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Tool_DefaultTool0_IsValid()
         {
             Robot robot = CreateTestRobot();
@@ -151,6 +160,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToolPlane_DefaultTool0_AtMountingFrame()
         {
             Robot robot = CreateTestRobot();
@@ -164,6 +174,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Properties
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void NumberOfAxes_Always6()
         {
             Robot robot = CreateTestRobot();
@@ -172,6 +183,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void InternalAxisLimits_SetCorrectly()
         {
             Robot robot = CreateTestRobot();
@@ -184,6 +196,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void RobotKinematicParameters_Accessible()
         {
             Robot robot = CreateTestRobot();
@@ -201,6 +214,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ExternalAxes_DefaultEmpty()
         {
             Robot robot = CreateTestRobot();
@@ -209,6 +223,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Meshes_Contains8Elements()
         {
             Robot robot = CreateTestRobot();
@@ -218,6 +233,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void InverseKinematics_Initialized()
         {
             Robot robot = CreateTestRobot();
@@ -226,6 +242,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_Initialized()
         {
             Robot robot = CreateTestRobot();
@@ -236,6 +253,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Duplicate
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Duplicate_CreatesIndependentCopy()
         {
             Robot original = CreateTestRobot();
@@ -248,6 +266,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Duplicate_PreservesKinematicParameters()
         {
             Robot original = CreateTestRobot();
@@ -259,6 +278,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Duplicate_PreservesAxisLimits()
         {
             Robot original = CreateTestRobot();
@@ -272,6 +292,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void DuplicateMechanicalUnit_ReturnsValidRobot()
         {
             Robot original = CreateTestRobot();
@@ -283,6 +304,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region ToString
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_ValidRobot_IncludesName()
         {
             Robot robot = CreateTestRobot();

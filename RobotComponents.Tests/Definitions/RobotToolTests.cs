@@ -20,6 +20,7 @@ namespace RobotComponents.Tests.Definitions
     {
         #region Constructor
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_Default_CreatesTool0()
         {
             RobotTool tool = new RobotTool();
@@ -32,6 +33,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_CustomPlanes_SetsProperties()
         {
             Plane toolPlane = new Plane(new Point3d(100, 0, 200), Vector3d.XAxis, Vector3d.YAxis);
@@ -44,6 +46,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_WithLoadData_SetsLoadData()
         {
             LoadData load = new LoadData("load1", 5.0,
@@ -61,6 +64,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region ToRAPID
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPID_DefaultTool0_ProducesCorrectFormat()
         {
             RobotTool tool = new RobotTool();
@@ -73,6 +77,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPID_CustomToolAtOriginSameOrientation_CorrectPosition()
         {
             Plane toolPlane = new Plane(new Point3d(100, 0, 200), Vector3d.XAxis, Vector3d.YAxis);
@@ -83,6 +88,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPID_RobotHoldFalse_StartsWithFalse()
         {
             RobotTool tool = new RobotTool();
@@ -95,6 +101,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region ToRAPIDDeclaration
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_DefaultScope_ProducesPersTooldata()
         {
             RobotTool tool = new RobotTool();
@@ -105,6 +112,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_LocalScope_IncludesLocalPrefix()
         {
             RobotTool tool = new RobotTool("myTool", new Mesh(), Plane.WorldXY, Plane.WorldXY);
@@ -115,6 +123,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_TaskScope_IncludesTaskPrefix()
         {
             RobotTool tool = new RobotTool("myTool", new Mesh(), Plane.WorldXY, Plane.WorldXY);
@@ -125,6 +134,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_WithRobot_Tool0ReturnsEmpty()
         {
             RobotTool tool = new RobotTool();
@@ -134,6 +144,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_WithRobot_CustomToolReturnsDeclaration()
         {
             RobotTool tool = new RobotTool("myTool", new Mesh(), Plane.WorldXY, Plane.WorldXY);
@@ -143,6 +154,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_WithRobot_EmptyNameReturnsEmpty()
         {
             RobotTool tool = new RobotTool();
@@ -155,6 +167,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region IsValid
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IsValid_DefaultTool_ReturnsTrue()
         {
             RobotTool tool = new RobotTool();
@@ -163,6 +176,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IsValid_EmptyName_ReturnsFalse()
         {
             RobotTool tool = new RobotTool();
@@ -172,6 +186,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IsValid_UnsetAttachmentPlane_ReturnsFalse()
         {
             RobotTool tool = RobotTool.GetEmptyRobotTool();
@@ -182,6 +197,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Duplicate
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Duplicate_CreatesIndependentCopy()
         {
             RobotTool original = new RobotTool("myTool", new Mesh(), Plane.WorldXY,
@@ -195,6 +211,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void DuplicateWithoutMesh_CreatesEmptyMeshCopy()
         {
             RobotTool original = new RobotTool("myTool", new Mesh(), Plane.WorldXY, Plane.WorldXY);
@@ -207,6 +224,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Properties
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Datatype_AlwaysReturnsTooldata()
         {
             RobotTool tool = new RobotTool();
@@ -215,6 +233,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Scope_DefaultIsGlobal()
         {
             RobotTool tool = new RobotTool();
@@ -223,6 +242,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void VariableType_DefaultIsPers()
         {
             RobotTool tool = new RobotTool();
@@ -231,6 +251,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_ValidTool_ReturnsNameFormat()
         {
             RobotTool tool = new RobotTool();
@@ -239,6 +260,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_InvalidTool_ReturnsInvalid()
         {
             RobotTool tool = RobotTool.GetEmptyRobotTool();
@@ -249,6 +271,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Parse
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Parse_ValidRapidString_CreatesToolWithCorrectProperties()
         {
             string rapidData = "PERS tooldata myTool := [TRUE, [[100, 0, 200], [1, 0, 0, 0]], [5, [50, 0, 50], [1, 0, 0, 0], 0, 0, 0]];";
@@ -261,6 +284,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void TryParse_ValidRapidString_ReturnsTrueAndTool()
         {
             string rapidData = "PERS tooldata myTool := [TRUE, [[100, 0, 200], [1, 0, 0, 0]], [5, [50, 0, 50], [1, 0, 0, 0], 0, 0, 0]];";
@@ -271,6 +295,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void TryParse_InvalidRapidString_ReturnsFalseAndDefaultTool()
         {
             bool success = RobotTool.TryParse("invalid data", out RobotTool tool);

@@ -64,6 +64,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region OPW Forward Kinematics
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWForward_AllZeroInternalAngles_ReturnsValidPlane()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -78,6 +79,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWForward_AllZeroInternalAngles_CorrectPosition()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -95,6 +97,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWForward_AllZeroInternalAngles_OutputsWristPosition()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -109,6 +112,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWForward_Joint1Rotated_RotatesXYPosition()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -124,6 +128,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWForward_DifferentJointAngles_ProducesDifferentPosition()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -151,6 +156,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region OPW Inverse Kinematics
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWInverse_ValidPlane_Produces8Solutions()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -168,6 +174,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWInverse_SingularityFlags_HaveCorrectLength()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -187,6 +194,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region OPW Forward-Inverse Round-trip
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWRoundTrip_AllZeroInternalAngles_RecoversSolution()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -219,6 +227,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWRoundTrip_NonTrivialPose_RecoversSolution()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -251,6 +260,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWRoundTrip_NegativeJointAngles_RecoversSolution()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -281,6 +291,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region Singularity Detection
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWInverse_WristSingularity_J5NearZero_DetectsSingularity()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -296,6 +307,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWInverse_ShoulderSingularity_TargetAtOrigin_DetectsSingularity()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -318,6 +330,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWInverse_NormalPosition_NoWristSingularity()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -335,6 +348,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region OPW Angle Normalization
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void OPWInverse_SolutionsNormalized_WithinPiRange()
         {
             OPWKinematics opw = CreateIRB120OPW();
@@ -359,6 +373,7 @@ namespace RobotComponents.Tests.Kinematics
 
         #region ForwardKinematics (Robot-level)
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_AllZeroDegrees_TCPAtMountingFrame()
         {
             Robot robot = CreateTestRobot();
@@ -374,6 +389,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_Joint1At30Degrees_RotatesTCPInXYPlane()
         {
             Robot robot = CreateTestRobot();
@@ -391,6 +407,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_IsInLimits_WithinLimits_ReturnsTrue()
         {
             Robot robot = CreateTestRobot();
@@ -404,6 +421,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_IsInLimits_OutOfLimits_ReturnsFalse()
         {
             Robot robot = CreateTestRobot();
@@ -417,6 +435,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_PosedInternalAxisPlanes_HasSixPlanes()
         {
             Robot robot = CreateTestRobot();
@@ -428,6 +447,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_RobotTransforms_HasSevenElements()
         {
             Robot robot = CreateTestRobot();
@@ -440,6 +460,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_DifferentJointPositions_ProduceDifferentTCPPlanes()
         {
             Robot robot = CreateTestRobot();
@@ -466,6 +487,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_WithRobot_BeforeCalculate_IsNotValid()
         {
             Robot robot = CreateTestRobot();
@@ -476,6 +498,7 @@ namespace RobotComponents.Tests.Kinematics
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ForwardKinematics_ToString_AfterCalculate_ReturnsValid()
         {
             Robot robot = CreateTestRobot();

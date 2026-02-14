@@ -20,6 +20,7 @@ namespace RobotComponents.Tests.Definitions
     {
         #region Constructor
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_Default_CreatesWobj0()
         {
             WorkObject wobj = new WorkObject();
@@ -34,6 +35,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_NameAndObjectFrame_SetsPropertiesCorrectly()
         {
             Plane objectFrame = new Plane(new Point3d(500, 200, 100), Vector3d.XAxis, Vector3d.YAxis);
@@ -46,6 +48,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_WithUserFrame_SetsUserFrameCorrectly()
         {
             Plane userFrame = new Plane(new Point3d(100, 0, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -61,6 +64,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region ToRAPID
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPID_DefaultWobj0_ProducesCorrectFormat()
         {
             WorkObject wobj = new WorkObject();
@@ -72,6 +76,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPID_CustomObjectFrame_IncludesTranslation()
         {
             Plane objectFrame = new Plane(new Point3d(500, 200, 100), Vector3d.XAxis, Vector3d.YAxis);
@@ -85,6 +90,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPID_WithUserFrame_IncludesUserFrameData()
         {
             Plane userFrame = new Plane(new Point3d(100, 50, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -98,6 +104,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region ToRAPIDDeclaration
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_DefaultScope_ProducesPersWobjdata()
         {
             WorkObject wobj = new WorkObject();
@@ -108,6 +115,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_LocalScope_IncludesLocalPrefix()
         {
             WorkObject wobj = new WorkObject("myWobj", Plane.WorldXY);
@@ -118,6 +126,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_WithRobot_Wobj0ReturnsEmpty()
         {
             WorkObject wobj = new WorkObject();
@@ -127,6 +136,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_WithRobot_CustomWobjReturnsDeclaration()
         {
             WorkObject wobj = new WorkObject("myWobj", Plane.WorldXY);
@@ -136,6 +146,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_WithRobot_EmptyNameReturnsEmpty()
         {
             WorkObject wobj = new WorkObject();
@@ -148,6 +159,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region IsValid
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IsValid_DefaultWobj_ReturnsTrue()
         {
             WorkObject wobj = new WorkObject();
@@ -156,6 +168,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IsValid_EmptyName_ReturnsFalse()
         {
             WorkObject wobj = new WorkObject();
@@ -165,6 +178,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void IsValid_NullName_ReturnsFalse()
         {
             WorkObject wobj = new WorkObject();
@@ -176,6 +190,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region FixedFrame
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void FixedFrame_NoExternalAxis_ReturnsTrue()
         {
             WorkObject wobj = new WorkObject("myWobj", Plane.WorldXY);
@@ -186,6 +201,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region GlobalWorkObjectPlane
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GlobalWorkObjectPlane_DefaultWobj_EqualsWorldXY()
         {
             WorkObject wobj = new WorkObject();
@@ -194,6 +210,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void GlobalWorkObjectPlane_WithUserFrame_CombinesFrames()
         {
             Plane userFrame = new Plane(new Point3d(100, 0, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -211,6 +228,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Duplicate
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Duplicate_CreatesIndependentCopy()
         {
             WorkObject original = new WorkObject("myWobj",
@@ -224,6 +242,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Duplicate_PreservesAllProperties()
         {
             Plane userFrame = new Plane(new Point3d(100, 0, 0), Vector3d.XAxis, Vector3d.YAxis);
@@ -243,6 +262,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Properties
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Datatype_AlwaysReturnsWobjdata()
         {
             WorkObject wobj = new WorkObject();
@@ -251,6 +271,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Scope_DefaultIsGlobal()
         {
             WorkObject wobj = new WorkObject();
@@ -259,6 +280,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void VariableType_DefaultIsPers()
         {
             WorkObject wobj = new WorkObject();
@@ -267,6 +289,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_ValidWobj_ReturnsNameFormat()
         {
             WorkObject wobj = new WorkObject();
@@ -275,6 +298,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_InvalidWobj_ReturnsInvalid()
         {
             WorkObject wobj = new WorkObject();
@@ -286,6 +310,7 @@ namespace RobotComponents.Tests.Definitions
 
         #region Parse
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Parse_ValidRapidString_CreatesWobjWithCorrectProperties()
         {
             string rapidData = "PERS wobjdata myWobj := [FALSE, TRUE, \"\", [[0, 0, 0], [1, 0, 0, 0]], [[500, 200, 100], [1, 0, 0, 0]]];";
@@ -297,6 +322,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void TryParse_ValidRapidString_ReturnsTrueAndWobj()
         {
             string rapidData = "PERS wobjdata myWobj := [FALSE, TRUE, \"\", [[0, 0, 0], [1, 0, 0, 0]], [[500, 200, 100], [1, 0, 0, 0]]];";
@@ -307,6 +333,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void TryParse_InvalidRapidString_ReturnsFalseAndDefaultWobj()
         {
             bool success = WorkObject.TryParse("invalid data", out WorkObject wobj);
