@@ -256,6 +256,24 @@ namespace RobotComponents.Tests.Actions
             Assert.True(cl.IsValid);
             Assert.Empty(cl.Warnings);
         }
+
+        [Fact]
+        public void CodeLine_FlaggedCode_ToRAPIDInstruction_StillReturnsCode()
+        {
+            // ToRAPIDInstruction returns the raw string (used for preview);
+            // the guard is in ToRAPIDGenerator
+            CodeLine cl = new CodeLine("ENDPROC");
+
+            Assert.Equal("ENDPROC", cl.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void CodeLine_FlaggedCode_ToRAPIDDeclaration_StillReturnsCode()
+        {
+            CodeLine cl = new CodeLine("ENDMODULE", CodeType.Declaration);
+
+            Assert.Equal("ENDMODULE", cl.ToRAPIDDeclaration(null));
+        }
     }
 
     public class CommentTests

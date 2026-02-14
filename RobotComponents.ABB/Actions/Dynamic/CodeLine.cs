@@ -45,7 +45,10 @@ namespace RobotComponents.ABB.Actions.Dynamic
         protected CodeLine(SerializationInfo info, StreamingContext context)
         {
             // // Version version = (int)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
-            _code = (string)info.GetValue("Code", typeof(string));
+            string code = (string)info.GetValue("Code", typeof(string));
+            RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize(code);
+            _code = result.Code;
+            _warnings = result.Warnings;
             _type = (CodeType)info.GetValue("Code Type", typeof(CodeType));
         }
 
@@ -197,6 +200,11 @@ namespace RobotComponents.ABB.Actions.Dynamic
         /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
+            if (_warnings.Count > 0)
+            {
+                return;
+            }
+
             if (_type == CodeType.Declaration)
             {
                 RAPIDGenerator.ProgramDeclarationCustomCodeLines.Add("    " + _code);
