@@ -251,7 +251,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         /// <summary>
         /// Gets the list of sanitization warnings for this code line.
         /// </summary>
-        public List<string> Warnings
+        public IReadOnlyList<string> Warnings
         {
             get { return _warnings; }
         }
