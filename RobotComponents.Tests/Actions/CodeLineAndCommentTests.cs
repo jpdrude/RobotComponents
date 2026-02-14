@@ -341,5 +341,69 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(c.IsValid);
         }
+
+        [Fact]
+        public void NewlineStripped_SingleArg()
+        {
+            Comment c = new Comment("line1\nMoveL dangerous;");
+
+            Assert.DoesNotContain("\n", c.Com);
+            Assert.Equal("! line1 MoveL dangerous;", c.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void NewlineStripped_TwoArg()
+        {
+            Comment c = new Comment("line1\r\nline2", CodeType.Declaration);
+
+            Assert.DoesNotContain("\r", c.Com);
+            Assert.DoesNotContain("\n", c.Com);
+            Assert.Equal("! line1 line2", c.ToRAPIDDeclaration(null));
+        }
+
+        [Fact]
+        public void SetterStripsNewlines()
+        {
+            Comment c = new Comment("safe");
+            c.Com = "text\ninjected;";
+
+            Assert.DoesNotContain("\n", c.Com);
+            Assert.Equal("text injected;", c.Com);
+        }
+
+        [Fact]
+        public void NullComment_NoException()
+        {
+            Comment c = new Comment();
+            c.Com = null;
+
+            Assert.Null(c.Com);
+        }
+
+        [Fact]
+        public void EmptyComment_NoException()
+        {
+            Comment c = new Comment("");
+
+            Assert.Equal("", c.Com);
+        }
+
+        [Fact]
+        public void NoNewline_Unchanged()
+        {
+            Comment c = new Comment("normal comment text");
+
+            Assert.Equal("normal comment text", c.Com);
+            Assert.Equal("! normal comment text", c.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void CarriageReturn_Stripped()
+        {
+            Comment c = new Comment("line1\rline2");
+
+            Assert.DoesNotContain("\r", c.Com);
+            Assert.Equal("line1 line2", c.Com);
+        }
     }
 }

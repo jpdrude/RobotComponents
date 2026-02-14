@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         protected Comment(SerializationInfo info, StreamingContext context)
         {
             // // Version version = (int)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
-            _comment = (string)info.GetValue("Comment", typeof(string));
+            _comment = StripNewlines((string)info.GetValue("Comment", typeof(string)));
             _type = (CodeType)info.GetValue("Code Type", typeof(CodeType));
         }
 
@@ -78,7 +78,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         /// <param name="comment"> The comment. </param>
         public Comment(string comment)
         {
-            _comment = comment;
+            _comment = StripNewlines(comment);
             _type = CodeType.Instruction;
         }
 
@@ -89,7 +89,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         /// <param name="type"> The Code Type. </param>
         public Comment(string comment, CodeType type)
         {
-            _comment = comment;
+            _comment = StripNewlines(comment);
             _type = type;
         }
 
@@ -138,6 +138,27 @@ namespace RobotComponents.ABB.Actions.Dynamic
         #endregion
 
         #region method
+        /// <summary>
+        /// Strips newline characters from the given string to prevent
+        /// RAPID comment breakout injection.
+        /// </summary>
+        /// <param name="text"> The input text. </param>
+        /// <returns> The text with newlines replaced by spaces, or null if input is null. </returns>
+        private static string StripNewlines(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            if (text.Contains("\r") || text.Contains("\n"))
+            {
+                return text.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
+            }
+
+            return text;
+        }
+
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
@@ -235,10 +256,13 @@ namespace RobotComponents.ABB.Actions.Dynamic
         /// <summary>
         /// Gets or sets the comment text.
         /// </summary>
+        /// <remarks>
+        /// Setting this property strips newlines to prevent RAPID comment breakout.
+        /// </remarks>
         public string Com
         {
             get { return _comment; }
-            set { _comment = value; }
+            set { _comment = StripNewlines(value); }
         }
 
         /// <summary>
