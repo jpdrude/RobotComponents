@@ -116,32 +116,36 @@ namespace RobotComponents.Utils
         {
             // BinaryFormatter encodes generics like:
             //   System.Collections.Generic.List`1[[Namespace.Type, Assembly, ...]]
-            // Verify all embedded type references are in allowed namespaces.
-            int bracketStart = typeName.IndexOf("[[", StringComparison.Ordinal);
-            if (bracketStart < 0)
-            {
-                return false;
-            }
+            //   System.Collections.Generic.Dictionary`2[[KeyType, Asm],[ValueType, Asm]]
+            // A type argument starts with '[' followed by a non-'[' character.
+            // We must validate ALL type arguments, not just one.
+            bool foundAny = false;
 
-            string args = typeName.Substring(bracketStart);
-
-            for (int i = 0; i < _allowedNamespacePrefixes.Length; i++)
+            for (int i = 0; i < typeName.Length - 1; i++)
             {
-                if (args.Contains(_allowedNamespacePrefixes[i]))
+                // A '[' followed by a non-'[' marks the start of a type argument
+                if (typeName[i] == '[' && typeName[i + 1] != '[')
                 {
-                    return true;
+                    int start = i + 1;
+                    int comma = typeName.IndexOf(',', start);
+                    int close = typeName.IndexOf(']', start);
+                    int end = (comma >= 0 && comma < close) ? comma : close;
+
+                    if (end < 0) break;
+
+                    string argTypeName = typeName.Substring(start, end - start).Trim();
+
+                    if (!IsAllowed(argTypeName))
+                    {
+                        return false;
+                    }
+
+                    foundAny = true;
+                    i = close; // Skip past this type argument
                 }
             }
 
-            for (int i = 0; i < _allowedSystemTypes.Length; i++)
-            {
-                if (args.Contains(_allowedSystemTypes[i]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return foundAny;
         }
     }
 }

@@ -6,6 +6,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -14,7 +15,6 @@ using Xunit;
 // Robot Components Libs
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Definitions;
-using RobotComponents.ABB.Enumerations;
 using RobotComponents.Utils;
 
 namespace RobotComponents.Tests.Utils
@@ -110,6 +110,22 @@ namespace RobotComponents.Tests.Utils
             Assert.Equal(original.Cf4, result.Cf4);
             Assert.Equal(original.Cf6, result.Cf6);
             Assert.Equal(original.Cfx, result.Cfx);
+        }
+        [Fact]
+        public void RoundTrip_ListOfSpeedData_PreservesValues()
+        {
+            var original = new List<SpeedData>
+            {
+                new SpeedData(100, 200, 3000, 500),
+                new SpeedData(250, 500, 5000, 1000),
+            };
+
+            byte[] bytes = Serialization.ObjectToByteArray(original);
+            var result = (List<SpeedData>)Serialization.ByteArrayToObject(bytes);
+
+            Assert.Equal(original.Count, result.Count);
+            Assert.Equal(original[0].V_TCP, result[0].V_TCP);
+            Assert.Equal(original[1].V_TCP, result[1].V_TCP);
         }
         #endregion
 
