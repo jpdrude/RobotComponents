@@ -304,6 +304,7 @@ namespace RobotComponents.Tests.Definitions
             Assert.Equal("tool0", tool.Name);
         }
 
+        // No RequiresRhino: Parse throws before reaching any Rhino native call
         [Fact]
         public void Parse_InvalidRapidString_ThrowsException()
         {

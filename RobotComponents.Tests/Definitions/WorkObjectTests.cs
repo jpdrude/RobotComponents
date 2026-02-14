@@ -18,6 +18,8 @@ namespace RobotComponents.Tests.Definitions
 {
     public class WorkObjectTests
     {
+        private const double Tolerance = 1e-6;
+
         #region Constructor
         [Fact]
         [Trait("Category", "RequiresRhino")]
@@ -219,10 +221,9 @@ namespace RobotComponents.Tests.Definitions
 
             // Global plane = objectFrame re-oriented by userFrame
             // objectFrame (50,0,0) placed in userFrame (100,0,0) → global (150,0,0)
-            double tolerance = 1e-6;
-            Assert.InRange(wobj.GlobalWorkObjectPlane.Origin.X, 150 - tolerance, 150 + tolerance);
-            Assert.InRange(wobj.GlobalWorkObjectPlane.Origin.Y, -tolerance, tolerance);
-            Assert.InRange(wobj.GlobalWorkObjectPlane.Origin.Z, -tolerance, tolerance);
+            Assert.InRange(wobj.GlobalWorkObjectPlane.Origin.X, 150 - Tolerance, 150 + Tolerance);
+            Assert.InRange(wobj.GlobalWorkObjectPlane.Origin.Y, -Tolerance, Tolerance);
+            Assert.InRange(wobj.GlobalWorkObjectPlane.Origin.Z, -Tolerance, Tolerance);
         }
         #endregion
 
@@ -342,6 +343,7 @@ namespace RobotComponents.Tests.Definitions
             Assert.Equal("wobj0", wobj.Name);
         }
 
+        // No RequiresRhino: Parse throws before reaching any Rhino native call
         [Fact]
         public void Parse_InvalidRapidString_ThrowsException()
         {

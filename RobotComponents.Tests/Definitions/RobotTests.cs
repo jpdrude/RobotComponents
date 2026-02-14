@@ -4,9 +4,6 @@
 //
 // For license details, see the LICENSE file in the project root.
 
-// System Libs
-using System.Collections.Generic;
-using System.Linq;
 // Rhino Libs
 using Rhino.Geometry;
 // Xunit Libs
@@ -20,27 +17,9 @@ namespace RobotComponents.Tests.Definitions
     {
         private const double Tolerance = 1e-6;
 
-        /// <summary>
-        /// Creates a test robot with IRB120-3/0.58 kinematic parameters and empty meshes.
-        /// </summary>
         private static Robot CreateTestRobot(Plane basePlane = default, RobotTool tool = null)
         {
-            if (basePlane == default) basePlane = Plane.WorldXY;
-            if (tool == null) tool = new RobotTool();
-
-            List<Mesh> meshes = Enumerable.Range(0, 7).Select(_ => new Mesh()).ToList();
-            RobotKinematicParameters parameters = new RobotKinematicParameters(0, -70, 0, 0, 290, 270, 302, 72);
-            Interval[] limits = new Interval[]
-            {
-                new Interval(-165, 165),
-                new Interval(-110, 110),
-                new Interval(-110, 70),
-                new Interval(-160, 160),
-                new Interval(-120, 120),
-                new Interval(-400, 400)
-            };
-
-            return new Robot("TestRobot", meshes, parameters, limits, basePlane, tool);
+            return TestHelpers.CreateIRB120Robot(basePlane, tool);
         }
 
         #region Constructor
