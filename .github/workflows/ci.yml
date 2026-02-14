@@ -33,7 +33,20 @@ jobs:
 
       - name: Run tests
         run: vstest.console.exe "RobotComponents.Tests\bin\Release\net48\RobotComponents.Tests.dll" /TestCaseFilter:"Category!=RequiresRhino" /Logger:"trx;LogFileName=TestResults.trx"
-        
+
+      - name: Run Pester tests
+        shell: pwsh
+        run: |
+          Install-Module -Name Pester -MinimumVersion 5.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          $config = New-PesterConfiguration
+          $config.Run.Path = ".github/tests"
+          $config.Run.Exit = $true
+          $config.Output.Verbosity = "Detailed"
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = "NUnitXml"
+          $config.TestResult.OutputPath = "PesterResults.xml"
+          Invoke-Pester -Configuration $config
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
