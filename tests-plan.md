@@ -2,13 +2,13 @@
 
 ## Context
 
-The project originally had **one test** (`RobotPresetTests.cs`) covering preset enum-to-class consistency. This plan adds structured tests across all layers, prioritized by risk and value. Phases 1, 2, 2b, and 3 are complete with **410 tests** across 25 test classes.
+The project originally had **one test** (`RobotPresetTests.cs`) covering preset enum-to-class consistency. This plan adds structured tests across all layers, prioritized by risk and value. All phases are complete with **410 xUnit tests** across 25 test classes and **21 Pester tests** across 4 test files.
 
 ## Test Infrastructure
 
 **Framework**: xUnit (already in use), Pester for PowerShell scripts
 **Project**: `RobotComponents.Tests/` (existing)
-**Pipeline scripts**: `.github/scripts/tests/` (new, Pester)
+**Pipeline scripts**: `.github/tests/` (Pester 5+)
 
 ### Project reference additions needed in `RobotComponents.Tests.csproj`
 
@@ -236,36 +236,40 @@ Originally `InstructionTests.cs`, split into per-type test files for maintainabi
 
 ---
 
-## Phase 4: CI/CD Pipeline Script Tests (low priority)
+## Phase 4: CI/CD Pipeline Script Tests — COMPLETE (21 tests)
 
-Extract inline PowerShell from workflows into `.github/scripts/`, test with Pester.
+Extracted inline PowerShell from workflows into `.github/scripts/`, tested with Pester.
 
-### Scripts to extract
+### Scripts extracted
 
 | Script | Source workflow | Logic |
 |--------|---------------|-------|
 | `Validate-Version.ps1` | `release.yml` | Parse tag + VersionNumbering.cs, compare |
 | `Collect-ReleaseFiles.ps1` | `release.yml`, `artifact-build.yml` | Gather .gha + DLLs into staging dir |
 | `Extract-Changelog.ps1` | `release.yml` | Parse CHANGELOG.md for release notes |
+| `Generate-InstallInstructions.ps1` | `release.yml` | Write static INSTALL.md |
 
 ### Pester tests
 
-- [ ] **`Validate-Version.Tests.ps1`**: matching/mismatching versions, malformed file, missing file
-- [ ] **`Collect-ReleaseFiles.Tests.ps1`**: all files present, missing .gha fails, missing DLL fails
-- [ ] **`Extract-Changelog.Tests.ps1`**: normal changelog, empty file, truncation at 10K chars
+- [x] **`Validate-Version.Tests.ps1`** — 5 tests: matching/mismatching versions, malformed file, missing file, no v-prefix
+- [x] **`Collect-ReleaseFiles.Tests.ps1`** — 7 tests: all files present, missing .gha, missing DLL, missing LICENSE, CreateZip, no Version throws, Debug config
+- [x] **`Extract-Changelog.Tests.ps1`** — 6 tests: normal changelog, empty file, missing file, truncation at max length, fewer sections, custom MaxSections
+- [x] **`Generate-InstallInstructions.Tests.ps1`** — 3 tests: creates file, key sections present, overwrites existing
 
-**Files to create:**
+**Files created:**
 - `.github/scripts/Validate-Version.ps1`
 - `.github/scripts/Collect-ReleaseFiles.ps1`
 - `.github/scripts/Extract-Changelog.ps1`
-- `.github/scripts/tests/Validate-Version.Tests.ps1`
-- `.github/scripts/tests/Collect-ReleaseFiles.Tests.ps1`
-- `.github/scripts/tests/Extract-Changelog.Tests.ps1`
+- `.github/scripts/Generate-InstallInstructions.ps1`
+- `.github/tests/Validate-Version.Tests.ps1`
+- `.github/tests/Collect-ReleaseFiles.Tests.ps1`
+- `.github/tests/Extract-Changelog.Tests.ps1`
+- `.github/tests/Generate-InstallInstructions.Tests.ps1`
 
-**Files to modify:**
-- `.github/workflows/ci.yml` — add Pester test step
-- `.github/workflows/release.yml` — call extracted scripts
-- `.github/workflows/artifact-build.yml` — call extracted scripts
+**Files modified:**
+- `.github/workflows/ci.yml` — added Pester test step
+- `.github/workflows/release.yml` — replaced 4 inline blocks with script calls
+- `.github/workflows/artifact-build.yml` — replaced 1 inline block with script call
 
 ---
 
@@ -273,5 +277,5 @@ Extract inline PowerShell from workflows into `.github/scripts/`, test with Pest
 
 1. Build: `msbuild /t:Build /p:Configuration=Release`
 2. Run xUnit: `vstest.console.exe RobotComponents.Tests/bin/Release/net48/RobotComponents.Tests.dll`
-3. Run Pester locally: `Invoke-Pester .github/scripts/tests/ -Output Detailed`
+3. Run Pester: `pwsh -c "Invoke-Pester .github/tests/ -Output Detailed"`
 4. Push to branch and verify CI runs both xUnit and Pester steps
