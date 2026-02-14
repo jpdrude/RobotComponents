@@ -18,7 +18,7 @@ $ErrorActionPreference = 'Stop'
 
 $changelog = Get-Content $ChangelogPath -Raw -ErrorAction SilentlyContinue
 
-if (-not $changelog) {
+if ([string]::IsNullOrWhiteSpace($changelog)) {
     $notes = "Release $Tag"
 } else {
     $sections = $changelog -split '---'

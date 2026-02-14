@@ -50,7 +50,7 @@ Describe 'Collect-ReleaseFiles' {
         # Remove one DLL
         Remove-Item (Join-Path $script:RepoRoot 'RobotComponents.ABB.Controllers' 'bin' 'Release' 'net48' 'RobotComponents.ABB.Controllers.dll')
 
-        { & $script:ScriptPath -Configuration Release -OutputDir $script:OutDir -RepoRoot $script:RepoRoot } | Should -Not -Throw
+        & $script:ScriptPath -Configuration Release -OutputDir $script:OutDir -RepoRoot $script:RepoRoot
 
         $files = Get-ChildItem $script:OutDir | Select-Object -ExpandProperty Name
         $files | Should -Not -Contain 'RobotComponents.ABB.Controllers.dll'
@@ -61,7 +61,7 @@ Describe 'Collect-ReleaseFiles' {
         # Remove .gha file
         Remove-Item (Join-Path $script:RepoRoot 'RobotComponents.ABB.Gh' 'bin' 'Release' 'net48' 'RobotComponents.ABB.Gh.gha')
 
-        { & $script:ScriptPath -Configuration Release -OutputDir $script:OutDir -RepoRoot $script:RepoRoot } | Should -Not -Throw
+        & $script:ScriptPath -Configuration Release -OutputDir $script:OutDir -RepoRoot $script:RepoRoot
 
         $files = Get-ChildItem $script:OutDir | Select-Object -ExpandProperty Name
         $files | Should -Not -Contain 'RobotComponents.ABB.Gh.gha'
@@ -70,7 +70,7 @@ Describe 'Collect-ReleaseFiles' {
     It 'skips LICENSE when not present' {
         Remove-Item (Join-Path $script:RepoRoot 'LICENSE')
 
-        { & $script:ScriptPath -Configuration Release -OutputDir $script:OutDir -RepoRoot $script:RepoRoot } | Should -Not -Throw
+        & $script:ScriptPath -Configuration Release -OutputDir $script:OutDir -RepoRoot $script:RepoRoot
 
         $files = Get-ChildItem $script:OutDir | Select-Object -ExpandProperty Name
         $files | Should -Not -Contain 'LICENSE'
