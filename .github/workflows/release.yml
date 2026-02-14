@@ -17,25 +17,10 @@ jobs:
 
       - name: Validate tag matches VersionNumbering.cs
         shell: pwsh
-        run: |
-          $tag = "${{ github.ref_name }}"
-          $tagVersion = $tag -replace '^v', ''
-
-          $versionFile = Get-Content "RobotComponents\VersionNumbering.cs" -Raw
-          if ($versionFile -match 'CurrentVersion\s*=\s*"([^"]+)"') {
-            $codeVersion = $Matches[1]
-          } else {
-            Write-Error "Could not parse version from VersionNumbering.cs"
-            exit 1
-          }
-
-          Write-Host "Tag version:  $tagVersion"
-          Write-Host "Code version: $codeVersion"
-
-          if ($tagVersion -ne $codeVersion) {
-            Write-Error "Tag version ($tagVersion) does not match VersionNumbering.cs ($codeVersion). Update VersionNumbering.cs before tagging."
-            exit 1
-          }
+        run: >
+          .\.github\scripts\Validate-Version.ps1
+          -Tag "${{ github.ref_name }}"
+          -VersionFilePath "RobotComponents\VersionNumbering.cs"
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -57,101 +42,25 @@ jobs:
 
       - name: Collect release files
         shell: pwsh
-        run: |
-          $version = "${{ github.ref_name }}"
-          $outDir = "release-staging"
-          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-
-          # Collect .gha from the Gh project
-          $ghaBin = "RobotComponents.ABB.Gh\bin\Release\net48"
-          Get-ChildItem -Path $ghaBin -Filter "*.gha" -ErrorAction SilentlyContinue | Copy-Item -Destination $outDir
-
-          # Collect all project DLLs (exclude test and GH2 assemblies)
-          $projects = @(
-            "RobotComponents",
-            "RobotComponents.ABB",
-            "RobotComponents.ABB.Presets",
-            "RobotComponents.ABB.Gh.Goos",
-            "RobotComponents.ABB.Controllers"
-          )
-          foreach ($proj in $projects) {
-            $dll = "$proj\bin\Release\net48\$proj.dll"
-            if (Test-Path $dll) {
-              Copy-Item $dll -Destination $outDir
-            }
-          }
-
-          # Include license
-          if (Test-Path "LICENSE") {
-            Copy-Item "LICENSE" -Destination $outDir
-          }
-
-          Write-Host "Release files:"
-          Get-ChildItem $outDir | Format-Table Name, Length
-
-          # Create zip
-          $zipPath = "RobotComponents-$version.zip"
-          Compress-Archive -Path "$outDir\*" -DestinationPath $zipPath -Force
-          Write-Host "Created: $zipPath"
+        run: >
+          .\.github\scripts\Collect-ReleaseFiles.ps1
+          -Configuration Release
+          -OutputDir release-staging
+          -CreateZip
+          -Version "${{ github.ref_name }}"
 
       - name: Extract changelog for this version
         id: changelog
         shell: pwsh
-        run: |
-          $tag = "${{ github.ref_name }}"
-          $version = $tag -replace '^v', ''
-
-          # Read the full changelog
-          $changelog = Get-Content "CHANGELOG.md" -Raw -ErrorAction SilentlyContinue
-
-          if (-not $changelog) {
-            $notes = "Release $tag"
-          } else {
-            # Use the changelog content up to a reasonable length as release notes
-            # The changelog format uses --- separators between entries
-            $sections = $changelog -split '---'
-            $relevantSections = $sections | Select-Object -First 5
-            $notes = ($relevantSections -join "`n---`n").Trim()
-
-            if ($notes.Length -gt 10000) {
-              $notes = $notes.Substring(0, 10000) + "`n`n... (see CHANGELOG.md for full details)"
-            }
-          }
-
-          # Write to file for the release step
-          $notes | Out-File -FilePath "release-notes.md" -Encoding UTF8
+        run: >
+          .\.github\scripts\Extract-Changelog.ps1
+          -Tag "${{ github.ref_name }}"
 
       - name: Generate install instructions
         shell: pwsh
-        run: |
-          $content = @"
-          # Installation Instructions
-
-          ## Limitations
-          - Only works for Rhino 8
-
-          ## Download and Install
-
-          1. **Download** the latest release zip from this page
-
-          2. **Unblock the zip file** (important to prevent Windows security warnings):
-             - Right-click the downloaded zip file
-             - Select **Properties**
-             - Check the **Unblock** checkbox at the bottom
-             - Click **OK**
-
-          3. **Extract** the zip file contents
-
-          4. **Install** the plugin:
-             - Open File Explorer and navigate to: ``%appdata%\Grasshopper\Libraries``
-             - Paste all extracted files into this folder
-
-          5. **Restart** Rhino and Grasshopper
-
-          The components should now be available in Grasshopper.
-          "@
-
-          $content | Out-File -FilePath "release-staging\INSTALL.md" -Encoding UTF8
+        run: >
+          .\.github\scripts\Generate-InstallInstructions.ps1
+          -OutputPath "release-staging\INSTALL.md"
 
       - name: Create GitHub Release
         env:
