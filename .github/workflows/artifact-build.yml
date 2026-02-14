@@ -42,37 +42,10 @@ jobs:
 
       - name: Collect plugin files
         shell: pwsh
-        run: |
-          $config = "${{ inputs.configuration }}"
-          $outDir = "artifact-staging"
-          New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-
-          # Collect .gha from the Gh project
-          $ghaBin = "RobotComponents.ABB.Gh\bin\$config\net48"
-          Get-ChildItem -Path $ghaBin -Filter "*.gha" -ErrorAction SilentlyContinue | Copy-Item -Destination $outDir
-
-          # Collect all project DLLs (exclude test and GH2 assemblies)
-          $projects = @(
-            "RobotComponents",
-            "RobotComponents.ABB",
-            "RobotComponents.ABB.Presets",
-            "RobotComponents.ABB.Gh.Goos",
-            "RobotComponents.ABB.Controllers"
-          )
-          foreach ($proj in $projects) {
-            $dll = "$proj\bin\$config\net48\$proj.dll"
-            if (Test-Path $dll) {
-              Copy-Item $dll -Destination $outDir
-            }
-          }
-
-          # Include license
-          if (Test-Path "LICENSE") {
-            Copy-Item "LICENSE" -Destination $outDir
-          }
-
-          Write-Host "Staged files:"
-          Get-ChildItem $outDir | Format-Table Name, Length
+        run: >
+          .\.github\scripts\Collect-ReleaseFiles.ps1
+          -Configuration "${{ inputs.configuration }}"
+          -OutputDir artifact-staging
 
       - name: Upload plugin artifact
         uses: actions/upload-artifact@v4
