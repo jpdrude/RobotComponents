@@ -99,7 +99,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         /// <param name="comment"> The Comment instance to duplicate. </param>
         public Comment(Comment comment)
         {
-            _comment = comment.Com;
+            _comment = StripNewlines(comment.Com);
             _type = comment.Type;
         }
 
