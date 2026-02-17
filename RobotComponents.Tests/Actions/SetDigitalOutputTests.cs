@@ -4,6 +4,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+// System Libs
+using System;
 // Xunit Libs
 using Xunit;
 // Robot Components Libs
@@ -90,6 +92,30 @@ namespace RobotComponents.Tests.Actions
             SetDigitalOutput sdo = new SetDigitalOutput("signal", true);
 
             Assert.Equal(string.Empty, sdo.ToRAPIDDeclaration(null));
+        }
+
+        [Fact]
+        public void IsValid_FalseWithInjectionPayload()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("signal, 1;\nSetDO other", true);
+
+            Assert.False(sdo.IsValid);
+        }
+
+        [Fact]
+        public void IsValid_FalseWithNameStartingWithDigit()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("1signal", true);
+
+            Assert.False(sdo.IsValid);
+        }
+
+        [Fact]
+        public void ToRAPIDInstruction_ThrowsOnInvalidName()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("signal, 1;\nSetDO other", true);
+
+            Assert.Throws<InvalidOperationException>(() => sdo.ToRAPIDInstruction(null));
         }
     }
 }

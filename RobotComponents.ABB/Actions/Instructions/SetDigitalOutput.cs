@@ -18,6 +18,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
 using RobotComponents.ABB.Definitions;
+using RobotComponents.ABB.Utils;
 
 namespace RobotComponents.ABB.Actions.Instructions
 {
@@ -179,9 +180,15 @@ namespace RobotComponents.ABB.Actions.Instructions
         /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
+            if (!HelperMethods.IsValidRapidIdentifier(_name))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot generate RAPID instruction: '{_name}' is not a valid RAPID identifier.");
+            }
+
             string result = $"SetDO ";
 
-            // Sync and delay cannot be combined. Sync is leading. 
+            // Sync and delay cannot be combined. Sync is leading.
             result += _sync ? "\\Sync, " : (_delay > 0 ? $"\\SDelay:={_delay:0.###}, " : "");
             result += $"{_name}, ";
             result += _value ? "1;" : "0;";
@@ -212,6 +219,7 @@ namespace RobotComponents.ABB.Actions.Instructions
             {
                 if (_name == null) { return false; }
                 if (_name == "") { return false; }
+                if (!HelperMethods.IsValidRapidIdentifier(_name)) { return false; }
                 return true;
             }
         }
