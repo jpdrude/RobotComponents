@@ -16,6 +16,7 @@ using System.Security.Permissions;
 // RobotComponents Libs
 using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Definitions;
+using RobotComponents.ABB.Utils;
 
 namespace RobotComponents.ABB.Actions.Instructions
 {
@@ -179,6 +180,12 @@ namespace RobotComponents.ABB.Actions.Instructions
         /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
+            if (!HelperMethods.IsValidRapidIdentifier(_name))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot generate RAPID instruction: '{_name}' is not a valid RAPID identifier.");
+            }
+
             return $"WaitAI {_name}, \\{Enum.GetName(typeof(InequalitySymbol), _inequalitySymbol)}, {_value}" +
                 $"{(_maxTime > 0 ? $"\\MaxTime:={_maxTime:0.###}" : "")};";
         }
@@ -206,6 +213,7 @@ namespace RobotComponents.ABB.Actions.Instructions
             {
                 if (_name == null) { return false; }
                 if (_name == "") { return false; }
+                if (!HelperMethods.IsValidRapidIdentifier(_name)) { return false; }
                 return true;
             }
         }

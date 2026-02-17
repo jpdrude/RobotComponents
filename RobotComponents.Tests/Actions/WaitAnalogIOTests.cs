@@ -4,6 +4,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+// System Libs
+using System;
 // Xunit Libs
 using Xunit;
 // Robot Components Libs
@@ -47,6 +49,22 @@ namespace RobotComponents.Tests.Actions
 
             Assert.True(wai.IsValid);
         }
+
+        [Fact]
+        public void IsValid_FalseWithInjectionPayload()
+        {
+            WaitAI wai = new WaitAI("ai1, \\LT, 0;\nMoveJ target", 5.0, InequalitySymbol.LT);
+
+            Assert.False(wai.IsValid);
+        }
+
+        [Fact]
+        public void ToRAPIDInstruction_ThrowsOnInvalidName()
+        {
+            WaitAI wai = new WaitAI("ai1;inject", 5.0, InequalitySymbol.LT);
+
+            Assert.Throws<InvalidOperationException>(() => wai.ToRAPIDInstruction(null));
+        }
     }
 
     public class WaitAOTests
@@ -67,6 +85,22 @@ namespace RobotComponents.Tests.Actions
             string result = wao.ToRAPIDInstruction(null);
 
             Assert.Contains("\\MaxTime:=10", result);
+        }
+
+        [Fact]
+        public void IsValid_FalseWithInjectionPayload()
+        {
+            WaitAO wao = new WaitAO("ao1, \\LT, 0;\nMoveJ target", 5.0, InequalitySymbol.LT);
+
+            Assert.False(wao.IsValid);
+        }
+
+        [Fact]
+        public void ToRAPIDInstruction_ThrowsOnInvalidName()
+        {
+            WaitAO wao = new WaitAO("ao1;inject", 5.0, InequalitySymbol.LT);
+
+            Assert.Throws<InvalidOperationException>(() => wao.ToRAPIDInstruction(null));
         }
     }
 }
