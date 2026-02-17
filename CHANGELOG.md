@@ -3,8 +3,23 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-12 15:05 
+ Generated on: 2026-02-17 11:54 
  --- 
+ - Changed Copyright notice in all files to current year. 
+  
+   **Commit:** `e92ce29` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Add Connect Interrupt component and Signal Type value list - Introduced ConnectInterruptComponent for RAPID interrupt code generation. These connect Traps to signal changes implementing RAPID interrupt behaviour. 
+ 	 - Added SignalType enum and SignalTypeValueList for user-friendly signal type input. 
+ 	 - Updated resources and icons for new components. 
+ 	 - Minor cleanup in AdditionalRoutineComponent. 
+  
+   **Commit:** `35782ae` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
  - Updated CHANGELOG to reflect current status. Updated UpdateChangeLog script to actually generate correct changelogs... 
   
    **Commit:** `ad3ff92` | **Date:** 2026-02-10 

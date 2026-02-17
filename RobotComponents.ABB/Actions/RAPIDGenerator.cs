@@ -18,6 +18,7 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
+using MathNet.Numerics;
 using Microsoft.SqlServer.Server;
 using Rhino.Render;
 using RobotComponents.ABB.Actions.Declarations;
@@ -300,7 +301,10 @@ namespace RobotComponents.ABB.Actions
 
                 foreach (string decl in _programDeclarationsLoadData)
                     if (DeclarationIsUnique(decl))
+                    {
+                        AddUniqueIdentifier(decl);
                         uniqueDecls.Add(decl);
+                    }
 
                 if (uniqueDecls.Count != 0)
                 {
@@ -320,7 +324,10 @@ namespace RobotComponents.ABB.Actions
 
                 foreach (string decl in _programDeclarationsToolData)
                     if (DeclarationIsUnique(decl))
+                    {
+                        AddUniqueIdentifier(decl);
                         uniqueDecls.Add(decl);
+                    }
 
                 if (uniqueDecls.Count != 0)
                 {
@@ -340,7 +347,10 @@ namespace RobotComponents.ABB.Actions
 
                 foreach (string decl in _programDeclarationsWorkObjectData)
                     if (DeclarationIsUnique(decl))
+                    {
+                        AddUniqueIdentifier(decl);
                         uniqueDecls.Add(decl);
+                    }
 
                 if (uniqueDecls.Count != 0)
                 {
@@ -358,7 +368,10 @@ namespace RobotComponents.ABB.Actions
 
                 foreach (string decl in _programDeclarationsCustom)
                     if (DeclarationIsUnique(decl))
+                    {
+                        AddUniqueIdentifier(decl);
                         uniqueDecls.Add(decl);
+                    }
 
                 if (uniqueDecls.Count != 0)
                 {
@@ -378,7 +391,10 @@ namespace RobotComponents.ABB.Actions
 
                 foreach (string decl in _programDeclarationsMultiMove)
                     if (DeclarationIsUnique(decl))
+                    {
+                        AddUniqueIdentifier(decl);
                         uniqueDecls.Add(decl);
+                    }
 
                 if (uniqueDecls.Count != 0)
                 {
@@ -398,7 +414,10 @@ namespace RobotComponents.ABB.Actions
 
                 foreach (string decl in _programDeclarations)
                     if (DeclarationIsUnique(decl))
+                    {
+                        AddUniqueIdentifier(decl);
                         uniqueDecls.Add(decl);
+                    }
 
                 if (uniqueDecls.Count != 0)
                 {
@@ -642,11 +661,26 @@ namespace RobotComponents.ABB.Actions
         {
             foreach (string line in codeLines)
             {
-                string name = GetDeclarationName(line);
+                bool isLocal; 
+                string name = GetDeclarationName(line, out isLocal);
                 if (name != null && !_globalDeclarations.Contains(name))
                 {
                     _globalDeclarations.Add(name);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adds a unique declaration identifier to the global declarations collection.
+        /// </summary>
+        /// <param name="line">Line of Code to extract and add declaration identifier.</param>
+        private void AddUniqueIdentifier(string line)
+        {
+            bool isLocal;
+            string name = GetDeclarationName(line, out isLocal);
+            if (name != null && !_globalDeclarations.Contains(name))
+            {
+                _globalDeclarations.Add(name);
             }
         }
 
@@ -657,7 +691,8 @@ namespace RobotComponents.ABB.Actions
         /// <returns>True if Unique.</returns>
         private bool DeclarationIsUnique(string decl)
         {
-            string name = GetDeclarationName(decl);
+            bool isLocal;
+            string name = GetDeclarationName(decl, out isLocal);
             if (name == null) return true;
 
             // _globalDeclarations was created with case-insensitive comparer in GetMainModuleDeclarations
@@ -669,8 +704,10 @@ namespace RobotComponents.ABB.Actions
         /// </summary>
         /// <param name="codeLine">Code line to retreive name from.</param>
         /// <returns> Declaration name string.</returns>
-        private string GetDeclarationName(string codeLine)
+        private string GetDeclarationName(string codeLine, out bool isLocal)
         {
+            isLocal = false;
+
             if (string.IsNullOrWhiteSpace(codeLine))
                 return null;
 
@@ -681,8 +718,9 @@ namespace RobotComponents.ABB.Actions
 
             string first = parts[0].ToUpperInvariant();
 
-            if (first == "GLOBAL")
+            if (first == "LOCAL")
             {
+                isLocal = true;
                 for (int i = 1; i < parts.Length; i++)
                 {
                     string token = parts[i];
