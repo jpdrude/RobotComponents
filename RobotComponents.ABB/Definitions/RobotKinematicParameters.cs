@@ -219,14 +219,14 @@ namespace RobotComponents.ABB.Definitions
         {
             get 
             {
-                if (_a1 == double.NaN) { return false; }
-                if (_a2 == double.NaN) { return false; }
-                if (_a3 == double.NaN) { return false; }
-                if (_b == double.NaN) { return false; }
-                if (_c1 == double.NaN) { return false; }
-                if (_c2 == double.NaN) { return false; }
-                if (_c3 == double.NaN) { return false; }
-                if (_c4 == double.NaN) { return false; }
+                if (double.IsNaN(_a1)) { return false; }
+                if (double.IsNaN(_a2)) { return false; }
+                if (double.IsNaN(_a3)) { return false; }
+                if (double.IsNaN(_b)) { return false; }
+                if (double.IsNaN(_c1)) { return false; }
+                if (double.IsNaN(_c2)) { return false; }
+                if (double.IsNaN(_c3)) { return false; }
+                if (double.IsNaN(_c4)) { return false; }
                 return true; 
             }
         }
