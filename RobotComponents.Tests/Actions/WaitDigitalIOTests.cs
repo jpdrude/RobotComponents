@@ -4,6 +4,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+// System Libs
+using System;
 // Xunit Libs
 using Xunit;
 // Robot Components Libs
@@ -66,6 +68,22 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(wdi.IsValid);
         }
+
+        [Fact]
+        public void IsValid_FalseWithInjectionPayload()
+        {
+            WaitDI wdi = new WaitDI("di1, 1;\nMoveJ target", true);
+
+            Assert.False(wdi.IsValid);
+        }
+
+        [Fact]
+        public void ToRAPIDInstruction_ThrowsOnInvalidName()
+        {
+            WaitDI wdi = new WaitDI("di1;inject", true);
+
+            Assert.Throws<InvalidOperationException>(() => wdi.ToRAPIDInstruction(null));
+        }
     }
 
     public class WaitDOTests
@@ -88,6 +106,22 @@ namespace RobotComponents.Tests.Actions
             Assert.Contains("WaitDO", result);
             Assert.Contains("\\MaxTime:=5", result);
             Assert.Contains("\\TimeFlag:=TRUE", result);
+        }
+
+        [Fact]
+        public void IsValid_FalseWithInjectionPayload()
+        {
+            WaitDO wdo = new WaitDO("do1, 1;\nMoveJ target", true);
+
+            Assert.False(wdo.IsValid);
+        }
+
+        [Fact]
+        public void ToRAPIDInstruction_ThrowsOnInvalidName()
+        {
+            WaitDO wdo = new WaitDO("do1;inject", true);
+
+            Assert.Throws<InvalidOperationException>(() => wdo.ToRAPIDInstruction(null));
         }
     }
 }
