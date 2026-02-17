@@ -464,6 +464,48 @@ namespace RobotComponents.Tests
         }
         #endregion
 
+        #region IsValidRapidIdentifier
+        [Theory]
+        [InlineData("signal", true)]
+        [InlineData("_mySignal", true)]
+        [InlineData("di1", true)]
+        [InlineData("A", true)]
+        [InlineData("a_b_c_123", true)]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        [InlineData("1signal", false)]
+        [InlineData("sig nal", false)]
+        [InlineData("sig;nal", false)]
+        [InlineData("sig,nal", false)]
+        [InlineData("sig\nnal", false)]
+        [InlineData("sig\"nal", false)]
+        public void IsValidRapidIdentifier_ClassifiesCorrectly(string name, bool expected)
+        {
+            Assert.Equal(expected, HelperMethods.IsValidRapidIdentifier(name));
+        }
+
+        [Fact]
+        public void IsValidRapidIdentifier_Exactly32Chars_ReturnsTrue()
+        {
+            string name = new string('a', 32);
+            Assert.True(HelperMethods.IsValidRapidIdentifier(name));
+        }
+
+        [Fact]
+        public void IsValidRapidIdentifier_33Chars_ReturnsFalse()
+        {
+            string name = new string('a', 33);
+            Assert.False(HelperMethods.IsValidRapidIdentifier(name));
+        }
+
+        [Fact]
+        public void IsValidRapidIdentifier_InjectionPayload_ReturnsFalse()
+        {
+            string payload = "signal, 1;\nSetDO other, 1;";
+            Assert.False(HelperMethods.IsValidRapidIdentifier(payload));
+        }
+        #endregion
+
         #region test helpers
         /// <summary>
         /// Minimal IDeclaration stub for testing SetRapidDataFromString.
