@@ -16,6 +16,7 @@ using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Utils;
+using PresetHelpers = RobotComponents.ABB.Presets.Utils.HelperMethods;
 
 namespace RobotComponents.Tests
 {
@@ -524,6 +525,56 @@ namespace RobotComponents.Tests
         {
             Assert.Throws<InvalidOperationException>(
                 () => HelperMethods.ThrowIfInvalidRapidIdentifier(null));
+        }
+        #endregion
+
+        #region IsSafeFilePath
+        [Theory]
+        [InlineData(@"C:\Models\robot.step", true)]
+        [InlineData(@"C:\My Models\robot.stp", true)]
+        [InlineData(@"/home/user/models/robot.step", true)]
+        [InlineData(@"robot.step", true)]
+        [InlineData(null, false)]
+        [InlineData("", false)]
+        public void IsSafeFilePath_ClassifiesCorrectly(string path, bool expected)
+        {
+            Assert.Equal(expected, PresetHelpers.IsSafeFilePath(path));
+        }
+
+        [Fact]
+        public void IsSafeFilePath_PathWithQuotes_ReturnsFalse()
+        {
+            string path = "robot\".step";
+            Assert.False(PresetHelpers.IsSafeFilePath(path));
+        }
+
+        [Fact]
+        public void IsSafeFilePath_InjectionPayload_ReturnsFalse()
+        {
+            // Exact attack scenario from issue #35
+            string payload = "file.step\" _Enter -_RunPythonScript \"C:\\malicious.py";
+            Assert.False(PresetHelpers.IsSafeFilePath(payload));
+        }
+
+        [Fact]
+        public void ThrowIfUnsafeFilePath_ValidPath_DoesNotThrow()
+        {
+            PresetHelpers.ThrowIfUnsafeFilePath(@"C:\Models\robot.step");
+        }
+
+        [Fact]
+        public void ThrowIfUnsafeFilePath_PathWithQuotes_ThrowsArgumentException()
+        {
+            var ex = Assert.Throws<ArgumentException>(
+                () => PresetHelpers.ThrowIfUnsafeFilePath("robot\".step"));
+            Assert.Contains("unsafe", ex.Message);
+        }
+
+        [Fact]
+        public void ThrowIfUnsafeFilePath_Null_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(
+                () => PresetHelpers.ThrowIfUnsafeFilePath(null));
         }
         #endregion
 
