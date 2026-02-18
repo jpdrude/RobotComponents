@@ -280,5 +280,64 @@ namespace RobotComponents.Tests.Actions
             Assert.True(endProcLine < endModuleLine, "ENDPROC should come before ENDMODULE");
         }
         #endregion
+
+        #region Axis Limit Enforcement
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_AxisViolation_EnforceTrue_ReturnsEmptyModule()
+        {
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+
+            // Axis 1 limit for IRB120 is [-165, 165]; 999 is well out of range
+            RobotJointPosition rjp = new RobotJointPosition(999, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt_bad", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+
+            List<string> module = generator.CreateModule(new List<IAction> { move });
+
+            Assert.Empty(module);
+            Assert.NotEmpty(generator.ErrorText);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_AxisViolation_EnforceFalse_ReturnsFullModule()
+        {
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+            generator.EnforceAxisLimits = false;
+
+            RobotJointPosition rjp = new RobotJointPosition(999, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt_bad", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+
+            List<string> module = generator.CreateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MODULE MainModule", joined);
+            Assert.Contains("ENDMODULE", joined);
+            Assert.NotEmpty(generator.ErrorText);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_NoViolation_EnforceTrue_ReturnsFullModule()
+        {
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+
+            RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt_ok", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+
+            List<string> module = generator.CreateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MODULE MainModule", joined);
+            Assert.Contains("ENDMODULE", joined);
+            Assert.Empty(generator.ErrorText);
+        }
+        #endregion
     }
 }

@@ -273,6 +273,18 @@ namespace RobotComponents.ABB.Actions
                     }
                 }
             }
+
+            // Collect errors from additional routine generators
+            foreach (RAPIDGenerator routineGenerator in _additionalRoutineGenerators)
+            {
+                _errorText.AddRange(routineGenerator.ErrorText);
+            }
+
+            // Abort module generation if violations are detected and enforcement is enabled
+            if (_enforceAxisLimits && _errorText.Count > 0)
+            {
+                return _module;
+            }
             #endregion
 
             #region write the module
