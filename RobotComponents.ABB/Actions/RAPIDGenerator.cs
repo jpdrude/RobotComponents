@@ -82,6 +82,7 @@ namespace RobotComponents.ABB.Actions
 
         // Checks
         private readonly List<string> _errorText = new List<string>();
+        private bool _enforceAxisLimits = true;
         private bool _isFirstMovementMoveAbsJ;
         private bool _isSynchronized = false;
         #endregion
@@ -136,6 +137,7 @@ namespace RobotComponents.ABB.Actions
             _procedureName = generator.ProcedureName;
             _robot = generator.Robot.Duplicate();
             _isFirstMovementMoveAbsJ = generator.IsFirstMovementMoveAbsJ;
+            _enforceAxisLimits = generator.EnforceAxisLimits;
             _scope = generator.RoutineScope;
             _mainModule = generator._mainModule;
             _additionalRoutines = generator._additionalRoutines;
@@ -823,11 +825,23 @@ namespace RobotComponents.ABB.Actions
         }
 
         /// <summary>
-        /// Gets the collected error messages. 
+        /// Gets the collected error messages.
         /// </summary>
         public List<string> ErrorText
         {
             get { return _errorText; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether axis limit violations should prevent
+        /// RAPID module generation. When true (default), CreateModule returns an empty
+        /// module and populates ErrorText if any violations are detected. When false,
+        /// violations are reported in ErrorText as warnings but code generation proceeds.
+        /// </summary>
+        public bool EnforceAxisLimits
+        {
+            get { return _enforceAxisLimits; }
+            set { _enforceAxisLimits = value; }
         }
 
         /// <summary>
