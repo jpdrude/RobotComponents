@@ -180,11 +180,7 @@ namespace RobotComponents.ABB.Actions.Instructions
         /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
-            if (!HelperMethods.IsValidRapidIdentifier(_name))
-            {
-                throw new InvalidOperationException(
-                    $"Cannot generate RAPID instruction: '{_name}' is not a valid RAPID identifier.");
-            }
+            HelperMethods.ThrowIfInvalidRapidIdentifier(_name);
 
             return $"WaitAI {_name}, \\{Enum.GetName(typeof(InequalitySymbol), _inequalitySymbol)}, {_value}" +
                 $"{(_maxTime > 0 ? $"\\MaxTime:={_maxTime:0.###}" : "")};";

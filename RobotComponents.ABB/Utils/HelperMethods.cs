@@ -283,6 +283,22 @@ namespace RobotComponents.ABB.Utils
         }
 
         /// <summary>
+        /// Throws an <see cref="InvalidOperationException"/> if the given string is not a valid RAPID identifier.
+        /// </summary>
+        /// <param name="name"> The identifier to validate. </param>
+        /// <exception cref="InvalidOperationException">
+        /// <paramref name="name"/> is not a valid RAPID identifier.
+        /// </exception>
+        public static void ThrowIfInvalidRapidIdentifier(string name)
+        {
+            if (!IsValidRapidIdentifier(name))
+            {
+                throw new InvalidOperationException(
+                    $"Cannot generate RAPID instruction: '{name}' is not a valid RAPID identifier.");
+            }
+        }
+
+        /// <summary>
         /// Interpolates between two quaternions using spherical linear interpolation.
         /// </summary>
         /// <param name="quat1"> The first quaternion. </param>

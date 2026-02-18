@@ -173,11 +173,7 @@ namespace RobotComponents.ABB.Actions.Instructions
         /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
-            if (!HelperMethods.IsValidRapidIdentifier(_name))
-            {
-                throw new InvalidOperationException(
-                    $"Cannot generate RAPID instruction: '{_name}' is not a valid RAPID identifier.");
-            }
+            HelperMethods.ThrowIfInvalidRapidIdentifier(_name);
 
             if (_high == false)
             {

@@ -504,6 +504,27 @@ namespace RobotComponents.Tests
             string payload = "signal, 1;\nSetDO other, 1;";
             Assert.False(HelperMethods.IsValidRapidIdentifier(payload));
         }
+
+        [Fact]
+        public void ThrowIfInvalidRapidIdentifier_ValidName_DoesNotThrow()
+        {
+            HelperMethods.ThrowIfInvalidRapidIdentifier("signal");
+        }
+
+        [Fact]
+        public void ThrowIfInvalidRapidIdentifier_InvalidName_ThrowsInvalidOperationException()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => HelperMethods.ThrowIfInvalidRapidIdentifier("sig;nal"));
+            Assert.Contains("sig;nal", ex.Message);
+        }
+
+        [Fact]
+        public void ThrowIfInvalidRapidIdentifier_Null_ThrowsInvalidOperationException()
+        {
+            Assert.Throws<InvalidOperationException>(
+                () => HelperMethods.ThrowIfInvalidRapidIdentifier(null));
+        }
         #endregion
 
         #region test helpers
