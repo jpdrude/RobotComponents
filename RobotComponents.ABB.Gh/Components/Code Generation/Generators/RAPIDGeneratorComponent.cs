@@ -318,7 +318,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 for (int i = 0; i < _rapidGenerator.ErrorText.Count; i++)
                 {
                     AddRuntimeMessage(level, _rapidGenerator.ErrorText[i]);
-                    if (i == 30) { break; }
+                    if (i == 29) { break; }
                 }
             }
 
