@@ -1120,6 +1120,15 @@ namespace RobotComponents.ABB.Controllers
             Log(status);
             moduleName = module[0].Substring(7).Trim();
             moduleName = moduleName.Split(' ')[0];
+
+            // Validate module name to prevent path traversal (OWASP A03, issue #36)
+            if (!HelperMethods.IsValidRapidIdentifier(moduleName))
+            {
+                status = "Could not upload the module: The module name is not a valid RAPID identifier.";
+                Log(status);
+                return false;
+            }
+
             moduleName += ".MOD";
 
             status = $"Module name retreived: {moduleName}";
@@ -1159,7 +1168,8 @@ namespace RobotComponents.ABB.Controllers
             }
 
             string filePathLocal = Path.Combine(_localDirectory, moduleName);
-            
+            HelperMethods.ThrowIfPathEscapesDirectory(_localDirectory, filePathLocal);
+
             try
             {
                 using (StreamWriter writer = new StreamWriter(filePathLocal, false))
