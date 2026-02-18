@@ -338,6 +338,32 @@ namespace RobotComponents.Tests.Actions
             Assert.Contains("ENDMODULE", joined);
             Assert.Empty(generator.ErrorText);
         }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void Duplicate_PreservesEnforceAxisLimits_True()
+        {
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+            generator.EnforceAxisLimits = true;
+
+            RAPIDGenerator copy = generator.Duplicate();
+
+            Assert.True(copy.EnforceAxisLimits);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void Duplicate_PreservesEnforceAxisLimits_False()
+        {
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+            generator.EnforceAxisLimits = false;
+
+            RAPIDGenerator copy = generator.Duplicate();
+
+            Assert.False(copy.EnforceAxisLimits);
+        }
         #endregion
     }
 }
