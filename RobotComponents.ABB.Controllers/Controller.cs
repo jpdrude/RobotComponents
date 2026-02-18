@@ -1237,6 +1237,13 @@ namespace RobotComponents.ABB.Controllers
                     // Load the new program from the drive
                     string filePathRemote = Path.Combine(_remoteDirectory, moduleName);
 
+                    if (!HelperMethods.IsPathWithinDirectory(_remoteDirectory, filePathRemote))
+                    {
+                        status = "Could not upload the module: The resolved remote file path escapes the target directory.";
+                        Log(status);
+                        return false;
+                    }
+
                     task.LoadModuleFromFile(filePathRemote, RapidDomainNS.RapidLoadMode.Replace);
 
                     status = "Loaded the module from the filesystem of the controller to the controller task.";
@@ -1388,7 +1395,16 @@ namespace RobotComponents.ABB.Controllers
                     return false;
                 }
 
-                remotefilePaths.Add(Path.Combine(_remoteAdditionalDirectory, moduleName));
+                string remoteFilePath = Path.Combine(_remoteAdditionalDirectory, moduleName);
+
+                if (!HelperMethods.IsPathWithinDirectory(_remoteAdditionalDirectory, remoteFilePath))
+                {
+                    status = "Could not upload the module: The resolved remote file path escapes the target directory.";
+                    Log(status);
+                    return false;
+                }
+
+                remotefilePaths.Add(remoteFilePath);
 
                 try
                 {
