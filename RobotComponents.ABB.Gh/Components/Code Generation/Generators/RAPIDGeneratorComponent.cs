@@ -399,6 +399,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Menu_AppendItem(menu, "Add Load Data", MenuItemClickLoaddata, true, _addLoaddataInputParam);
             Menu_AppendItem(menu, "Add Tool Data", MenuItemClickTooldata, true, _addTooldataInputParam);
             Menu_AppendItem(menu, "Add Work Object Data", MenuItemClickWobjdata, true, _addWobjdataInputParam);
+            Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Enforce Axis Limits", MenuItemClickEnforceAxisLimits, true, _enforceAxisLimitsInputParam);
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Output Load Data", MenuItemClickOutputLoaddata, true, _loaddataOutputParam);

@@ -560,12 +560,13 @@ namespace RobotComponents.ABB.Actions.Instructions
                     RAPIDGenerator.ErrorText.AddRange(new List<string>(RAPIDGenerator.Robot.InverseKinematics.ErrorText));
 
                     // Create a joint target from the axis values
-                    _convertedTarget = new JointTarget(robotTarget.Name, RAPIDGenerator.Robot.InverseKinematics.RobotJointPosition.Duplicate(), RAPIDGenerator.Robot.InverseKinematics.ExternalJointPosition.Duplicate());
+                    JointTarget convertedJointTarget = new JointTarget(robotTarget.Name, RAPIDGenerator.Robot.InverseKinematics.RobotJointPosition.Duplicate(), RAPIDGenerator.Robot.InverseKinematics.ExternalJointPosition.Duplicate());
+                    _convertedTarget = convertedJointTarget;
                     _convertedTarget.ExternalJointPosition.Name = _target.ExternalJointPosition.Name;
                     _convertedTarget.VariableType = _target.VariableType;
 
                     // Check axis limits on the converted joint target
-                    RAPIDGenerator.ErrorText.AddRange(((JointTarget)_convertedTarget).CheckAxisLimits(RAPIDGenerator.Robot));
+                    RAPIDGenerator.ErrorText.AddRange(convertedJointTarget.CheckAxisLimits(RAPIDGenerator.Robot));
 
                     if (_convertedTarget.Name != "")
                     {
