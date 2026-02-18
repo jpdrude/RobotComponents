@@ -238,6 +238,30 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     "5000, 6000 and 7000.");
             }
 
+            // Check if speed values exceed recommended limits
+            if (speedData.ExceedsRecommendedLimits())
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "One or more speed values exceed recommended limits. " +
+                    $"Recommended maximums: V_TCP={SpeedData.RecommendedMaxTCP} mm/s, " +
+                    $"V_ORI={SpeedData.RecommendedMaxORI} deg/s, " +
+                    $"V_LEAX={SpeedData.RecommendedMaxLEAX} mm/s, " +
+                    $"V_REAX={SpeedData.RecommendedMaxREAX} deg/s.");
+            }
+
+            // Check if zone values exceed recommended limits
+            if (zoneData.ExceedsRecommendedLimits())
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "One or more zone values exceed recommended limits. " +
+                    $"Recommended maximums: PathZoneTCP={ZoneData.RecommendedMaxPathZoneTCP} mm, " +
+                    $"PathZoneORI={ZoneData.RecommendedMaxPathZoneORI} mm, " +
+                    $"PathZoneEAX={ZoneData.RecommendedMaxPathZoneEAX} mm, " +
+                    $"ZoneORI={ZoneData.RecommendedMaxZoneORI} deg, " +
+                    $"ZoneLEAX={ZoneData.RecommendedMaxZoneLEAX} mm, " +
+                    $"ZoneREAX={ZoneData.RecommendedMaxZoneREAX} deg.");
+            }
+
             // Check target and movement combination
             if (movement.MovementType == MovementType.MoveAbsJ && movement.Target is RobotTarget)
             {

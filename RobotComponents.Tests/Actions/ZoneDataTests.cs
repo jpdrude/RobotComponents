@@ -270,6 +270,30 @@ namespace RobotComponents.Tests.Actions
         }
 
         [Fact]
+        public void ExceedsRecommendedLimits_PathZoneEaxExceeds_ReturnsTrue()
+        {
+            ZoneData zd = new ZoneData("z", false, 0, 0, 301, 0, 0, 0);
+
+            Assert.True(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_ZoneLeaxExceeds_ReturnsTrue()
+        {
+            ZoneData zd = new ZoneData("z", false, 0, 0, 0, 0, 301, 0);
+
+            Assert.True(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_ZoneReaxExceeds_ReturnsTrue()
+        {
+            ZoneData zd = new ZoneData("z", false, 0, 0, 0, 0, 0, 31);
+
+            Assert.True(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
         public void ExceedsRecommendedLimits_AtExactLimit_ReturnsFalse()
         {
             ZoneData zd = new ZoneData("z", false, 200, 300, 300, 30, 300, 30);
