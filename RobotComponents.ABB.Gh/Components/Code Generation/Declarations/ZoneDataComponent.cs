@@ -105,14 +105,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Check if any zone values exceed recommended limits
             if (zoneData.ExceedsRecommendedLimits())
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    "One or more zone values exceed recommended limits. " +
-                    $"Recommended maximums: PathZoneTCP={ZoneData.RecommendedMaxPathZoneTCP} mm, " +
-                    $"PathZoneORI={ZoneData.RecommendedMaxPathZoneORI} mm, " +
-                    $"PathZoneEAX={ZoneData.RecommendedMaxPathZoneEAX} mm, " +
-                    $"ZoneORI={ZoneData.RecommendedMaxZoneORI} deg, " +
-                    $"ZoneLEAX={ZoneData.RecommendedMaxZoneLEAX} mm, " +
-                    $"ZoneREAX={ZoneData.RecommendedMaxZoneREAX} deg.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, zoneData.GetExceededLimitWarnings());
             }
 
             // Sets Output

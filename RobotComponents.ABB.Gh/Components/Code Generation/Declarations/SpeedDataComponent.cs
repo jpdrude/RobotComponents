@@ -98,12 +98,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Check if any speed values exceed recommended limits
             if (speeddata.ExceedsRecommendedLimits())
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    "One or more speed values exceed recommended limits. " +
-                    $"Recommended maximums: V_TCP={SpeedData.RecommendedMaxTCP} mm/s, " +
-                    $"V_ORI={SpeedData.RecommendedMaxORI} deg/s, " +
-                    $"V_LEAX={SpeedData.RecommendedMaxLEAX} mm/s, " +
-                    $"V_REAX={SpeedData.RecommendedMaxREAX} deg/s.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, speeddata.GetExceededLimitWarnings());
             }
 
             // Sets Output

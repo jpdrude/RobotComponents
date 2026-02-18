@@ -316,6 +316,37 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(zd.ExceedsRecommendedLimits());
         }
+
+        [Fact]
+        public void GetExceededLimitWarnings_NoneExceeded_ReturnsEmpty()
+        {
+            ZoneData zd = new ZoneData("z", false, 100, 200, 200, 15, 200, 15);
+
+            Assert.Equal(string.Empty, zd.GetExceededLimitWarnings());
+        }
+
+        [Fact]
+        public void GetExceededLimitWarnings_TcpExceeded_ContainsPathZoneTCP()
+        {
+            ZoneData zd = new ZoneData("z", false, 500, 0, 0, 0, 0, 0);
+
+            string warnings = zd.GetExceededLimitWarnings();
+
+            Assert.Contains("PathZoneTCP (500)", warnings);
+            Assert.DoesNotContain("PathZoneORI", warnings);
+        }
+
+        [Fact]
+        public void GetExceededLimitWarnings_MultipleExceeded_ContainsAll()
+        {
+            ZoneData zd = new ZoneData("z", false, 500, 400, 0, 0, 0, 0);
+
+            string warnings = zd.GetExceededLimitWarnings();
+
+            Assert.Contains("PathZoneTCP (500)", warnings);
+            Assert.Contains("PathZoneORI (400)", warnings);
+            Assert.DoesNotContain("PathZoneEAX", warnings);
+        }
         #endregion
 
         #region Duplicate

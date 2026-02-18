@@ -290,6 +290,38 @@ namespace RobotComponents.Tests.Actions
 
             Assert.False(sd.ExceedsRecommendedLimits());
         }
+
+        [Fact]
+        public void GetExceededLimitWarnings_NoneExceeded_ReturnsEmpty()
+        {
+            SpeedData sd = new SpeedData("s", 100, 500, 5000, 1000);
+
+            Assert.Equal(string.Empty, sd.GetExceededLimitWarnings());
+        }
+
+        [Fact]
+        public void GetExceededLimitWarnings_TcpExceeded_ContainsVTCP()
+        {
+            SpeedData sd = new SpeedData("s", 8000, 500, 5000, 1000);
+
+            string warnings = sd.GetExceededLimitWarnings();
+
+            Assert.Contains("V_TCP (8000)", warnings);
+            Assert.DoesNotContain("V_ORI", warnings);
+        }
+
+        [Fact]
+        public void GetExceededLimitWarnings_MultipleExceeded_ContainsAll()
+        {
+            SpeedData sd = new SpeedData("s", 8000, 2000, 5000, 1000);
+
+            string warnings = sd.GetExceededLimitWarnings();
+
+            Assert.Contains("V_TCP (8000)", warnings);
+            Assert.Contains("V_ORI (2000)", warnings);
+            Assert.DoesNotContain("V_LEAX", warnings);
+            Assert.DoesNotContain("V_REAX", warnings);
+        }
         #endregion
 
         #region Duplicate
