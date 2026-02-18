@@ -55,6 +55,37 @@ namespace RobotComponents.ABB.Actions.Declarations
         private static readonly double[] _predefinedZoneOri = new double[] { 0, 0.03, 0.1, 0.8, 1.5, 2.3, 3, 4.5, 6, 7.5, 9, 12, 15, 23, 30 };
         private static readonly double[] _predefinedZoneLeax = new double[] { 0, 0.3, 1, 8, 15, 23, 30, 45, 60, 75, 90, 120, 150, 225, 300 };
         private static readonly double[] _predefinedZoneReax = new double[] { 0, 0.03, 0.1, 0.8, 1.5, 2.3, 3, 4.5, 6, 7.5, 9, 12, 15, 23, 30 };
+
+        /// <summary>
+        /// The recommended maximum TCP zone radius in mm (based on highest predefined value: z200).
+        /// </summary>
+        public const double RecommendedMaxPathZoneTCP = 200;
+
+        /// <summary>
+        /// The recommended maximum tool reorientation zone radius in mm.
+        /// </summary>
+        public const double RecommendedMaxPathZoneORI = 300;
+
+        /// <summary>
+        /// The recommended maximum external axes zone radius in mm.
+        /// </summary>
+        public const double RecommendedMaxPathZoneEAX = 300;
+
+        /// <summary>
+        /// The recommended maximum tool reorientation zone in degrees.
+        /// </summary>
+        public const double RecommendedMaxZoneORI = 30;
+
+        /// <summary>
+        /// The recommended maximum linear external axes zone in mm.
+        /// </summary>
+        public const double RecommendedMaxZoneLEAX = 300;
+
+        /// <summary>
+        /// The recommended maximum rotating external axes zone in degrees.
+        /// </summary>
+        public const double RecommendedMaxZoneREAX = 30;
+
         #endregion
 
         #region (de)serialization
@@ -496,7 +527,21 @@ namespace RobotComponents.ABB.Actions.Declarations
         }
 
         /// <summary>
-        /// Gets or sets the scope. 
+        /// Returns a value indicating whether any zone parameter exceeds the recommended maximum limits.
+        /// </summary>
+        /// <returns> True if any zone value exceeds the recommended limit. </returns>
+        public bool ExceedsRecommendedLimits()
+        {
+            return _pzone_tcp > RecommendedMaxPathZoneTCP
+                || _pzone_ori > RecommendedMaxPathZoneORI
+                || _pzone_eax > RecommendedMaxPathZoneEAX
+                || _zone_ori > RecommendedMaxZoneORI
+                || _zone_leax > RecommendedMaxZoneLEAX
+                || _zone_reax > RecommendedMaxZoneREAX;
+        }
+
+        /// <summary>
+        /// Gets or sets the scope.
         /// </summary>
         public Scope Scope
         {

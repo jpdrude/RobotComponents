@@ -236,6 +236,64 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
+        #region ExceedsRecommendedLimits
+        [Fact]
+        public void ExceedsRecommendedLimits_AllWithinLimits_ReturnsFalse()
+        {
+            ZoneData zd = new ZoneData("z", false, 100, 200, 200, 15, 200, 15);
+
+            Assert.False(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_PathZoneTcpExceeds_ReturnsTrue()
+        {
+            ZoneData zd = new ZoneData("z", false, 201, 0, 0, 0, 0, 0);
+
+            Assert.True(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_PathZoneOriExceeds_ReturnsTrue()
+        {
+            ZoneData zd = new ZoneData("z", false, 0, 301, 0, 0, 0, 0);
+
+            Assert.True(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_ZoneOriExceeds_ReturnsTrue()
+        {
+            ZoneData zd = new ZoneData("z", false, 0, 0, 0, 31, 0, 0);
+
+            Assert.True(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_AtExactLimit_ReturnsFalse()
+        {
+            ZoneData zd = new ZoneData("z", false, 200, 300, 300, 30, 300, 30);
+
+            Assert.False(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_FinePoint_ReturnsFalse()
+        {
+            ZoneData zd = new ZoneData(-1);
+
+            Assert.False(zd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_PredefinedMax_ReturnsFalse()
+        {
+            ZoneData zd = new ZoneData(200);
+
+            Assert.False(zd.ExceedsRecommendedLimits());
+        }
+        #endregion
+
         #region Duplicate
         [Fact]
         public void Duplicate_ReturnsMatchingValues()
