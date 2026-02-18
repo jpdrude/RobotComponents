@@ -85,6 +85,7 @@ namespace RobotComponents.ABB.Presets.Utils
 
             return className;
         }
+
         /// <summary>
         /// Checks whether a file path is safe to interpolate into a RhinoApp.RunScript command.
         /// </summary>
@@ -127,7 +128,7 @@ namespace RobotComponents.ABB.Presets.Utils
             if (!IsSafeFilePath(filePath))
             {
                 throw new ArgumentException(
-                    $"The file path '{filePath}' contains characters that are unsafe for script execution.");
+                    "The file path contains characters that are unsafe for script execution.");
             }
         }
         #endregion

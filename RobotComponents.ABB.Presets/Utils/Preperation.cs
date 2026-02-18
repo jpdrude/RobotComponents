@@ -328,6 +328,7 @@ namespace RobotComponents.ABB.Presets.Utils
             }
 
             // Step 3: Purge unused definitions (run multiple times to be thorough)
+            // Hardcoded commands — no user input interpolated, safe from injection.
             RhinoApp.RunScript("_-Purge _All _Yes _Enter", false);
             RhinoApp.RunScript("_-Purge _All _Yes _Enter", false);
             RhinoApp.RunScript("_-Purge _All _Yes _Enter", false);
