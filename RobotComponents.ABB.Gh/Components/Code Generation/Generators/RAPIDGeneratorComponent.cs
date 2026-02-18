@@ -57,6 +57,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _addLoaddataInputParam = false;
         private bool _addTooldataInputParam = false;
         private bool _addWobjdataInputParam = false;
+        private bool _enforceAxisLimitsInputParam = false;
         private readonly int _fixedParamNumInput = 2;
         private bool _loaddataOutputParam = false;
         private bool _tooldataOutputParam = false;
@@ -81,7 +82,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Stores the variable input parameters in an array.
         /// </summary>
-        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[10]
+        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[11]
         {
             new Param_Boolean() { Name = "Is System Moudle", NickName = "SM", Description = "Indicates whether this module should be uploaded as a System Module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Module Name", NickName = "MN", Description = "The name of the module as a text. The default name is MainModule.", Access = GH_ParamAccess.item, Optional = true},
@@ -92,7 +93,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             new Param_Boolean() { Name = "Add loaddata", NickName = "AL", Description = "Indicates if the loaddata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Add tooldata", NickName = "AT", Description = "Indicates if the tooldata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Add wobjdata", NickName = "AW", Description = "Indicates if the wobjdata should be added the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
-            new Param_Boolean() { Name = "Update", NickName = "U", Description = "Updates the RAPID module based on a boolean value. To increase performance, only update when changes were made.", Access = GH_ParamAccess.item, Optional = true }
+            new Param_Boolean() { Name = "Update", NickName = "U", Description = "Updates the RAPID module based on a boolean value. To increase performance, only update when changes were made.", Access = GH_ParamAccess.item, Optional = true },
+            new Param_Boolean() { Name = "Enforce Axis Limits", NickName = "EL", Description = "When true (default), axis limit violations prevent RAPID code generation. Set to false to allow generation with warnings only.", Access = GH_ParamAccess.item, Optional = true}
         };
 
         /// <summary>
@@ -144,6 +146,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             bool addLoaddata = true;
             bool addWobjdata = true;
             bool update = true;
+            bool enforceAxisLimits = true;
 
             // Catch the input data
             if (!DA.GetData(0, ref robot)) { return; }
@@ -228,6 +231,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     update = true;
                 }
             }
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[10].Name))
+            {
+                if (!DA.GetData(_variableInputParameters[10].Name, ref enforceAxisLimits))
+                {
+                    enforceAxisLimits = true;
+                }
+            }
 
             // Checks if module name exceeds max character limit for RAPID Code
             if (HelperMethods.StringExeedsCharacterLimit32(moduleName))
@@ -278,6 +288,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 // Initiaties the rapidGenerator
                 _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, (Scope)scope, mainModule, additionalRoutines, isSystemModule);
+                _rapidGenerator.EnforceAxisLimits = enforceAxisLimits;
 
                 // Generator code
                 _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
@@ -295,14 +306,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The first movement is not set as an absolute joint movement.");
             }
 
-            // Show warning messages
+            // Show error or warning messages for axis limit violations
             if (_rapidGenerator.ErrorText.Count != 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Only axis values of absolute joint movements are checked.");
+                GH_RuntimeMessageLevel level = _rapidGenerator.EnforceAxisLimits
+                    ? GH_RuntimeMessageLevel.Error
+                    : GH_RuntimeMessageLevel.Warning;
+
+                AddRuntimeMessage(level, "Only axis values of absolute joint movements are checked.");
 
                 for (int i = 0; i < _rapidGenerator.ErrorText.Count; i++)
                 {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, _rapidGenerator.ErrorText[i]);
+                    AddRuntimeMessage(level, _rapidGenerator.ErrorText[i]);
                     if (i == 30) { break; }
                 }
             }
@@ -384,6 +399,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Menu_AppendItem(menu, "Add Load Data", MenuItemClickLoaddata, true, _addLoaddataInputParam);
             Menu_AppendItem(menu, "Add Tool Data", MenuItemClickTooldata, true, _addTooldataInputParam);
             Menu_AppendItem(menu, "Add Work Object Data", MenuItemClickWobjdata, true, _addWobjdataInputParam);
+            Menu_AppendItem(menu, "Enforce Axis Limits", MenuItemClickEnforceAxisLimits, true, _enforceAxisLimitsInputParam);
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Output Load Data", MenuItemClickOutputLoaddata, true, _loaddataOutputParam);
             Menu_AppendItem(menu, "Output Tool Data", MenuItemClickOutputTooldata, true, _tooldataOutputParam);
@@ -498,6 +514,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
+        /// Handles the event when the custom menu item "Enforce Axis Limits" is clicked.
+        /// </summary>
+        /// <param name="sender"> The object that raises the event. </param>
+        /// <param name="e"> The event data. </param>
+        private void MenuItemClickEnforceAxisLimits(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Enforce Axis Limits");
+            _enforceAxisLimitsInputParam = !_enforceAxisLimitsInputParam;
+            AddInputParameter(10);
+        }
+
+        /// <summary>
         /// Handles the event when the custom menu item "Output Load Data" is clicked. 
         /// </summary>
         /// <param name="sender"> The object that raises the event. </param>
@@ -595,6 +623,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             writer.SetBoolean("Output loaddata", _loaddataOutputParam);
             writer.SetBoolean("Output tooldata", _tooldataOutputParam);
             writer.SetBoolean("Output wobjdata", _wobjdataOutputParam);
+            writer.SetBoolean("Enforce Axis Limits", _enforceAxisLimitsInputParam);
             return base.Write(writer);
         }
 
@@ -617,6 +646,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             _loaddataOutputParam = reader.GetBoolean("Output loaddata");
             _tooldataOutputParam = reader.GetBoolean("Output tooldata");
             _wobjdataOutputParam = reader.GetBoolean("Output wobjdata");
+            if (reader.ItemExists("Enforce Axis Limits"))
+            {
+                _enforceAxisLimitsInputParam = reader.GetBoolean("Enforce Axis Limits");
+            }
             return base.Read(reader);
         }
 
