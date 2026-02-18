@@ -13,27 +13,31 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Windows.Forms;
-// Rhino Libs
-using Rhino.Geometry;
-using Rhino.Display;
+using GH_IO.Serialization;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
-using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Parameters;
-using GH_IO.Serialization;
-// RobotComponents Libs
-using RobotComponents.ABB.Kinematics;
+using Grasshopper.Kernel.Types;
+using Rhino.Display;
+// Rhino Libs
+using Rhino.Geometry;
+using RobotComponents.ABB.Actions;
+using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Definitions;
-using RobotComponents.ABB.Gh.Parameters.Definitions;
+using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Declarations;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
+// RobotComponents Libs
+using RobotComponents.ABB.Kinematics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Policy;
+using System.Windows.Forms;
 
 namespace RobotComponents.ABB.Gh.Components.Simulation
 {
@@ -47,6 +51,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         private readonly List<ForwardKinematics> _forwardKinematics = new List<ForwardKinematics>();
         private readonly List<bool> _calculated = new List<bool>();
         private readonly List<double> _interpolations = new List<double>();
+        private readonly List<int> _lastInputHash = new List<int>();
         private bool _outputPath = true;
         private bool _outputMovement = false;
         private bool _outputMovements = false;
@@ -152,6 +157,10 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             if (!DA.GetData(3, ref interpolationSlider)) { return; }
             if (!DA.GetData(4, ref update)) { return; }
 
+            //Generate Input Hash
+            int inputHash = CreateInputHash(actions, interpolations, robot);
+
+
             // Interpolations
             _interpolations.Add(interpolationSlider);
 
@@ -159,29 +168,34 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             ForwardKinematics forwardKinematics = new ForwardKinematics(robot);
 
             // Fill list if needed
-            if (DA.Iteration >= _calculated.Count)
+            while (_calculated.Count <= DA.Iteration)
             {
                 _calculated.Add(false);
             }
+            while (_pathGenerators.Count <= DA.Iteration)
+            {
+                _pathGenerators.Add(null);
+            }
+            while (_lastInputHash.Count <= DA.Iteration)
+            {
+                _lastInputHash.Add(0);
+            }
+
 
             // Update the path
-            if (update == true | _calculated[DA.Iteration] == false)
+            if ((update == true && inputHash != _lastInputHash[DA.Iteration]) | _calculated[DA.Iteration] == false)
             {
                 // Create the path generator
-                if (DA.Iteration >= _pathGenerators.Count)
-                {
-                    _pathGenerators.Add(new PathGenerator(robot));
-                }
-                else
-                {
-                    _pathGenerators[DA.Iteration] = new PathGenerator(robot);
-                }
+                _pathGenerators[DA.Iteration] = new PathGenerator(robot);
 
                 // Re-calculate the path
                 _pathGenerators[DA.Iteration].Calculate(actions, interpolations);
 
                 // Makes sure that there is always a calculated solution
                 _calculated[DA.Iteration] = true;
+
+                //Sets the last input hash
+                _lastInputHash[DA.Iteration] = inputHash;
             }
 
             // Get the index number of the current target
@@ -883,6 +897,102 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
 
             // Return the data tree stucture
             return meshes;
+        }
+
+        /// <summary>
+        /// Computes a unique input hash based on robot, tool, base, external axes, and action parameters.
+        /// </summary>
+        /// <param name="actions">List of input actions</param>
+        /// <param name="interpolations">Interpolation number</param>
+        /// <param name="robot">Robot</param>
+        /// <returns>Unique hash</returns>
+        int CreateInputHash(List<Actions.IAction> actions, int interpolations, Robot robot)
+        {
+            // Ungroup actions
+            IList<Actions.IAction> ungrouped = UngroupActions(actions);
+
+            //Generate robot hash
+            int hash = interpolations;
+            hash = hash * 31 + robot.Name.GetHashCode();
+            hash = hash * 31 + robot.Tool.Name.GetHashCode();
+            hash = hash * 31 + robot.BasePlane.GetHashCode();
+            hash = hash * 31 + robot.ExternalAxes.Count.GetHashCode();
+            
+            foreach (IExternalAxis axis in robot.ExternalAxes)
+            {
+                hash = hash * 31 + axis.Name.GetHashCode();
+                hash = hash * 31 + axis.AxisLimits.GetHashCode();
+                hash = hash * 31 + axis.AxisPlane.GetHashCode();
+                hash = hash * 31 + axis.AttachmentPlane.GetHashCode();
+            }
+
+            //Generate action hash
+            foreach (Actions.IAction action in ungrouped)
+            {
+                if (action == null)
+                {
+                    continue;
+                }
+
+                if (action is OverrideRobotTool overrideRobotTool)
+                {
+                    hash = hash * 31 + overrideRobotTool.RobotTool.Name.GetHashCode();
+                }
+
+                else if (action is JointConfigurationControl jointConfigurationControl)
+                {
+                    hash = hash * 31 + jointConfigurationControl.IsActive.GetHashCode();
+                }
+
+                else if (action is LinearConfigurationControl linearConfigurationControl)
+                {
+                    hash = hash * 31 + linearConfigurationControl.IsActive.GetHashCode();
+                }
+
+                else if (action is CirclePathMode circlePathMode)
+                {
+                    hash = hash * 31 + circlePathMode.Mode.GetHashCode();
+                }
+
+                else if (action is WaitTime waitTime)
+                {
+                    hash = hash * 31 + waitTime.Duration.GetHashCode();
+                }
+
+                else if (action is Movement movement)
+                {
+                    if (movement.Target != null)
+                    {
+                        hash = hash * 31 + movement.Target.ToRAPID().GetHashCode();
+                    }
+                }
+            }
+            return hash;
+        }
+
+        /// <summary>
+        /// Returns a list with ungrouped actions. 
+        /// </summary>
+        /// <param name="actions"> The list with actions to ungroup. </param>
+        /// <returns> A list of ungrouped actions. </returns>
+        private IList<Actions.IAction> UngroupActions(IList<Actions.IAction> actions)
+        {
+            // Ungroup actions
+            List<Actions.IAction> ungrouped = new List<Actions.IAction>() { };
+
+            for (int i = 0; i < actions.Count; i++)
+            {
+                if (actions[i] is ActionGroup group)
+                {
+                    ungrouped.AddRange(group.Ungroup());
+                }
+                else
+                {
+                    ungrouped.Add(actions[i]);
+                }
+            }
+
+            return ungrouped;
         }
         #endregion
     }
