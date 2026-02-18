@@ -95,6 +95,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             SpeedData speeddata = new SpeedData(name, v_tcp, v_ori, v_leax, v_reax);
 
+            // Check if any speed values exceed recommended limits
+            if (speeddata.ExceedsRecommendedLimits())
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "One or more speed values exceed recommended limits. " +
+                    $"Recommended maximums: V_TCP={SpeedData.RecommendedMaxTCP} mm/s, " +
+                    $"V_ORI={SpeedData.RecommendedMaxORI} deg/s, " +
+                    $"V_LEAX={SpeedData.RecommendedMaxLEAX} mm/s, " +
+                    $"V_REAX={SpeedData.RecommendedMaxREAX} deg/s.");
+            }
+
             // Sets Output
             DA.SetData(0, speeddata);
         }

@@ -102,6 +102,19 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             ZoneData zoneData = new ZoneData(name, finep, pzone_tcp, pzone_ori, pzone_eax, zone_ori, zone_leax, zone_reax);
 
+            // Check if any zone values exceed recommended limits
+            if (zoneData.ExceedsRecommendedLimits())
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "One or more zone values exceed recommended limits. " +
+                    $"Recommended maximums: PathZoneTCP={ZoneData.RecommendedMaxPathZoneTCP} mm, " +
+                    $"PathZoneORI={ZoneData.RecommendedMaxPathZoneORI} mm, " +
+                    $"PathZoneEAX={ZoneData.RecommendedMaxPathZoneEAX} mm, " +
+                    $"ZoneORI={ZoneData.RecommendedMaxZoneORI} deg, " +
+                    $"ZoneLEAX={ZoneData.RecommendedMaxZoneLEAX} mm, " +
+                    $"ZoneREAX={ZoneData.RecommendedMaxZoneREAX} deg.");
+            }
+
             // Sets Output
             DA.SetData(0, zoneData);
         }
