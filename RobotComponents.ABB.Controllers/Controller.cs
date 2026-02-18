@@ -1361,10 +1361,20 @@ namespace RobotComponents.ABB.Controllers
                 Log(status);
                 string moduleName = module[0].Substring(7).Trim();
                 moduleName = moduleName.Split(' ')[0];
+
+                // Validate module name to prevent path traversal (OWASP A03, issue #36)
+                if (!HelperMethods.IsValidRapidIdentifier(moduleName))
+                {
+                    status = "Could not upload the module: The module name is not a valid RAPID identifier.";
+                    Log(status);
+                    return false;
+                }
+
                 moduleName += ".MOD";
                 status = $"Module name retreived: {moduleName}";
 
                 string filePathLocal = Path.Combine(_localAdditionalDirectory, moduleName);
+                HelperMethods.ThrowIfPathEscapesDirectory(_localAdditionalDirectory, filePathLocal);
                 remotefilePaths.Add(Path.Combine(_remoteAdditionalDirectory, moduleName));
 
                 try
@@ -1557,10 +1567,20 @@ namespace RobotComponents.ABB.Controllers
             Log(status);
             string moduleName = module[0].Substring(7).Trim();
             moduleName = moduleName.Split(' ')[0];
+
+            // Validate module name to prevent path traversal (OWASP A03, issue #36)
+            if (!HelperMethods.IsValidRapidIdentifier(moduleName))
+            {
+                status = "Could not upload the module: The module name is not a valid RAPID identifier.";
+                Log(status);
+                return false;
+            }
+
             moduleName += ".SYS";
             status = $"Module name retreived: {moduleName}";
 
             string filePathLocal = Path.Combine(_localSystemDirectory, moduleName);
+            HelperMethods.ThrowIfPathEscapesDirectory(_localSystemDirectory, filePathLocal);
 
             try
             {
