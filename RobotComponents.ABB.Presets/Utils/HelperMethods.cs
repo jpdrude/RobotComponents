@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.IO;
 using System.Text.RegularExpressions;
 // Robot Components Libs
 using RobotComponents.ABB.Presets.Enumerations;
@@ -83,6 +84,51 @@ namespace RobotComponents.ABB.Presets.Utils
             className = className.Replace(".", "");
 
             return className;
+        }
+        /// <summary>
+        /// Checks whether a file path is safe to interpolate into a RhinoApp.RunScript command.
+        /// </summary>
+        /// <remarks>
+        /// Rejects paths that contain double quotes (which would break out of the quoted argument
+        /// in a RunScript command string) or characters from <see cref="Path.GetInvalidPathChars"/>.
+        /// </remarks>
+        /// <param name="filePath"> The file path to validate. </param>
+        /// <returns> True if the path is safe; false otherwise. </returns>
+        internal static bool IsSafeFilePath(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return false;
+            }
+
+            if (filePath.IndexOf('"') >= 0)
+            {
+                return false;
+            }
+
+            char[] invalidChars = Path.GetInvalidPathChars();
+
+            if (filePath.IndexOfAny(invalidChars) >= 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if the file path is not safe for use
+        /// in a RhinoApp.RunScript command.
+        /// </summary>
+        /// <param name="filePath"> The file path to validate. </param>
+        /// <exception cref="ArgumentException"> Thrown when the path contains unsafe characters. </exception>
+        internal static void ThrowIfUnsafeFilePath(string filePath)
+        {
+            if (!IsSafeFilePath(filePath))
+            {
+                throw new ArgumentException(
+                    $"The file path '{filePath}' contains characters that are unsafe for script execution.");
+            }
         }
         #endregion
 
