@@ -579,7 +579,46 @@ namespace RobotComponents.Tests
         }
         #endregion
 
-        #region ThrowIfPathEscapesDirectory
+        #region IsPathWithinDirectory / ThrowIfPathEscapesDirectory
+        [Fact]
+        public void IsPathWithinDirectory_SafePath_ReturnsTrue()
+        {
+            string baseDir = Path.Combine(Path.GetTempPath(), "TestBase");
+            string combined = Path.Combine(baseDir, "Module.MOD");
+
+            Assert.True(HelperMethods.IsPathWithinDirectory(baseDir, combined));
+        }
+
+        [Fact]
+        public void IsPathWithinDirectory_TraversalPayload_ReturnsFalse()
+        {
+            string baseDir = Path.Combine(Path.GetTempPath(), "TestBase");
+            string combined = Path.Combine(baseDir, "..", "..", "malicious.MOD");
+
+            Assert.False(HelperMethods.IsPathWithinDirectory(baseDir, combined));
+        }
+
+        [Fact]
+        public void IsPathWithinDirectory_AbsolutePathOutside_ReturnsFalse()
+        {
+            string baseDir = Path.Combine(Path.GetTempPath(), "TestBase");
+            string outside = Path.Combine(Path.GetTempPath(), "Other", "malicious.MOD");
+
+            Assert.False(HelperMethods.IsPathWithinDirectory(baseDir, outside));
+        }
+
+        [Fact]
+        public void IsPathWithinDirectory_NullBase_ReturnsFalse()
+        {
+            Assert.False(HelperMethods.IsPathWithinDirectory(null, "/tmp/file.MOD"));
+        }
+
+        [Fact]
+        public void IsPathWithinDirectory_NullPath_ReturnsFalse()
+        {
+            Assert.False(HelperMethods.IsPathWithinDirectory("/tmp", null));
+        }
+
         [Fact]
         public void ThrowIfPathEscapesDirectory_SafePath_DoesNotThrow()
         {

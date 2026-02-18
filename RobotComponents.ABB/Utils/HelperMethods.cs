@@ -300,7 +300,7 @@ namespace RobotComponents.ABB.Utils
         }
 
         /// <summary>
-        /// Throws an <see cref="ArgumentException"/> if the resolved file path escapes
+        /// Returns a value indicating whether the resolved file path stays within
         /// the specified base directory.
         /// </summary>
         /// <remarks>
@@ -311,11 +311,17 @@ namespace RobotComponents.ABB.Utils
         /// </remarks>
         /// <param name="baseDirectory"> The trusted base directory. </param>
         /// <param name="combinedPath"> The combined file path to validate. </param>
-        /// <exception cref="ArgumentException">
-        /// The resolved path is outside the base directory.
-        /// </exception>
-        public static void ThrowIfPathEscapesDirectory(string baseDirectory, string combinedPath)
+        /// <returns>
+        /// <see langword="true"/> if the resolved path is within the base directory;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
+        public static bool IsPathWithinDirectory(string baseDirectory, string combinedPath)
         {
+            if (baseDirectory == null || combinedPath == null)
+            {
+                return false;
+            }
+
             string fullBase = Path.GetFullPath(baseDirectory);
 
             if (!fullBase.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -325,7 +331,21 @@ namespace RobotComponents.ABB.Utils
 
             string fullPath = Path.GetFullPath(combinedPath);
 
-            if (!fullPath.StartsWith(fullBase, StringComparison.OrdinalIgnoreCase))
+            return fullPath.StartsWith(fullBase, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if the resolved file path escapes
+        /// the specified base directory.
+        /// </summary>
+        /// <param name="baseDirectory"> The trusted base directory. </param>
+        /// <param name="combinedPath"> The combined file path to validate. </param>
+        /// <exception cref="ArgumentException">
+        /// The resolved path is outside the base directory.
+        /// </exception>
+        public static void ThrowIfPathEscapesDirectory(string baseDirectory, string combinedPath)
+        {
+            if (!IsPathWithinDirectory(baseDirectory, combinedPath))
             {
                 throw new ArgumentException(
                     "The resolved file path escapes the target directory.");

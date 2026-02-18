@@ -1168,7 +1168,13 @@ namespace RobotComponents.ABB.Controllers
             }
 
             string filePathLocal = Path.Combine(_localDirectory, moduleName);
-            HelperMethods.ThrowIfPathEscapesDirectory(_localDirectory, filePathLocal);
+
+            if (!HelperMethods.IsPathWithinDirectory(_localDirectory, filePathLocal))
+            {
+                status = "Could not upload the module: The resolved file path escapes the target directory.";
+                Log(status);
+                return false;
+            }
 
             try
             {
@@ -1374,7 +1380,14 @@ namespace RobotComponents.ABB.Controllers
                 status = $"Module name retreived: {moduleName}";
 
                 string filePathLocal = Path.Combine(_localAdditionalDirectory, moduleName);
-                HelperMethods.ThrowIfPathEscapesDirectory(_localAdditionalDirectory, filePathLocal);
+
+                if (!HelperMethods.IsPathWithinDirectory(_localAdditionalDirectory, filePathLocal))
+                {
+                    status = "Could not upload the module: The resolved file path escapes the target directory.";
+                    Log(status);
+                    return false;
+                }
+
                 remotefilePaths.Add(Path.Combine(_remoteAdditionalDirectory, moduleName));
 
                 try
@@ -1580,7 +1593,13 @@ namespace RobotComponents.ABB.Controllers
             status = $"Module name retreived: {moduleName}";
 
             string filePathLocal = Path.Combine(_localSystemDirectory, moduleName);
-            HelperMethods.ThrowIfPathEscapesDirectory(_localSystemDirectory, filePathLocal);
+
+            if (!HelperMethods.IsPathWithinDirectory(_localSystemDirectory, filePathLocal))
+            {
+                status = "Could not upload the module: The resolved file path escapes the target directory.";
+                Log(status);
+                return false;
+            }
 
             try
             {
