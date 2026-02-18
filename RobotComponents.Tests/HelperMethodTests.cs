@@ -6,6 +6,7 @@
 
 // System Libs
 using System;
+using System.IO;
 // Rhino Libs
 using Rhino.Geometry;
 // Xunit Libs
@@ -575,6 +576,60 @@ namespace RobotComponents.Tests
         {
             Assert.Throws<ArgumentException>(
                 () => PresetHelpers.ThrowIfUnsafeFilePath(null));
+        }
+        #endregion
+
+        #region ThrowIfPathEscapesDirectory
+        [Fact]
+        public void ThrowIfPathEscapesDirectory_SafePath_DoesNotThrow()
+        {
+            string baseDir = Path.Combine(Path.GetTempPath(), "TestBase");
+            string combined = Path.Combine(baseDir, "Module.MOD");
+
+            HelperMethods.ThrowIfPathEscapesDirectory(baseDir, combined);
+        }
+
+        [Fact]
+        public void ThrowIfPathEscapesDirectory_TraversalPayload_ThrowsArgumentException()
+        {
+            string baseDir = Path.Combine(Path.GetTempPath(), "TestBase");
+            string combined = Path.Combine(baseDir, "..", "..", "malicious.MOD");
+
+            Assert.Throws<ArgumentException>(
+                () => HelperMethods.ThrowIfPathEscapesDirectory(baseDir, combined));
+        }
+
+        [Fact]
+        public void ThrowIfPathEscapesDirectory_AbsolutePathOutside_ThrowsArgumentException()
+        {
+            string baseDir = Path.Combine(Path.GetTempPath(), "TestBase");
+            string outside = Path.Combine(Path.GetTempPath(), "Other", "malicious.MOD");
+
+            Assert.Throws<ArgumentException>(
+                () => HelperMethods.ThrowIfPathEscapesDirectory(baseDir, outside));
+        }
+        #endregion
+
+        #region Module name path traversal (issue #36)
+        [Theory]
+        [InlineData("../../../test")]
+        [InlineData("..\\..\\test")]
+        [InlineData("test/../../etc")]
+        [InlineData("test\\..\\..\\etc")]
+        [InlineData(".")]
+        [InlineData("..")]
+        public void IsValidRapidIdentifier_PathTraversalPayload_ReturnsFalse(string name)
+        {
+            Assert.False(HelperMethods.IsValidRapidIdentifier(name));
+        }
+
+        [Theory]
+        [InlineData("MainModule")]
+        [InlineData("T_ROB1")]
+        [InlineData("my_module_01")]
+        public void IsValidRapidIdentifier_ValidModuleName_ReturnsTrue(string name)
+        {
+            Assert.True(HelperMethods.IsValidRapidIdentifier(name));
         }
         #endregion
 
