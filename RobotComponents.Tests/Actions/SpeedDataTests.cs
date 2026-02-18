@@ -234,6 +234,64 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
+        #region ExceedsRecommendedLimits
+        [Fact]
+        public void ExceedsRecommendedLimits_AllWithinLimits_ReturnsFalse()
+        {
+            SpeedData sd = new SpeedData("s", 100, 500, 5000, 1000);
+
+            Assert.False(sd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_TcpExceeds_ReturnsTrue()
+        {
+            SpeedData sd = new SpeedData("s", 7001, 500, 5000, 1000);
+
+            Assert.True(sd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_OriExceeds_ReturnsTrue()
+        {
+            SpeedData sd = new SpeedData("s", 100, 1001, 5000, 1000);
+
+            Assert.True(sd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_LeaxExceeds_ReturnsTrue()
+        {
+            SpeedData sd = new SpeedData("s", 100, 500, 5001, 1000);
+
+            Assert.True(sd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_ReaxExceeds_ReturnsTrue()
+        {
+            SpeedData sd = new SpeedData("s", 100, 500, 5000, 1001);
+
+            Assert.True(sd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_AtExactLimit_ReturnsFalse()
+        {
+            SpeedData sd = new SpeedData("s", 7000, 1000, 5000, 1000);
+
+            Assert.False(sd.ExceedsRecommendedLimits());
+        }
+
+        [Fact]
+        public void ExceedsRecommendedLimits_PredefinedMax_ReturnsFalse()
+        {
+            SpeedData sd = new SpeedData(7000);
+
+            Assert.False(sd.ExceedsRecommendedLimits());
+        }
+        #endregion
+
         #region Duplicate
         [Fact]
         public void Duplicate_CustomSpeed_ReturnsSameValues()
