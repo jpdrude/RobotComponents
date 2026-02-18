@@ -14,6 +14,7 @@
 
 // System Libs
 using System;
+using System.IO;
 using System.Text.RegularExpressions;
 // Rhino Libs
 using Rhino.Geometry;
@@ -295,6 +296,39 @@ namespace RobotComponents.ABB.Utils
             {
                 throw new InvalidOperationException(
                     $"Cannot generate RAPID instruction: '{name}' is not a valid RAPID identifier.");
+            }
+        }
+
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if the resolved file path escapes
+        /// the specified base directory.
+        /// </summary>
+        /// <remarks>
+        /// Resolves both paths via <see cref="Path.GetFullPath(string)"/> and verifies
+        /// that <paramref name="combinedPath"/> starts with <paramref name="baseDirectory"/>.
+        /// This prevents path traversal attacks where directory components like ".." could
+        /// cause file operations outside the intended directory.
+        /// </remarks>
+        /// <param name="baseDirectory"> The trusted base directory. </param>
+        /// <param name="combinedPath"> The combined file path to validate. </param>
+        /// <exception cref="ArgumentException">
+        /// The resolved path is outside the base directory.
+        /// </exception>
+        public static void ThrowIfPathEscapesDirectory(string baseDirectory, string combinedPath)
+        {
+            string fullBase = Path.GetFullPath(baseDirectory);
+
+            if (!fullBase.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                fullBase += Path.DirectorySeparatorChar;
+            }
+
+            string fullPath = Path.GetFullPath(combinedPath);
+
+            if (!fullPath.StartsWith(fullBase, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException(
+                    "The resolved file path escapes the target directory.");
             }
         }
 
