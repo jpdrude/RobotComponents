@@ -564,6 +564,9 @@ namespace RobotComponents.ABB.Actions.Instructions
                     _convertedTarget.ExternalJointPosition.Name = _target.ExternalJointPosition.Name;
                     _convertedTarget.VariableType = _target.VariableType;
 
+                    // Check axis limits on the converted joint target
+                    RAPIDGenerator.ErrorText.AddRange(((JointTarget)_convertedTarget).CheckAxisLimits(RAPIDGenerator.Robot));
+
                     if (_convertedTarget.Name != "")
                     {
                         _convertedTarget.Name += "_jt";
