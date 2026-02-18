@@ -27,6 +27,8 @@ namespace RobotComponents.Tests.Actions
     {
         /// <summary>
         /// Creates a test robot and generates a RAPID module from the given actions.
+        /// EnforceAxisLimits defaults to true, so actions with out-of-range values will
+        /// produce an empty module.
         /// </summary>
         private List<string> GenerateModule(IList<IAction> actions)
         {

@@ -845,10 +845,11 @@ namespace RobotComponents.ABB.Actions
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether axis limit violations should prevent
-        /// RAPID module generation. When true (default), CreateModule returns an empty
-        /// module and populates ErrorText if any violations are detected. When false,
-        /// violations are reported in ErrorText as warnings but code generation proceeds.
+        /// Gets or sets a value indicating whether axis limit violations and other
+        /// errors detected during target conversion should prevent RAPID module generation.
+        /// When true (default), CreateModule returns an empty module and populates ErrorText
+        /// if any errors are detected. When false, errors are reported in ErrorText as
+        /// warnings but code generation proceeds.
         /// </summary>
         public bool EnforceAxisLimits
         {
