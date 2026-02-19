@@ -1208,8 +1208,7 @@ namespace RobotComponents.ABB.Controllers
             {
                 status = "Could not acquire the WriteFTP grant for the current user.";
                 Log(status);
-
-                // No return false: keep trying to the put the local directory on the controller disk.
+                return false;
             }
             try
             {
@@ -1439,8 +1438,7 @@ namespace RobotComponents.ABB.Controllers
             {
                 status = "Could not acquire the WriteFTP grant for the current user.";
                 Log(status);
-
-                // No return false: keep trying to the put the local directory on the controller disk.
+                return false;
             }
             try
             {
@@ -1649,8 +1647,7 @@ namespace RobotComponents.ABB.Controllers
             {
                 status = "Could not acquire the WriteFTP grant for the current user.";
                 Log(status);
-
-                // No return false: keep trying to the put the local directory on the controller disk.
+                return false;
             }
             try
             {
