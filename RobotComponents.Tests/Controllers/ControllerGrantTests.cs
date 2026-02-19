@@ -9,8 +9,6 @@
 using Xunit;
 // System Libs
 using System.Collections.Generic;
-// Grasshopper Libs
-using Grasshopper.Kernel.Data;
 // Robot Components Libs
 using RobotComponents.ABB.Controllers;
 
@@ -19,8 +17,10 @@ namespace RobotComponents.Tests.Controllers
     /// <summary>
     /// Tests that Controller grant-protected methods fail-closed when the
     /// controller is empty. Methods under test: UploadModule,
-    /// UploadHelperModules, UploadSystemModule, ResetProgramPointers,
-    /// ResetProgramPointer.
+    /// UploadSystemModule, ResetProgramPointers, ResetProgramPointer.
+    ///
+    /// UploadHelperModules is omitted because its DataTree parameter
+    /// requires the Grasshopper assembly which is unavailable in CI.
     ///
     /// Note: These tests exercise the empty-controller early-return path
     /// (_isEmpty == true), not the DemandGrant failure path itself. The
@@ -37,17 +37,6 @@ namespace RobotComponents.Tests.Controllers
             Controller controller = new Controller();
 
             bool result = controller.UploadModule("T_ROB1", new List<string>(), out string status);
-
-            Assert.False(result);
-            Assert.Contains("empty", status, System.StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
-        public void UploadHelperModules_EmptyController_ReturnsFalse()
-        {
-            Controller controller = new Controller();
-
-            bool result = controller.UploadHelperModules("T_ROB1", new DataTree<string>(), out string status);
 
             Assert.False(result);
             Assert.Contains("empty", status, System.StringComparison.OrdinalIgnoreCase);
