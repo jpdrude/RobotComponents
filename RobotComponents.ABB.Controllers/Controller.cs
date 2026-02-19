@@ -1230,9 +1230,19 @@ namespace RobotComponents.ABB.Controllers
             {
                 try
                 {
-                    // Grant acces
                     _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
+                    status = "Acquired the LoadRapidProgram grant.";
+                    Log(status);
+                }
+                catch (Exception e)
+                {
+                    status = $"Could not acquire the LoadRapidProgram grant: {e.Message}.";
+                    Log(status);
+                    return false;
+                }
 
+                try
+                {
                     // Load the new program from the drive
                     string filePathRemote = Path.Combine(_remoteDirectory, moduleName);
 
@@ -1468,12 +1478,21 @@ namespace RobotComponents.ABB.Controllers
             {
                 try
                 {
+                    _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
+                    status = "Acquired the LoadRapidProgram grant.";
+                    Log(status);
+                }
+                catch (Exception e)
+                {
+                    status = $"Could not acquire the LoadRapidProgram grant: {e.Message}.";
+                    Log(status);
+                    return false;
+                }
+
+                try
+                {
                     foreach (string filePathRemote in remotefilePaths)
                     {
-                        // Grant acces
-                        _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
-
-                        // Load the new program from the drive
                         task.LoadModuleFromFile(filePathRemote, RapidDomainNS.RapidLoadMode.Replace);
 
                         status = "Loaded a module from the filesystem of the controller to the controller task.";
