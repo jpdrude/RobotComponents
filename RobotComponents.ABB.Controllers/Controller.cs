@@ -1913,7 +1913,16 @@ namespace RobotComponents.ABB.Controllers
                     try
                     {
                         _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.ExecuteRapid);
+                    }
+                    catch (Exception e)
+                    {
+                        status = $"Could not acquire the ExecuteRapid grant: {e.Message}";
+                        Log(status);
+                        return false;
+                    }
 
+                    try
+                    {
                         RapidDomainNS.Task[] tasks = _controller.Rapid.GetTasks();
 
                         for (int i = 0; i < tasks.Length; i++)
@@ -1971,7 +1980,16 @@ namespace RobotComponents.ABB.Controllers
                     try
                     {
                         _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.ExecuteRapid);
+                    }
+                    catch (Exception e)
+                    {
+                        status = $"Could not acquire the ExecuteRapid grant: {e.Message}";
+                        Log(status);
+                        return false;
+                    }
 
+                    try
+                    {
                         RapidDomainNS.Task task = _controller.Rapid.GetTask(taskName);
                         task.ResetProgramPointer();
 
