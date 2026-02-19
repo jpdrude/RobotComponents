@@ -1891,10 +1891,10 @@ namespace RobotComponents.ABB.Controllers
             {
                 if (_controller.OperatingMode == ControllersNS.ControllerOperatingMode.Auto)
                 {
-                    _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.ExecuteRapid);
-
                     try
                     {
+                        _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.ExecuteRapid);
+
                         RapidDomainNS.Task[] tasks = _controller.Rapid.GetTasks();
 
                         for (int i = 0; i < tasks.Length; i++)
@@ -1949,10 +1949,10 @@ namespace RobotComponents.ABB.Controllers
             {
                 if (_controller.OperatingMode == ControllersNS.ControllerOperatingMode.Auto)
                 {
-                    _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.ExecuteRapid);
-
                     try
                     {
+                        _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.ExecuteRapid);
+
                         RapidDomainNS.Task task = _controller.Rapid.GetTask(taskName);
                         task.ResetProgramPointer();
 
