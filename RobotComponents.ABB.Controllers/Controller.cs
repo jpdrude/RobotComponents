@@ -1204,9 +1204,9 @@ namespace RobotComponents.ABB.Controllers
                 status = "Acquired the WriteFTP grant.";
                 Log(status);
             }
-            catch
+            catch (Exception e)
             {
-                status = "Could not acquire the WriteFTP grant for the current user.";
+                status = $"Could not acquire the WriteFTP grant for the current user: {e.Message}";
                 Log(status);
                 return false;
             }
@@ -1444,9 +1444,9 @@ namespace RobotComponents.ABB.Controllers
                 status = "Acquired the WriteFTP grant.";
                 Log(status);
             }
-            catch
+            catch (Exception e)
             {
-                status = "Could not acquire the WriteFTP grant for the current user.";
+                status = $"Could not acquire the WriteFTP grant for the current user: {e.Message}";
                 Log(status);
                 return false;
             }
@@ -1662,9 +1662,9 @@ namespace RobotComponents.ABB.Controllers
                 status = "Acquired the WriteFTP grant.";
                 Log(status);
             }
-            catch
+            catch (Exception e)
             {
-                status = "Could not acquire the WriteFTP grant for the current user.";
+                status = $"Could not acquire the WriteFTP grant for the current user: {e.Message}";
                 Log(status);
                 return false;
             }
