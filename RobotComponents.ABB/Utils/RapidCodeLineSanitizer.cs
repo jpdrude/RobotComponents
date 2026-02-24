@@ -25,8 +25,7 @@ namespace RobotComponents.ABB.Utils
         private static readonly string[] _structuralKeywords = new string[]
         {
             // Block closers
-            "ENDPROC", "ENDMODULE", "ENDFUNC", "ENDTRAP",
-            "ENDTEST", "ENDWHILE", "ENDIF", "ENDFOR", "ENDRECORD",
+            "ENDPROC", "ENDMODULE", "ENDFUNC", "ENDTRAP", "ENDRECORD",
             // Block openers
             "PROC", "MODULE", "FUNC", "TRAP", "RECORD"
         };

@@ -3,11 +3,1014 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-17 11:54 
+ Generated on: 2026-02-24 16:36 
  --- 
+ - Remove UploadHelperModules test to fix CI build DataTree<string> requires the Grasshopper assembly which is not available in the CI environment. Remove the test and Grasshopper package reference; document the omission in the class docstring. 
+  
+   **Commit:** `66bdea7` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Separate DemandGrant try-catch in ResetProgramPointer(s) Split the try block so ExecuteRapid grant failures produce a grant-specific status message rather than being conflated with GetTasks/ResetProgramPointer operation failures. 
+  
+   **Commit:** `f21cf9f` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Replace bare catch with catch(Exception e) on WriteFtp grants Bare catch clauses swallow all exceptions including critical ones like OutOfMemoryException. Use catch(Exception e) and include e.Message in the status string for diagnostic clarity. 
+  
+   **Commit:** `89d3dc8` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Add UploadHelperModules test and clarify test coverage limits Add missing test for UploadHelperModules empty-controller path. Update class docstring to acknowledge that tests exercise the _isEmpty early return, not the DemandGrant failure path (ABB SDK types are sealed). 
+ - Add Grasshopper package reference to test project for DataTree<string>. 
+  
+   **Commit:** `f4961f9` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Separate DemandGrant from privileged operations in upload methods Split the try blocks in UploadModule and UploadHelperModules so that LoadRapidProgram grant acquisition has its own try-catch with a grant-specific error message, distinct from LoadModuleFromFile failures. 
+ - Also moves DemandGrant out of the foreach loop in UploadHelperModules since the grant only needs to be acquired once per method call. 
+  
+   **Commit:** `11e699c` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Add tests for Controller grant-protected methods Verify that UploadModule, UploadSystemModule, ResetProgramPointers, and ResetProgramPointer return false with descriptive status when the controller is empty. The DemandGrant fail-closed behavior itself is verified by code review since the ABB SDK cannot be mocked. 
+  
+   **Commit:** `4654f42` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Handle ExecuteRapid grant failures in ResetProgramPointer(s) DemandGrant(ExecuteRapid) was called outside the try block in both ResetProgramPointers and ResetProgramPointer, so grant failures propagated as unhandled exceptions with no status message. Move DemandGrant inside the try block for proper error handling. 
+ - Fixes #40 
+  
+   **Commit:** `156c205` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Fail-closed on WriteFtp grant failures in Controller upload methods DemandGrant(WriteFtp) catch blocks in UploadModule, UploadHelperModules, and UploadSystemModule logged the failure but continued to PutDirectory() without authorization. Add return false to abort on grant failure. 
+ - Fixes part of #40 
+  
+   **Commit:** `8ea2d92` | **Date:** 2026-02-19 
+ 
+ --- 
+ 
+ - Clarify EnforceAxisLimits scope in XML docs and test helper Update the EnforceAxisLimits XML doc to mention that it also covers other errors detected during target conversion (e.g. IK failures), not only axis limit violations. Add a note to the GenerateModule test helper about the implicit enforcement default. 
+  
+   **Commit:** `a649df3` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Fix off-by-one in error message display limit The loop break condition `i == 30` displayed 31 messages (indices 0ÔÇô30). 
+ - Changed to `i == 29` to correctly limit output to 30 error messages. 
+  
+   **Commit:** `b6603fc` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Clean up cast in Movement and separate menu item in GH component Use a typed local variable instead of casting _convertedTarget back to JointTarget when checking axis limits after IK conversion. Place the Enforce Axis Limits menu item in its own visual section with separators. 
+  
+   **Commit:** `5e6f359` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add missing tests for IK-converted axis limits and Duplicate propagation Adds a test in MovementTests verifying that axis limits are checked on JointTargets produced by inverse kinematics conversion (the gap fix). 
+ - Adds two tests in RAPIDGeneratorTests verifying that EnforceAxisLimits is correctly propagated through Duplicate() for both true and false. 
+  
+   **Commit:** `2d1c83f` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Expose EnforceAxisLimits in RAPID Generator GH component Adds an optional "Enforce Axis Limits" input parameter (default true) to the RAPID Generator component, accessible via the context menu. 
+ - When enforcement is active and axis limit violations are detected, messages are surfaced as red errors instead of yellow warnings and the output module is empty. Backward-compatible deserialization handles old .ghx files that lack this setting. 
+ - Part of #38 
+  
+   **Commit:** `1b6de1e` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Abort RAPID module generation on axis limit violations when enforced When EnforceAxisLimits is true (default) and ErrorText contains any violations after processing all actions, CreateModule now returns an empty module. Errors from additional routine sub-generators are also collected into the parent before the enforcement check. 
+ - Adds three tests covering: enforce-on with violation (empty module), enforce-off with violation (full module), and enforce-on without violation (full module). 
+ - Fixes #38 
+  
+   **Commit:** `6201014` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add EnforceAxisLimits property to RAPIDGenerator Introduces a boolean property (default true) that controls whether axis limit violations should prevent RAPID module generation. The property is propagated through the duplication constructor so sub-generators for additional routines inherit the parent's setting. 
+ - Part of #38 
+  
+   **Commit:** `af67414` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Check axis limits on IK-converted JointTargets in Movement When a RobotTarget is converted to a JointTarget via inverse kinematics (MoveAbsJ path), the resulting joint values were never validated against the robot's axis limits. This adds the missing CheckAxisLimits call on the converted target, closing the coverage gap. 
+ - Fixes part of #38 
+  
+   **Commit:** `ef8dae1` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Derive recommended limits from predefined arrays and show specific warnings Change RecommendedMax* fields from const to static readonly, derived from the predefined value arrays so they stay in sync automatically. 
+ - Add GetExceededLimitWarnings() that returns a message identifying only the specific parameters that exceeded (e.g. "V_TCP (8000) exceeds recommended maximum (7000 mm/s)") instead of dumping all limits. 
+  
+   **Commit:** `09722bf` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add missing ZoneData per-parameter tests and MoveComponent limit warnings Address review feedback: add individual exceeds-limit tests for PathZoneEAX, ZoneLEAX, and ZoneREAX parameters. Also add ExceedsRecommendedLimits checks in MoveComponent so warnings are shown when speed/zone data is wired directly into Move components. 
+  
+   **Commit:** `4f680a2` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Emit GH warnings when speed or zone values exceed recommended limits SpeedDataComponent and ZoneDataComponent now display Grasshopper runtime warnings when user-supplied values exceed the recommended maximums, alerting users to potentially unsafe robot parameters. 
+  
+   **Commit:** `d4ad6f6` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add ExceedsRecommendedLimits to ZoneData with recommended max constants Add soft upper bound checks for zone parameters based on ABB predefined maximums (PathZoneTCP=200 mm, PathZoneORI=300 mm, PathZoneEAX=300 mm, ZoneORI=30 deg, ZoneLEAX=300 mm, ZoneREAX=30 deg). Values exceeding these limits are flagged via ExceedsRecommendedLimits(). 
+  
+   **Commit:** `2818643` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add ExceedsRecommendedLimits to SpeedData with recommended max constants Add soft upper bound checks for speed parameters based on ABB predefined maximums (V_TCP=7000 mm/s, V_ORI=1000 deg/s, V_LEAX=5000 mm/s, V_REAX=1000 deg/s). Values exceeding these limits are not rejected but flagged via ExceedsRecommendedLimits() for downstream warning display. 
+  
+   **Commit:** `b6a3af7` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add path containment checks on remote file paths Validate the remote file paths in UploadModule and UploadHelperModules using IsPathWithinDirectory for consistency with the local path checks. 
+ - (OWASP A03, issue #36) 
+  
+   **Commit:** `b8d3a03` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Use graceful return false pattern for path containment checks Add IsPathWithinDirectory bool check and use it with the return false + status message pattern in Controller.cs, matching the surrounding error handling style. ThrowIfPathEscapesDirectory is retained but now delegates to the bool method. Adds null guard and tests for IsPathWithinDirectory. 
+  
+   **Commit:** `7913aa4` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add unit tests for path traversal validation Test ThrowIfPathEscapesDirectory with safe paths, traversal payloads, and absolute paths outside the base directory. Also verify that IsValidRapidIdentifier rejects path traversal sequences like "../../../test". (OWASP A03, issue #36) 
+  
+   **Commit:** `7761f4a` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Validate module names in UploadHelperModules and UploadSystemModule Apply the same RAPID identifier validation and path containment checks to the remaining two upload methods. (OWASP A03, issue #36) 
+  
+   **Commit:** `bdd2aa9` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Validate module name in UploadModule to prevent path traversal Reject module names that are not valid RAPID identifiers before using them in Path.Combine. Also add defense-in-depth path containment check to verify the resolved path stays within _localDirectory. 
+ - (OWASP A03, issue #36) 
+  
+   **Commit:** `88fb350` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add ThrowIfPathEscapesDirectory helper to validate resolved paths Defense-in-depth method that resolves both paths via Path.GetFullPath and verifies the combined path stays within the base directory. Prevents path traversal attacks using ".." sequences. (OWASP A03, issue #36) 
+  
+   **Commit:** `be5e080` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Remove user input from error message and add review polish - Strip file path from ThrowIfUnsafeFilePath exception to prevent information leakage of potentially malicious input - Add blank line between methods for consistent style - Comment hardcoded RunScript calls as safe from injection Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `8f2cda2` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add unit tests for file path validation Tests cover valid paths, null/empty input, the exact injection payload from issue #35, and the ThrowIfUnsafeFilePath exception behavior. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `946fd71` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Validate file path before RhinoApp.RunScript in Preperation Calls ThrowIfUnsafeFilePath before interpolating user-selected file paths into RunScript commands, blocking the injection vector described in #35. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `39cf5b8` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Add ThrowIfUnsafeFilePath helper to validate file paths Prevents command injection (OWASP A03) by rejecting file paths that contain double quotes or invalid path characters before they are interpolated into RhinoApp.RunScript command strings. 
+ - Addresses #35 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `2c678ea` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Extract ThrowIfInvalidRapidIdentifier helper to reduce duplication Replace inline 5-line throw blocks in all 10 signal instruction classes with a single call to HelperMethods.ThrowIfInvalidRapidIdentifier(_name). 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `3d59bc5` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Validate signal name in WaitGI and WaitGO Apply RAPID identifier validation: extend IsValid and guard ToRAPIDInstruction with InvalidOperationException. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `8cd0b56` | **Date:** 2026-02-18 
+ 
+ --- 
+ 
+ - Validate signal name in WaitAI and WaitAO Apply RAPID identifier validation: extend IsValid and guard ToRAPIDInstruction with InvalidOperationException. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `236d319` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Validate signal name in WaitDI and WaitDO Apply RAPID identifier validation: extend IsValid and guard ToRAPIDInstruction with InvalidOperationException. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `fb38e78` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Validate signal name in PulseDigitalOutput Apply RAPID identifier validation: extend IsValid (after null/empty, before length checks) and guard ToRAPIDInstruction. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `1c0ed0b` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Validate signal name in SetAnalogOutput and SetGroupOutput Apply the same RAPID identifier validation pattern: extend IsValid and guard ToRAPIDInstruction with InvalidOperationException. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `3c81d70` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Validate signal name in SetDigitalOutput to prevent RAPID injection Extend IsValid to reject names that are not valid RAPID identifiers. 
+ - Guard ToRAPIDInstruction with InvalidOperationException to prevent injection even when callers skip the IsValid check. Closes #34. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `966eaf9` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Add tests for IsValidRapidIdentifier Cover valid identifiers (letters, underscores, digits, boundary lengths) and invalid ones (null, empty, digit-start, spaces, semicolons, commas, newlines, quotes, over-length, and a full injection payload). 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `6d0e74c` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Add IsValidRapidIdentifier to core HelperMethods Add a shared RAPID identifier validator using a compiled regex that enforces: letter/underscore start, alphanumeric/underscore body, max 32 characters. This will be used by all signal instruction classes to prevent RAPID code injection via crafted signal names (issue #34). 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `44f8904` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Apply StripNewlines in copy constructor for defense-in-depth Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `e80e54c` | **Date:** 2026-02-15 
+ 
+ --- 
+ 
+ - Change Warnings property to IReadOnlyList<string> for API hygiene Prevents external callers from mutating the internal warnings list. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `cc509bd` | **Date:** 2026-02-15 
+ 
+ --- 
+ 
+ - Strip newlines from Comment text to prevent RAPID breakout injection A newline in a Comment string breaks out of the `! ` prefix, causing subsequent text to execute as real RAPID instructions. All constructors, the Com setter, and the deserialization constructor now strip \r\n, \r, and \n characters, replacing them with spaces. Closes #33. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `9ac6f2b` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Fix review findings: sanitize on deserialization, guard ToRAPIDGenerator Deserialization constructor now runs sanitization on the code read from SerializationInfo, closing the bypass via malicious .ghx files. 
+ - ToRAPIDGenerator skips emitting code when warnings are present, so flagged structural keywords are actually blocked from RAPID output. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `52f759f` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add RAPID code line sanitizer to mitigate code injection (OWASP A03) Introduces RapidCodeLineSanitizer that strips newlines and detects structural RAPID keywords (ENDPROC, ENDMODULE, PROC, MODULE, TRAP, etc.) which could break the generated module structure. CodeLine now sanitizes all input and exposes warnings; the Grasshopper component surfaces them in the UI. Closes #32. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `61e737e` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Fix review findings: validate all generic type args, add List<T> test - Rewrite ContainsOnlyAllowedTypeArguments to parse each type argument individually instead of checking if any allowed string appears anywhere - Add List<SpeedData> round-trip test to cover the generic collection path - Remove unused using directive Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `ad97f37` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add AllowedTypesSerializationBinder to mitigate CWE-502 deserialization vulnerability BinaryFormatter.Deserialize in Serialization.cs could instantiate arbitrary types from maliciously crafted .gh files, enabling remote code execution. 
+ - Add a SerializationBinder that restricts deserialization to known types (RobotComponents.*, Rhino.Geometry.*, and explicit System primitives). 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `93ef09a` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Mark test plan Phase 4 as complete Update tests-plan.md: all phases complete (410 xUnit + 21 Pester), fix file paths to .github/tests/, add Generate-InstallInstructions. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `46b2168` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Fix Collect-ReleaseFiles tests: clean TestDrive between runs TestDrive persists between It blocks in Pester 5. Files from the first test leaked into subsequent tests, causing count mismatches. Add cleanup at the start of BeforeEach. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `c601d29` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Fix 4 failing Pester tests - Extract-Changelog: use IsNullOrWhiteSpace instead of -not for empty changelog detection (file with only newline was truthy) - Collect-ReleaseFiles tests: remove Should -Not -Throw wrappers that interfered with ErrorActionPreference in the script Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `c1adf1a` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add Extract-Changelog and Generate-InstallInstructions scripts with tests Extract changelog parsing and install-instructions generation from release.yml into standalone scripts. Extract-Changelog supports configurable MaxSections and MaxLength with fallback for missing files. Includes 9 Pester test cases total. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `5735ef8` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add Collect-ReleaseFiles.ps1 script and Pester test Extract and unify the file-collection logic from release.yml and artifact-build.yml into a single parameterized script. Accepts Configuration, OutputDir, RepoRoot, and optional CreateZip/Version. 
+ - Includes 7 test cases using TestDrive fixtures. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `e4234cc` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add Validate-Version.ps1 script and Pester test Extract inline PowerShell from release.yml that validates git tag matches VersionNumbering.cs. Uses throw instead of exit 1 for Pester testability. Includes 5 test cases covering match, mismatch, missing regex, missing file, and no v-prefix scenarios. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `cfd964f` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Refactor release workflow to use PowerShell scripts Refactor release workflow to use scripts for version validation, file collection, changelog extraction, and installation instructions. 
+  
+   **Commit:** `b8928d0` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add Pester tests to CI workflow Added a step to run Pester tests with detailed output and NUnit XML format. 
+  
+   **Commit:** `7218c7e` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Refactor artifact collection in workflow 
+  
+   **Commit:** `ca09771` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Address review findings: shared helpers, dedup, consistency - Extract CreateIRB120Robot(), CreateIRB120OPW(), and AssertAnySolutionMatches() into shared TestHelpers class - Remove duplicated CreateTestRobot() from RobotTests and KinematicsTests - Replace 3 duplicated round-trip match loops with shared helper - Use class-level Tolerance constant in WorkObjectTests - Add comments explaining why Parse exception tests skip RequiresRhino Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `afb689e` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Tag Rhino-native-dependent tests with RequiresRhino trait Tests that require rhcommon_c (Mesh, Plane constructors, Quaternion operations) are tagged so CI can exclude them with Category!=RequiresRhino filter. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `4388ca6` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add Phase 3 unit tests for Definitions and Kinematics (121 tests) New test files: - RobotToolTests.cs (25 tests): constructor, ToRAPID, declarations, Parse - WorkObjectTests.cs (27 tests): constructor, ToRAPID, declarations, Parse - RobotTests.cs (21 tests): constructor, axis planes, mounting frame, tool, duplicate - RobotKinematicParametersTests.cs (18 tests): constructor, GetAxisPlanes, round-trip, duplicate - KinematicsTests.cs (30 tests): OPW forward/inverse, round-trip, singularity, ForwardKinematics Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `9196666` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Address review findings: precision, coverage gaps - MoveC assertion uses trailing space to avoid matching MoveCDO - MoveLDO test asserts DO value (DO_1, 1) - Add MoveCDO test (MoveC + SetDigitalOutput combined) - Add IList<double> constructor test for RobotJointPosition - Add LOCAL and TASK scope tests for RobotJointPosition declarations Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `35e9d8e` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add RobotJointPosition unit tests for RAPID code generation Tests constructors, ToRAPID format, ToRAPIDDeclaration, indexer, IsValid, Duplicate, and Parse/TryParse for the RobotJointPosition declaration type. 18 tests covering full public API surface. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `67dd544` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add Time parameter unit tests for Movement RAPID code generation Tests that setting Time > 0 appends \T:=N to the speed data in the instruction and that the default Time (-1) produces no \T parameter. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `7d56f84` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add SyncID unit tests for Movement RAPID code generation Tests that setting SyncID appends \ID:=N to the instruction and that the default SyncID (-1) produces no \ID parameter. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `f92d0cc` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add MoveLDO/MoveJDO unit tests for Movement RAPID code generation Tests MoveLDO, MoveJDO instruction variants when a SetDigitalOutput is combined with MoveL/MoveJ, and verifies MoveAbsJ with DO produces separate MoveAbsJ + SetDO instructions. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `e821694` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Add MoveC unit tests for Movement RAPID code generation Tests MoveC instruction with circular via-point and verifies that an unset circular point correctly throws an exception. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `62ae822` | **Date:** 2026-02-14 
+ 
+ --- 
+ 
+ - Improve test suite: split InstructionTests, add Parse boundary tests Split the 527-line InstructionTests.cs into 7 focused files per instruction type for better discoverability. Add 21 Parse/TryParse boundary tests covering wrong datatype, too few values, and CONST/PERS/LOCAL scope variants across all declaration types. 
+ - Strengthen WaitDI assertion to check both MaxTime and TimeFlag. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `6d5826b` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Fix SpeedData nearest-snap test: tie at 25 goes to v30, not v20 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `0dab905` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add RAPIDGenerator tests for RAPID module assembly Tests module structure (MODULE/ENDMODULE, PROC/ENDPROC), version comments, SpeedData/ZoneData deduplication, instruction ordering, declaration sorting, optional section flags, and mixed action layout. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `976e7b6` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add Movement unit tests for RAPID code generation Integration tests using RAPIDGenerator.CreateModule() since Movement's _convertedTarget is private and only set during the generator pipeline. 
+ - Tests cover MoveAbsJ/MoveL/MoveJ instructions, predefined vs custom named speed data, target variable names, invalid JointTarget+MoveL/MoveJ combinations, and IsValid checks. All tests marked RequiresRhino. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `af3dc33` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add RobotTarget unit tests for RAPID code generation Tests cover constructors (plane-only, named, full args), ToRAPID() nested array format with quaternion/position/config/external axes, named ConfigurationData substitution, declarations, IsValid, Duplicate, and Parse/TryParse. All tests marked RequiresRhino. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `3c07aba` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add instruction unit tests for RAPID code generation Tests cover all simple instruction types: SetDigitalOutput (basic, delay, sync override), WaitTime (duration format, InPos), WaitDI/WaitDO (MaxTime, TimeFlag), WaitAI/WaitAO (InequalitySymbol LT/GT, MaxTime), WaitGI/WaitGO (int value, MaxTime), WaitRob (InPos/ZeroSpeed validity), CodeLine (Instruction/Declaration types), Comment (bang prefix format). 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `6645fed` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add JointTarget unit tests for RAPID code generation Tests cover constructors with RobotJointPosition/ExternalJointPosition, ToRAPID() nested array format, VAR jointtarget declarations, IsValid, Duplicate, and Parse/TryParse round-trip. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `0f0898c` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add ExternalJointPosition unit tests for RAPID code generation Tests cover constructors (default 9E9, single/multi axis, named, NaN handling), ToRAPID() format with 0.## specifier, declarations, indexer access (int and char), IsValid, Duplicate, and Length property. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `6a36363` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add ConfigurationData unit tests for RAPID code generation Tests cover constructors, ToRAPID() bracket format, CONST confdata declarations, scope/variable type variants, Duplicate, and Parse/TryParse. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `ffe9f6f` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add ZoneData unit tests for RAPID code generation Tests cover predefined zones (fine, z0, z10), nearest-snap behavior, custom constructors, ToRAPID() 7-element array format, declaration generation, IsValid boundary checks, Parse/TryParse, and static helpers. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `164a4aa` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add SpeedData unit tests for RAPID code generation Tests cover predefined/custom constructors, ToRAPID() bracket format, ToRAPIDDeclaration with scope/variable type variants, IsValid checks, Duplicate, Parse/TryParse, and static helper properties. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `2c956c0` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Update test command to exclude 'RequiresRhino' category 
+  
+   **Commit:** `ca508da` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Update test run command to exclude 'RequiresRhino' category 
+  
+   **Commit:** `658a5f7` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Modify test command to filter out specific tests Updated test command to exclude tests with 'RequiresRhino' category. 
+  
+   **Commit:** `f7889c6` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Tag native Rhino-dependent tests with RequiresRhino trait 14 tests that call rhcommon_c native code (Plane constructors, Quaternion.Unitize, QuaternionToPlane) are tagged with [Trait("Category", "RequiresRhino")] so CI can filter them out. 
+ - Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `f8ca072` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add InternalsVisibleTo for test project access to internal APIs Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `af1c89b` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add Phase 1 unit tests for helper methods, preset helpers, and version numbering Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `5a588bf` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Copy RhinoCommon DLLs to test output for CI runtime resolution Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> 
+  
+   **Commit:** `9c2c852` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Skip CreateRelease.ps1 in non-interactive environments Add check to skip execution in non-interactive environments. 
+  
+   **Commit:** `490ce44` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Change branch from 'ikgeo' to 'HEAD' 
+  
+   **Commit:** `e0ac8c5` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add fetch-depth option to checkout step 
+  
+   **Commit:** `d8f0114` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add fetch-depth option to checkout step 
+  
+   **Commit:** `4fcac49` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Update fetch-depth for checkout action in CI Set fetch-depth to 0 for the checkout action. 
+  
+   **Commit:** `2446f55` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Integrate VSTest setup into release workflow Added setup step for VSTest and simplified test execution. 
+  
+   **Commit:** `cc62c2b` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add VSTest setup step and simplify test execution 
+  
+   **Commit:** `e0360c2` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add VSTest setup and simplify test execution 
+  
+   **Commit:** `f6351e8` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add GitHub Actions workflow for release process 
+  
+   **Commit:** `73a13b8` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Add CI workflow for build and test on Windows 
+  
+   **Commit:** `3b1a17a` | **Date:** 2026-02-13 
+ 
+ --- 
+ 
+ - Also fix UploadHelperModules missing try/finally for master.Release() The catch block inside the foreach had return false, which exited the method without calling master.Release(). Moved try/catch to wrap the entire foreach and added finally for Release(). 
+  
+   **Commit:** `ee03122` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix RunProgram/StopProgram missing try/finally for master.Release() If Rapid.Start() or Rapid.Stop() threw an exception, master.Release() was never called, leaving the controller mastership locked. Now wrapped in try/finally matching the pattern used in ResetProgramPointers(). 
+  
+   **Commit:** `8d8f98d` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix RobotComponent outputting empty robot on construction failure The catch block logged the error but didn't return, so an empty Robot() instance was output downstream, masking the actual failure. 
+  
+   **Commit:** `e23e4c4` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix RobotTool.DuplicateWithoutMesh leaving _mesh null The else branch had the mesh initialization commented out, leaving _mesh null and causing NullReferenceException in Transform() and other methods. 
+  
+   **Commit:** `152a501` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Also fix WaitAI copy constructor dropping inequality symbol Same bug as WaitAO: the copy constructor omitted _inequalitySymbol. 
+  
+   **Commit:** `b906178` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix WaitAO copy constructor dropping inequality symbol The copy constructor omitted _inequalitySymbol, so Duplicate() would always reset it to the default enum value (0). 
+  
+   **Commit:** `8db2ba5` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix serialization key/type mismatches in Wait* instructions - WaitTime: fix key typo "In Postion" ÔåÆ "In Position" in GetObjectData - WaitDI/WaitDO: fix _timeFlag serialized as typeof(double) ÔåÆ typeof(bool) - WaitAO: fix "Inequality Symbol" serializing _value instead of _inequalitySymbol 
+  
+   **Commit:** `2824965` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix event handler leak in 12 additional components Same bug as RobotToolComponent/WorkObjectComponent: doc.ObjectsDeleted was subscribed every solve without unsubscribing. Covers LoadData, SyncMoveOn/Off, TaskList, WaitSyncTask, ZoneData, ConfigurationData, SpeedData, JointTarget, ExternalJointPosition, RobotTarget, and RobotJointPosition components. 
+  
+   **Commit:** `9d7506d` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix event handler leak in RobotTool and WorkObject components doc.ObjectsDeleted was subscribed every solve cycle without unsubscribing, stacking duplicate handlers. Now unsubscribes before subscribing to prevent the leak. 
+  
+   **Commit:** `ac39646` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix MenuItemClickOutputPlanes toggling wrong field MenuItemClickOutputPlanes was toggling _outputMeshParameter instead of _outputPosedPlanesParameter, causing both menu items to control the mesh toggle and the planes toggle to have no effect. 
+  
+   **Commit:** `1305585` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix special character validation calling wrong method in 11 components The second validation check duplicated StringStartsWithNumber() instead of calling StringHasSpecialCharacters(), so signal/module names with special characters were never flagged. Also fixes "constains" typo to "contains". 
+  
+   **Commit:** `8f14263` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix Signal.SetValue missing return on empty check When _isEmpty was true, the method set an error message but continued executing, causing a NullReferenceException when accessing _signal.Name and _limits on a null signal. 
+  
+   **Commit:** `cb30501` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix PoseMeshes mutating Robot internal mesh list PoseMeshes() was appending external axis meshes to the internal _meshes field instead of the local meshes variable. This caused the robot's permanent mesh list to grow on every call. 
+  
+   **Commit:** `f365525` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix WaitGO and WaitGI generating WaitDI RAPID instruction Both classes were copy-pasted from WaitDI but the RAPID instruction name was never updated. WaitGO now generates "WaitGO" and WaitGI generates "WaitGI". Also fixed XML doc comments. 
+  
+   **Commit:** `3e037d4` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix shoulder singularity detection no-op in OPWKinematics The LINQ .Select() result was never materialized, so the _shoulderSingularities array was never updated. Also fixed bitwise & to logical && in the condition. Use a for loop instead. 
+  
+   **Commit:** `c1cbb52` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix GetExternalJointPositions indexing wrong list The loop iterated over _externalAxes but read positions from _mechanicalUnits[i], which contains robots first then external axes. This returned robot positions instead of external axis positions when robots were present. 
+  
+   **Commit:** `9b8e43b` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Refactor user credential handling and NaN checks - Refactored the Controller class to remove redundant _userName and _password fields, using the _userInfo object directly for user credential management. 
+ 	 - Updated logging and property access to reference _userInfo.Name. 
+ 	 - Simplified SetUserInfo and SetDefaultUser methods. 
+ 	 - Fixed RobotKinematicParameters.IsValid to use double.IsNaN() for proper NaN checking. 
+ 	 - Added early returns after error logs to improve control flow. 
+  
+   **Commit:** `d3ccb5d` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Fix missing early returns in Controller and remove redundant credential fields Initiliaze(), SetUserInfo(), and SetDefaultUser() all continued executing after detecting _isEmpty, causing null dereferences. Added early returns. 
+ - Removed redundant _userName/_password fields that duplicated data already in _userInfo. SetDefaultUser() was updating the strings but not _userInfo, causing Logon() to use stale credentials. Now _userInfo is the single source of truth. 
+ - Pull Request by FilipHae 
+  
+   **Commit:** `0e2b71d` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Fix NaN comparison in RobotKinematicParameters.IsValid. 
+ - Pull request by FilipHae. 
+  
+   **Commit:** `262a15c` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Add Message Box component and improve declaration handling - Introduced MessageBoxComponent for RAPID message box code generation with customizable buttons and actions. 
+ 	 - Added MessageBox_Icon.png and registered it in resources. 
+ 	 - Enhanced uniqueness checks for program declarations in RAPIDGenerator.cs and refactored GetDeclarationName to handle local declarations. 
+  
+   **Commit:** `752d314` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Changed Copyright notice in all files to current year. 
+  
+   **Commit:** `fb9578d` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Add Connect Interrupt component and Signal Type value list - Introduced ConnectInterruptComponent for RAPID interrupt code generation. These connect Traps to signal changes implementing RAPID interrupt behaviour. 
+ 	 - Added SignalType enum and SignalTypeValueList for user-friendly signal type input. 
+ 	 - Updated resources and icons for new components. 
+ 	 - Minor cleanup in AdditionalRoutineComponent. 
+  
+   **Commit:** `363ea4b` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Updated CHANGELOG to reflect current status. Updated UpdateChangeLog script to actually generate correct changelogs... 
+  
+   **Commit:** `a9607e2` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
+ - Improve routine call arg handling - Clarify "Keyword" input description in RoutineArgumentComponent - Enhance RoutineCallComponent to call ToRAPID on objects implementing iDeclaration. 
+  
+   **Commit:** `75607ab` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
+ - Add RAPID WaitRob instruction and GH component support - Implement WaitRob class for RAPID WaitRob instruction (InPos/ZeroSpeed) - Add GH_WaitRob Goo, WaitRobComponent, and Param_WaitRob - Register new icons and update resources for WaitRob 
+  
+   **Commit:** `65f6409` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
+ - Add RAPID system module support and module loading tools - Added UploadSystemModule to Controller for .SYS module upload, config, and warm restart - UploadModule now detects and delegates system modules - Added LoadModuleComponent for RAPID module load/unload code generation - RoutineCallComponent: support for cross-module routine calls - Fixed routine scope input index in RAPIDGeneratorComponent - Added new icons and registered in resources - Updated copyright and CHANGELOG - Minor codegen warnings and documentation improvements 
+  
+   **Commit:** `0b4c517` | **Date:** 2026-01-29 
+ 
+ --- 
+ 
+ - Add WaitAO/DO/GI/GO instructions and GH components and parameters. 
+ 	 - Introduced WaitAO, WaitDO, WaitGI, and WaitGO instruction classes with serialization and RAPID code generation. 
+ 	 - Added corresponding Grasshopper components, parameter types, and Goo wrappers for each wait instruction. 
+ 	 - Updated icons and resources for new types. 
+ 	 - Updated CHANGELOG. 
+  
+   **Commit:** `dab24ab` | **Date:** 2026-01-27 
+ 
+ --- 
+ 
+ - Adds support for RAPID System Modules and Option for loading additional modules into the task. 
+ 	 - RAPIDGenerator and controller methods now support system modules (.SYS), generating correct RAPID headers and file extensions. 
+ 	 - Grasshopper RAPIDGeneratorComponent exposes "Is System Module" input and UI. 
+ 	 - UploadHelperModulesComponent adds "Load To Task" input. 
+ 	 - Improved module name extraction and file cleanup. 
+ 	 - Warnings for invalid system module/routine names. 
+  
+   **Commit:** `2f0c850` | **Date:** 2026-01-22 
+ 
+ --- 
+ 
+ - Adds support for group signals. Group signals are bitmasks used to communicate groups of digital signals. 
+ - Comprehensive support for group inputs/outputs: - Controller class now manages group signals with new retrieval methods and properties. 
+ 	 - Added Grasshopper components for getting/setting group inputs/outputs, including bitmask support and signal picking UI. 
+ 	 - Introduced SetGroupOutput instruction, Goo, and parameter classes for RAPID code generation. 
+ 	 - New DeconstructGroupSignal component for bitwise signal analysis. 
+ 	 - Updated resources and icons for new components. 
+  
+   **Commit:** `735cac5` | **Date:** 2026-01-22 
+ 
+ --- 
+ 
+ - Adds support for user-defined RAPID routine arguments. 
+ 	 - Introduces RoutineArgument class and Grasshopper components for defining and calling routines with arguments. 
+ 	 - Updates code generation, serialization, and UI to support variable arguments in PROC routines, with new icons and changelog entries. 
+  
+   **Commit:** `b2f1286` | **Date:** 2026-01-21 
+ 
+ --- 
+ 
+ - Add simple RAPID routine definition. Procedures (PROC) and Interrupts (TRAP) can now be defined. No functions or arguments are supported. 
+ 	 - Introduce Routine class for user-defined PROC/TRAP routines with scope (GLOBAL/LOCAL/TASK). 
+ 	 - Add Param_Routine and GH_Routine for Grasshopper integration. 
+ 	 - Implement AdditionalRoutineComponent for custom routines. 
+ 	 - Update RAPIDGenerator and RAPIDGeneratorComponent to handle additional routines and routine scope. 
+ 	 - Add ScopeValueList and RoutineTypeValueList components for easy selection. 
+ 	 - Update icons/resources for new features. 
+ 	 - Update Scope declaration in RAPID Code generation. 
+  
+   **Commit:** `339bbd0` | **Date:** 2026-01-08 
+ 
+ --- 
+ 
+ - Fixed helper module upload & modular RAPID code support - Controller now clears local additional directory before writing new files to prevent stale files. 
+ 	 - Removed legacy GLOBAL declaration parsing from RAPIDGenerator, as a GLOBAL keyword doesn't exist in RAPID. 
+  
+   **Commit:** `5eb4ddd` | **Date:** 2026-01-07 
+ 
+ --- 
+ 
+ - Add helper module upload & modular RAPID code support - Added Controller.UploadHelperModules for uploading additional RAPID modules to controller storage without overwriting the main program. 
+ 	 - Introduced UploadHelperModulesComponent for Grasshopper, enabling users to upload helper modules. 
+ 	 - Enhanced RAPIDGenerator and RAPIDGeneratorComponent to support a "Superordinate Main Method" input, filtering out duplicate global declarations in helper modules. 
+ 	 - Improved input parameter management and context menu in RAPIDGeneratorComponent. 
+ 	 - Updated changelog and project file for new features and dependencies. 
+  
+   **Commit:** `02c7755` | **Date:** 2026-01-03 
+ 
+ --- 
+ 
+ - Add LOCAL routine option to RAPIDGeneratorComponent - Added context menu option to declare RAPID routines as LOCAL - Updated RAPIDGenerator to support LOCAL keyword in code output - Preserved LOCAL setting in serialization and duplication - Improved multi-iteration handling in RAPIDGeneratorComponent - Fixed minor documentation and comment issues 
+  
+   **Commit:** `e1b8f81` | **Date:** 2025-12-09 
+ 
+ --- 
+ 
+ - Update Changelog. 
+  
+   **Commit:** `121548a` | **Date:** 2025-11-20 
+ 
+ --- 
+ 
+ - Changed Rhino Common version to 7.36. 
+  
+   **Commit:** `899fef5` | **Date:** 2025-11-20 
+ 
+ --- 
+ 
+ - Included dependency license files. 
+  
+   **Commit:** `1880f27` | **Date:** 2025-11-17 
+ 
+ --- 
+ 
+ - Updated Changelog Builder and Changelog. 
+  
+   **Commit:** `7596141` | **Date:** 2025-11-14 
+ 
+ --- 
+ 
+ - Implemented Changelog Generator 
+  
+   **Commit:** `c8e811e` | **Date:** 2025-11-14 
+ 
+ --- 
+ 
+ - Updated documentation and acknowledgments in AUTHORS.md and README.md to reflect the modified version of the project. Added Jan Philipp Drude and Johannes Pfleging as contributors. 
+ - Updated SPDX license headers across all modified files to acknowledge the original and modified projects. Updated copyright information to include "2025 EDEK Uni Kassel." 
+  
+   **Commit:** `1ec4f4c` | **Date:** 2025-11-14 
+ 
+ --- 
+ 
+ - Add CheckActionsComponent and automate release process Introduced a new Grasshopper component, `CheckActionsComponent`, to validate robot actions and provide feedback. Added a corresponding icon (`CheckActions_Icon.png`) and localized resource for the UI. 
+ - Updated the build process to include a `PostBuild` target in the project file, executing a new PowerShell script (`CreateRelease.ps1`) to automate release packaging and GitHub release creation. The script generates a zip archive, an `INSTALL.md` file, and uploads the release. 
+  
+   **Commit:** `00a671a` | **Date:** 2025-11-14 
+ 
+ --- 
+ 
+ - Ommited to meters and to fileUnits conversion as Robot Components is entirely in mm, no matter the Rhino file units. 
+  
+   **Commit:** `120528e` | **Date:** 2025-11-11 
+ 
+ --- 
+ 
+ - IkGeo doesnt reveal solutions when target x = 0. Targets are therefore slightly offset for this case in the IkGeo solver compute method. 
+  
+   **Commit:** `6a61c2e` | **Date:** 2025-11-11 
+ 
+ --- 
+ 
+ - Added my contact to contributors. 
+  
+   **Commit:** `2831f74` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - implements constructing configuration data from quadrant data inputs. 
+ - Builds configuration data (cfx) from quarant data (cf1, cf4, cf6) as bitmask, if no cfx is provided. Also deconstructs cfx into quadrant data. 
+  
+   **Commit:** `bbe4c31` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - add singularity detection for CRB15000 robots using Jacobian analysis Implemented comprehensive singularity detection in the IkGeo solver for CRB15000 (GoFa) robots. Added fields for tracking wrist, elbow, shoulder singularities and missing solver results across all eight Cfx configurations. Introduced MathNet.Numerics dependency for Jacobian matrix operations. 
+ - Implemented `ComputeSingularities` method to detect near-singular configurations using SVD-based Jacobian analysis with geometric alignment checks. Added `BuildJacobian` and `CheckJacobianSingularity` helper methods to construct the 6x6 manipulator Jacobian and evaluate singularity conditions using a relative tolerance threshold. 
+ - Updated `InverseKinematics` class to retrieve and propagate singularity data from the IkGeo solver, including a sentinel value system (9e9) for missing solutions. Modified `CheckInternalAxisLimits` to skip validation for missing joint values and report when the solver returns no result. Added public properties `WristSingularities`, `ElbowSingularities`, `ShoulderSingularities`, and `NoSolverResults` to expose singularity information. 
+  
+   **Commit:** `c9e4f01` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - Fixed issues with Robot Components GH UI. 
+ - Added the PosedInternalPlanes parameter to the variable output parameters array in the IK component. 
+ - Added the CRB15000 robots to the enumeration of available robot presets. 
+  
+   **Commit:** `637ac7f` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - Add support for outputting posed planes in IK component (optional) Introduce a new feature to output posed planes in the `InverseKinematicsComponent` class. Added a `_outputPosedPlanesParameter` field to manage this functionality and updated the context menu with a new "Output Posed Axis Planes" option. 
+ - Implemented the `MenuItemClickOutputPlanes` event handler to toggle the posed planes output and added serialization/deserialization support for this parameter in the `Write` and `Read` methods. 
+ - Created the `GetPosedPlanesDataTree` method to transform posed axis planes into a structured data tree for output. Updated the `SolveInstance` method to populate the posed planes output parameter when enabled. 
+  
+   **Commit:** `1f4edd1` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - Implemented Axis Configuration sorting into IkGeoSolver and posed internal axis planes into InverseKinematics. 
+ - Added `_posedInternalAxisPlanes` to `ForwardKinematics` to store posed internal axis planes and updated calculations to compute and expose these planes via a new public property. 
+ - Introduced `_missingJointValue` sentinel in `IkGeoSolver` and implemented `ArrangeJointPositions` to sort IK solutions into RAPID's 8-slot Cfx ordering. This method uses forward kinematics and geometric tests to compute Cf1, Cf4, and Cf6 bitmask values. 
+  
+   **Commit:** `eeefebf` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - Add IkGeoSolver for GoFa CRB15000 robots to InverseKinematcs class Introduce IkGeoSolver to handle inverse kinematics for GoFa CRB15000 robots, while retaining OPW/Wrist Offset solvers for other robots. 
+ 	 - Reorganize and update namespace imports, adding `IkGeoSolver`. 
+ 	 - Update `CalculateRobotJointPosition` to use IkGeoSolver for CRB15000 robots. 
+ 	 - Retain OPW/Wrist Offset solvers for other robot types. 
+ 	 - Initialize singularity arrays for compatibility with IkGeoSolver. 
+  
+   **Commit:** `08733c3` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - Add IK solver for CRB15000 robots and supporting structs Introduced an inverse kinematics solver (`IkGeoSolver`) for CRB15000 (GoFa) robots, wrapping the native `ik-geo` library. Added binary dependencies (`ikgeoInterface_GoFa.dll`, `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, `libwinpthread-1.dll`) required for the solver. 
+ - Added supporting geometry structs: - `Quaternion`: Represents quaternions with conversion methods. 
+ 	 - `Vector3d`: Represents 3D vectors with Rhino type conversions. 
+ 	 - `Vector6d`: Represents 6D robot joint positions with utility methods. 
+ - Implemented `Compute_CRB15000` to calculate IK solutions, handle singularities, and convert results to robot configurations. Added detailed documentation for all new components. 
+  
+   **Commit:** `5c784da` | **Date:** 2025-11-05 
+ 
+ --- 
+ 
+ - Add LoadModule and MessageBox Icons 
+  
+   **Commit:** `f4925c8` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
+ - Add Message Box component and improve declaration handling - Introduced MessageBoxComponent for RAPID message box code generation with customizable buttons and actions. 
+ 	 - Added MessageBox_Icon.png and registered it in resources. 
+ 	 - Enhanced uniqueness checks for program declarations in RAPIDGenerator.cs and refactored GetDeclarationName to handle local declarations. 
+  
+   **Commit:** `198ebaa` | **Date:** 2026-02-17 
+ 
+ --- 
+ 
  - Changed Copyright notice in all files to current year. 
   
    **Commit:** `e92ce29` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - New Icons Icons for: - Check Actions - Interrupt Connection - Deconstruct Group Signal 
+  
+   **Commit:** `d2fd732` | **Date:** 2026-02-12 
  
  --- 
  
@@ -17,6 +1020,21 @@
  	 - Minor cleanup in AdditionalRoutineComponent. 
   
    **Commit:** `35782ae` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix missing early returns in Controller and remove redundant credential fields Initiliaze(), SetUserInfo(), and SetDefaultUser() all continued executing after detecting _isEmpty, causing null dereferences. 
+ - Added early returns. 
+ - Removed redundant _userName/_password fields that duplicated data already in _userInfo. SetDefaultUser() was updating the strings but not _userInfo, causing Logon() to use stale credentials. 
+ - Now _userInfo is the single source of truth. 
+  
+   **Commit:** `7a1a814` | **Date:** 2026-02-12 
+ 
+ --- 
+ 
+ - Fix NaN comparison in RobotKinematicParameters.IsValid Per IEEE 754, NaN == NaN is always false, so the previous checks (_a1 == double.NaN) never triggered. IsValid always returned true, even for uninitialized instances. Use double.IsNaN() instead. 
+  
+   **Commit:** `f14c976` | **Date:** 2026-02-12 
  
  --- 
  
@@ -32,9 +1050,45 @@
  
  --- 
  
+ - Update copyright year to 2026 
+  
+   **Commit:** `1382290` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
+ - Update active developer's end date for Arjen Deetman 
+  
+   **Commit:** `42d076c` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
  - Add RAPID WaitRob instruction and GH component support - Implement WaitRob class for RAPID WaitRob instruction (InPos/ZeroSpeed) - Add GH_WaitRob Goo, WaitRobComponent, and Param_WaitRob - Register new icons and update resources for WaitRob 
   
    **Commit:** `39531f5` | **Date:** 2026-02-10 
+ 
+ --- 
+ 
+ - Change year from 2025 to 2026 
+  
+   **Commit:** `7aee199` | **Date:** 2026-02-08 
+ 
+ --- 
+ 
+ - Update header of RobotKinematicParameters.cs 
+  
+   **Commit:** `0886a89` | **Date:** 2026-02-08 
+ 
+ --- 
+ 
+ - Update the version number 
+  
+   **Commit:** `b702c0d` | **Date:** 2026-02-08 
+ 
+ --- 
+ 
+ - Fix in conversion of kinematic parameters to axis planes and vice versa: changed the sign of kinematic parameter b 
+  
+   **Commit:** `deb6f35` | **Date:** 2026-02-08 
  
  --- 
  
@@ -111,6 +1165,54 @@
  	 - Updated changelog and project file for new features and dependencies. 
   
    **Commit:** `7bf7d6e` | **Date:** 2026-01-03 
+ 
+ --- 
+ 
+ - Update README.md 
+  
+   **Commit:** `b584408` | **Date:** 2025-12-21 
+ 
+ --- 
+ 
+ - Update example files 
+  
+   **Commit:** `b3726c0` | **Date:** 2025-12-19 
+ 
+ --- 
+ 
+ - Update version number 
+  
+   **Commit:** `908d45a` | **Date:** 2025-12-19 
+ 
+ --- 
+ 
+ - Merge pull request #198 from RobotComponents/v4 Initialized robot attributes 
+  
+   **Commit:** `5f02818` | **Date:** 2025-12-19 
+ 
+ --- 
+ 
+ - Initialized robot attributes 
+  
+   **Commit:** `a497208` | **Date:** 2025-12-19 
+ 
+ --- 
+ 
+ - Delete .github/workflows/dotnet-tests.yml 
+  
+   **Commit:** `b75a77b` | **Date:** 2025-12-19 
+ 
+ --- 
+ 
+ - Revise citation guidelines in README.md Updated citation instructions and added BibTeX entry. 
+  
+   **Commit:** `a04a651` | **Date:** 2025-12-19 
+ 
+ --- 
+ 
+ - Update section title from 'Cite' to 'How to cite' 
+  
+   **Commit:** `636024b` | **Date:** 2025-12-12 
  
  --- 
  
