@@ -82,6 +82,7 @@ namespace RobotComponents.ABB.Actions
 
         // Checks
         private readonly List<string> _errorText = new List<string>();
+        private readonly List<string> _remarksText = new List<string>();
         private bool _enforceAxisLimits = true;
         private bool _isFirstMovementMoveAbsJ;
         private bool _isSynchronized = false;
@@ -213,6 +214,7 @@ namespace RobotComponents.ABB.Actions
 
             _module.Clear();
             _errorText.Clear();
+            _remarksText.Clear();
             _isSynchronized = false;
             _isFirstMovementMoveAbsJ = false;
 
@@ -278,12 +280,6 @@ namespace RobotComponents.ABB.Actions
             foreach (RAPIDGenerator routineGenerator in _additionalRoutineGenerators)
             {
                 _errorText.AddRange(routineGenerator.ErrorText);
-            }
-
-            // Abort module generation if violations are detected and enforcement is enabled
-            if (_enforceAxisLimits && _errorText.Count > 0)
-            {
-                return _module;
             }
             #endregion
 
@@ -614,7 +610,7 @@ namespace RobotComponents.ABB.Actions
                     }
                     else
                     {
-                        _errorText.Add("The first movement is not set as an absolute joint movement.");
+                        _remarksText.Add("The first movement is not set as an absolute joint movement.");
                         return false;
                     }
                 }
@@ -842,6 +838,14 @@ namespace RobotComponents.ABB.Actions
         public List<string> ErrorText
         {
             get { return _errorText; }
+        }
+
+        /// <summary>
+        /// Gets the collected remarks messages.
+        /// </summary>
+        public List<string> RemarksText
+        {
+            get{ return _remarksText; }
         }
 
         /// <summary>

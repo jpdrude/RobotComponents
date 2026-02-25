@@ -300,11 +300,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 _rapidGenerators.Add(_rapidGenerator);
             }
 
-            // Checks if first Movement is MoveAbsJ
-            if (_firstMovementIsMoveAbsJ == false)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The first movement is not set as an absolute joint movement.");
-            }
+
 
             // Show error or warning messages for axis limit violations
             if (_rapidGenerator.ErrorText.Count != 0)
@@ -319,6 +315,15 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 {
                     AddRuntimeMessage(level, _rapidGenerator.ErrorText[i]);
                     if (i == 29) { break; }
+                }
+            }
+
+            // Show remarks from RAPIDGenerator
+            if (_rapidGenerator.RemarksText.Count != 0)
+            {
+                for (int i = 0; i < _rapidGenerator.RemarksText.Count; ++i)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, _rapidGenerator.RemarksText[i]);
                 }
             }
 

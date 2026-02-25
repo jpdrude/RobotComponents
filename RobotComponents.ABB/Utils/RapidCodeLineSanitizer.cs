@@ -59,7 +59,7 @@ namespace RobotComponents.ABB.Utils
                 string keyword = _structuralKeywords[i];
                 string pattern = @"\b" + keyword + @"\b";
 
-                if (Regex.IsMatch(code, pattern, RegexOptions.IgnoreCase))
+                if (Regex.IsMatch(code, pattern))
                 {
                     warnings.Add($"Code line contains the structural RAPID keyword \"{keyword}\" which could break the generated module structure.");
                 }
