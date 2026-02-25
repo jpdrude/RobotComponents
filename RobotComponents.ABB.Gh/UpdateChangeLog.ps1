@@ -132,6 +132,17 @@ foreach ($entry in $logEntries) {
 
 Write-Host "Found $($commits.Count) commits"
 
+# Skip write if the changelog already contains the latest commit
+$changelogPath = Join-Path $RepoPath "CHANGELOG.md"
+if (Test-Path $changelogPath) {
+    $latestHash = $commits[0].Hash.Substring(0, 7)
+    $existingContent = Get-Content $changelogPath -Raw
+    if ($existingContent -match [regex]::Escape($latestHash)) {
+        Write-Host "Changelog is already up to date"
+        exit 0
+    }
+}
+
 # Generate changelog content
 $changelogContent = @()
 $changelogContent += "### Changelog"
@@ -194,10 +205,5 @@ $changelogContent
 
 "@
 
-# Make sure RepoPath is set to current directory if not specified
-if ([string]::IsNullOrEmpty($RepoPath)) {
-    $RepoPath = Get-Location
-}
-
-$changelog | Out-File -FilePath (Join-Path $RepoPath "CHANGELOG.md") -Encoding UTF8
+$changelog | Out-File -FilePath $changelogPath -Encoding UTF8
 Write-Host "Changelog generated"
