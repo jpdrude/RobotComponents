@@ -3,8 +3,32 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-25 17:40 
+ Generated on: 2026-02-25 19:13 
  --- 
+ - Overhaul release pipeline: CI-driven releases with full changelog and assets - Remove post-build CreateRelease.ps1 in favour of the existing CI release workflow as the single release mechanism. 
+ 	 - Release notes now include install instructions followed by all commits since the previous tag. 
+ 	 - RobotComponentsEDEK.gha added as an optional separate release asset from DLLs/. 
+ 	 - UpdateChangeLog.ps1 now skipsregeneration if the latest commit is already recorded in CHANGELOG.md. 
+  
+   **Commit:** `1656cb8` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Overhaul release pipeline: CI-driven releases with full changelog and assets - Remove post-build CreateRelease.ps1 in favour of the existing CI release workflow as the single release mechanism. 
+ 	 - Release notes now include install instructions followed by all commits since the previous tag. 
+ 	 - RobotComponentsEDEK.gha added as an optional separate release asset from DLLs/. 
+ 	 - UpdateChangeLog.ps1 now skipsregeneration if the latest commit is already recorded in CHANGELOG.md. 
+  
+   **Commit:** `8d170b6` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Updated VersionNumbering to my current style at v1.1.0 
+  
+   **Commit:** `937246c` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
  - Separate non-critical RAPID generator messages into RemarksText - Introduce a RemarksText list in RAPIDGenerator for informational messages that should not block code generation. Move the "first movement is not MoveAbsJ" notice from ErrorText to RemarksText and surface it as a GH Remark in RAPIDGeneratorComponent. 
  	 - Make structural RAPID keyword detection in RapidCodeLineSanitizer case-sensitive, reducing false positives on lowercase user code. 
   
