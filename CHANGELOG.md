@@ -3,8 +3,15 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-25 15:34 
+ Generated on: 2026-02-25 17:40 
  --- 
+ - Separate non-critical RAPID generator messages into RemarksText - Introduce a RemarksText list in RAPIDGenerator for informational messages that should not block code generation. Move the "first movement is not MoveAbsJ" notice from ErrorText to RemarksText and surface it as a GH Remark in RAPIDGeneratorComponent. 
+ 	 - Make structural RAPID keyword detection in RapidCodeLineSanitizer case-sensitive, reducing false positives on lowercase user code. 
+  
+   **Commit:** `5c4afa1` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
  - Merge remote-tracking branch 'origin/main' into ikgeo 
   
    **Commit:** `2060c9d` | **Date:** 2026-02-24 
