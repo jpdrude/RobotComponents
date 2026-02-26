@@ -34,6 +34,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_Empty_ProducesInvalidRobot()
         {
             Robot robot = new Robot();
@@ -292,6 +293,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_InvalidRobot_ReturnsInvalid()
         {
             Robot robot = new Robot();

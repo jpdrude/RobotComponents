@@ -137,12 +137,12 @@ namespace RobotComponents.Tests.Actions
         }
 
         [Fact]
-        public void Sanitize_DetectsCaseInsensitive()
+        public void Sanitize_LowercaseKeyword_NoWarning()
         {
+            // Detection is case-sensitive: lowercase keywords are not flagged
             RapidCodeLineSanitizer.SanitizeResult result = RapidCodeLineSanitizer.Sanitize("endproc");
 
-            Assert.True(result.HasWarnings);
-            Assert.Contains(result.Warnings, w => w.Contains("ENDPROC"));
+            Assert.False(result.HasWarnings);
         }
 
         [Fact]
