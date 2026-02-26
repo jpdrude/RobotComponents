@@ -3,8 +3,32 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-25 19:13 
+ Generated on: 2026-02-26 08:58 
  --- 
+ - Minor fixes in release pipeline and explanation of Tests. 
+  
+   **Commit:** `eb77d7f` | **Date:** 2026-02-26 
+ 
+ --- 
+ 
+ - Fixed some bugs in Test scripts, which were hampering the build. 
+  
+   **Commit:** `e6d7b50` | **Date:** 2026-02-26 
+ 
+ --- 
+ 
+ - Included Reference to RobotComponents.ABB.Controllers in tests project. 
+  
+   **Commit:** `960283b` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Updated changelog before release. 
+  
+   **Commit:** `2facb14` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
  - Overhaul release pipeline: CI-driven releases with full changelog and assets - Remove post-build CreateRelease.ps1 in favour of the existing CI release workflow as the single release mechanism. 
  	 - Release notes now include install instructions followed by all commits since the previous tag. 
  	 - RobotComponentsEDEK.gha added as an optional separate release asset from DLLs/. 
