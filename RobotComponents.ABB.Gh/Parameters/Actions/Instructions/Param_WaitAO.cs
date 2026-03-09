@@ -27,7 +27,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_WaitAO class
         /// </summary>
-        public Param_WaitAO() : base("Wait for Analog Output Parameter", "WAO", "Parameters",
+        public Param_WaitAO() : base("Wait for Analog Output", "WAO", "Parameters",
                 "Contains the data of a Wait for Analog Output instruction.")
         {
         }
@@ -44,7 +44,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Wait for Analog Output"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

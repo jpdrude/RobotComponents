@@ -26,7 +26,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Definitions
         /// <summary>
         /// Initializes a new instance of the Param_LoadData class
         /// </summary>
-        public Param_LoadData() : base("Load Data Parameter", "LDP", "Parameters",
+        public Param_LoadData() : base("Load Data", "LDP", "Parameters",
                 "Contains the data of a Load Data declaration.")
         {
         }
@@ -43,7 +43,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Definitions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Load Data"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

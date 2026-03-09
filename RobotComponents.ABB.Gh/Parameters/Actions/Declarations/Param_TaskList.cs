@@ -27,7 +27,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Declarations
         /// <summary>
         /// Initializes a new instance of the Param_TaskList class
         /// </summary>
-        public Param_TaskList() : base("Task List Parameter", "TL", "Parameters",
+        public Param_TaskList() : base("Task List", "TL", "Parameters",
                 "Contains the data of a Task List declaration.")
         {
         }
@@ -44,7 +44,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Declarations
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Task List"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

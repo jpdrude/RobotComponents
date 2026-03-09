@@ -29,7 +29,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Dynamic
         /// <summary>
         /// Initializes a new instance of the Param_CodeLine class
         /// </summary>
-        public Param_CodeLine() : base("Code Line Parameter", "CLP", "Parameters",
+        public Param_CodeLine() : base("Code Line", "CLP", "Parameters",
                 "Contains the data of a Code Line.")
         {
         }
@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Dynamic
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Code Line"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

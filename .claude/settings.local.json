@@ -6,7 +6,8 @@
       "Bash(gh repo:*)",
       "Bash(git show-ref:*)",
       "Bash(git ls-tree:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(py:*)"
     ]
   }
 }

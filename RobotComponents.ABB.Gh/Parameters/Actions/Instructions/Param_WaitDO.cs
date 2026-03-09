@@ -27,7 +27,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_WaitDO class
         /// </summary>
-        public Param_WaitDO() : base("Wait for Digital Output Parameter", "WDO", "Parameters",
+        public Param_WaitDO() : base("Wait for Digital Output", "WDO", "Parameters",
                 "Contains the data of a Wait for Digital Output instruction.")
         {
         }
@@ -44,7 +44,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Wait for Digital Output"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 
