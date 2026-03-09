@@ -132,7 +132,8 @@ namespace RobotComponents.ABB.Kinematics.IkGeo
             if (Math.Abs(targetPlane.Origin.X) < 0.001)
                 targetPlane.Transform(Transform.Translation(Rhino.Geometry.Vector3d.XAxis * 0.001));
 
-            // Target rotated 90 degrees (probably due to inconsistent end effector definition)
+            // Target rotated 90 degrees around z- and x-axes (probably due to inconsistent end effector definition)
+            targetPlane.Rotate(0.5 * _pi, targetPlane.ZAxis, targetPlane.Origin);
             targetPlane.Rotate(0.5 * _pi, targetPlane.XAxis, targetPlane.Origin);
 
             // Position (in meters!)
