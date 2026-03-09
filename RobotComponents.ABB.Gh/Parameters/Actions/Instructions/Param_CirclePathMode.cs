@@ -26,7 +26,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_CirclePathMode class
         /// </summary>
-        public Param_CirclePathMode() : base("Circle Path Mode Parameter", "CPMP", "Parameters",
+        public Param_CirclePathMode() : base("Circle Path Mode", "CPMP", "Parameters",
                 "Contains the data of a Circle Path Mode.")
         {
         }
@@ -43,7 +43,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Circle Path Mode"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

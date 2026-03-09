@@ -28,7 +28,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions
         /// <summary>
         /// Initializes a new instance of the Param_ActionGroup class
         /// </summary>
-        public Param_ActionGroup() : base("Action Group Parameter", "AG", "Parameters",
+        public Param_ActionGroup() : base("Action Group", "AG", "Parameters",
                 "Contains the data of any Action Group.")
         {
         }
@@ -45,7 +45,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Action Group"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

@@ -21,7 +21,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// Initializes a new instance of the Param_AnalogOutput class
         /// </summary>
         public Param_AnalogOutput()
-          : base(new GH_InstanceDescription("Analog Output Parameter", "AO",
+          : base(new GH_InstanceDescription("Analog Output", "AO",
                 "Contains the data of a Set Analog Output instruction."
                 + System.Environment.NewLine + System.Environment.NewLine +
                 "Robot Components: v" + RobotComponents.VersionNumbering.CurrentVersion,
@@ -41,7 +41,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Analog Output"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

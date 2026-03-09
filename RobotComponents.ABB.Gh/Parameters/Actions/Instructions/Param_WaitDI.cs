@@ -29,7 +29,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_WaitDI class
         /// </summary>
-        public Param_WaitDI() : base("Wait for Digital Input Parameter", "WDI", "Parameters",
+        public Param_WaitDI() : base("Wait for Digital Input", "WDI", "Parameters",
                 "Contains the data of a Wait for Digital Input instruction.")
         {
         }
@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Wait for Digital Input"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

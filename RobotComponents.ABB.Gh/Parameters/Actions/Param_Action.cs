@@ -31,7 +31,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions
         /// <summary>
         /// Initializes a new instance of the Param_Action class
         /// </summary>
-        public Param_Action() : base("Action Parameter", "A", "Parameters",
+        public Param_Action() : base("Action", "A", "Parameters",
                 "Contains the data of any Action.")
         {
         }
@@ -48,7 +48,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Action"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

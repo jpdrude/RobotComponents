@@ -3,8 +3,28 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-26 08:58 
+ Generated on: 2026-03-09 17:22 
  --- 
+ - Adds missing assemblies and corresponding license files to release. 
+ - Added assemblies and license locations to Collect-ReleaseFiles.ps1 to accomodate them in release. 
+  
+   **Commit:** `d69efd0` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Update parameter naming, which caused problems when drawing full names in GH. 
+ - Refactored parameter class display names to remove "Parameter" suffix and updated constructors for consistency across the ABB Grasshopper plugin. Changed Name property overrides to use the base property for improved flexibility. 
+  
+   **Commit:** `c25b8e6` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Pushed changelog before release. 
+  
+   **Commit:** `103d5f2` | **Date:** 2026-02-26 
+ 
+ --- 
+ 
  - Minor fixes in release pipeline and explanation of Tests. 
   
    **Commit:** `eb77d7f` | **Date:** 2026-02-26 

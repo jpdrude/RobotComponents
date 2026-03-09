@@ -29,7 +29,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Declarations
         /// <summary>
         /// Initializes a new instance of the Param_RobotTarget class
         /// </summary>
-        public Param_RobotTarget() : base("Robot Target Parameter", "RT", "Parameters",
+        public Param_RobotTarget() : base("Robot Target", "RT", "Parameters",
                 "Contains the data of a Robot Target declaration.")
         {
         }
@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Declarations
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Robot Target"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

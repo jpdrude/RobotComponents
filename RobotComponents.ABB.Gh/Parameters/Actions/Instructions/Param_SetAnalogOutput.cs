@@ -26,7 +26,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_SetAnalogOutput class
         /// </summary>
-        public Param_SetAnalogOutput() : base("Set Analog Output Parameter", "SAOP", "Parameters",
+        public Param_SetAnalogOutput() : base("Set Analog Output", "SAOP", "Parameters",
                 "Contains the data of a Set Analog Output instruction.")
         {
         }
@@ -43,7 +43,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Set Analog Output"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

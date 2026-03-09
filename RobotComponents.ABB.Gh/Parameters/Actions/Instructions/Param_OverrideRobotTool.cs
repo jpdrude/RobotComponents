@@ -29,7 +29,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_OverrideRobotTool class
         /// </summary>
-        public Param_OverrideRobotTool() : base("Override Robot Tool Parameter", "ORT", "Parameters",
+        public Param_OverrideRobotTool() : base("Override Robot Tool", "ORT", "Parameters",
                 "Contains the data of a Override Robot Tool instruction.")
         {
         }
@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Override Robot Tool"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 

@@ -26,7 +26,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_AccelerationSet class
         /// </summary>
-        public Param_AccelerationSet() : base("Acceleration Set Parameter", "ASP", "Parameters",
+        public Param_AccelerationSet() : base("Acceleration Set", "ASP", "Parameters",
                 "Contains the data of a Acceleration Set instruction.")
         {
         }
@@ -43,7 +43,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Acceleration Set"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 
