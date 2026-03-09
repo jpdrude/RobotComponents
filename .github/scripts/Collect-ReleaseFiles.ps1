@@ -40,10 +40,34 @@ foreach ($proj in $projects) {
     }
 }
 
-# Include license
+# Include dependency assemblies from DLLs folder
+$dllsDir = Join-Path $RepoRoot "DLLs"
+$depAssemblies = @(
+    "ABB.Robotics.Controllers.PC.dll",
+    "MathNet.Numerics.dll",
+    "RobotStudio.Services.RobApi.Desktop.dll",
+    "RobotStudio.Services.RobApi.dll",
+    "ikgeoInterface_GoFa.dll",
+    "libgcc_s_seh-1.dll",
+    "libstdc++-6.dll",
+    "libwinpthread-1.dll"
+)
+foreach ($dep in $depAssemblies) {
+    $depPath = Join-Path $dllsDir $dep
+    if (Test-Path $depPath) {
+        Copy-Item $depPath -Destination $OutputDir
+    }
+}
+
+# Include license files
 $license = Join-Path $RepoRoot "LICENSE"
 if (Test-Path $license) {
     Copy-Item $license -Destination $OutputDir
+}
+$licensesDir = Join-Path $dllsDir "licenses"
+if (Test-Path $licensesDir) {
+    $licensesOut = Join-Path $OutputDir "licenses"
+    Copy-Item $licensesDir -Destination $licensesOut -Recurse -Force
 }
 
 Write-Host "Staged files:"
