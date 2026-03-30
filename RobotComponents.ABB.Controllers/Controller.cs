@@ -1279,8 +1279,14 @@ namespace RobotComponents.ABB.Controllers
             {
                 using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
                 {
-                    _controller.Rapid.Start(RapidDomainNS.RegainMode.Continue, RapidDomainNS.ExecutionMode.Continuous, RapidDomainNS.ExecutionCycle.Once, RapidDomainNS.StartCheck.CallChain);
-                    master.Release();
+                    try
+                    {
+                        _controller.Rapid.Start(RapidDomainNS.RegainMode.Continue, RapidDomainNS.ExecutionMode.Continuous, RapidDomainNS.ExecutionCycle.Once, RapidDomainNS.StartCheck.CallChain);
+                    }
+                    finally
+                    { 
+                        master.Release(); 
+                    }   
                 }
 
                 status = "Program started.";
@@ -1316,8 +1322,14 @@ namespace RobotComponents.ABB.Controllers
             {
                 using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
                 {
-                    _controller.Rapid.Stop(RapidDomainNS.StopMode.Instruction);
-                    master.Release();
+                    try
+                    {
+                        _controller.Rapid.Stop(RapidDomainNS.StopMode.Instruction);
+                    }
+                    finally
+                    {
+                        master.Release();
+                    }
                 }
 
                 status = "Program stopped.";
