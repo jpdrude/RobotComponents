@@ -3,12 +3,12 @@
 // Project: https://github.com/RobotComponents/RobotComponents
 //
 // Copyright (c) 2018-2020 EDEK Uni Kassel
-// Copyright (c) 2020-2025 Arjen Deetman
+// Copyright (c) 2020-2026 Arjen Deetman
 //
 // Authors:
 //   - Gabriel Rumph (2018-2020)
 //   - Benedikt Wannemacher (2018-2020)
-//   - Arjen Deetman (2019-2025)
+//   - Arjen Deetman (2019-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
@@ -80,9 +80,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital input name starts with a number which is not allowed in RAPID code.");
             }
-            if (HelperMethods.StringStartsWithNumber(name))
+            if (HelperMethods.StringHasSpecialCharacters(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital input name constains special characters which is not allowed in RAPID code.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital input name contains special characters which is not allowed in RAPID code.");
             }
 
             // Create the action

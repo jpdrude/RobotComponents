@@ -2,10 +2,10 @@
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
-// Copyright (c) 2021-2025 Arjen Deetman
+// Copyright (c) 2021-2026 Arjen Deetman
 //
 // Authors:
-//   - Arjen Deetman (2021-2025)
+//   - Arjen Deetman (2021-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
@@ -108,9 +108,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog input name starts with a number which is not allowed in RAPID code.");
             }
-            if (HelperMethods.StringStartsWithNumber(name))
+            if (HelperMethods.StringHasSpecialCharacters(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog input name constains special characters which is not allowed in RAPID code.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog input name contains special characters which is not allowed in RAPID code.");
             }
 
             // Create the action
