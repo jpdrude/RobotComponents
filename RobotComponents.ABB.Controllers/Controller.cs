@@ -172,6 +172,7 @@ namespace RobotComponents.ABB.Controllers
             {
                 _isInitialized = false;
                 Log("Could not initialize the controller instance: There is no ABB controller defined.");
+                return;
             }
 
             #region mechanical units
