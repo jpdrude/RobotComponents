@@ -2,14 +2,13 @@
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
-// Copyright (c) 2022-2024 Arjen Deetman
+// Copyright (c) 2022-2026 Arjen Deetman
 //
 // Authors:
-//   - Arjen Deetman (2022-2024)
+//   - Arjen Deetman (2022-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
-// System Libs
 // Rhino Libs
 using Rhino.Geometry;
 // ABB Libs
@@ -149,6 +148,7 @@ namespace RobotComponents.ABB.Controllers
             if (_isEmpty == true)
             {
                 msg = $"Could not set the value of the signal. No signal defined.";
+                return false;
             }
 
             if (_limits.IncludesParameter(value, false) == false)
