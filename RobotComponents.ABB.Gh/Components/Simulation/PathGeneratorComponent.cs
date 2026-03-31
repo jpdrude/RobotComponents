@@ -388,7 +388,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         {
             RecordUndoEvent("Preview Posed Meshes");
             _previewMesh = !_previewMesh;
-            ExpireSolution(true);
+            ExpirePreview(true);
         }
 
         /// <summary>
@@ -400,15 +400,8 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         {
             RecordUndoEvent("Preview Path");
             _previewPath = !_previewPath;
-
-            IGH_Param param = Params.Output.Find(x => x.NickName.Equality(_variableOutputParameters[0].NickName));
-
-            if (param is IGH_PreviewObject previewObject)
-            {
-                previewObject.Hidden = !_previewPath;
-            }
-
-            ExpireSolution(true);
+            UpdatePathPreview();
+            ExpirePreview(true);
         }
 
         /// <summary>
@@ -641,6 +634,11 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             _outputProgramTime = reader.GetBoolean("Output Program Time");
             _outputErrorMessages = reader.GetBoolean("Output Error Messages");
             _outputMesh = reader.GetBoolean("Output Posed Meshes");
+
+            // Update preview
+            UpdatePathPreview();
+            ExpirePreview(true);
+
             return base.Read(reader);
         }
 
@@ -838,6 +836,22 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Updates the path preview.
+        /// </summary>
+        /// <remarks>
+        /// Does not call ExpirePreview. 
+        /// </remarks>
+        private void UpdatePathPreview()
+        {
+            IGH_Param param = Params.Output.Find(x => x.NickName.Equality(_variableOutputParameters[0].NickName));
+
+            if (param is IGH_PreviewObject previewObject)
+            {
+                previewObject.Hidden = !_previewPath;
             }
         }
         #endregion
