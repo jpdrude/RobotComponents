@@ -12,6 +12,7 @@
 
 // System Libs
 // Grasshopper Libs
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
 // RobotComponents
@@ -26,6 +27,7 @@ using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -37,9 +39,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
     {
         #region fields
         private bool _expire = false;
+        private bool _isFunc = false;
         private bool _isTrap = false;
         private bool _previousIsTrap = false;
         private const int staticInputCount = 4;
+        private const string ReturnTypeParamName = "Return Type";
         #endregion
 
         /// <summary>
@@ -47,8 +51,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public AdditionalRoutineComponent() : base("Routine", "R", "Code Generation", 
-            "Defines manually a PROC or TRAP declaration.")
+        public AdditionalRoutineComponent() : base("Routine", "R", "Code Generation",
+            "Defines manually a PROC, FUNC or TRAP declaration.")
         {
         }
 
@@ -58,7 +62,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddParameter(new Param_Action(), "Actions", "A", "Actions as list of instructive Actions. Declarations will be added to the module scope.", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Type", "T", "Type of the routine. Use 0 for adding a PROC. Use 1 for adding a TRAP.", GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("Type", "T", "Type of the routine. Use 0 for adding a PROC. Use 1 for adding a FUNC. Use 2 for adding a TRAP.", GH_ParamAccess.item, 0);
             pManager.AddTextParameter("Name", "N", "Routine Identifier", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Scope", "S", "Scope of the routine. Use 0 for GLOBAL scope, 1 for LOCAL scope and 2 for TASK scope.", GH_ParamAccess.item, 0);
 
@@ -79,7 +83,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         public bool CanInsertParameter(GH_ParameterSide side, int index)
         {
             if (_isTrap) return false;
-            return side == GH_ParameterSide.Input && index >= staticInputCount;
+            int floor = staticInputCount + (_isFunc ? 1 : 0);
+            return side == GH_ParameterSide.Input && index >= floor;
         }
 
         /// <summary>
@@ -95,7 +100,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         public bool CanRemoveParameter(GH_ParameterSide side, int index)
         {
             if (_isTrap) return false;
-            return side == GH_ParameterSide.Input && index >= staticInputCount && Params.Input.Count > staticInputCount;
+            int floor = staticInputCount + (_isFunc ? 1 : 0);
+            return side == GH_ParameterSide.Input && index >= floor && Params.Input.Count > floor;
         }
 
         /// <summary>
@@ -117,7 +123,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <returns>An <see cref="IGH_Param"/> representing a string argument at the given side and index.</returns>
         public IGH_Param CreateParameter(GH_ParameterSide side, int index)
         {
-            int varIndex = index - staticInputCount;
+            int floor = staticInputCount + (_isFunc ? 1 : 0);
+            int varIndex = index - floor;
             var param = new Param_RoutineArgument()
             {
                 Name = $"Argument {varIndex + 1}",
@@ -138,10 +145,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// predictable for users and downstream consumers.</remarks>
         public void VariableParameterMaintenance()
         {
-            for (int i = staticInputCount; i < Params.Input.Count; i++)
+            int floor = staticInputCount + (_isFunc ? 1 : 0);
+            for (int i = floor; i < Params.Input.Count; i++)
             {
-                Params.Input[i].Name = $"Argument {i - staticInputCount + 1}";
-                Params.Input[i].NickName = $"Arg{i - staticInputCount + 1}";
+                Params.Input[i].Name = $"Argument {i - floor + 1}";
+                Params.Input[i].NickName = $"Arg{i - floor + 1}";
             }
         }
 
@@ -177,15 +185,59 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (_expire == true)
             {
                 _expire = false;
-                this.ExpireSolution(true);
+                OnPingDocument()?.ScheduleSolution(5, d => ExpireSolution(true));
                 return;
             }
+
+            // Reconcile the Return Type parameter against the actual desired state on every solve.
+            // We compare wantsFunc to whether RT actually exists in the layout — not to a stored
+            // flag — so the component self-corrects regardless of how any inconsistency arose
+            // (type switch, file load, undo, etc.).
+            // DA was initialised with the current layout, so we must not read from the RT slot
+            // in the same solve where we add/remove it; bail out and let the scheduled solution
+            // run with the corrected layout.
+            int typeProbe = 0;
+            DA.GetData(1, ref typeProbe);
+            bool wantsFunc = typeProbe == (int)RoutineType.FUNC;
+            bool hasReturnTypeParam = Params.Input.Any(p => p.Name == ReturnTypeParamName);
+
+            if (wantsFunc != hasReturnTypeParam)
+            {
+                _isFunc = wantsFunc;
+                bool capturedIsFunc = wantsFunc;
+
+                OnPingDocument()?.ScheduleSolution(5, d =>
+                {
+                    IGH_Param existingReturnType = Params.Input.FirstOrDefault(p => p.Name == ReturnTypeParamName);
+
+                    if (capturedIsFunc && existingReturnType == null)
+                    {
+                        Params.RegisterInputParam(new Param_String()
+                        {
+                            Name = ReturnTypeParamName,
+                            NickName = "RT",
+                            Description = "Return type of the function. E.g. num, bool, etc.",
+                            Access = GH_ParamAccess.item
+                        }, staticInputCount);
+                    }
+                    else if (!capturedIsFunc && existingReturnType != null)
+                    {
+                        Params.UnregisterInputParameter(existingReturnType, true);
+                    }
+
+                    Params.OnParametersChanged();
+                });
+                return;
+            }
+
+            _isFunc = wantsFunc;
 
             // Input variables
             List<IAction> actions = new List<IAction>();
             int type = 0;
             string name = "";
             int scope = 0;
+            string returnType = null;
             List<RoutineArgument> arguments = new List<RoutineArgument>();
 
             // Catch the input data
@@ -198,7 +250,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (type < (int)RoutineType.PROC || type > (int)RoutineType.TRAP)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Routine type <" + type + "> is invalid. " +
-                    "It can only be set to 0 or 1. Use 0 for PROC and 1 for TRAP. Other routine types as well as routines with arguments are not supported.");
+                    "It can only be set to 0, 1, or 2. Use 0 for PROC, 1 for FUNC and 2 for TRAP.");
             }
             if (scope < (int)Scope.GLOBAL || scope > (int)Scope.TASK)
             {
@@ -215,10 +267,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 UpdateVariableParameters(_isTrap);
             }
 
+            // Read the Return Type if FUNC. The Return Type slot lives at staticInputCount; the
+            // FUNC param-state branch above guarantees the param exists when _isFunc is true.
+            int variableArgsStart = staticInputCount + (_isFunc ? 1 : 0);
+            if (_isFunc)
+            {
+                DA.GetData(staticInputCount, ref returnType);
+            }
+
             if (!_isTrap)
             {
                 // Get routine arguments from variable input parameters
-                for (int i = staticInputCount; i < Params.Input.Count; i++)
+                for (int i = variableArgsStart; i < Params.Input.Count; i++)
                 {
                     RoutineArgument arg = null;
                     if (DA.GetData(i, ref arg))
@@ -239,9 +299,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             //Generates Output
-            Routine method = new Routine(actions, (RoutineType)type, name, (Scope)scope, arguments);
+            Routine method;
+            if (_isFunc)
+                method = new Routine(actions, (RoutineType)type, returnType, name, (Scope)scope, arguments);
+            else
+                method = new Routine(actions, (RoutineType)type, name, (Scope)scope, arguments);
 
-            //Generates Routine Call if PROC
+            //Generates Routine Call if PROC or FUNC
             List<CodeLine> routineCall = new List<CodeLine>();
             if (method.Type == RoutineType.PROC)
             {
@@ -259,6 +323,25 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }
 
                 call += ";";
+
+                routineCall.Add(new CodeLine(call, CodeType.Instruction));
+            }
+            else if (method.Type == RoutineType.FUNC)
+            {
+                string call = method.Name + "(";
+
+                if (arguments != null && arguments.Count > 0)
+                {
+                    List<string> argValues = new List<string>();
+                    foreach (RoutineArgument arg in arguments)
+                    {
+                        argValues.Add(arg.ToCallString());
+                    }
+
+                    call += string.Join(", ", argValues);
+                }
+
+                call += ");";
 
                 routineCall.Add(new CodeLine(call, CodeType.Instruction));
             }
@@ -296,6 +379,30 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 Params.OnParametersChanged();
             });
         }
+
+        #region serialization
+        /// <summary>
+        /// Serializes the component state. Needed for (de)serialization of the variable input parameters.
+        /// </summary>
+        /// <param name="writer"> Provides access to a subset of GH_Chunk methods used for writing archives. </param>
+        /// <returns> True on success, false on failure. </returns>
+        public override bool Write(GH_IWriter writer)
+        {
+            writer.SetBoolean("IsFunc", _isFunc);
+            return base.Write(writer);
+        }
+
+        /// <summary>
+        /// Deserializes the component state. Needed for (de)serialization of the variable input parameters.
+        /// </summary>
+        /// <param name="reader"> Provides access to a subset of GH_Chunk methods used for reading archives. </param>
+        /// <returns> True on success, false on failure. </returns>
+        public override bool Read(GH_IReader reader)
+        {
+            _isFunc = reader.GetBoolean("IsFunc");
+            return base.Read(reader);
+        }
+        #endregion
 
         #region properties
         /// <summary>

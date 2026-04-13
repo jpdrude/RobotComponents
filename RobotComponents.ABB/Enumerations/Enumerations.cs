@@ -124,9 +124,67 @@ namespace RobotComponents.ABB.Enumerations
         PROC = 0,
 
         /// <summary>
+        /// Funtion
+        /// </summary>
+        FUNC = 1,
+
+        /// <summary>
         /// Trap (Interrupt)
         /// </summary>
-        TRAP = 1
+        TRAP = 2
+    }
+
+    /// <summary>
+    /// Defines the declaration level of a RAPID variable.
+    /// </summary>
+    public enum RAPIDVariableLevel : int
+    {
+        /// <summary>
+        /// Variable declared at module scope (before any routines).
+        /// </summary>
+        Module = 0,
+
+        /// <summary>
+        /// Variable declared at routine scope (local to a PROC or FUNC).
+        /// </summary>
+        Routine = 1
+    }
+
+    /// <summary>
+    /// Defines the storage keyword for a RAPID variable declaration.
+    /// </summary>
+    public enum RAPIDVariableKeyword : int
+    {
+        /// <summary>
+        /// VAR — standard variable, reset on program start.
+        /// </summary>
+        VAR = 0,
+
+        /// <summary>
+        /// PERS — persistent variable, retains value between program runs.
+        /// </summary>
+        PERS = 1,
+
+        /// <summary>
+        /// INOUT — parameter mode, passed by reference to a routine.
+        /// </summary>
+        INOUT = 2
+    }
+
+    /// <summary>
+    /// Defines callable routine types (routines that can be explicitly called from code).
+    /// </summary>
+    public enum CallableRoutineType : int
+    {
+        /// <summary>
+        /// Procedure — called without parentheses: name arg1, arg2;
+        /// </summary>
+        PROC = 0,
+
+        /// <summary>
+        /// Function — called with parentheses: name(arg1, arg2);
+        /// </summary>
+        FUNC = 1
     }
 
     /// <summary>

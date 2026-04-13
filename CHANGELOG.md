@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-03-09 17:22 
+ Generated on: 2026-03-24 17:17 
  --- 
+ - Merge pull request #5 from jpdrude/WorkshopBugFixes Workshop Bug Fixes 
+  
+   **Commit:** `236fee8` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Rotated ikGeo target plane around z-Axis to provide correct tool orientation. 
+ - The problem wasn't apparent before, because it wasnt tested with assymetric tool geometry. 
+  
+   **Commit:** `bc8ab69` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
  - Adds missing assemblies and corresponding license files to release. 
  - Added assemblies and license locations to Collect-ReleaseFiles.ps1 to accomodate them in release. 
   

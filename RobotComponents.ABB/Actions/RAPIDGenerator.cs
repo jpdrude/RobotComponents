@@ -528,10 +528,28 @@ namespace RobotComponents.ABB.Actions
                             _module.Add("   " + $"{scope} PROC {routine.Name}({string.Join(", ", argValues)})");
                         }
                     }
+                    else if (routine.Type == RoutineType.FUNC)
+                    {
+                        if (routine.Arguments == null)
+                        {
+                            _module.Add("   " + $"{scope} FUNC {routine.ReturnType} {routine.Name}()");
+                        }
+                        else
+                        {
+                            List<string> argValues = new List<string>();
+                            foreach (RoutineArgument arg in routine.Arguments)
+                            {
+                                argValues.Add(arg.ToDeclString());
+                            }
+
+                            _module.Add("   " + $"{scope} FUNC {routine.ReturnType} {routine.Name}({string.Join(", ", argValues)})");
+                        }
+                    }
                     else if (routine.Type == RoutineType.TRAP)
                     {
                         _module.Add("   " + $"{scope} TRAP {routine.Name}");
                     }
+
 
                     _module.AddRange(routineGenerator._programInstructions);
 

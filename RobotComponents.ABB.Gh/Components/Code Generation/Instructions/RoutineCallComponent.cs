@@ -38,7 +38,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
     public class RoutineCallComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
-        private const int staticInputCount = 2;
+        private const int staticInputCount = 3;
+        private bool _expire = false;
         #endregion
 
         /// <summary>
@@ -56,10 +57,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
+            pManager.AddIntegerParameter("Type", "T", "Type of the routine call. Use 0 for PROC, 1 for FUNC.", GH_ParamAccess.item, 0);
             pManager.AddTextParameter("Module Name", "M", "Name of the module where the routine is declared.", GH_ParamAccess.item);
             pManager.AddTextParameter("Routine Name", "N", "Name of the routine.", GH_ParamAccess.item);
 
             pManager[0].Optional = true;
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -154,12 +157,35 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            // Create value list for the Type input if not connected
+            if (this.Params.Input[0].SourceCount == 0)
+            {
+                _expire = true;
+                HelperMethods.CreateValueList(this, typeof(CallableRoutineType), 0);
+            }
+
+            // Expire solution to let the value list attach
+            if (_expire == true)
+            {
+                _expire = false;
+                this.ExpireSolution(true);
+                return;
+            }
+
             string moduleName = "";
             string routineName = "";
+            int type = 0;
             List<string> argValues = new List<string>();
 
-            if (!DA.GetData(0, ref moduleName)) { moduleName = null; }
-            if (!DA.GetData(1, ref routineName)) { return; }
+            if (!DA.GetData(0, ref type)) { type = 0; }
+            if (!DA.GetData(1, ref moduleName)) { moduleName = null; }
+            if (!DA.GetData(2, ref routineName)) { return; }
+
+            if (type < (int)CallableRoutineType.PROC || type > (int)CallableRoutineType.FUNC)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Routine type <" + type + "> is invalid. " +
+                    "It can only be set to 0 or 1. Use 0 for PROC and 1 for FUNC.");
+            }
 
             for (int i = staticInputCount; i < Params.Input.Count; i++)
             {
@@ -170,7 +196,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     object value = gooArg.ScriptVariable();
 
                     if (value is RoutineArgument routineArg)
-                    { 
+                    {
                         argValues.Add(routineArg.ToCallString());
                     }
                     else if (value is IDeclaration decl)
@@ -184,18 +210,33 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }
             }
 
-            string call = $"{routineName}";
-            
+            string name = routineName;
             if (moduleName != null && moduleName != "")
             {
-                call = $"%\"{moduleName}:{routineName}\"%";
+                name = $"%\"{moduleName}:{routineName}\"%";
             }
 
-            if (argValues.Count > 0)
+            string call;
+            bool isFunc = type == (int)CallableRoutineType.FUNC;
+
+            if (isFunc)
             {
-                call += " " + string.Join(", ", argValues);
+                call = name + "(";
+                if (argValues.Count > 0)
+                {
+                    call += string.Join(", ", argValues);
+                }
+                call += ");";
             }
-            call += ";";    
+            else
+            {
+                call = name;
+                if (argValues.Count > 0)
+                {
+                    call += " " + string.Join(", ", argValues);
+                }
+                call += ";";
+            }
 
             DA.SetData(0, new CodeLine(call, CodeType.Instruction));
         }
