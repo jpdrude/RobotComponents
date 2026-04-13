@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components (Modified)
 // Original project: https://github.com/RobotComponents/RobotComponents
 // Modified project: https://github.com/jpdrude/RobotComponents
@@ -12,6 +12,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
@@ -23,181 +24,79 @@ namespace RobotComponents.ABB.Actions.Instructions
     /// <summary>
     /// Represents a Wait for Group Input instruction.
     /// </summary>
-    /// <remarks>
-    /// This action is used to wait until a group input is set.
-    /// </remarks>
     [Serializable()]
     public class WaitGI : IAction, IInstruction, ISerializable
     {
         #region fields
         private string _name;
-        private int _value;
+        private string _valueExpr;
         private double _maxTime;
         #endregion
 
         #region (de)serialization
-        /// <summary>
-        /// Protected constructor needed for deserialization of the object.  
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to extract the data from. </param>
-        /// <param name="context"> The context of this deserialization. </param>
         protected WaitGI(SerializationInfo info, StreamingContext context)
         {
-            //Version version = (Version)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
             _name = (string)info.GetValue("Name", typeof(string));
-            _value = (int)info.GetValue("Value", typeof(int));
+            try { _valueExpr = (string)info.GetValue("ValueExpr", typeof(string)); }
+            catch (SerializationException) { _valueExpr = ((int)info.GetValue("Value", typeof(int))).ToString(CultureInfo.InvariantCulture); }
             _maxTime = (double)info.GetValue("Max Time", typeof(double));
         }
 
-        /// <summary>
-        /// Populates a SerializationInfo with the data needed to serialize the object.
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to populate with data. </param>
-        /// <param name="context"> The destination for this serialization. </param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Name", _name, typeof(string));
-            info.AddValue("Value", _value, typeof(int));
+            info.AddValue("ValueExpr", _valueExpr, typeof(string));
             info.AddValue("Max Time", _maxTime, typeof(double));
         }
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes an empty instance of the Wait GI class.
-        /// </summary>
-        public WaitGI()
-        {
-        }
+        public WaitGI() { }
 
-        /// <summary>
-        /// Initializes a new instance of the Wait DI class.
-        /// </summary>
-        /// <param name="name"> The name of the signal. </param>
-        /// <param name="value"> Specifies the desired value of the Group Input. </param>
-        /// <param name="maxTime"> The maximum time to wait in seconds. </param>
-        public WaitGI(string name, int value, double maxTime = -1)
+        /// <summary>Creates a Wait GI instruction with a RAPID expression for the value.</summary>
+        public WaitGI(string name, string value, double maxTime = -1)
         {
             _name = name;
-            _value = value;
+            _valueExpr = value;
             _maxTime = maxTime;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the Wait GI class by duplicating an existing Wait GI instance. 
-        /// </summary>
-        /// <param name="waitGI"> The Wait GI instance to duplicate. </param>
+        /// <summary>Creates a Wait GI instruction with an integer value (backward compat).</summary>
+        public WaitGI(string name, int value, double maxTime = -1)
+            : this(name, value.ToString(CultureInfo.InvariantCulture), maxTime) { }
+
         public WaitGI(WaitGI waitGI)
         {
-            _name = waitGI.Name;
-            _value = waitGI.Value;
-            _maxTime = waitGI.MaxTime;
+            _name = waitGI._name;
+            _valueExpr = waitGI._valueExpr;
+            _maxTime = waitGI._maxTime;
         }
 
-        /// <summary>
-        /// Returns an exact duplicate of this Wait GI instance.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Wait GI instance.
-        /// </returns>
-        public WaitGI Duplicate()
-        {
-            return new WaitGI(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Wait GI instance as IInstruction.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Wait GI instance as an IInstruction. 
-        /// </returns>
-        public IInstruction DuplicateInstruction()
-        {
-            return new WaitGI(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Wait GI instance as an Action. 
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Wait GI instance as an Action. 
-        /// </returns>
-        public IAction DuplicateAction()
-        {
-            return new WaitGI(this);
-        }
+        public WaitGI Duplicate() => new WaitGI(this);
+        public IInstruction DuplicateInstruction() => new WaitGI(this);
+        public IAction DuplicateAction() => new WaitGI(this);
         #endregion
 
-        #region method
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> 
-        /// A string that represents the current object. 
-        /// </returns>
+        #region methods
         public override string ToString()
         {
-            if (_name == null)
-            {
-                return "Empty Wait for Group Input";
-            }
-            if (!IsValid)
-            {
-                return "Invalid Wait for Group Input";
-            }
-            else
-            {
-                return $"Wait for Group Input ({_name}\\{_value})";
-            }
+            if (_name == null) return "Empty Wait for Group Input";
+            if (!IsValid) return "Invalid Wait for Group Input";
+            return $"Wait for Group Input ({_name}\\{_valueExpr})";
         }
 
-        /// <summary>
-        /// Returns the RAPID declaration code line of the this action.
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// An empty string. 
-        /// </returns>
-        public string ToRAPIDDeclaration(Robot robot)
-        {
-            return string.Empty;
-        }
+        public string ToRAPIDDeclaration(Robot robot) => string.Empty;
 
-        /// <summary>
-        /// Returns the RAPID instruction code line of the this action. 
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// The RAPID code line. 
-        /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
             HelperMethods.ThrowIfInvalidRapidIdentifier(_name);
-
             if (_maxTime > 0)
-            {
-                string result = $"WaitGI {_name}, {_value} ";
-                result += $"\\MaxTime:={_maxTime:0.###}";
-                //result += $"{(_timeFlag ? $"\\TimeFlag:=TRUE" : $"\\TimeFlag:=FALSE")}";
-                result += ";";
-
-                return result;
-            }
-            else
-            {
-                return $"WaitGI {_name}, {_value};";
-            }
+                return $"WaitGI {_name}, {_valueExpr} \\MaxTime:={_maxTime:0.###};";
+            return $"WaitGI {_name}, {_valueExpr};";
         }
 
-        /// <summary>
-        /// Creates declarations and instructions in the RAPID program module inside the RAPID Generator.
-        /// </summary>
-        /// <remarks>
-        /// This method is called inside the RAPID generator.
-        /// </remarks>
-        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
             RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
@@ -205,48 +104,28 @@ namespace RobotComponents.ABB.Actions.Instructions
         #endregion
 
         #region properties
-        /// <summary>
-        /// Gets a value indicating whether or not the object is valid.
-        /// </summary>
         public bool IsValid
         {
             get
             {
-                if (_name == null) { return false; }
-                if (_name == "") { return false; }
-                if (!HelperMethods.IsValidRapidIdentifier(_name)) { return false; }
+                if (_name == null || _name == "") return false;
+                if (!HelperMethods.IsValidRapidIdentifier(_name)) return false;
+                if (string.IsNullOrEmpty(_valueExpr)) return false;
                 return true;
             }
         }
 
-        /// <summary>
-        /// Gets or sets the desired state of the group input signal.
-        /// </summary>
+        public string Name { get { return _name; } set { _name = value; } }
+        public double MaxTime { get { return _maxTime; } set { _maxTime = value; } }
+
+        /// <summary>Gets or sets the value as a RAPID expression string.</summary>
+        public string ValueExpression { get { return _valueExpr; } set { _valueExpr = value; } }
+
+        /// <summary>Gets or sets the value as an integer (backward compat wrapper).</summary>
         public int Value
         {
-            get { return _value; }
-            set { _value = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the digital input signal.
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets te max. time to wait in seconds.
-        /// </summary>
-        /// <remarks>
-        /// Set a negative value to wait forever (default is -1).
-        /// </remarks>
-        public double MaxTime
-        {
-            get { return _maxTime; }
-            set { _maxTime = value; }
+            get { return int.TryParse(_valueExpr, out int i) ? i : 0; }
+            set { _valueExpr = value.ToString(CultureInfo.InvariantCulture); }
         }
         #endregion
     }

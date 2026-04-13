@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
@@ -19,159 +20,72 @@ using RobotComponents.ABB.Definitions;
 namespace RobotComponents.ABB.Actions.Instructions
 {
     /// <summary>
-    /// Represent the Velocity Set instruction.
+    /// Represents the Velocity Set instruction.
     /// </summary>
-    /// <remarks>
-    /// This action is used to override and limit the speed. 
-    /// </remarks>
     [Serializable()]
     public class VelocitySet : IAction, IInstruction, ISerializable
     {
         #region fields
-        private double _override;
-        private double _max;
+        private string _overrideExpr;
+        private string _maxExpr;
         #endregion
 
         #region (de)serialization
-        /// <summary>
-        /// Protected constructor needed for deserialization of the object.  
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to extract the data from. </param>
-        /// <param name="context"> The context of this deserialization. </param>
         protected VelocitySet(SerializationInfo info, StreamingContext context)
         {
-            //Version version = (Version)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
-            _override = (double)info.GetValue("Override", typeof(double));
-            _max = (double)info.GetValue("Max", typeof(double));
+            try { _overrideExpr = (string)info.GetValue("OverrideExpr", typeof(string)); }
+            catch (SerializationException) { _overrideExpr = ((double)info.GetValue("Override", typeof(double))).ToString("0.######", CultureInfo.InvariantCulture); }
+            try { _maxExpr = (string)info.GetValue("MaxExpr", typeof(string)); }
+            catch (SerializationException) { _maxExpr = ((double)info.GetValue("Max", typeof(double))).ToString("0.######", CultureInfo.InvariantCulture); }
         }
 
-        /// <summary>
-        /// Populates a SerializationInfo with the data needed to serialize the object.
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to populate with data. </param>
-        /// <param name="context"> The destination for this serialization. </param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
-            info.AddValue("Override", _override, typeof(double));
-            info.AddValue("Max", _max, typeof(double));
+            info.AddValue("OverrideExpr", _overrideExpr, typeof(string));
+            info.AddValue("MaxExpr", _maxExpr, typeof(string));
         }
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes an empty instance of the Velocity Set class.
-        /// </summary>
-        public VelocitySet()
+        public VelocitySet() { }
+
+        /// <summary>Creates a Velocity Set instruction with RAPID expressions for both values.</summary>
+        public VelocitySet(string @override, string max)
         {
+            _overrideExpr = @override;
+            _maxExpr = max;
         }
 
-        /// <summary>
-        /// Initializes an empty instance of the Velocity Set class.
-        /// </summary>
-        /// <param name="override"> The desired velocity as a percentage of programmed velocity (0-100). </param>
-        /// <param name="max"> The maximum TCP velocity in mm/s. </param>
+        /// <summary>Creates a Velocity Set instruction with double values (backward compat).</summary>
         public VelocitySet(double @override, double max)
-        {
-            _override = @override;
-            _max = max;
-        }
+            : this(@override.ToString("0.######", CultureInfo.InvariantCulture),
+                   max.ToString("0.######", CultureInfo.InvariantCulture)) { }
 
-        /// <summary>
-        /// Initializes a new instance of the Velocity Set class by duplicating an existing Velocity Set instance. 
-        /// </summary>
-        /// <param name="velocitySet"> The Velocity Set instance to duplicate. </param>
         public VelocitySet(VelocitySet velocitySet)
         {
-            _override = velocitySet.Override;
-            _max = velocitySet.Max;
+            _overrideExpr = velocitySet._overrideExpr;
+            _maxExpr = velocitySet._maxExpr;
         }
 
-        /// <summary>
-        /// Returns an exact duplicate of this Velocity Set instance.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Velocity Set instance. 
-        /// </returns>
-        public VelocitySet Duplicate()
-        {
-            return new VelocitySet(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Velocity Set instance as IInstruction.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Velocity Set instance as an IInstruction. 
-        /// </returns>
-        public IInstruction DuplicateInstruction()
-        {
-            return new VelocitySet(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Velocity Set instance as an Action. 
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Velocity Set instance as an Action. 
-        /// </returns>
-        public IAction DuplicateAction()
-        {
-            return new VelocitySet(this);
-        }
+        public VelocitySet Duplicate() => new VelocitySet(this);
+        public IInstruction DuplicateInstruction() => new VelocitySet(this);
+        public IAction DuplicateAction() => new VelocitySet(this);
         #endregion
 
-        #region method
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> 
-        /// A string that represents the current object. 
-        /// </returns>
+        #region methods
         public override string ToString()
         {
-            if (!IsValid)
-            {
-                return "Invalid Velocity Set";
-            }
-            else
-            {
-                return $"Velocity Set";
-            }
+            if (!IsValid) return "Invalid Velocity Set";
+            return "Velocity Set";
         }
 
-        /// <summary>
-        /// Returns the RAPID declaration code line of the this action.
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// An empty string. 
-        /// </returns>
-        public string ToRAPIDDeclaration(Robot robot)
-        {
-            return string.Empty;
-        }
+        public string ToRAPIDDeclaration(Robot robot) => string.Empty;
 
-        /// <summary>
-        /// Returns the RAPID instruction code line of the this action. 
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// The RAPID code line. 
-        /// </returns>
         public string ToRAPIDInstruction(Robot robot)
-        {
-            return $"VelSet {_override:0.###}, {_max:0.###};";
-        }
+            => $"VelSet {_overrideExpr}, {_maxExpr};";
 
-        /// <summary>
-        /// Creates declarations and instructions in the RAPID program module inside the RAPID Generator.
-        /// </summary>
-        /// <remarks>
-        /// This method is called inside the RAPID generator.
-        /// </remarks>
-        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
             RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
@@ -179,39 +93,37 @@ namespace RobotComponents.ABB.Actions.Instructions
         #endregion
 
         #region properties
-        /// <summary>
-        /// Gets a value indicating whether or not the object is valid.
-        /// </summary>
         public bool IsValid
         {
             get
             {
-                if (_override < 0) { return false; }
-                if (_override > 100) { return false; }
-                if (_max <= 0) { return false; }
-                else { return true; }
+                if (string.IsNullOrEmpty(_overrideExpr) || string.IsNullOrEmpty(_maxExpr)) return false;
+                if (double.TryParse(_overrideExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double o))
+                    if (o < 0 || o > 100) return false;
+                if (double.TryParse(_maxExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double m))
+                    if (m <= 0) return false;
+                return true;
             }
         }
 
-        /// <summary>
-        /// Gets or sets the desired velocity as a percentage of programmed velocity.
-        /// </summary>
-        /// <remarks>
-        /// Use values from 0 till 100. 
-        /// </remarks>
+        /// <summary>Gets or sets the velocity override as a RAPID expression string.</summary>
+        public string OverrideExpression { get { return _overrideExpr; } set { _overrideExpr = value; } }
+
+        /// <summary>Gets or sets the max velocity as a RAPID expression string.</summary>
+        public string MaxExpression { get { return _maxExpr; } set { _maxExpr = value; } }
+
+        /// <summary>Gets or sets the velocity override as a double (backward compat wrapper).</summary>
         public double Override
         {
-            get { return _override; }
-            set { _override = value; }
+            get { return double.TryParse(_overrideExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.0; }
+            set { _overrideExpr = value.ToString("0.######", CultureInfo.InvariantCulture); }
         }
 
-        /// <summary>
-        /// Gets or sets the maximum TCP velocity in mm/s.
-        /// </summary>
+        /// <summary>Gets or sets the max velocity as a double (backward compat wrapper).</summary>
         public double Max
         {
-            get { return _max; }
-            set { _max = value; }
+            get { return double.TryParse(_maxExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.0; }
+            set { _maxExpr = value.ToString("0.######", CultureInfo.InvariantCulture); }
         }
         #endregion
     }

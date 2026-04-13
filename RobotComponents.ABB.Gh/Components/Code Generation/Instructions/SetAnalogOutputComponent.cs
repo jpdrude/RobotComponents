@@ -14,8 +14,11 @@ using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -41,7 +44,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name of the analog output signal as text", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Value", "V", "Value of the analg output signal as number", GH_ParamAccess.item);
+            pManager.AddParameter(new Param_RAPIDExpression(), "Value", "V",
+                "Value of the analog output signal. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -59,35 +64,25 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             string name = "";
-            double value = 0.0;
+            GH_RAPIDExpression valueExpr = null;
 
-            // Catch the input data
             if (!DA.GetData(0, ref name)) { return; }
-            if (!DA.GetData(1, ref value)) { return; }
+            if (!DA.GetData(1, ref valueExpr)) { return; }
 
-            // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
-
             if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog output name exceeds character limit of 32 characters.");
-            }
             if (HelperMethods.StringStartsWithNumber(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog output name starts with a number which is not allowed in RAPID code.");
-            }
             if (HelperMethods.StringHasSpecialCharacters(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog output name contains special characters which is not allowed in RAPID code.");
-            }
 
-            // Create the action
-            SetAnalogOutput analogOutput = new SetAnalogOutput(name, value);
+            string value = valueExpr?.Value?.Expression ?? "0";
+            if (!RAPIDExpression.IsValidExpression(value))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Value \"{value}\" does not appear to be a valid RAPID expression.");
 
-            // Output
-            DA.SetData(0, analogOutput);
+            DA.SetData(0, new SetAnalogOutput(name, value));
         }
 
         #region properties

@@ -84,6 +84,15 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Throws<InvalidOperationException>(() => wdi.ToRAPIDInstruction(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            WaitDI wdi = new WaitDI("di1", "myStateVar");
+
+            Assert.Equal("WaitDI di1, myStateVar;", wdi.ToRAPIDInstruction(null));
+        }
     }
 
     public class WaitDOTests
@@ -122,6 +131,15 @@ namespace RobotComponents.Tests.Actions
             WaitDO wdo = new WaitDO("do1;inject", true);
 
             Assert.Throws<InvalidOperationException>(() => wdo.ToRAPIDInstruction(null));
+        }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            WaitDO wdo = new WaitDO("do1", "myStateVar");
+
+            Assert.Equal("WaitDO do1, myStateVar;", wdo.ToRAPIDInstruction(null));
         }
     }
 }

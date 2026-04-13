@@ -3,8 +3,20 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-03-24 17:17 
+ Generated on: 2026-04-13 15:19 
  --- 
+ - Changed Variable assignment to only work on RAPIDVariables, not on variable names. 
+  
+   **Commit:** `25fa6ad` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
+ - Add RAPID variable and FUNC support to code generation - Add RAPIDVariable class, Grasshopper Goo, and parameter type - New RAPIDVariableComponent for variable declarations (VAR/PERS/INOUT) - Add AssignVariableValueComponent for assignments - Support FUNC routines: RoutineType.FUNC, return type, serialization - RoutineCallComponent now supports PROC and FUNC calls - Add enums for variable level, keyword, and callable routine type - Dynamic value lists and input management for better UX 
+  
+   **Commit:** `7965100` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
  - Merge pull request #5 from jpdrude/WorkshopBugFixes Workshop Bug Fixes 
   
    **Commit:** `236fee8` | **Date:** 2026-03-09 

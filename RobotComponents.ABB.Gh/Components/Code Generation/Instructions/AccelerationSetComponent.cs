@@ -13,9 +13,14 @@
 using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+// Grasshopper Libs (additional)
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -39,8 +44,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Acceleration", "A", "Defines the acceleration and deceleration as a percentage (20-100) of the normal values as a Number.", GH_ParamAccess.item, 100);
-            pManager.AddNumberParameter("Ramp", "R", "Defines the rate at which acceleration and deceleration increases as a percentage (10-100) of the normal values as a Number.", GH_ParamAccess.item, 100);
+            var accelParam = new Param_RAPIDExpression();
+            accelParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(100.0)), new GH_Path(0));
+            pManager.AddParameter(accelParam, "Acceleration", "A",
+                "Acceleration and deceleration as a percentage (20-100) of normal values. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
+            var rampParam = new Param_RAPIDExpression();
+            rampParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(100.0)), new GH_Path(0));
+            pManager.AddParameter(rampParam, "Ramp", "R",
+                "Rate at which acceleration increases as a percentage (10-100) of normal values. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -58,19 +71,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
-            double acceleration = 100;
-            double ramp = 100;
+            GH_RAPIDExpression accelerationExpr = null;
+            GH_RAPIDExpression rampExpr = null;
 
-            // Catch the input data
-            if (!DA.GetData(0, ref acceleration)) { return; }
-            if (!DA.GetData(1, ref ramp)) { return; }
+            if (!DA.GetData(0, ref accelerationExpr)) { return; }
+            if (!DA.GetData(1, ref rampExpr)) { return; }
 
-            // Create the action
-            AccelerationSet accelerationSet = new AccelerationSet(acceleration, ramp);
+            string acceleration = accelerationExpr?.Value?.Expression ?? "100";
+            string ramp = rampExpr?.Value?.Expression ?? "100";
+            if (!RAPIDExpression.IsValidExpression(acceleration))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Acceleration \"{acceleration}\" does not appear to be a valid RAPID expression.");
+            if (!RAPIDExpression.IsValidExpression(ramp))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Ramp \"{ramp}\" does not appear to be a valid RAPID expression.");
 
-            // Output
-            DA.SetData(0, accelerationSet);
+            DA.SetData(0, new AccelerationSet(acceleration, ramp));
         }
 
         #region properties

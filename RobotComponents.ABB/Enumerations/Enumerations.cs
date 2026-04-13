@@ -172,6 +172,21 @@ namespace RobotComponents.ABB.Enumerations
     }
 
     /// <summary>
+    /// Defines the expected RAPID data type of a RAPIDExpression, used as an advisory hint.
+    /// </summary>
+    public enum RAPIDDataType : int
+    {
+        /// <summary>No type constraint — any expression is accepted.</summary>
+        Any = 0,
+        /// <summary>Numeric value (num or dnum).</summary>
+        Num = 1,
+        /// <summary>Boolean value (bool).</summary>
+        Bool = 2,
+        /// <summary>String value (string).</summary>
+        String = 3
+    }
+
+    /// <summary>
     /// Defines callable routine types (routines that can be explicitly called from code).
     /// </summary>
     public enum CallableRoutineType : int

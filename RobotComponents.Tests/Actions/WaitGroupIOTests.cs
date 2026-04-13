@@ -56,6 +56,15 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Throws<InvalidOperationException>(() => wgi.ToRAPIDInstruction(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            WaitGI wgi = new WaitGI("gi1", "myGroupVal");
+
+            Assert.Equal("WaitGI gi1, myGroupVal;", wgi.ToRAPIDInstruction(null));
+        }
     }
 
     public class WaitGOTests
@@ -92,6 +101,15 @@ namespace RobotComponents.Tests.Actions
             WaitGO wgo = new WaitGO("go1;inject", 42);
 
             Assert.Throws<InvalidOperationException>(() => wgo.ToRAPIDInstruction(null));
+        }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            WaitGO wgo = new WaitGO("go1", "myGroupVal");
+
+            Assert.Equal("WaitGO go1, myGroupVal;", wgo.ToRAPIDInstruction(null));
         }
     }
 }

@@ -65,6 +65,15 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Throws<InvalidOperationException>(() => wai.ToRAPIDInstruction(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            WaitAI wai = new WaitAI("ai1", "threshold", InequalitySymbol.GT);
+
+            Assert.Equal("WaitAI ai1, \\GT, threshold;", wai.ToRAPIDInstruction(null));
+        }
     }
 
     public class WaitAOTests
@@ -101,6 +110,15 @@ namespace RobotComponents.Tests.Actions
             WaitAO wao = new WaitAO("ao1;inject", 5.0, InequalitySymbol.LT);
 
             Assert.Throws<InvalidOperationException>(() => wao.ToRAPIDInstruction(null));
+        }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            WaitAO wao = new WaitAO("ao1", "threshold", InequalitySymbol.LT);
+
+            Assert.Equal("WaitAO ao1, \\LT, threshold;", wao.ToRAPIDInstruction(null));
         }
     }
 }

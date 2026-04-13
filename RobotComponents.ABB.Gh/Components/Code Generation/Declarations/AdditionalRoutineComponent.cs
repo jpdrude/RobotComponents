@@ -21,6 +21,7 @@ using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
@@ -44,6 +45,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _previousIsTrap = false;
         private const int staticInputCount = 4;
         private const string ReturnTypeParamName = "Return Type";
+        private const string ReturnValueOutputName = "Return Value";
         #endregion
 
         /// <summary>
@@ -200,16 +202,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             DA.GetData(1, ref typeProbe);
             bool wantsFunc = typeProbe == (int)RoutineType.FUNC;
             bool hasReturnTypeParam = Params.Input.Any(p => p.Name == ReturnTypeParamName);
+            bool hasReturnValueOutput = Params.Output.Any(p => p.Name == ReturnValueOutputName);
 
-            if (wantsFunc != hasReturnTypeParam)
+            if (wantsFunc != hasReturnTypeParam || wantsFunc != hasReturnValueOutput)
             {
                 _isFunc = wantsFunc;
                 bool capturedIsFunc = wantsFunc;
 
                 OnPingDocument()?.ScheduleSolution(5, d =>
                 {
+                    // Reconcile Return Type input
                     IGH_Param existingReturnType = Params.Input.FirstOrDefault(p => p.Name == ReturnTypeParamName);
-
                     if (capturedIsFunc && existingReturnType == null)
                     {
                         Params.RegisterInputParam(new Param_String()
@@ -223,6 +226,23 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     else if (!capturedIsFunc && existingReturnType != null)
                     {
                         Params.UnregisterInputParameter(existingReturnType, true);
+                    }
+
+                    // Reconcile Return Value output
+                    IGH_Param existingReturnValue = Params.Output.FirstOrDefault(p => p.Name == ReturnValueOutputName);
+                    if (capturedIsFunc && existingReturnValue == null)
+                    {
+                        Params.RegisterOutputParam(new Param_RAPIDExpression()
+                        {
+                            Name = ReturnValueOutputName,
+                            NickName = "RV",
+                            Description = "The FUNC call as a RAPID expression, usable as a value in other instructions.",
+                            Access = GH_ParamAccess.item
+                        });
+                    }
+                    else if (!capturedIsFunc && existingReturnValue != null)
+                    {
+                        Params.UnregisterOutputParameter(existingReturnValue, true);
                     }
 
                     Params.OnParametersChanged();
@@ -349,6 +369,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Sets Output
             DA.SetData(0, method);
             DA.SetDataList(1, routineCall);
+
+            // For FUNC routines, output the call expression so it can be wired into value inputs
+            if (_isFunc && Params.Output.Count > 2)
+            {
+                string argList = arguments.Count > 0 ? string.Join(", ", arguments.Select(a => a.ToCallString())) : "";
+                DA.SetData(2, new GH_RAPIDExpression(new RAPIDExpression($"{method.Name}({argList})")));
+            }
 
             if (method.Type == RoutineType.TRAP)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "TRAP routines need to be connected using custom code and interrupt logic.");

@@ -46,5 +46,22 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Throws<InvalidOperationException>(() => sao.ToRAPIDInstruction(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            SetAnalogOutput sao = new SetAnalogOutput("ao1", "myNumVar");
+
+            Assert.Equal("SetAO ao1, myNumVar;", sao.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void FunctionCallExpression_EmittedVerbatim()
+        {
+            SetAnalogOutput sao = new SetAnalogOutput("ao1", "Abs(sensorValue)");
+
+            Assert.Equal("SetAO ao1, Abs(sensorValue);", sao.ToRAPIDInstruction(null));
+        }
     }
 }

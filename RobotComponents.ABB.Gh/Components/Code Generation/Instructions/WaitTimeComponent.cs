@@ -16,9 +16,13 @@
 using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -43,7 +47,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddBooleanParameter("In Position", "P", "Specifies whether or not the mechanial units must have come to a standstill before the wait time starts.", GH_ParamAccess.item, false);
-            pManager.AddNumberParameter("Duration", "D", "Duration in seconds as a number", GH_ParamAccess.item, 1.0);
+            var durationParam = new Param_RAPIDExpression();
+            durationParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(1.0)), new GH_Path(0));
+            pManager.AddParameter(durationParam, "Duration", "D",
+                "Duration in seconds. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -61,19 +69,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             bool inPosition = false;
-            double duration = 0;
+            GH_RAPIDExpression durationExpr = null;
 
-            // Catch the input variables
             if (!DA.GetData(0, ref inPosition)) { return; }
-            if (!DA.GetData(1, ref duration)) { return; }
+            if (!DA.GetData(1, ref durationExpr)) { return; }
 
-            // Create the action
-            WaitTime timer = new WaitTime(duration, inPosition);
+            string duration = durationExpr?.Value?.Expression ?? "1";
+            if (!RAPIDExpression.IsValidExpression(duration))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Duration \"{duration}\" does not appear to be a valid RAPID expression.");
 
-            // Output
-            DA.SetData(0, timer);
+            DA.SetData(0, new WaitTime(duration, inPosition));
         }
 
         #region properties

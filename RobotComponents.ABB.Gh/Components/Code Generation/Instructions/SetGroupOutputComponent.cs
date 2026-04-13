@@ -11,19 +11,18 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
+using System;
+using System.Collections.Generic;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
-using RobotComponents.ABB.Actions.Declarations;
-
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -52,7 +51,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name of the group output signal as text", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Value", "V", "Value of the group output signal as integer", GH_ParamAccess.item, 0);
+            var valueParam = new Param_RAPIDExpression();
+            valueParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0)), new Grasshopper.Kernel.Data.GH_Path(0));
+            pManager.AddParameter(valueParam, "Value", "V",
+                "Value of the group output signal. Accepts an integer, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -149,43 +152,30 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             string name = "";
-            int value = 0;
+            GH_RAPIDExpression valueExpr = null;
             List<int> bitValues = new List<int>();
             bool bitInput = false;
 
-            // Catch the input data
             if (!DA.GetData(0, ref name)) { return; }
-            if (!DA.GetData(1, ref value)) { return; }
+            if (!DA.GetData(1, ref valueExpr)) { return; }
 
-            // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
-
             if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name exceeds character limit of 32 characters.");
-            }
             if (HelperMethods.StringStartsWithNumber(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name starts with a number which is not allowed in RAPID code.");
-            }
             if (HelperMethods.StringHasSpecialCharacters(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name contains special characters which is not allowed in RAPID code.");
-            }
 
-            // Gets bitmask values from variable input parameters
+            // Bitmask inputs override the Value input when connected
             for (int i = staticInputCount; i < Params.Input.Count; i++)
             {
                 bool bitValue = false;
                 if (DA.GetData(i, ref bitValue))
                 {
                     bitInput = true;
-                    if (bitValue)
-                        bitValues.Add(1 << (i - staticInputCount));
-                    else
-                        bitValues.Add(0);
+                    bitValues.Add(bitValue ? 1 << (i - staticInputCount) : 0);
                 }
                 else
                 {
@@ -193,22 +183,23 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }
             }
 
+            string valueStr;
+            int valueInt = 0;
             if (bitInput)
             {
-                value = 0;
-
-                foreach (int bit in bitValues)
-                {
-                    value = value | bit;
-                }
+                foreach (int bit in bitValues) valueInt |= bit;
+                valueStr = valueInt.ToString();
+            }
+            else
+            {
+                valueStr = valueExpr?.Value?.Expression ?? "0";
+                if (!RAPIDExpression.IsValidExpression(valueStr))
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Value \"{valueStr}\" does not appear to be a valid RAPID expression.");
+                int.TryParse(valueStr, out valueInt);
             }
 
-            // Create the action
-            SetGroupOutput groupOutput = new SetGroupOutput(name, value);
-
-            // Output
-            DA.SetData(0, groupOutput);
-            DA.SetData(1, value);
+            DA.SetData(0, new SetGroupOutput(name, valueStr));
+            DA.SetData(1, valueInt);
         }
 
         #region properties

@@ -15,8 +15,11 @@ using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -42,7 +45,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name of the group output signal as text.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("State", "S", "Desired state of the group output signal as integer.", GH_ParamAccess.item);
+            pManager.AddParameter(new Param_RAPIDExpression(), "State", "S",
+                "Desired state of the group output signal. Accepts an integer, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -59,35 +64,25 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <param name="DA">The DA object can be used to retrieve data from input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             string name = "";
-            int value = 0;
+            GH_RAPIDExpression valueExpr = null;
 
-            // Catch the input data
             if (!DA.GetData(0, ref name)) { return; }
-            if (!DA.GetData(1, ref value)) { return; }
+            if (!DA.GetData(1, ref valueExpr)) { return; }
 
-            // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
-
             if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name exceeds character limit of 32 characters.");
-            }
             if (HelperMethods.StringStartsWithNumber(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name starts with a number which is not allowed in RAPID code.");
-            }
             if (HelperMethods.StringHasSpecialCharacters(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Group output name contains special characters which is not allowed in RAPID code.");
-            }
 
-            // Create the action
-            WaitGO waitGO = new WaitGO(name, value);
+            string value = valueExpr?.Value?.Expression ?? "0";
+            if (!RAPIDExpression.IsValidExpression(value))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"State value \"{value}\" does not appear to be a valid RAPID expression.");
 
-            // Sets Output
-            DA.SetData(0, waitGO);
+            DA.SetData(0, new WaitGO(name, value));
         }
 
         #region properties

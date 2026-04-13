@@ -147,7 +147,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_CodeLine(), "Routine Call", "C", "Call to routine to enter into RAPID Code", GH_ParamAccess.list);
+            pManager.RegisterParam(new Param_CodeLine(), "Routine Call", "C", "Call to routine to enter into RAPID Code", GH_ParamAccess.item);
+            pManager.RegisterParam(new Param_RAPIDExpression(), "Routine Call Expression", "E", "Call to routine to enter into RAPID Code as expression. Only for FUNC type.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -176,6 +177,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             string routineName = "";
             int type = 0;
             List<string> argValues = new List<string>();
+            RAPIDExpression expression = null;
 
             if (!DA.GetData(0, ref type)) { type = 0; }
             if (!DA.GetData(1, ref moduleName)) { moduleName = null; }
@@ -226,7 +228,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 {
                     call += string.Join(", ", argValues);
                 }
-                call += ");";
+                call += ")";
+
+                expression = new RAPIDExpression(call);
+                call += ";";
             }
             else
             {
@@ -239,6 +244,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             DA.SetData(0, new CodeLine(call, CodeType.Instruction));
+            if (isFunc)
+            {
+                DA.SetData(1, expression);
+            }
         }
 
         #region properties
