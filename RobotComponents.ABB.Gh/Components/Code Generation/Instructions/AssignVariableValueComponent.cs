@@ -45,8 +45,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Variable", "V",
-                "Variable to assign to. Connect a RAPID Variable param or a plain text variable name.",
+            pManager.AddParameter(new Param_RAPIDVariable(), "Variable", "V",
+                "Variable to assign to. Connect a RAPID Variable param.",
                 GH_ParamAccess.item);
             pManager.AddTextParameter("Value", "Val",
                 "Value to assign. Any valid RAPID expression, e.g. 42, TRUE, \"hello\".",
@@ -64,7 +64,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.RegisterParam(new Param_CodeLine(), "Assignment", "A",
                 "RAPID assignment instruction: variableName := value;",
                 GH_ParamAccess.item);
-            pManager.AddTextParameter("Name", "N", "Variable name.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -72,48 +71,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IGH_Goo variableGoo = null;
+            RAPIDVariable variable = null;
             string value = "";
 
-            if (!DA.GetData(0, ref variableGoo)) { return; }
+            if (!DA.GetData(0, ref variable)) { return; }
             if (!DA.GetData(1, ref value)) { return; }
 
-            // Try to extract a RAPIDVariable from the input
-            RAPIDVariable variable = null;
-            string variableName = null;
 
-            if (variableGoo is GH_RAPIDVariable rapidVarGoo)
+            if (string.IsNullOrWhiteSpace(variable.Name))
             {
-                variable = rapidVarGoo.Value;
-                variableName = variable?.Name;
-            }
-            else
-            {
-                // Try casting to RAPIDVariable directly
-                RAPIDVariable directVar = null;
-                if (variableGoo.CastTo(out directVar) && directVar != null)
-                {
-                    variable = directVar;
-                    variableName = variable.Name;
-                }
-                else
-                {
-                    // Fall back to interpreting the input as a plain text name
-                    GH_String ghStr = null;
-                    if (variableGoo.CastTo(out ghStr) && ghStr != null)
-                    {
-                        variableName = ghStr.Value;
-                    }
-                    else
-                    {
-                        variableName = variableGoo.ToString();
-                    }
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(variableName))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Variable name is empty.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Variable doesnt have a name.");
                 return;
             }
 
@@ -123,11 +90,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 return;
             }
 
-            string code = $"{variableName} := {value.Trim()};";
+            variable.Value = value.Trim();
+            string code = $"{variable.Name} := {value.Trim()};";
 
             DA.SetData(0, variable);
             DA.SetData(1, new CodeLine(code, CodeType.Instruction));
-            DA.SetData(2, variableName);
         }
 
         #region properties

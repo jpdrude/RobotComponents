@@ -70,7 +70,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             pManager.RegisterParam(new Param_RAPIDVariable(), "Variable", "V", "Resulting RAPID variable declaration.", GH_ParamAccess.item);
             pManager.RegisterParam(new Param_CodeLine(), "Variable Declaration", "VD", "RAPID code line representing the variable declaration. Notice, routine variables are always local and have to be declared at the beginning of a routine.", GH_ParamAccess.item);
-            pManager.AddTextParameter("Name", "N", "Variable name.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -146,7 +145,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             DA.SetData(0, variable);
             DA.SetData(1, ToRAPIDDeclaration(variable));
-            DA.SetData(2, variable.Name);
         }
 
         #region Additional Methods
