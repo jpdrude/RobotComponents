@@ -11,7 +11,8 @@
       "Bash(find:*)",
       "Bash(dotnet test:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions.ps1\")",
-      "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions2.ps1\")"
+      "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions2.ps1\")",
+      "Bash(dotnet build:*)"
     ]
   }
 }

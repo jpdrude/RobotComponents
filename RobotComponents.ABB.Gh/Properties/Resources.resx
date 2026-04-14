@@ -742,4 +742,10 @@
   <data name="NumEntryBox_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\NumEntryBox_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="ComparisonSymbolValueList_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ComparisonSymbolValueList_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EmptyLine_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EmptyLine_Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

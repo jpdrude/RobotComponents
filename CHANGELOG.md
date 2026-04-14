@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-14 17:46 
+ Generated on: 2026-04-14 19:29 
  --- 
+ - Add consistent indentation for generated RAPID code Introduces IndentationLevel to IAction and all action classes, enabling proper indentation of generated RAPID code, especially for nested control-flow constructs (FOR, WHILE, IF, MessageBox). Control-flow components now increment IndentationLevel for their body actions, and all ToRAPIDGenerator methods apply the correct indentation. Improves code readability and maintainability. 
+  
+   **Commit:** `3e9f81b` | **Date:** 2026-04-14 
+ 
+ --- 
+ 
  - Add advanced RAPID flow control and array support - Introduce For, While, and If statement components for RAPID code generation, including dynamic ELSEIF/ELSE branching and comparison operator value lists. 
  	 - Add NumEntryBox and EmptyLine components for user input and code formatting. 
  	 - Enhance RAPIDVariable and AssignVariableValue components with right-click array mode, improved validation, and new icons. 

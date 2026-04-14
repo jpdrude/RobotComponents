@@ -283,6 +283,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ComparisonSymbolValueList_Icon {
+            get {
+                object obj = ResourceManager.GetObject("ComparisonSymbolValueList_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ConfigurationData_Icon {
             get {
                 object obj = ResourceManager.GetObject("ConfigurationData_Icon", resourceCulture);
@@ -516,6 +526,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap DigitalOutput_Parameter_Icon {
             get {
                 object obj = ResourceManager.GetObject("DigitalOutput_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap EmptyLine_Icon {
+            get {
+                object obj = ResourceManager.GetObject("EmptyLine_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

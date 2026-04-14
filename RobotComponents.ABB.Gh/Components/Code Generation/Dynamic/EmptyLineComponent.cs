@@ -85,7 +85,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.Comment_Icon; }
+            get { return Properties.Resources.EmptyLine_Icon; }
         }
 
         /// <summary>

@@ -92,7 +92,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration.ValueLists
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.InequalitySymbolValueList_Icon; }
+            get { return Properties.Resources.ComparisonSymbolValueList_Icon; }
         }
 
         /// <summary>
