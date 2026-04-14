@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-13 15:19 
+ Generated on: 2026-04-14 09:19 
  --- 
+ - Add RAPIDExpression support for IO and wait components - Introduced RAPIDExpression type for literals, variables, and expressions - Added GH_RAPIDExpression Goo and Param_RAPIDExpression parameter - Refactored IO/wait/action classes to accept expressions as input - Components now allow variables/functions as input, not just numbers - Added validation and warnings for invalid RAPID expressions - Updated RoutineCall/AdditionalRoutine to output FUNC expressions - Added comprehensive unit tests for RAPIDExpression and affected actions - Updated changelog and CI for CodingFeatures branch 
+  
+   **Commit:** `0ccd3d6` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
  - Changed Variable assignment to only work on RAPIDVariables, not on variable names. 
   
    **Commit:** `25fa6ad` | **Date:** 2026-04-13 

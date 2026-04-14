@@ -143,6 +143,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap AssignVariable_Icon {
+            get {
+                object obj = ResourceManager.GetObject("AssignVariable_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Auto_Icon {
             get {
                 object obj = ResourceManager.GetObject("Auto_Icon", resourceCulture);
@@ -513,6 +523,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Expression_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("Expression_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ExternalAxis_Parameter_Icon {
             get {
                 object obj = ResourceManager.GetObject("ExternalAxis_Parameter_Icon", resourceCulture);
@@ -596,6 +616,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap FlipPlaneY_Icon {
             get {
                 object obj = ResourceManager.GetObject("FlipPlaneY_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ForLoop_Icon {
+            get {
+                object obj = ResourceManager.GetObject("ForLoop_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -816,6 +846,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap GroupOutput_Parameter_Icon {
             get {
                 object obj = ResourceManager.GetObject("GroupOutput_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap IfStatement_Icon {
+            get {
+                object obj = ResourceManager.GetObject("IfStatement_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1206,6 +1246,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap Naming_Icon {
             get {
                 object obj = ResourceManager.GetObject("Naming_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NumEntryBox_Icon {
+            get {
+                object obj = ResourceManager.GetObject("NumEntryBox_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1813,6 +1863,26 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Variable_Icon {
+            get {
+                object obj = ResourceManager.GetObject("Variable_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Variable_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("Variable_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap VariableNameCheck_Icon {
             get {
                 object obj = ResourceManager.GetObject("VariableNameCheck_Icon", resourceCulture);
@@ -1996,6 +2066,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         internal static System.Drawing.Bitmap WaitSyncTask_Parameter_Icon {
             get {
                 object obj = ResourceManager.GetObject("WaitSyncTask_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WhileLoop_Icon {
+            get {
+                object obj = ResourceManager.GetObject("WhileLoop_Icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

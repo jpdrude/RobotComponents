@@ -292,6 +292,30 @@ namespace RobotComponents.ABB.Enumerations
     }
 
     /// <summary>
+    /// Defines comparison operators for use in RAPID conditional constructs (e.g. WHILE loops).
+    /// </summary>
+    public enum ComparisonOperator : int
+    {
+        /// <summary>Less than (&lt;)</summary>
+        LT = 0,
+
+        /// <summary>Greater than (&gt;)</summary>
+        GT = 1,
+
+        /// <summary>Less than or equal (&lt;=)</summary>
+        LE = 2,
+
+        /// <summary>Greater than or equal (&gt;=)</summary>
+        GE = 3,
+
+        /// <summary>Equal (=)</summary>
+        EQ = 4,
+
+        /// <summary>Not equal (&lt;&gt;)</summary>
+        NE = 5
+    }
+
+    /// <summary>
     /// Defines predefined speeddata values.
     /// </summary>
     public enum PredefinedSpeedData : int

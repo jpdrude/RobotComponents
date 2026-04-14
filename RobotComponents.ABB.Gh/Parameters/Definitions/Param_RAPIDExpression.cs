@@ -42,7 +42,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Definitions
         /// <inheritdoc/>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.CodeLine_Parameter_Icon; }
+            get { return Properties.Resources.Expression_Parameter_Icon; }
         }
 
         /// <inheritdoc/>

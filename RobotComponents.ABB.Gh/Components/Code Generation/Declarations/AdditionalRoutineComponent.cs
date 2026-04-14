@@ -53,7 +53,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public AdditionalRoutineComponent() : base("Routine", "R", "Code Generation",
+        public AdditionalRoutineComponent() : base("Routine", "R", "Advanced RAPID Features",
             "Defines manually a PROC, FUNC or TRAP declaration.")
         {
         }
@@ -438,7 +438,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.tertiary; }
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

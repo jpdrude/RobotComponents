@@ -49,7 +49,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public MessageBoxComponent() : base("Message Box", "MB", "Code Generation", 
+        public MessageBoxComponent() : base("Message Box", "MB", "Advanced RAPID Features", 
             "Calls a message box. Different buttons call different code segments.")
         {
         }
