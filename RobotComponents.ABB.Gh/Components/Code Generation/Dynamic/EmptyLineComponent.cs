@@ -30,7 +30,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
-        public EmptyLineComponent() : base("Empty Line", "EL", "Code Generation",
+        public EmptyLineComponent() : base("Empty Line", "EL", "Advanced RAPID Features",
             "Outputs a blank line to add visual spacing inside a RAPID routine.")
         {
         }
@@ -62,14 +62,37 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         #region properties
-        public override GH_Exposure Exposure => GH_Exposure.primary;
-        public override bool Obsolete => false;
+        /// <summary>
+        /// Override the component exposure (makes the tab subcategory).
+        /// Can be set to hidden, primary, secondary, tertiary, quarternary, quinary, senary, septenary and obscure
+        /// </summary>
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.primary; }
+        }
 
+        /// <summary>
+        /// Gets whether this object is obsolete.
+        /// </summary>
+        public override bool Obsolete
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Provides an Icon for every component that will be visible in the User Interface.
+        /// Icons need to be 24x24 pixels.
+        /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
             get { return Properties.Resources.Comment_Icon; }
         }
 
+        /// <summary>
+        /// Each component must have a unique Guid to identify it. 
+        /// It is vital this Guid doesn't change otherwise old ghx files 
+        /// that use the old ID will partially fail during loading.
+        /// </summary>
         public override Guid ComponentGuid
         {
             get { return new Guid("F8C2A4E1-6B37-4D5A-B9F3-2E1C8D5A7B40"); }

@@ -111,7 +111,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             loopCode.Add(new CodeLine($"FOR {counter.Name} FROM {fromStr} TO {toStr} DO", CodeType.Instruction));
             foreach (IAction action in bodyActions)
             {
-                loopCode.Add(action);
+                IAction dup = action.DuplicateAction();
+                dup.IndentationLevel = action.IndentationLevel + 1;
+                loopCode.Add(dup);
             }
             loopCode.Add(new CodeLine("ENDFOR", CodeType.Instruction));
 

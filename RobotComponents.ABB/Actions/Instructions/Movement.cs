@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -719,11 +719,14 @@ namespace RobotComponents.ABB.Actions.Instructions
                 _cirPoint.ToRAPIDGenerator(RAPIDGenerator);
             }
 
-            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
+            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + ToRAPIDInstruction(RAPIDGenerator.Robot));
         }
         #endregion
 
         #region properties
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

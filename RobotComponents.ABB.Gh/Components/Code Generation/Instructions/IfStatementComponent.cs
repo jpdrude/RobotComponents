@@ -150,18 +150,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             List<IAction> code = new List<IAction>();
 
             code.Add(new CodeLine($"IF {ifCond} THEN", CodeType.Instruction));
-            foreach (IAction a in ifActions) code.Add(a);
+            foreach (IAction a in ifActions) { IAction d = a.DuplicateAction(); d.IndentationLevel = a.IndentationLevel + 1; code.Add(d); }
 
             foreach (var (cond, actions) in elseifPairs)
             {
                 code.Add(new CodeLine($"ELSEIF {cond} THEN", CodeType.Instruction));
-                foreach (IAction a in actions) code.Add(a);
+                foreach (IAction a in actions) { IAction d = a.DuplicateAction(); d.IndentationLevel = a.IndentationLevel + 1; code.Add(d); }
             }
 
             if (elseActions.Count > 0)
             {
                 code.Add(new CodeLine("ELSE", CodeType.Instruction));
-                foreach (IAction a in elseActions) code.Add(a);
+                foreach (IAction a in elseActions) { IAction d = a.DuplicateAction(); d.IndentationLevel = a.IndentationLevel + 1; code.Add(d); }
             }
 
             code.Add(new CodeLine("ENDIF", CodeType.Instruction));

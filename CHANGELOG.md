@@ -3,8 +3,20 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-14 09:19 
+ Generated on: 2026-04-14 17:46 
  --- 
+ - Add advanced RAPID flow control and array support - Introduce For, While, and If statement components for RAPID code generation, including dynamic ELSEIF/ELSE branching and comparison operator value lists. 
+ 	 - Add NumEntryBox and EmptyLine components for user input and code formatting. 
+ 	 - Enhance RAPIDVariable and AssignVariableValue components with right-click array mode, improved validation, and new icons. 
+ 	 - Move code generation tools to "Advanced RAPID Features" category and adjust UI exposure. 
+ 	 - Add new icons for variables, expressions, loops, and assignments. 
+ 	 - Add ComparisonOperator enum for conditional constructs. 
+ 	 - Update changelog and resources for new features and improved UX. 
+  
+   **Commit:** `dc06fb1` | **Date:** 2026-04-14 
+ 
+ --- 
+ 
  - Add RAPIDExpression support for IO and wait components - Introduced RAPIDExpression type for literals, variables, and expressions - Added GH_RAPIDExpression Goo and Param_RAPIDExpression parameter - Refactored IO/wait/action classes to accept expressions as input - Components now allow variables/functions as input, not just numbers - Added validation and warnings for invalid RAPID expressions - Updated RoutineCall/AdditionalRoutine to output FUNC expressions - Added comprehensive unit tests for RAPIDExpression and affected actions - Updated changelog and CI for CodingFeatures branch 
   
    **Commit:** `0ccd3d6` | **Date:** 2026-04-13 

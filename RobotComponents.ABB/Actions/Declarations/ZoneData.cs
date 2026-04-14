@@ -501,7 +501,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                     if (!RAPIDGenerator.ZoneDatas.ContainsKey(_name))
                     {
                         RAPIDGenerator.ZoneDatas.Add(_name, this);
-                        RAPIDGenerator.ProgramDeclarations.Add("    " + ToRAPIDDeclaration(RAPIDGenerator.Robot));
+                        RAPIDGenerator.ProgramDeclarations.Add("    " + new string(' ', IndentationLevel * 4) + ToRAPIDDeclaration(RAPIDGenerator.Robot));
                     }
                 }
             }
@@ -509,6 +509,9 @@ namespace RobotComponents.ABB.Actions.Declarations
         #endregion
 
         #region properties
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

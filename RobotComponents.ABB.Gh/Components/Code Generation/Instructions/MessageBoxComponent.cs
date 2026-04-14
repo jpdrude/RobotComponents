@@ -229,7 +229,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 msgBoxCode.Add(new CodeLine($"IF msgBoxAnswer = {answerCounter} THEN", CodeType.Instruction));
                 foreach (IAction action in btnCode)
                 {
-                    msgBoxCode.Add(action);
+                    IAction dup = action.DuplicateAction();
+                    dup.IndentationLevel = action.IndentationLevel + 1;
+                    msgBoxCode.Add(dup);
                 }
                 msgBoxCode.Add(new CodeLine("ENDIF", CodeType.Instruction));
 

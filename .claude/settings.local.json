@@ -9,7 +9,9 @@
       "Bash(gh api:*)",
       "Bash(py:*)",
       "Bash(find:*)",
-      "Bash(dotnet test:*)"
+      "Bash(dotnet test:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions2.ps1\")"
     ]
   }
 }

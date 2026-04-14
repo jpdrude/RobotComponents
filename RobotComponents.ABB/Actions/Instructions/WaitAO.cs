@@ -104,11 +104,14 @@ namespace RobotComponents.ABB.Actions.Instructions
 
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
-            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
+            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + ToRAPIDInstruction(RAPIDGenerator.Robot));
         }
         #endregion
 
         #region properties
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         public bool IsValid
         {
             get

@@ -128,7 +128,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             loopCode.Add(new CodeLine($"WHILE {condition} DO", CodeType.Instruction));
             foreach (IAction action in bodyActions)
             {
-                loopCode.Add(action);
+                IAction dup = action.DuplicateAction();
+                dup.IndentationLevel = action.IndentationLevel + 1;
+                loopCode.Add(dup);
             }
             loopCode.Add(new CodeLine("ENDWHILE", CodeType.Instruction));
 
