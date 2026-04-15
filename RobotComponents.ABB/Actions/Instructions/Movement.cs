@@ -15,6 +15,7 @@
 // System Libs
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // Rhino Libs
@@ -150,8 +151,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -159,7 +161,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = RobotTool.GetEmptyRobotTool(); // Empty Robot Tool
             _workObject = new WorkObject(); // Default work object wobj0
             _setDigitalOutput = new SetDigitalOutput(); // InValid / empty DO
-            CheckCombination();
         }
 
         /// <summary>
@@ -172,8 +173,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -181,7 +183,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = RobotTool.GetEmptyRobotTool(); // Empty Robot Tool
             _workObject = new WorkObject(); // Default work object wobj0
             _setDigitalOutput = new SetDigitalOutput(); // InValid / empty DO
-            CheckCombination();
         }
 
         /// <summary>
@@ -195,8 +196,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData, RobotTool robotTool)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -204,7 +206,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = robotTool;
             _workObject = new WorkObject(); // Default work object wobj0
             _setDigitalOutput = new SetDigitalOutput(); // InValid / empty DO
-            CheckCombination();
         }
 
         /// <summary>
@@ -218,8 +219,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData, WorkObject workObject)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -227,7 +229,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = RobotTool.GetEmptyRobotTool(); // Empty Robot Tool
             _workObject = workObject;
             _setDigitalOutput = new SetDigitalOutput(); // InValid / empty DO
-            CheckCombination();
         }
 
         /// <summary>
@@ -242,8 +243,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData, RobotTool robotTool, WorkObject workObject)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -251,7 +253,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = robotTool;
             _workObject = workObject;
             _setDigitalOutput = new SetDigitalOutput(); // InValid / empty DO
-            CheckCombination();
         }
 
         /// <summary>
@@ -265,8 +266,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData, SetDigitalOutput setDigitalOutput)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -274,7 +276,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = RobotTool.GetEmptyRobotTool(); // Empty Robot Tool
             _workObject = new WorkObject(); // Default work object wobj0
             _setDigitalOutput = setDigitalOutput;
-            CheckCombination();
         }
 
         /// <summary>
@@ -289,8 +290,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData, RobotTool robotTool, SetDigitalOutput setDigitalOutput)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -298,7 +300,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = robotTool;
             _workObject = new WorkObject(); // Default work object wobj0
             _setDigitalOutput = setDigitalOutput;
-            CheckCombination();
         }
 
         /// <summary>
@@ -314,8 +315,9 @@ namespace RobotComponents.ABB.Actions.Instructions
         public Movement(MovementType movementType, ITarget target, SpeedData speedData, ZoneData zoneData, RobotTool robotTool, WorkObject workObject, SetDigitalOutput setDigitalOutput)
         {
             _movementType = movementType;
-            _cirPoint = new RobotTarget(Plane.Unset);
             _target = target;
+            CheckCombination();
+            _cirPoint = new RobotTarget(Plane.Unset);
             _id = -1;
             _speedData = speedData;
             _time = -1;
@@ -323,7 +325,6 @@ namespace RobotComponents.ABB.Actions.Instructions
             _robotTool = robotTool;
             _workObject = workObject;
             _setDigitalOutput = setDigitalOutput;
-            CheckCombination();
         }
 
         /// <summary>
@@ -645,7 +646,7 @@ namespace RobotComponents.ABB.Actions.Instructions
             string speedData = _speedData.Name != "" ? _speedData.Name : _speedData.ToRAPID();
             string zoneData = _zoneData.Name != "" ? _zoneData.Name : _zoneData.ToRAPID();
             target += _id > -1 ? string.Format("\\ID:={0}", _id) : "";
-            speedData += _time > 0 ? string.Format("\\T:={0}", _time) : "";
+            speedData += _time > 0 ? string.Format(CultureInfo.InvariantCulture, "\\T:={0}", _time) : "";
 
             // A movement not combined with a digital output
             if (_setDigitalOutput == null || _setDigitalOutput.IsValid == false)

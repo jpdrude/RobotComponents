@@ -281,6 +281,23 @@ namespace RobotComponents.ABB.Actions
             {
                 _errorText.AddRange(routineGenerator.ErrorText);
             }
+
+            // Enforce axis limits: check every movement for axis violations and abort if any are found
+            if (_enforceAxisLimits)
+            {
+                for (int i = 0; i != actions.Count; i++)
+                {
+                    if (actions[i] is Instructions.Movement movement && movement.Target is Declarations.JointTarget jt)
+                    {
+                        _errorText.AddRange(jt.CheckAxisLimits(_robot));
+                    }
+                }
+
+                if (_errorText.Count > 0)
+                {
+                    return _module; // _module is still empty at this point
+                }
+            }
             #endregion
 
             #region write the module
@@ -486,18 +503,11 @@ namespace RobotComponents.ABB.Actions
             }
 
             // Add the instructions
-            if (_programInstructions.Count != 0)
-            {
-                // Create Program
-                _module.Add("   " + $"{_scope} PROC {_procedureName}()");
-
-                // Add instructions
-                _module.AddRange(_programInstructions);
-
-                // Closes Program
-                _module.Add("    " + "ENDPROC");
-                _module.Add("    ");
-            }
+            // Always emit the PROC/ENDPROC block so the module name and procedure name are always present
+            _module.Add("   " + $"{_scope} PROC {_procedureName}()");
+            _module.AddRange(_programInstructions);
+            _module.Add("    " + "ENDPROC");
+            _module.Add("    ");
 
             //Add additional routines
             if (_additionalRoutines != null)

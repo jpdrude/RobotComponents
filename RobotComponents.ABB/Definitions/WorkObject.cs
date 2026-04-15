@@ -14,6 +14,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // Rhino Libs
@@ -418,18 +419,18 @@ namespace RobotComponents.ABB.Definitions
             result += _externalAxis != null ? $"\"{_externalAxis.Name}\", " : "\"\", ";
 
             // Add user frame coordinate < uframe of pose > < trans of pos >
-            result += $"[[{_userFrame.Origin.X:0.####}, {_userFrame.Origin.Y:0.####}, {_userFrame.Origin.Z:0.####}], ";
+            result += $"[[{_userFrame.Origin.X.ToString("0.####", CultureInfo.InvariantCulture)}, {_userFrame.Origin.Y.ToString("0.####", CultureInfo.InvariantCulture)}, {_userFrame.Origin.Z.ToString("0.####", CultureInfo.InvariantCulture)}], ";
 
             // Add user frame orientation < uframe of pose > < rot of orient >
-            result += $"[{_userFrameOrientation.A:0.#######}, {_userFrameOrientation.B:0.#######}, " +
-                $"{_userFrameOrientation.C:0.#######}, {_userFrameOrientation.D:0.#######}]], ";
+            result += $"[{_userFrameOrientation.A.ToString("0.#######", CultureInfo.InvariantCulture)}, {_userFrameOrientation.B.ToString("0.#######", CultureInfo.InvariantCulture)}, " +
+                $"{_userFrameOrientation.C.ToString("0.#######", CultureInfo.InvariantCulture)}, {_userFrameOrientation.D.ToString("0.#######", CultureInfo.InvariantCulture)}]], ";
 
             // Add object frame coordinate < oframe of pose > < trans of pos >
-            result += $"[[{_objectFrame.Origin.X:0.####}, {_objectFrame.Origin.Y:0.####}, {_objectFrame.Origin.Z:0.####}], ";
+            result += $"[[{_objectFrame.Origin.X.ToString("0.####", CultureInfo.InvariantCulture)}, {_objectFrame.Origin.Y.ToString("0.####", CultureInfo.InvariantCulture)}, {_objectFrame.Origin.Z.ToString("0.####", CultureInfo.InvariantCulture)}], ";
 
             // Add object frame orientation < oframe of pose > < rot of orient >
-            result += $"[{_objectFrameOrientation.A:0.#######}, {_objectFrameOrientation.B:0.#######}, " +
-                $"{_objectFrameOrientation.C:0.#######}, {_objectFrameOrientation.D:0.#######}]]]";
+            result += $"[{_objectFrameOrientation.A.ToString("0.#######", CultureInfo.InvariantCulture)}, {_objectFrameOrientation.B.ToString("0.#######", CultureInfo.InvariantCulture)}, " +
+                $"{_objectFrameOrientation.C.ToString("0.#######", CultureInfo.InvariantCulture)}, {_objectFrameOrientation.D.ToString("0.#######", CultureInfo.InvariantCulture)}]]]";
 
             return result;
         }

@@ -12,6 +12,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
@@ -443,12 +444,12 @@ namespace RobotComponents.ABB.Actions.Declarations
             string code = "";
 
             code += _finep == false ? "[FALSE, " : "[TRUE, ";
-            code += $"{_pzone_tcp}, ";
-            code += $"{_pzone_ori}, ";
-            code += $"{_pzone_eax}, ";
-            code += $"{_zone_ori}, ";
-            code += $"{_zone_leax}, ";
-            code += $"{_zone_reax}]";
+            code += $"{_pzone_tcp.ToString(CultureInfo.InvariantCulture)}, ";
+            code += $"{_pzone_ori.ToString(CultureInfo.InvariantCulture)}, ";
+            code += $"{_pzone_eax.ToString(CultureInfo.InvariantCulture)}, ";
+            code += $"{_zone_ori.ToString(CultureInfo.InvariantCulture)}, ";
+            code += $"{_zone_leax.ToString(CultureInfo.InvariantCulture)}, ";
+            code += $"{_zone_reax.ToString(CultureInfo.InvariantCulture)}]";
 
             return code;
         }

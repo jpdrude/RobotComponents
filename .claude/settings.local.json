@@ -12,7 +12,16 @@
       "Bash(dotnet test:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions.ps1\")",
       "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions2.ps1\")",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Read(//c/Program Files/Rhino 8/System/**)",
+      "Read(//c/Program Files/Rhino 7/System/**)",
+      "Bash(powershell -Command '[System.Reflection.Assembly]::LoadFrom\\('\\\\''C:\\\\Program Files\\\\Rhino 7\\\\System\\\\RhinoCommon.dll'\\\\''\\).GetTypes\\(\\) | Where-Object { $_.Name -like '\\\\''*RhinoCore*'\\\\'' } | Select-Object FullName')",
+      "Bash(where rhcommon_c.dll)",
+      "Bash(sed 's/  Failed //')",
+      "Bash(dotnet package *)",
+      "Bash(curl -s \"https://api.nuget.org/v3-flatcontainer/rhinocommon/index.json\")",
+      "Bash(python -c \"import json,sys; v=json.load\\(sys.stdin\\)['versions']; print\\('\\\\n'.join\\(v[-5:]\\)\\)\")",
+      "Bash(powershell -Command \"[System.Diagnostics.FileVersionInfo]::GetVersionInfo\\('C:\\\\Program Files\\\\Rhino 8\\\\System\\\\RhinoCommon.dll'\\).FileVersion\")"
     ]
   }
 }
