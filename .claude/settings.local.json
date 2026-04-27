@@ -21,7 +21,9 @@
       "Bash(dotnet package *)",
       "Bash(curl -s \"https://api.nuget.org/v3-flatcontainer/rhinocommon/index.json\")",
       "Bash(python -c \"import json,sys; v=json.load\\(sys.stdin\\)['versions']; print\\('\\\\n'.join\\(v[-5:]\\)\\)\")",
-      "Bash(powershell -Command \"[System.Diagnostics.FileVersionInfo]::GetVersionInfo\\('C:\\\\Program Files\\\\Rhino 8\\\\System\\\\RhinoCommon.dll'\\).FileVersion\")"
+      "Bash(powershell -Command \"[System.Diagnostics.FileVersionInfo]::GetVersionInfo\\('C:\\\\Program Files\\\\Rhino 8\\\\System\\\\RhinoCommon.dll'\\).FileVersion\")",
+      "Bash(pwsh -Command 'Install-Module -Name Pester -MinimumVersion 5.0 -Force -SkipPublisherCheck -Scope CurrentUser -ErrorAction SilentlyContinue; $config = New-PesterConfiguration; $config.Run.Path = '\\\\''.github/tests/Extract-Changelog.Tests.ps1'\\\\''; $config.Output.Verbosity = '\\\\''Detailed'\\\\''; Invoke-Pester -Configuration $config')",
+      "PowerShell(New-PesterConfiguration *)"
     ]
   }
 }

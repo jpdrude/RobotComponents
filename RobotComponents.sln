@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E84B28BC-8FC5-4D16-917E-4733DA520162}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI-Tests", "CI-Tests", "{E84B28BC-8FC5-4D16-917E-4733DA520162}"
+	ProjectSection(SolutionItems) = preProject
+		.github\tests\Collect-ReleaseFiles.Tests.ps1 = .github\tests\Collect-ReleaseFiles.Tests.ps1
+		.github\tests\Extract-Changelog.Tests.ps1 = .github\tests\Extract-Changelog.Tests.ps1
+		.github\tests\Generate-InstallInstructions.Tests.ps1 = .github\tests\Generate-InstallInstructions.Tests.ps1
+		.github\tests\Validate-Version.Tests.ps1 = .github\tests\Validate-Version.Tests.ps1
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RobotComponents", "RobotComponents\RobotComponents.csproj", "{198B1A7A-00B4-4A76-BA88-A683ADAB67CE}"
 EndProject
@@ -20,6 +26,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RobotComponents.ABB.Gh2", "RobotComponents.ABB.Gh2\RobotComponents.ABB.Gh2.csproj", "{BB30870D-677C-4DFF-B0C4-4B5B47E207A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotComponents.Tests", "RobotComponents.Tests\RobotComponents.Tests.csproj", "{C1753653-E078-337D-2EB5-56F54094CBAF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\artifact-build.yml = .github\workflows\artifact-build.yml
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
