@@ -7,7 +7,12 @@
       "Bash(git show-ref:*)",
       "Bash(git ls-tree:*)",
       "Bash(gh api:*)",
-      "Bash(py:*)"
+      "Bash(py:*)",
+      "Bash(find:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet build:*)",
+      "Bash(gh pr *)",
+      "Bash(git add *)"
     ]
   }
 }
