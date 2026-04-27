@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-27 16:58 
+ Generated on: 2026-04-27 17:46 
  --- 
+ - Enhance deserialization and legacy migration support. Improve backward compatibility for ABB RAPID components by: - Migrating legacy parameter data in GH_RAPIDExpression.Read to support old GH_Number/GH_Boolean types. - Adding parameter existence checks in RAPIDGeneratorComponent and InverseKinematicsComponent to prevent errors with older files. - Updating changelog and settings.local.json with new tests and diagnostics. 
+  
+   **Commit:** `fe6916f` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
  - Enhance changelog extraction and add CI test scripts - Added CI-Tests and CI Solution Items folders to the solution, referencing test scripts and GitHub workflow files. 
  	 - Improved Extract-Changelog.ps1: added MaxSections/MaxLength params, better handling of missing/empty changelogs, section limiting, and output truncation. 
  	 - Enhanced logging and diagnostics in changelog extraction. 
