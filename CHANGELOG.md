@@ -3,8 +3,57 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-27 17:46 
+ Generated on: 2026-04-27 18:19 
  --- 
+ - Expand Bash commands, bump version, add CLAUDE.md - Bumped RobotComponents version to 1.2.0. 
+ 	 - Added CLAUDE.md with branch strategy and repository structure documentation. 
+  
+   **Commit:** `2f34c1d` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Resolving Merge conflicts introduced by PR #7 
+  
+   **Commit:** `ff582a5` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Finalize PR #7 
+  
+   **Commit:** `2b9ec0b` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Merge pull request #7 from jpdrude/ikgeo CodingFeatures: RAPID language extensions, param consolidation, backwards compat, CI overhaul 
+  
+   **Commit:** `bceeb8d` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - New Icons - Assign Variable - Comparison Symbol Value list - Times Path Generator 
+  
+   **Commit:** `f57dd0f` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Expand allowed Bash command patterns in settings.local.json Added support for additional Bash command patterns: find, dotnet test, dotnet build, gh pr, and git add. This update enables these commands to be recognized or executed according to the configuration. 
+  
+   **Commit:** `952d7c4` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Merge pull request #6 from jpdrude/CodingFeatures CodingFeatures: RAPID language extensions, param consolidation, backwards compat, CI overhaul 
+  
+   **Commit:** `4888ed5` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Changelog update before Release. 
+  
+   **Commit:** `d8ad556` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
  - Enhance deserialization and legacy migration support. Improve backward compatibility for ABB RAPID components by: - Migrating legacy parameter data in GH_RAPIDExpression.Read to support old GH_Number/GH_Boolean types. - Adding parameter existence checks in RAPIDGeneratorComponent and InverseKinematicsComponent to prevent errors with older files. - Updating changelog and settings.local.json with new tests and diagnostics. 
   
    **Commit:** `fe6916f` | **Date:** 2026-04-27 
@@ -81,6 +130,126 @@
  - Add RAPID variable and FUNC support to code generation - Add RAPIDVariable class, Grasshopper Goo, and parameter type - New RAPIDVariableComponent for variable declarations (VAR/PERS/INOUT) - Add AssignVariableValueComponent for assignments - Support FUNC routines: RoutineType.FUNC, return type, serialization - RoutineCallComponent now supports PROC and FUNC calls - Add enums for variable level, keyword, and callable routine type - Dynamic value lists and input management for better UX 
   
    **Commit:** `7965100` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
+ - Update year in header 
+  
+   **Commit:** `c8a969c` | **Date:** 2026-03-31 
+ 
+ --- 
+ 
+ - Enhance geometry preview in PathGenerator component; use ExpirePreview instead of ExpireSolution for more targeted preview updates and ensure path preview is refreshed after component deserialization 
+  
+   **Commit:** `2dfd659` | **Date:** 2026-03-31 
+ 
+ --- 
+ 
+ - Replace ObjectsDeleted event with RemovedFromDocument in components that use an ObjectManager 
+  
+   **Commit:** `32c448e` | **Date:** 2026-03-31 
+ 
+ --- 
+ 
+ - Add check for special characters in signal name; fix incorrect implementation 
+  
+   **Commit:** `cb225ec` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Change year in header 
+  
+   **Commit:** `1c3fdb3` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Bug fix in serialization of WaitTime class 
+  
+   **Commit:** `0cf31a5` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Ensure mastership release with try-finally block 
+  
+   **Commit:** `913c324` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Add return when empty controller is initialized 
+  
+   **Commit:** `3b469de` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Add return in signal class when an empty signal is set 
+  
+   **Commit:** `cc0a476` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Add example files for v4.1.x 
+  
+   **Commit:** `b72e193` | **Date:** 2026-03-30 
+ 
+ --- 
+ 
+ - Update the version number 
+  
+   **Commit:** `06e7bf5` | **Date:** 2026-03-28 
+ 
+ --- 
+ 
+ - Merge pull request #201 from RobotComponents/gofa Gofa 
+  
+   **Commit:** `af65df8` | **Date:** 2026-03-28 
+ 
+ --- 
+ 
+ - Add a Pick Item icon 
+  
+   **Commit:** `8eaaf1a` | **Date:** 2026-03-20 
+ 
+ --- 
+ 
+ - Integration of the GoFa series 
+  
+   **Commit:** `873e111` | **Date:** 2026-03-20 
+ 
+ --- 
+ 
+ - Update the info component 
+  
+   **Commit:** `140c05d` | **Date:** 2026-03-16 
+ 
+ --- 
+ 
+ - Update README.md 
+  
+   **Commit:** `fbcf64c` | **Date:** 2026-03-16 
+ 
+ --- 
+ 
+ - Update zenodo.json 
+  
+   **Commit:** `e17e1be` | **Date:** 2026-03-16 
+ 
+ --- 
+ 
+ - Update RobotComponents.Tests.csproj 
+  
+   **Commit:** `4abe729` | **Date:** 2026-03-16 
+ 
+ --- 
+ 
+ - Add Component Button class 
+  
+   **Commit:** `b818692` | **Date:** 2026-03-16 
+ 
+ --- 
+ 
+ - Add link to ko-fi 
+  
+   **Commit:** `8f84f16` | **Date:** 2026-03-16 
  
  --- 
  
