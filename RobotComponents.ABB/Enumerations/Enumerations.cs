@@ -124,9 +124,82 @@ namespace RobotComponents.ABB.Enumerations
         PROC = 0,
 
         /// <summary>
+        /// Funtion
+        /// </summary>
+        FUNC = 1,
+
+        /// <summary>
         /// Trap (Interrupt)
         /// </summary>
-        TRAP = 1
+        TRAP = 2
+    }
+
+    /// <summary>
+    /// Defines the declaration level of a RAPID variable.
+    /// </summary>
+    public enum RAPIDVariableLevel : int
+    {
+        /// <summary>
+        /// Variable declared at module scope (before any routines).
+        /// </summary>
+        Module = 0,
+
+        /// <summary>
+        /// Variable declared at routine scope (local to a PROC or FUNC).
+        /// </summary>
+        Routine = 1
+    }
+
+    /// <summary>
+    /// Defines the storage keyword for a RAPID variable declaration.
+    /// </summary>
+    public enum RAPIDVariableKeyword : int
+    {
+        /// <summary>
+        /// VAR — standard variable, reset on program start.
+        /// </summary>
+        VAR = 0,
+
+        /// <summary>
+        /// PERS — persistent variable, retains value between program runs.
+        /// </summary>
+        PERS = 1,
+
+        /// <summary>
+        /// INOUT — parameter mode, passed by reference to a routine.
+        /// </summary>
+        INOUT = 2
+    }
+
+    /// <summary>
+    /// Defines the expected RAPID data type of a RAPIDExpression, used as an advisory hint.
+    /// </summary>
+    public enum RAPIDDataType : int
+    {
+        /// <summary>No type constraint — any expression is accepted.</summary>
+        Any = 0,
+        /// <summary>Numeric value (num or dnum).</summary>
+        Num = 1,
+        /// <summary>Boolean value (bool).</summary>
+        Bool = 2,
+        /// <summary>String value (string).</summary>
+        String = 3
+    }
+
+    /// <summary>
+    /// Defines callable routine types (routines that can be explicitly called from code).
+    /// </summary>
+    public enum CallableRoutineType : int
+    {
+        /// <summary>
+        /// Procedure — called without parentheses: name arg1, arg2;
+        /// </summary>
+        PROC = 0,
+
+        /// <summary>
+        /// Function — called with parentheses: name(arg1, arg2);
+        /// </summary>
+        FUNC = 1
     }
 
     /// <summary>
@@ -216,6 +289,30 @@ namespace RobotComponents.ABB.Enumerations
         /// Greater than
         /// </summary>
         GT = 1
+    }
+
+    /// <summary>
+    /// Defines comparison operators for use in RAPID conditional constructs (e.g. WHILE loops).
+    /// </summary>
+    public enum ComparisonOperator : int
+    {
+        /// <summary>Less than (&lt;)</summary>
+        LT = 0,
+
+        /// <summary>Greater than (&gt;)</summary>
+        GT = 1,
+
+        /// <summary>Less than or equal (&lt;=)</summary>
+        LE = 2,
+
+        /// <summary>Greater than or equal (&gt;=)</summary>
+        GE = 3,
+
+        /// <summary>Equal (=)</summary>
+        EQ = 4,
+
+        /// <summary>Not equal (&lt;&gt;)</summary>
+        NE = 5
     }
 
     /// <summary>

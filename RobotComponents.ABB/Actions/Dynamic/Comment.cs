@@ -229,17 +229,21 @@ namespace RobotComponents.ABB.Actions.Dynamic
             {
                 if (_comment != "")
                 {
-                    RAPIDGenerator.ProgramInstructions.Add("    " + "    " + $"! {_comment}");
+                    RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + $"! {_comment}");
                 }
                 else
                 {
-                    RAPIDGenerator.ProgramInstructions.Add("    " + "    ");
+                    RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4));
                 }
             }
         }
         #endregion
 
         #region properties
+        /// <summary>
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

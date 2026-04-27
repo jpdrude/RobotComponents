@@ -117,5 +117,38 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Throws<InvalidOperationException>(() => sdo.ToRAPIDInstruction(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("do1", "myVar");
+
+            Assert.Equal("SetDO do1, myVar;", sdo.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void ArithmeticExpression_EmittedVerbatim()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("do1", "counter + 1");
+
+            Assert.Equal("SetDO do1, counter + 1;", sdo.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void IsValid_TrueWithExpression()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("do1", "myVar");
+
+            Assert.True(sdo.IsValid);
+        }
+
+        [Fact]
+        public void IsValid_FalseWithEmptyExpression()
+        {
+            SetDigitalOutput sdo = new SetDigitalOutput("do1", "");
+
+            Assert.False(sdo.IsValid);
+        }
     }
 }

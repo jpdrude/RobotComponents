@@ -17,8 +17,11 @@ using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -44,7 +47,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name of the digital input signal as text.", GH_ParamAccess.item);
-            pManager.AddBooleanParameter("State", "S", "Desired state of the digital input signal as bool.", GH_ParamAccess.item);
+            pManager.AddParameter(new Param_RAPIDExpression(), "State", "S",
+                "Desired state of the digital input signal. Accepts a boolean (0/1), RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -52,7 +57,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitDI(), "Wait DI", "WDI", "Resulting Wait for Digital Input instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait DI", "WDI", "Resulting Wait for Digital Input instruction");
         }
 
         /// <summary>
@@ -61,35 +66,25 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <param name="DA">The DA object can be used to retrieve data from input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             string name = "";
-            bool value = false;
+            GH_RAPIDExpression valueExpr = null;
 
-            // Catch the input data
             if (!DA.GetData(0, ref name)) { return; }
-            if (!DA.GetData(1, ref value)) { return; }
+            if (!DA.GetData(1, ref valueExpr)) { return; }
 
-            // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
-
             if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital input name exceeds character limit of 32 characters.");
-            }
             if (HelperMethods.StringStartsWithNumber(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital input name starts with a number which is not allowed in RAPID code.");
-            }
             if (HelperMethods.StringHasSpecialCharacters(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital input name contains special characters which is not allowed in RAPID code.");
-            }
 
-            // Create the action
-            WaitDI waitDI = new WaitDI(name, value);
+            string value = valueExpr?.Value?.Expression ?? "0";
+            if (!RAPIDExpression.IsValidExpression(value))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"State value \"{value}\" does not appear to be a valid RAPID expression.");
 
-            // Sets Output
-            DA.SetData(0, waitDI);
+            DA.SetData(0, new WaitDI(name, value));
         }
 
         #region properties

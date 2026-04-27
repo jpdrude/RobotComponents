@@ -640,12 +640,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <returns> True on success, false on failure. </returns>
         public override bool Read(GH_IReader reader)
         {
-            _isSystemModuleInputParam = reader.GetBoolean("Is System Module");
+            if (reader.ItemExists("Is System Module"))
+                _isSystemModuleInputParam = reader.GetBoolean("Is System Module");
             _moduleNameInputParam = reader.GetBoolean("Module Name");
             _routineNameInputParam = reader.GetBoolean("Routine Name");
-            _addMainModuleInputParam = reader.GetBoolean("Main Module");
-            _addAdditionalRoutinesInputParam = reader.GetBoolean("Additional Routines");
-            _routineScopeParam = reader.GetBoolean("Routine Scope");
+            if (reader.ItemExists("Main Module"))
+                _addMainModuleInputParam = reader.GetBoolean("Main Module");
+            if (reader.ItemExists("Additional Routines"))
+                _addAdditionalRoutinesInputParam = reader.GetBoolean("Additional Routines");
+            if (reader.ItemExists("Routine Scope"))
+                _routineScopeParam = reader.GetBoolean("Routine Scope");
             _addLoaddataInputParam = reader.GetBoolean("Add loaddata");
             _addTooldataInputParam = reader.GetBoolean("Add tooldata");
             _addWobjdataInputParam = reader.GetBoolean("Add wobjdata");
@@ -653,9 +657,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             _tooldataOutputParam = reader.GetBoolean("Output tooldata");
             _wobjdataOutputParam = reader.GetBoolean("Output wobjdata");
             if (reader.ItemExists("Enforce Axis Limits"))
-            {
                 _enforceAxisLimitsInputParam = reader.GetBoolean("Enforce Axis Limits");
-            }
             return base.Read(reader);
         }
 

@@ -18,6 +18,7 @@
 // System Libs
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
@@ -631,12 +632,12 @@ namespace RobotComponents.ABB.Actions.Declarations
         {
             string code = "";
 
-            code += $"[{_val1:0.##}, ";
-            code += $"{_val2:0.##}, ";
-            code += $"{_val3:0.##}, ";
-            code += $"{_val4:0.##}, ";
-            code += $"{_val5:0.##}, ";
-            code += $"{_val6:0.##}]";
+            code += $"[{_val1.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_val2.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_val3.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_val4.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_val5.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_val6.ToString("0.##", CultureInfo.InvariantCulture)}]";
 
             return code;
         }
@@ -687,13 +688,16 @@ namespace RobotComponents.ABB.Actions.Declarations
                 if (!RAPIDGenerator.JointPositions.ContainsKey(_name))
                 {
                     RAPIDGenerator.JointPositions.Add(_name, this);
-                    RAPIDGenerator.ProgramDeclarations.Add("    " + ToRAPIDDeclaration(RAPIDGenerator.Robot));
+                    RAPIDGenerator.ProgramDeclarations.Add("    " + new string(' ', IndentationLevel * 4) + ToRAPIDDeclaration(RAPIDGenerator.Robot));
                 }
             }
         }
         #endregion
 
         #region properties
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

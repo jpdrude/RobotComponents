@@ -61,5 +61,54 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Equal(string.Empty, wt.ToRAPIDDeclaration(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableExpression_EmittedVerbatim()
+        {
+            WaitTime wt = new WaitTime("myDelay");
+
+            Assert.Equal("WaitTime myDelay;", wt.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void FunctionCallExpression_EmittedVerbatim()
+        {
+            WaitTime wt = new WaitTime("GetDelay()");
+
+            Assert.Equal("WaitTime GetDelay();", wt.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void IsValid_TrueForVariableString()
+        {
+            WaitTime wt = new WaitTime("myDelay");
+
+            Assert.True(wt.IsValid);
+        }
+
+        [Fact]
+        public void IsValid_FalseForNegativeLiteralString()
+        {
+            WaitTime wt = new WaitTime("-2.0");
+
+            Assert.False(wt.IsValid);
+        }
+
+        [Fact]
+        public void IsValid_FalseForEmptyString()
+        {
+            WaitTime wt = new WaitTime("");
+
+            Assert.False(wt.IsValid);
+        }
+
+        [Fact]
+        public void InPosition_WithExpression_IncludesInPosFlag()
+        {
+            WaitTime wt = new WaitTime("myDelay", true);
+
+            Assert.Equal("WaitTime \\InPos, myDelay;", wt.ToRAPIDInstruction(null));
+        }
     }
 }

@@ -2,9 +2,9 @@ name: CI - Build & Test
 
 on:
   push:
-    branches: [main, ikgeo]
+    branches: [main, ikgeo, CodingFeatures]
   pull_request:
-    branches: [main, ikgeo]
+    branches: [main, ikgeo, CodingFeatures]
 
 jobs:
   build-and-test:

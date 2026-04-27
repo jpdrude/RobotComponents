@@ -46,5 +46,14 @@ namespace RobotComponents.Tests.Actions
 
             Assert.Throws<InvalidOperationException>(() => sgo.ToRAPIDInstruction(null));
         }
+
+        // Expression path
+        [Fact]
+        public void VariableReference_EmittedVerbatim()
+        {
+            SetGroupOutput sgo = new SetGroupOutput("go1", "myGroupVar");
+
+            Assert.Equal("SetGO go1, myGroupVar;", sgo.ToRAPIDInstruction(null));
+        }
     }
 }

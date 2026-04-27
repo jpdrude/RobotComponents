@@ -13,9 +13,14 @@
 using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+// Grasshopper Libs (additional)
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -41,9 +46,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddBooleanParameter("Acceleration Limitation", "AL", "Specifies whether or not the acceleration is limited as a Boolean.", GH_ParamAccess.item, false);
-            pManager.AddNumberParameter("Acceleration Max", "AM", "Defines the absolute value of the acceleration limitation in m/s^2 as a Number.", GH_ParamAccess.item, 0.0);
+            var amParam = new Param_RAPIDExpression();
+            amParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0.0)), new GH_Path(0));
+            pManager.AddParameter(amParam, "Acceleration Max", "AM",
+                "Absolute value of the acceleration limitation in m/s^2. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
             pManager.AddBooleanParameter("Deceleration Limitation", "DL", "Specifies whether or not the deceleration is limited as a Boolean.", GH_ParamAccess.item, false);
-            pManager.AddNumberParameter("Deceleration Max", "DM", "Defines the absolute value of the deceleration limitation in m/s^2 as a Number", GH_ParamAccess.item, 0.0);
+            var dmParam = new Param_RAPIDExpression();
+            dmParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0.0)), new GH_Path(0));
+            pManager.AddParameter(dmParam, "Deceleration Max", "DM",
+                "Absolute value of the deceleration limitation in m/s^2. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -61,23 +74,24 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             bool accelerationLimitation = false;
-            double accelerationMax = 0;
+            GH_RAPIDExpression accelerationMaxExpr = null;
             bool decelerationLimitation = false;
-            double decelerationMax = 0;
+            GH_RAPIDExpression decelerationMaxExpr = null;
 
-            // Catch the input data
             if (!DA.GetData(0, ref accelerationLimitation)) { return; }
-            if (!DA.GetData(1, ref accelerationMax)) { return; }
+            if (!DA.GetData(1, ref accelerationMaxExpr)) { return; }
             if (!DA.GetData(2, ref decelerationLimitation)) { return; }
-            if (!DA.GetData(3, ref decelerationMax)) { return; }
+            if (!DA.GetData(3, ref decelerationMaxExpr)) { return; }
 
-            // Create the action
-            PathAccelerationLimitation pathAccelerationLimitation = new PathAccelerationLimitation(accelerationLimitation, accelerationMax, decelerationLimitation, decelerationMax);
+            string accelerationMax = accelerationMaxExpr?.Value?.Expression ?? "0";
+            string decelerationMax = decelerationMaxExpr?.Value?.Expression ?? "0";
+            if (!RAPIDExpression.IsValidExpression(accelerationMax))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Acceleration Max \"{accelerationMax}\" does not appear to be a valid RAPID expression.");
+            if (!RAPIDExpression.IsValidExpression(decelerationMax))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Deceleration Max \"{decelerationMax}\" does not appear to be a valid RAPID expression.");
 
-            // Output
-            DA.SetData(0, pathAccelerationLimitation);
+            DA.SetData(0, new PathAccelerationLimitation(accelerationLimitation, accelerationMax, decelerationLimitation, decelerationMax));
         }
 
         #region properties

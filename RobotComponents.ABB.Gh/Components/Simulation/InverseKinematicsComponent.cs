@@ -393,7 +393,8 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             _hideMesh = reader.GetBoolean("Set Hide Mesh");
             _outputConfigurationDataParameter = reader.GetBoolean("Output Configuration Data");
             _outputMeshParameter = reader.GetBoolean("Output Posed Meshes");
-            _outputPosedPlanesParameter = reader.GetBoolean("Output Posed Planes");
+            if (reader.ItemExists("Output Posed Planes"))
+                _outputPosedPlanesParameter = reader.GetBoolean("Output Posed Planes");
             _closestRobotJointPosition = reader.GetBoolean("Closest Robot Joint Position");
             _previousRobotJointPositions.Clear();
             _previousRobotJointPositions.AddRange((List<RobotJointPosition>)RobotComponents.Utils.Serialization.ByteArrayToObject(reader.GetByteArray("Previous Robot Joint Positions")));

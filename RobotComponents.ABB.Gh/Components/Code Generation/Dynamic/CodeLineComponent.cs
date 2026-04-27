@@ -39,7 +39,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public CodeLineComponent() : base("Code", "C", "Code Generation", 
+        public CodeLineComponent() : base("Code", "C", "Advanced RAPID Features", 
             "Defines manually an instruction or declaration.")
         {
         }
@@ -128,7 +128,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.tertiary; }
+            get { return GH_Exposure.primary; }
         }
 
         /// <summary>

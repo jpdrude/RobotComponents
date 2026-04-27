@@ -70,6 +70,13 @@ namespace RobotComponents.ABB.Actions
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>
         bool IsValid { get; }
+
+        /// <summary>
+        /// Gets or sets the extra indentation level for this action.
+        /// Each level adds four spaces of indentation inside the generated RAPID routine.
+        /// Set by control-flow components (FOR, WHILE, IF, MessageBox) on their body actions.
+        /// </summary>
+        int IndentationLevel { get; set; }
         #endregion
     }
 }
