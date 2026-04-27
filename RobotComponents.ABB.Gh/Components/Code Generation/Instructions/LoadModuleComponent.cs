@@ -35,7 +35,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public LoadModuleComponent() : base("Load Module", "LM", "Code Generation",
+        public LoadModuleComponent() : base("Load Module", "LM", "Advanced RAPID Features",
               "Defines code to load and unload RAPID modules.")
         {
         }

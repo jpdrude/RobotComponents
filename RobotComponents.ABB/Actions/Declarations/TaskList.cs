@@ -308,12 +308,15 @@ namespace RobotComponents.ABB.Actions.Declarations
             if (!RAPIDGenerator.TaskLists.ContainsKey(_name))
             {
                 RAPIDGenerator.TaskLists.Add(_name, this);
-                RAPIDGenerator.ProgramDeclarationsMultiMove.Add("    " + ToRAPIDDeclaration(RAPIDGenerator.Robot));
+                RAPIDGenerator.ProgramDeclarationsMultiMove.Add("    " + new string(' ', IndentationLevel * 4) + ToRAPIDDeclaration(RAPIDGenerator.Robot));
             }
         }
         #endregion
 
         #region properties
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

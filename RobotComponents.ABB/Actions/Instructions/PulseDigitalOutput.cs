@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
@@ -20,227 +21,116 @@ using RobotComponents.ABB.Utils;
 namespace RobotComponents.ABB.Actions.Instructions
 {
     /// <summary>
-    /// Represents a Pulse Digital Output instruction. 
+    /// Represents a Pulse Digital Output instruction.
     /// </summary>
-    /// <remarks>
-    /// This action is used to generate a pulse on a digital output signal.
-    /// </remarks>
     [Serializable()]
     public class PulseDigitalOutput : IAction, IInstruction, ISerializable
     {
         #region fields
         private bool _high = false;
-        private double _length = 0.2;
+        private string _lengthExpr = "0.2";
         private string _name;
         #endregion
 
         #region (de)serialization
-        /// <summary>
-        /// Protected constructor needed for deserialization of the object.  
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to extract the data from. </param>
-        /// <param name="context"> The context of this deserialization. </param>
         protected PulseDigitalOutput(SerializationInfo info, StreamingContext context)
         {
-            // // Version version = (int)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
             _high = (bool)info.GetValue("High", typeof(bool));
-            _length = (double)info.GetValue("Length", typeof(double));
+            try { _lengthExpr = (string)info.GetValue("LengthExpr", typeof(string)); }
+            catch (SerializationException) { _lengthExpr = ((double)info.GetValue("Length", typeof(double))).ToString("0.######", CultureInfo.InvariantCulture); }
             _name = (string)info.GetValue("Name", typeof(string));
         }
 
-        /// <summary>
-        /// Populates a SerializationInfo with the data needed to serialize the object.
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to populate with data. </param>
-        /// <param name="context"> The destination for this serialization. </param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
-            info.AddValue("High", _name, typeof(bool));
-            info.AddValue("Length", _name, typeof(double));
+            info.AddValue("High", _high, typeof(bool));
+            info.AddValue("LengthExpr", _lengthExpr, typeof(string));
             info.AddValue("Name", _name, typeof(string));
         }
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes an empty instance of the Pulse Digital Output class.
-        /// </summary>
-        public PulseDigitalOutput()
-        {
-        }
+        public PulseDigitalOutput() { }
 
-        /// <summary>
-        /// Initializes a new instance of the Pulse Digital Output class.
-        /// </summary>
-        /// <param name="high"> Specifies that the signal value should always be set to high independently of its current state. </param>
-        /// <param name="length"> The length of the pulse in seconds. </param>
-        /// <param name="name"> The name of the Digital Output signal. </param>
-        public PulseDigitalOutput(bool high, double length, string name)
+        /// <summary>Creates a Pulse Digital Output instruction with a RAPID expression for the pulse length.</summary>
+        public PulseDigitalOutput(bool high, string length, string name)
         {
             _high = high;
-            _length = length;
+            _lengthExpr = length;
             _name = name;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the Pulse Digital Output class by duplicating an existing Pulse Digital Output instance. 
-        /// </summary>
-        /// <param name="pulseDigitalOutput"> The Pulse Digital Output instance to duplicate. </param>
+        /// <summary>Creates a Pulse Digital Output instruction with a double pulse length (backward compat).</summary>
+        public PulseDigitalOutput(bool high, double length, string name)
+            : this(high, length.ToString("0.######", CultureInfo.InvariantCulture), name) { }
+
         public PulseDigitalOutput(PulseDigitalOutput pulseDigitalOutput)
         {
-            _high = pulseDigitalOutput.High;
-            _length = pulseDigitalOutput.Length;
-            _name = pulseDigitalOutput.Name;
+            _high = pulseDigitalOutput._high;
+            _lengthExpr = pulseDigitalOutput._lengthExpr;
+            _name = pulseDigitalOutput._name;
         }
 
-        /// <summary>
-        /// Returns an exact duplicate of this Pulse Digital Output instance.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Pulse Digital Output instance. 
-        /// </returns>
-        public PulseDigitalOutput Duplicate()
-        {
-            return new PulseDigitalOutput(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Pulse Digital Output instance as IInstruction.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Pulse Digital Output instance as an IInstruction. 
-        /// </returns>
-        public IInstruction DuplicateInstruction()
-        {
-            return new PulseDigitalOutput(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Pulse Digital Output instance as an Action. 
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Pulse Digital Output instance as an Action. 
-        /// </returns>
-        public IAction DuplicateAction()
-        {
-            return new PulseDigitalOutput(this);
-        }
+        public PulseDigitalOutput Duplicate() => new PulseDigitalOutput(this);
+        public IInstruction DuplicateInstruction() => new PulseDigitalOutput(this);
+        public IAction DuplicateAction() => new PulseDigitalOutput(this);
         #endregion
 
-        #region method
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> 
-        /// A string that represents the current object. 
-        /// </returns>
+        #region methods
         public override string ToString()
         {
-            if (_name == null)
-            {
-                return "Empty Pulse Digital Output";
-            }
-            else if (!IsValid)
-            {
-                return "Invalid Pulse Digital Output";
-            }
-            else
-            {
-                return $"Pulse Digital Output ({_name})";
-            }
+            if (_name == null) return "Empty Pulse Digital Output";
+            if (!IsValid) return "Invalid Pulse Digital Output";
+            return $"Pulse Digital Output ({_name})";
         }
 
-        /// <summary>
-        /// Returns the RAPID declaration code line of the this action.
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// An empty string. 
-        /// </returns>
-        public string ToRAPIDDeclaration(Robot robot)
-        {
-            return string.Empty;
-        }
+        public string ToRAPIDDeclaration(Robot robot) => string.Empty;
 
-        /// <summary>
-        /// Returns the RAPID instruction code line of the this action. 
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// The RAPID code line.
-        /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
             HelperMethods.ThrowIfInvalidRapidIdentifier(_name);
-
-            if (_high == false)
-            {
-                return $"PulseDO \\PLength:={_length:#.###}, {_name};";
-            }
-            else
-            {
-                return $"PulseDO \\High, \\PLength:={_length:#.###}, {_name};";
-            }
+            if (!_high)
+                return $"PulseDO \\PLength:={_lengthExpr}, {_name};";
+            return $"PulseDO \\High, \\PLength:={_lengthExpr}, {_name};";
         }
 
-        /// <summary>
-        /// Creates declarations and instructions in the RAPID program module inside the RAPID Generator.
-        /// </summary>
-        /// <remarks>
-        /// This method is called inside the RAPID generator.
-        /// </remarks>
-        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
-            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
+            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + ToRAPIDInstruction(RAPIDGenerator.Robot));
         }
         #endregion
 
         #region properties
-        /// <summary>
-        /// Gets a value indicating whether or not the object is valid.
-        /// </summary>
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         public bool IsValid
         {
             get
             {
-                if (_name == null) { return false; }
-                if (_name == "") { return false; }
-                if (!HelperMethods.IsValidRapidIdentifier(_name)) { return false; }
-                if (_length < 0.001) { return false; }
-                if (_length > 2000) { return false; }
+                if (_name == null || _name == "") return false;
+                if (!HelperMethods.IsValidRapidIdentifier(_name)) return false;
+                if (string.IsNullOrEmpty(_lengthExpr)) return false;
+                // Only validate bounds when the expression is a plain number
+                if (double.TryParse(_lengthExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double l))
+                    return l >= 0.001 && l <= 2000;
                 return true;
             }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether or not that the signal value 
-        /// should always be set to high (1) independently of its current state.
-        /// </summary>
-        public bool High
-        {
-            get { return _high; }
-            set { _high = value; }
-        }
+        public bool High { get { return _high; } set { _high = value; } }
+        public string Name { get { return _name; } set { _name = value; } }
 
-        /// <summary>
-        /// Gets or sets the length of the pulse in seconds.
-        /// </summary>
+        /// <summary>Gets or sets the pulse length as a RAPID expression string.</summary>
+        public string LengthExpression { get { return _lengthExpr; } set { _lengthExpr = value; } }
+
+        /// <summary>Gets or sets the pulse length as a double (backward compat wrapper).</summary>
         public double Length
         {
-            get { return _length; }
-            set { _length = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the digital output signal.
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
+            get { return double.TryParse(_lengthExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.2; }
+            set { _lengthExpr = value.ToString("0.######", CultureInfo.InvariantCulture); }
         }
         #endregion
     }

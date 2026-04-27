@@ -16,6 +16,7 @@
     <ProjectReference Include="..\RobotComponents\RobotComponents.csproj" />
     <ProjectReference Include="..\RobotComponents.ABB\RobotComponents.ABB.csproj" />
     <ProjectReference Include="..\RobotComponents.ABB.Presets\RobotComponents.ABB.Presets.csproj" />
+    <ProjectReference Include="..\RobotComponents.ABB.Controllers\RobotComponents.ABB.Controllers.csproj" />
   </ItemGroup>
 
 </Project>

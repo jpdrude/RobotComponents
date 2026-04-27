@@ -13,9 +13,14 @@
 using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+// Grasshopper Libs (additional)
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -41,7 +46,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddBooleanParameter("High", "H", "Specifies that the signal value should always be set to high independently of its current state as a Boolean.", GH_ParamAccess.item, false);
-            pManager.AddNumberParameter("Length", "L", "The length of the pulse in seconds as a Number.", GH_ParamAccess.item, 0.2);
+            var lengthParam = new Param_RAPIDExpression();
+            lengthParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0.2)), new GH_Path(0));
+            pManager.AddParameter(lengthParam, "Length", "L",
+                "The length of the pulse in seconds. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
             pManager.AddTextParameter("Name", "N", "Name of the digital output as a Text", GH_ParamAccess.item);
         }
 
@@ -50,7 +59,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_PulseDigitalOutput(), "Pulse Digital Output", "PDO", "Resulting Pulse Digital Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Pulse Digital Output", "PDO", "Resulting Pulse Digital Output instruction");
         }
 
         /// <summary>
@@ -60,37 +69,27 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
             bool high = false;
-            double length = 0.2;
+            GH_RAPIDExpression lengthExpr = null;
             string name = "";
 
-            // Catch the input data
             if (!DA.GetData(0, ref high)) { return; }
-            if (!DA.GetData(1, ref length)) { return; }
+            if (!DA.GetData(1, ref lengthExpr)) { return; }
             if (!DA.GetData(2, ref name)) { return; }
 
-            // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
-
             if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital output name exceeds character limit of 32 characters.");
-            }
             if (HelperMethods.StringStartsWithNumber(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital output name starts with a number which is not allowed in RAPID code.");
-            }
             if (HelperMethods.StringHasSpecialCharacters(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Digital output name contains special characters which is not allowed in RAPID code.");
-            }
 
-            // Create the action
-            PulseDigitalOutput pulseDigitalOutput = new PulseDigitalOutput(high, length, name);
+            string length = lengthExpr?.Value?.Expression ?? "0.2";
+            if (!RAPIDExpression.IsValidExpression(length))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Length \"{length}\" does not appear to be a valid RAPID expression.");
 
-            // Output
-            DA.SetData(0, pulseDigitalOutput);
+            DA.SetData(0, new PulseDigitalOutput(high, length, name));
         }
 
         #region properties

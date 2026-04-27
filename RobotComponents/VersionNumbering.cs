@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// This file is part of Robot Components
-// Project: https://github.com/RobotComponents/RobotComponents
+// This file is part of Robot Components (Modified)
+// Original project: https://github.com/RobotComponents/RobotComponents
+// Modified project: https://github.com/jpdrude/RobotComponents
 //
 // Copyright (c) 2018-2020 EDEK Uni Kassel
-// Copyright (c) 2023 Arjen Deetman
+// Copyright (c) 2020-2024 Arjen Deetman
+// Copyright (c) 2025-2026 EDEK Uni Kassel
 //
-// Authors:
+// Original Authors:
 //   - Gabriel Rumph (2018-2020)
 //   - Benedikt Wannemacher (2018-2020)
-//   - Arjen Deetman (2023)
+//   - Arjen Deetman (2019-2024)
+//
+// Modified by:
+//   - Jan Philipp Drude (2025-2026)
 //
 // For license details, see the LICENSE file in the project root.
 
@@ -31,17 +36,17 @@ namespace RobotComponents
         /// x.0.x ---> MINOR version when you add functionality in a backwards compatible manner,
         /// x.x.0 ---> BUILD version when you make backwards compatible bug fixes
         /// </remarks>
-        public const string CurrentVersion = "4.0.1";
+        public const string CurrentVersion = "1.1.0";
 
         /// <summary>
         /// Gets the current version.
         /// </summary>
         /// <remarks>
-        /// Has to be manually updated each time. 
+        /// Has to be manually updated each time.
         /// 0.x.x ---> MAJOR version when you make incompatible API changes
         /// x.0.x ---> MINOR version when you add functionality in a backwards compatible manner,
         /// x.x.0 ---> BUILD version when you make backwards compatible bug fixes
         /// </remarks>
-        public static Version Version = new Version(4, 0, 1);
+        public static Version Version = new Version(1, 1, 0);
     }
 }

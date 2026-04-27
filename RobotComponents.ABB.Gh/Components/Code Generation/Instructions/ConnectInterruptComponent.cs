@@ -49,7 +49,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, subcategory the panel. 
         /// If you use non-existing tab or panel names new tabs/panels will automatically be created.
         /// </summary>
-        public ConnectInterruptComponent() : base("Connect Interrupt", "CI", "Code Generation",
+        public ConnectInterruptComponent() : base("Connect Interrupt", "CI", "Advanced RAPID Features",
               "Connects a TRAP routine to a signal change.")
 
         {

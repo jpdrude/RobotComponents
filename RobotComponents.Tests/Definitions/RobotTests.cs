@@ -13,6 +13,8 @@ using RobotComponents.ABB.Definitions;
 
 namespace RobotComponents.Tests.Definitions
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class RobotTests
     {
         private const double Tolerance = 1e-6;
@@ -34,6 +36,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void Constructor_Empty_ProducesInvalidRobot()
         {
             Robot robot = new Robot();
@@ -292,6 +295,7 @@ namespace RobotComponents.Tests.Definitions
         }
 
         [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToString_InvalidRobot_ReturnsInvalid()
         {
             Robot robot = new Robot();

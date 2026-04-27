@@ -3,8 +3,175 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-02-25 15:34 
+ Generated on: 2026-04-27 17:46 
  --- 
+ - Enhance deserialization and legacy migration support. Improve backward compatibility for ABB RAPID components by: - Migrating legacy parameter data in GH_RAPIDExpression.Read to support old GH_Number/GH_Boolean types. - Adding parameter existence checks in RAPIDGeneratorComponent and InverseKinematicsComponent to prevent errors with older files. - Updating changelog and settings.local.json with new tests and diagnostics. 
+  
+   **Commit:** `fe6916f` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Enhance changelog extraction and add CI test scripts - Added CI-Tests and CI Solution Items folders to the solution, referencing test scripts and GitHub workflow files. 
+ 	 - Improved Extract-Changelog.ps1: added MaxSections/MaxLength params, better handling of missing/empty changelogs, section limiting, and output truncation. 
+ 	 - Enhanced logging and diagnostics in changelog extraction. 
+ 	 - Updated Extract-Changelog.Tests.ps1 to verify fallback behavior. 
+ 	 - Extended settings.local.json with new Bash and PowerShell Pester test commands. 
+  
+   **Commit:** `0e350cf` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Refactor: unify RAPID outputs as Param_Action, obsolete old params - All ABB RAPID instruction components now output Param_Action instead of instruction-specific parameter types. 
+ 	 - Old parameter classes are replaced with hidden, obsolete shims to ensure backward compatibility with existing .ghx files. 
+ 	 - Updated all component files to use the new parameter namespace. - Added new icon for Timed Path Generator and updated resources. 
+  
+   **Commit:** `9919b80` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Ensure invariant float formatting, Rhino test infra, RAPID fixes - Use CultureInfo.InvariantCulture for all RAPID float output to ensure locale-independent decimal formatting. 
+ 	 - Add RhinoCoreFixture and RequiresRhino xUnit collection for reliable, single-initialization RhinoCommon test setup. 
+ 	 - Mark all Rhino-dependent tests with RequiresRhino collection and trait. 
+ 	 - Add rhino.runsettings to set PATH for Rhino native dependencies during test runs. 
+ 	 - RAPIDGenerator: enforce axis limits before codegen, always emit PROC/ENDPROC block. 
+ 	 - Minor fixes in Movement.cs for initialization order and float formatting. 
+ 	 - Update settings.local.json for Rhino System directory access and CI scripting. 
+  
+   **Commit:** `a1b5e10` | **Date:** 2026-04-15 
+ 
+ --- 
+ 
+ - Add Timed Path Generator & new icons for RAPID components - Introduce TimedPathGenerator and Grasshopper UI component for time-based robot path simulation. 
+ 	 - Add new icons for EmptyLine and ComparisonSymbolValueList. 
+  
+   **Commit:** `e303c36` | **Date:** 2026-04-14 
+ 
+ --- 
+ 
+ - Add consistent indentation for generated RAPID code Introduces IndentationLevel to IAction and all action classes, enabling proper indentation of generated RAPID code, especially for nested control-flow constructs (FOR, WHILE, IF, MessageBox). Control-flow components now increment IndentationLevel for their body actions, and all ToRAPIDGenerator methods apply the correct indentation. Improves code readability and maintainability. 
+  
+   **Commit:** `3e9f81b` | **Date:** 2026-04-14 
+ 
+ --- 
+ 
+ - Add advanced RAPID flow control and array support - Introduce For, While, and If statement components for RAPID code generation, including dynamic ELSEIF/ELSE branching and comparison operator value lists. 
+ 	 - Add NumEntryBox and EmptyLine components for user input and code formatting. 
+ 	 - Enhance RAPIDVariable and AssignVariableValue components with right-click array mode, improved validation, and new icons. 
+ 	 - Move code generation tools to "Advanced RAPID Features" category and adjust UI exposure. 
+ 	 - Add new icons for variables, expressions, loops, and assignments. 
+ 	 - Add ComparisonOperator enum for conditional constructs. 
+ 	 - Update changelog and resources for new features and improved UX. 
+  
+   **Commit:** `dc06fb1` | **Date:** 2026-04-14 
+ 
+ --- 
+ 
+ - Add RAPIDExpression support for IO and wait components - Introduced RAPIDExpression type for literals, variables, and expressions - Added GH_RAPIDExpression Goo and Param_RAPIDExpression parameter - Refactored IO/wait/action classes to accept expressions as input - Components now allow variables/functions as input, not just numbers - Added validation and warnings for invalid RAPID expressions - Updated RoutineCall/AdditionalRoutine to output FUNC expressions - Added comprehensive unit tests for RAPIDExpression and affected actions - Updated changelog and CI for CodingFeatures branch 
+  
+   **Commit:** `0ccd3d6` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
+ - Changed Variable assignment to only work on RAPIDVariables, not on variable names. 
+  
+   **Commit:** `25fa6ad` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
+ - Add RAPID variable and FUNC support to code generation - Add RAPIDVariable class, Grasshopper Goo, and parameter type - New RAPIDVariableComponent for variable declarations (VAR/PERS/INOUT) - Add AssignVariableValueComponent for assignments - Support FUNC routines: RoutineType.FUNC, return type, serialization - RoutineCallComponent now supports PROC and FUNC calls - Add enums for variable level, keyword, and callable routine type - Dynamic value lists and input management for better UX 
+  
+   **Commit:** `7965100` | **Date:** 2026-04-13 
+ 
+ --- 
+ 
+ - Merge pull request #5 from jpdrude/WorkshopBugFixes Workshop Bug Fixes 
+  
+   **Commit:** `236fee8` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Rotated ikGeo target plane around z-Axis to provide correct tool orientation. 
+ - The problem wasn't apparent before, because it wasnt tested with assymetric tool geometry. 
+  
+   **Commit:** `bc8ab69` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Adds missing assemblies and corresponding license files to release. 
+ - Added assemblies and license locations to Collect-ReleaseFiles.ps1 to accomodate them in release. 
+  
+   **Commit:** `d69efd0` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Update parameter naming, which caused problems when drawing full names in GH. 
+ - Refactored parameter class display names to remove "Parameter" suffix and updated constructors for consistency across the ABB Grasshopper plugin. Changed Name property overrides to use the base property for improved flexibility. 
+  
+   **Commit:** `c25b8e6` | **Date:** 2026-03-09 
+ 
+ --- 
+ 
+ - Pushed changelog before release. 
+  
+   **Commit:** `103d5f2` | **Date:** 2026-02-26 
+ 
+ --- 
+ 
+ - Minor fixes in release pipeline and explanation of Tests. 
+  
+   **Commit:** `eb77d7f` | **Date:** 2026-02-26 
+ 
+ --- 
+ 
+ - Fixed some bugs in Test scripts, which were hampering the build. 
+  
+   **Commit:** `e6d7b50` | **Date:** 2026-02-26 
+ 
+ --- 
+ 
+ - Included Reference to RobotComponents.ABB.Controllers in tests project. 
+  
+   **Commit:** `960283b` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Updated changelog before release. 
+  
+   **Commit:** `2facb14` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Overhaul release pipeline: CI-driven releases with full changelog and assets - Remove post-build CreateRelease.ps1 in favour of the existing CI release workflow as the single release mechanism. 
+ 	 - Release notes now include install instructions followed by all commits since the previous tag. 
+ 	 - RobotComponentsEDEK.gha added as an optional separate release asset from DLLs/. 
+ 	 - UpdateChangeLog.ps1 now skipsregeneration if the latest commit is already recorded in CHANGELOG.md. 
+  
+   **Commit:** `1656cb8` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Overhaul release pipeline: CI-driven releases with full changelog and assets - Remove post-build CreateRelease.ps1 in favour of the existing CI release workflow as the single release mechanism. 
+ 	 - Release notes now include install instructions followed by all commits since the previous tag. 
+ 	 - RobotComponentsEDEK.gha added as an optional separate release asset from DLLs/. 
+ 	 - UpdateChangeLog.ps1 now skipsregeneration if the latest commit is already recorded in CHANGELOG.md. 
+  
+   **Commit:** `8d170b6` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Updated VersionNumbering to my current style at v1.1.0 
+  
+   **Commit:** `937246c` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
+ - Separate non-critical RAPID generator messages into RemarksText - Introduce a RemarksText list in RAPIDGenerator for informational messages that should not block code generation. Move the "first movement is not MoveAbsJ" notice from ErrorText to RemarksText and surface it as a GH Remark in RAPIDGeneratorComponent. 
+ 	 - Make structural RAPID keyword detection in RapidCodeLineSanitizer case-sensitive, reducing false positives on lowercase user code. 
+  
+   **Commit:** `5c4afa1` | **Date:** 2026-02-25 
+ 
+ --- 
+ 
  - Merge remote-tracking branch 'origin/main' into ikgeo 
   
    **Commit:** `2060c9d` | **Date:** 2026-02-24 

@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // Rhino Libs
@@ -253,11 +254,11 @@ namespace RobotComponents.ABB.Definitions
         /// </returns>
         public string ToRAPID()
         {
-            string result = $"[{_mass:0.######}, ";
-            result += $"[{_centerOfGravity.X:0.######}, {_centerOfGravity.Y:0.######}, {_centerOfGravity.Z:0.######}], ";
-            result += $"[{_axesOfMoment.A:0.######}, {_axesOfMoment.B:0.######}, ";
-            result += $"{_axesOfMoment.C:0.######}, {_axesOfMoment.D:0.######}], ";
-            result += $"{_inertialMoments.X:0.######}, {_inertialMoments.Y:0.######}, {_inertialMoments.Z:0.######}]";
+            string result = $"[{_mass.ToString("0.######", CultureInfo.InvariantCulture)}, ";
+            result += $"[{_centerOfGravity.X.ToString("0.######", CultureInfo.InvariantCulture)}, {_centerOfGravity.Y.ToString("0.######", CultureInfo.InvariantCulture)}, {_centerOfGravity.Z.ToString("0.######", CultureInfo.InvariantCulture)}], ";
+            result += $"[{_axesOfMoment.A.ToString("0.######", CultureInfo.InvariantCulture)}, {_axesOfMoment.B.ToString("0.######", CultureInfo.InvariantCulture)}, ";
+            result += $"{_axesOfMoment.C.ToString("0.######", CultureInfo.InvariantCulture)}, {_axesOfMoment.D.ToString("0.######", CultureInfo.InvariantCulture)}], ";
+            result += $"{_inertialMoments.X.ToString("0.######", CultureInfo.InvariantCulture)}, {_inertialMoments.Y.ToString("0.######", CultureInfo.InvariantCulture)}, {_inertialMoments.Z.ToString("0.######", CultureInfo.InvariantCulture)}]";
 
             return result;
         }

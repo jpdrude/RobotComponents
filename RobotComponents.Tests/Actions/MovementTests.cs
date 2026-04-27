@@ -23,6 +23,8 @@ using RobotComponents.ABB.Presets.Enumerations;
 
 namespace RobotComponents.Tests.Actions
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class MovementTests
     {
         /// <summary>

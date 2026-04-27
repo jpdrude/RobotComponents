@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: windows-latest
@@ -49,18 +52,19 @@ jobs:
           -CreateZip
           -Version "${{ github.ref_name }}"
 
+      - name: Generate install instructions
+        shell: pwsh
+        run: >
+          .\.github\scripts\Generate-InstallInstructions.ps1
+          -OutputPath "release-staging\INSTALL.md"
+
       - name: Extract changelog for this version
         id: changelog
         shell: pwsh
         run: >
           .\.github\scripts\Extract-Changelog.ps1
           -Tag "${{ github.ref_name }}"
-
-      - name: Generate install instructions
-        shell: pwsh
-        run: >
-          .\.github\scripts\Generate-InstallInstructions.ps1
-          -OutputPath "release-staging\INSTALL.md"
+          -InstallPath "release-staging\INSTALL.md"
 
       - name: Create GitHub Release
         env:
@@ -68,6 +72,7 @@ jobs:
         run: >
           gh release create ${{ github.ref_name }}
           "RobotComponents-${{ github.ref_name }}.zip"
+          "DLLs/RobotComponentsEDEK.gha"
           "release-staging/INSTALL.md"
           --title "Release ${{ github.ref_name }}"
           --notes-file release-notes.md

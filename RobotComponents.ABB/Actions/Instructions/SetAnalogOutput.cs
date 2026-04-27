@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
@@ -20,202 +21,105 @@ using RobotComponents.ABB.Utils;
 namespace RobotComponents.ABB.Actions.Instructions
 {
     /// <summary>
-    /// Represents a Set Analog Output instruction. 
+    /// Represents a Set Analog Output instruction.
     /// </summary>
-    /// <remarks>
-    /// This action is used to set the value of an analog output signal.
-    /// </remarks>
     [Serializable()]
     public class SetAnalogOutput : IAction, IInstruction, ISerializable
     {
         #region fields
         private string _name;
-        private double _value;
+        private string _valueExpr;
         #endregion
 
         #region (de)serialization
-        /// <summary>
-        /// Protected constructor needed for deserialization of the object.  
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to extract the data from. </param>
-        /// <param name="context"> The context of this deserialization. </param>
         protected SetAnalogOutput(SerializationInfo info, StreamingContext context)
         {
-            // // Version version = (int)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
             _name = (string)info.GetValue("Name", typeof(string));
-            _value = (double)info.GetValue("Value", typeof(double));
+            try { _valueExpr = (string)info.GetValue("ValueExpr", typeof(string)); }
+            catch (SerializationException) { _valueExpr = ((double)info.GetValue("Value", typeof(double))).ToString("0.######", CultureInfo.InvariantCulture); }
         }
 
-        /// <summary>
-        /// Populates a SerializationInfo with the data needed to serialize the object.
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to populate with data. </param>
-        /// <param name="context"> The destination for this serialization. </param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Name", _name, typeof(string));
-            info.AddValue("Value", _value, typeof(double));
+            info.AddValue("ValueExpr", _valueExpr, typeof(string));
         }
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes an empty instance of the Set Analog Output class.
-        /// </summary>
-        public SetAnalogOutput()
-        {
-        }
+        public SetAnalogOutput() { }
 
-        /// <summary>
-        /// Initializes a new instance of the Set Analog Output class.
-        /// </summary>
-        /// <param name="name"> The name of the Analog Output signal. </param>
-        /// <param name="value"> The desired value of the signal. </param>
-        public SetAnalogOutput(string name, double value)
+        /// <summary>Creates a Set Analog Output instruction with a RAPID expression for the value.</summary>
+        public SetAnalogOutput(string name, string value)
         {
             _name = name;
-            _value = value;
+            _valueExpr = value;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the Set Analog Output class by duplicating an existing Set Analog Output instance. 
-        /// </summary>
-        /// <param name="setAnalogOutput"> The Set Analog Output instance to duplicate. </param>
+        /// <summary>Creates a Set Analog Output instruction with a double value (backward compat).</summary>
+        public SetAnalogOutput(string name, double value)
+            : this(name, value.ToString("0.######", CultureInfo.InvariantCulture)) { }
+
         public SetAnalogOutput(SetAnalogOutput setAnalogOutput)
         {
-            _name = setAnalogOutput.Name;
-            _value = setAnalogOutput.Value;
+            _name = setAnalogOutput._name;
+            _valueExpr = setAnalogOutput._valueExpr;
         }
 
-        /// <summary>
-        /// Returns an exact duplicate of this Set Analog Output instance.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Set Analog Output instance. 
-        /// </returns>
-        public SetAnalogOutput Duplicate()
-        {
-            return new SetAnalogOutput(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Set Analog Output instance as IInstruction.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Set Analog Output instance as an IInstruction. 
-        /// </returns>
-        public IInstruction DuplicateInstruction()
-        {
-            return new SetAnalogOutput(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Set Analog Output instance as an Action. 
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Set Analog Output instance as an Action. 
-        /// </returns>
-        public IAction DuplicateAction()
-        {
-            return new SetAnalogOutput(this);
-        }
+        public SetAnalogOutput Duplicate() => new SetAnalogOutput(this);
+        public IInstruction DuplicateInstruction() => new SetAnalogOutput(this);
+        public IAction DuplicateAction() => new SetAnalogOutput(this);
         #endregion
 
-        #region method
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> 
-        /// A string that represents the current object. 
-        /// </returns>
+        #region methods
         public override string ToString()
         {
-            if (_name == null)
-            {
-                return "Empty Set Analog Output";
-            }
-            else if (!IsValid)
-            {
-                return "Invalid Set Analog Output";
-            }
-            else
-            {
-                return $"Set Analog  Output ({_name}\\{_value})";
-            }
+            if (_name == null) return "Empty Set Analog Output";
+            if (!IsValid) return "Invalid Set Analog Output";
+            return $"Set Analog Output ({_name}\\{_valueExpr})";
         }
 
-        /// <summary>
-        /// Returns the RAPID declaration code line of the this action.
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// An empty string. 
-        /// </returns>
-        public string ToRAPIDDeclaration(Robot robot)
-        {
-            return string.Empty;
-        }
+        public string ToRAPIDDeclaration(Robot robot) => string.Empty;
 
-        /// <summary>
-        /// Returns the RAPID instruction code line of the this action. 
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// The RAPID code line. 
-        /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
             HelperMethods.ThrowIfInvalidRapidIdentifier(_name);
-
-            return $"SetAO {_name}, {_value};";
+            return $"SetAO {_name}, {_valueExpr};";
         }
 
-        /// <summary>
-        /// Creates declarations and instructions in the RAPID program module inside the RAPID Generator.
-        /// </summary>
-        /// <remarks>
-        /// This method is called inside the RAPID generator.
-        /// </remarks>
-        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
-            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
+            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + ToRAPIDInstruction(RAPIDGenerator.Robot));
         }
         #endregion
 
         #region properties
-        /// <summary>
-        /// Gets a value indicating whether or not the object is valid.
-        /// </summary>
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         public bool IsValid
         {
             get
             {
-                if (_name == null) { return false; }
-                if (_name == "") { return false; }
-                if (!HelperMethods.IsValidRapidIdentifier(_name)) { return false; }
+                if (_name == null || _name == "") return false;
+                if (!HelperMethods.IsValidRapidIdentifier(_name)) return false;
+                if (string.IsNullOrEmpty(_valueExpr)) return false;
                 return true;
             }
         }
 
-        /// <summary>
-        /// Gets or sets the name of the analog output signal.
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
+        public string Name { get { return _name; } set { _name = value; } }
 
-        /// <summary>
-        /// Gets or sets the value of the analog output signal.
-        /// </summary>
+        /// <summary>Gets or sets the value as a RAPID expression string.</summary>
+        public string ValueExpression { get { return _valueExpr; } set { _valueExpr = value; } }
+
+        /// <summary>Gets or sets the value as a double (backward compat wrapper).</summary>
         public double Value
         {
-            get { return _value; }
-            set { _value = value; }
+            get { return double.TryParse(_valueExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.0; }
+            set { _valueExpr = value.ToString("0.######", CultureInfo.InvariantCulture); }
         }
         #endregion
     }

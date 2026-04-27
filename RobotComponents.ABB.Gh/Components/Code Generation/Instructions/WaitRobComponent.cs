@@ -16,7 +16,7 @@ using System;
 using Grasshopper.Kernel;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -49,7 +49,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitRob(), "Wait Robot", "WR", "Resulting Wait Rob instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait Robot", "WR", "Resulting Wait Rob instruction");
         }
 
         /// <summary>

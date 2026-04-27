@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // RobotComponents Libs
@@ -19,203 +20,114 @@ using RobotComponents.ABB.Definitions;
 namespace RobotComponents.ABB.Actions.Instructions
 {
     /// <summary>
-    /// Represent the Acceleration Set instruction.
+    /// Represents the Acceleration Set instruction.
     /// </summary>
-    /// <remarks>
-    /// This action is used to adjust the acceleration and decceleration values.
-    /// </remarks>
     [Serializable()]
     public class AccelerationSet : IAction, IInstruction, ISerializable
     {
         #region fields
-        private double _acceleration;
-        private double _ramp;
+        private string _accelerationExpr;
+        private string _rampExpr;
         #endregion
 
         #region (de)serialization
-        /// <summary>
-        /// Protected constructor needed for deserialization of the object.  
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to extract the data from. </param>
-        /// <param name="context"> The context of this deserialization. </param>
         protected AccelerationSet(SerializationInfo info, StreamingContext context)
         {
-            //Version version = (Version)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
-            _acceleration = (double)info.GetValue("Acceleration", typeof(double));
-            _ramp = (double)info.GetValue("Ramp", typeof(double));
+            try { _accelerationExpr = (string)info.GetValue("AccelerationExpr", typeof(string)); }
+            catch (SerializationException) { _accelerationExpr = ((double)info.GetValue("Acceleration", typeof(double))).ToString("0.######", CultureInfo.InvariantCulture); }
+            try { _rampExpr = (string)info.GetValue("RampExpr", typeof(string)); }
+            catch (SerializationException) { _rampExpr = ((double)info.GetValue("Ramp", typeof(double))).ToString("0.######", CultureInfo.InvariantCulture); }
         }
 
-        /// <summary>
-        /// Populates a SerializationInfo with the data needed to serialize the object.
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to populate with data. </param>
-        /// <param name="context"> The destination for this serialization. </param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
-            info.AddValue("Acceleration", _acceleration, typeof(double));
-            info.AddValue("Ramp", _ramp, typeof(double));
+            info.AddValue("AccelerationExpr", _accelerationExpr, typeof(string));
+            info.AddValue("RampExpr", _rampExpr, typeof(string));
         }
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes an empty instance of the Acceleration Set class.
-        /// </summary>
-        public AccelerationSet()
+        public AccelerationSet() { }
+
+        /// <summary>Creates an Acceleration Set instruction with RAPID expressions for both values.</summary>
+        public AccelerationSet(string acceleration, string ramp)
         {
+            _accelerationExpr = acceleration;
+            _rampExpr = ramp;
         }
 
-        /// <summary>
-        /// Initializes an empty instance of the Acceleration Set class.
-        /// </summary>
-        /// <param name="acceleration"> The acceleration and deceleration as a percentage of the normal values (20-100). </param>
-        /// <param name="ramp"> The rate at which acceleration and deceleration increases as a percentage of the normal values (10-100) </param>
+        /// <summary>Creates an Acceleration Set instruction with double values (backward compat).</summary>
         public AccelerationSet(double acceleration, double ramp)
-        {
-            _acceleration = acceleration;
-            _ramp = ramp;
-        }
+            : this(acceleration.ToString("0.######", CultureInfo.InvariantCulture),
+                   ramp.ToString("0.######", CultureInfo.InvariantCulture)) { }
 
-        /// <summary>
-        /// Initializes a new instance of the Acceleration Set class by duplicating an existing Acceleration Set instance. 
-        /// </summary>
-        /// <param name="accelerationSet"> The Acceleration Set instance to duplicate. </param>
         public AccelerationSet(AccelerationSet accelerationSet)
         {
-            _acceleration = accelerationSet.Acceleration;
-            _ramp = accelerationSet.Ramp;
+            _accelerationExpr = accelerationSet._accelerationExpr;
+            _rampExpr = accelerationSet._rampExpr;
         }
 
-        /// <summary>
-        /// Returns an exact duplicate of this Acceleration Set instance.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Acceleration Set instance. 
-        /// </returns>
-        public AccelerationSet Duplicate()
-        {
-            return new AccelerationSet(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Acceleration Set instance as IInstruction.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Acceleration Set instance as an IInstruction. 
-        /// </returns>
-        public IInstruction DuplicateInstruction()
-        {
-            return new AccelerationSet(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Acceleration Set instance as an Action. 
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Acceleration Set instance as an Action. 
-        /// </returns>
-        public IAction DuplicateAction()
-        {
-            return new AccelerationSet(this);
-        }
+        public AccelerationSet Duplicate() => new AccelerationSet(this);
+        public IInstruction DuplicateInstruction() => new AccelerationSet(this);
+        public IAction DuplicateAction() => new AccelerationSet(this);
         #endregion
 
-        #region method
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> 
-        /// A string that represents the current object. 
-        /// </returns>
+        #region methods
         public override string ToString()
         {
-            if (!IsValid)
-            {
-                return "Invalid Acceleration Set";
-            }
-            else
-            {
-                return $"Acceleration Set";
-            }
+            if (!IsValid) return "Invalid Acceleration Set";
+            return "Acceleration Set";
         }
 
-        /// <summary>
-        /// Returns the RAPID declaration code line of the this action.
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// An empty string. 
-        /// </returns>
-        public string ToRAPIDDeclaration(Robot robot)
-        {
-            return string.Empty;
-        }
+        public string ToRAPIDDeclaration(Robot robot) => string.Empty;
 
-        /// <summary>
-        /// Returns the RAPID instruction code line of the this action. 
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// The RAPID code line. 
-        /// </returns>
         public string ToRAPIDInstruction(Robot robot)
-        {
-            return $"AccSet {_acceleration:0.###}, {_ramp:0.###};";
-        }
+            => $"AccSet {_accelerationExpr}, {_rampExpr};";
 
-        /// <summary>
-        /// Creates declarations and instructions in the RAPID program module inside the RAPID Generator.
-        /// </summary>
-        /// <remarks>
-        /// This method is called inside the RAPID generator.
-        /// </remarks>
-        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
-            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
+            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + ToRAPIDInstruction(RAPIDGenerator.Robot));
         }
         #endregion
 
         #region properties
-        /// <summary>
-        /// Gets a value indicating whether or not the object is valid.
-        /// </summary>
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         public bool IsValid
         {
             get
             {
-                if (_acceleration < 20) { return false; }
-                if (_acceleration > 100) { return false; }
-                if (_ramp < 10) { return false; }
-                if (_ramp > 100) { return false; }
-                else { return true; }
+                if (string.IsNullOrEmpty(_accelerationExpr) || string.IsNullOrEmpty(_rampExpr)) return false;
+                // Only validate numeric bounds when the expression is a plain number
+                if (double.TryParse(_accelerationExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double a))
+                    if (a < 20 || a > 100) return false;
+                if (double.TryParse(_rampExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double r))
+                    if (r < 10 || r > 100) return false;
+                return true;
             }
         }
 
-        /// <summary>
-        /// Gets or sets acceleration and deceleration as a percentage of the normal values.
-        /// </summary>
-        /// <remarks>
-        /// Use values from 20 till 100. 
-        /// </remarks>
+        /// <summary>Gets or sets the acceleration as a RAPID expression string.</summary>
+        public string AccelerationExpression { get { return _accelerationExpr; } set { _accelerationExpr = value; } }
+
+        /// <summary>Gets or sets the ramp as a RAPID expression string.</summary>
+        public string RampExpression { get { return _rampExpr; } set { _rampExpr = value; } }
+
+        /// <summary>Gets or sets the acceleration as a double (backward compat wrapper).</summary>
         public double Acceleration
         {
-            get { return _acceleration; }
-            set { _acceleration = value; }
+            get { return double.TryParse(_accelerationExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.0; }
+            set { _accelerationExpr = value.ToString("0.######", CultureInfo.InvariantCulture); }
         }
 
-        /// <summary>
-        /// Gets or sets the rate at which acceleration and deceleration increases as a percentage of the normal values..
-        /// </summary>
-        /// <remarks>
-        /// Use values from 10 till 100. 
-        /// </remarks>
+        /// <summary>Gets or sets the ramp as a double (backward compat wrapper).</summary>
         public double Ramp
         {
-            get { return _ramp; }
-            set { _ramp = value; }
+            get { return double.TryParse(_rampExpr, NumberStyles.Any, CultureInfo.InvariantCulture, out double d) ? d : 0.0; }
+            set { _rampExpr = value.ToString("0.######", CultureInfo.InvariantCulture); }
         }
         #endregion
     }

@@ -16,6 +16,8 @@ using RobotComponents.ABB.Enumerations;
 
 namespace RobotComponents.Tests.Definitions
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class WorkObjectTests
     {
         private const double Tolerance = 1e-6;

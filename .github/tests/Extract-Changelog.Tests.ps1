@@ -26,6 +26,7 @@ Describe 'Extract-Changelog' {
 
         & $script:ScriptPath -Tag 'v3.2.1' -ChangelogPath $changelog -OutputPath $output
 
+
         $content = Get-Content $output -Raw
         $content.Trim() | Should -Be 'Release v3.2.1'
     }

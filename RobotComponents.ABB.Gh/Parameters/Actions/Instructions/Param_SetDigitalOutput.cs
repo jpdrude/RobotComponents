@@ -29,7 +29,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Initializes a new instance of the Param_SetDigitalOutput class
         /// </summary>
-        public Param_SetDigitalOutput() : base("Set Digital Output Parameter", "SDOP", "Parameters",
+        public Param_SetDigitalOutput() : base("Set Digital Output", "SDOP", "Parameters",
                 "Contains the data of a Set Digital Output instruction.")
         {
         }
@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Parameters.Actions.Instructions
         /// <summary>
         /// Gets or sets the name of the object. This field typically remains fixed during the lifetime of an object.
         /// </summary>
-        public override string Name { get => "Set Digital Output"; set => base.Name = value; }
+        public override string Name { get => base.Name; set => base.Name = value; }
 
         /// <summary>
         /// Override this function to supply a custom icon (24x24 pixels). 
