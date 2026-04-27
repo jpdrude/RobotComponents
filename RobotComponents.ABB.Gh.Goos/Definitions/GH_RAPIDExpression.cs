@@ -178,13 +178,34 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
         /// <inheritdoc/>
         public override bool Read(GH_IReader reader)
         {
-            if (!reader.ItemExists(IoKey))
+            if (reader.ItemExists(IoKey))
             {
-                Value = null;
+                byte[] array = reader.GetByteArray(IoKey);
+                Value = (RAPIDExpression)RobotComponents.Utils.Serialization.ByteArrayToObject(array);
                 return true;
             }
-            byte[] array = reader.GetByteArray(IoKey);
-            Value = (RAPIDExpression)RobotComponents.Utils.Serialization.ByteArrayToObject(array);
+
+            // Legacy migration: param type was changed from GH_Number / GH_Boolean to
+            // GH_RAPIDExpression. GH serializes both primitive types under the key "data".
+            // Try double first (covers Number inputs like Duration, Value, Override, Max),
+            // then bool (covers Boolean inputs like State).
+            if (reader.ItemExists("data"))
+            {
+                try
+                {
+                    Value = RAPIDExpression.FromLiteral(reader.GetDouble("data"));
+                    return true;
+                }
+                catch { }
+                try
+                {
+                    Value = RAPIDExpression.FromLiteral(reader.GetBoolean("data"));
+                    return true;
+                }
+                catch { }
+            }
+
+            Value = null;
             return true;
         }
         #endregion

@@ -3,8 +3,26 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-27 09:37 
+ Generated on: 2026-04-27 16:58 
  --- 
+ - Enhance changelog extraction and add CI test scripts - Added CI-Tests and CI Solution Items folders to the solution, referencing test scripts and GitHub workflow files. 
+ 	 - Improved Extract-Changelog.ps1: added MaxSections/MaxLength params, better handling of missing/empty changelogs, section limiting, and output truncation. 
+ 	 - Enhanced logging and diagnostics in changelog extraction. 
+ 	 - Updated Extract-Changelog.Tests.ps1 to verify fallback behavior. 
+ 	 - Extended settings.local.json with new Bash and PowerShell Pester test commands. 
+  
+   **Commit:** `0e350cf` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
+ - Refactor: unify RAPID outputs as Param_Action, obsolete old params - All ABB RAPID instruction components now output Param_Action instead of instruction-specific parameter types. 
+ 	 - Old parameter classes are replaced with hidden, obsolete shims to ensure backward compatibility with existing .ghx files. 
+ 	 - Updated all component files to use the new parameter namespace. - Added new icon for Timed Path Generator and updated resources. 
+  
+   **Commit:** `9919b80` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
  - Ensure invariant float formatting, Rhino test infra, RAPID fixes - Use CultureInfo.InvariantCulture for all RAPID float output to ensure locale-independent decimal formatting. 
  	 - Add RhinoCoreFixture and RequiresRhino xUnit collection for reliable, single-initialization RhinoCommon test setup. 
  	 - Mark all Rhino-dependent tests with RequiresRhino collection and trait. 
