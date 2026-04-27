@@ -10,7 +10,7 @@
 // Original Authors:
 //   - Gabriel Rumph (2018-2020)
 //   - Benedikt Wannemacher (2018-2020)
-//   - Arjen Deetman (2019-2024)
+//   - Arjen Deetman (2019-2026)
 //
 // Modified by:
 //   - Jan Philipp Drude (2025-2026)
@@ -86,7 +86,7 @@ namespace RobotComponents.ABB.Kinematics
         private static readonly int[] _order = new int[8] { 0, 4, 1, 5, 2, 6, 3, 7 };
         private static readonly int[] _signs = new int[6] { 1, 1, 1, 1, 1, 1 };
         private readonly OPWKinematics _opw = new OPWKinematics();
-        private readonly OPWKinematics _wok = new OPWKinematics();
+        private readonly WristyTwistySolver _wristy = new WristyTwistySolver();
         private int _selectedSolution = -1;
         #endregion
 
@@ -166,16 +166,16 @@ namespace RobotComponents.ABB.Kinematics
             _opw.C3 = _robot.RobotKinematicParameters.C3;
             _opw.C4 = _robot.RobotKinematicParameters.C4;
 
-            _wok.Signs = _signs;
-            _wok.Offsets = _offsets;
-            _wok.A1 = _robot.RobotKinematicParameters.A1;
-            _wok.A2 = _robot.RobotKinematicParameters.A2;
-            //_wok.A3 = _robot.RobotKinematicParameters.A3;
-            _wok.B = _robot.RobotKinematicParameters.B;
-            _wok.C1 = _robot.RobotKinematicParameters.C1;
-            _wok.C2 = _robot.RobotKinematicParameters.C2;
-            _wok.C3 = _robot.RobotKinematicParameters.C3;
-            _wok.C4 = _robot.RobotKinematicParameters.C4;
+            _wristy.Signs = _signs;
+            _wristy.Offsets = _offsets;
+            _wristy.A1 = _robot.RobotKinematicParameters.A1;
+            _wristy.A2 = _robot.RobotKinematicParameters.A2;
+            _wristy.A3 = _robot.RobotKinematicParameters.A3;
+            _wristy.B = _robot.RobotKinematicParameters.B;
+            _wristy.C1 = _robot.RobotKinematicParameters.C1;
+            _wristy.C2 = _robot.RobotKinematicParameters.C2;
+            _wristy.C3 = _robot.RobotKinematicParameters.C3;
+            _wristy.C4 = _robot.RobotKinematicParameters.C4;
         }
 
         /// <summary>

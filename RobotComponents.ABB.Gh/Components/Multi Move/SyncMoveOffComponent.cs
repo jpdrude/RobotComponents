@@ -102,7 +102,7 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
                     UpdateVariableNames();
                 }
 
-                #region Object manager
+                #region object manager
                 _toRegister.Clear();
 
                 for (int i = 0; i < _tree.Branches.Count; i++)
@@ -113,14 +113,24 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
                 GH_Document doc = this.OnPingDocument();
                 _objectManager = DocumentManager.GetDocumentObjectManager(doc);
                 _objectManager.CheckVariableNames(this);
-
-                if (doc != null)
-                {
-                    doc.ObjectsDeleted -= this.DocumentObjectsDeleted;
-                    doc.ObjectsDeleted += this.DocumentObjectsDeleted;
-                }
                 #endregion
             }
+        }
+
+        /// <summary>
+        /// Overrides the RemovedFromDocument method and delegates the call to all parameters.
+        /// </summary>
+        /// <param name="document"> Document that now no longer owns this object. </param>
+        public override void RemovedFromDocument(GH_Document document)
+        {
+            base.RemovedFromDocument(document);
+
+            #region object manager
+            if (_objectManager != null)
+            {
+                _objectManager.DeleteManagedData(this);
+            }
+            #endregion
         }
 
         #region properties
@@ -162,20 +172,6 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
         #endregion
 
         #region object manager
-        /// <summary>
-        /// Detect if the components gets removed from the canvas and deletes the 
-        /// objects created with this components from the object manager. 
-        /// </summary>
-        /// <param name="sender"> The object that raises the event. </param>
-        /// <param name="e"> The event data. </param>
-        public void DocumentObjectsDeleted(object sender, GH_DocObjectEventArgs e)
-        {
-            if (e.Objects.Contains(this))
-            {
-                _objectManager.DeleteManagedData(this);
-            }
-        }
-
         /// <summary>
         /// Last name
         /// </summary>

@@ -158,7 +158,7 @@ namespace RobotComponents.ABB.Gh.Components.Definitions
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendSeparator(menu);
-            Menu_AppendItem(menu, "Pick Robot Preset", MenuItemClick);
+            Menu_AppendItem(menu, "Pick Robot Preset", MenuItemClick, Properties.Resources.PickItem_Icon);
 
             base.AppendAdditionalComponentMenuItems(menu);
         }

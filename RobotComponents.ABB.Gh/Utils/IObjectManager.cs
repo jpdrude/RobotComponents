@@ -11,8 +11,6 @@
 
 // System Libs
 using System.Collections.Generic;
-// Grasshopper Libs
-using Grasshopper.Kernel;
 
 namespace RobotComponents.ABB.Gh.Utils
 {
@@ -21,16 +19,6 @@ namespace RobotComponents.ABB.Gh.Utils
     /// </summary>
     internal interface IObjectManager
     {
-        #region methods
-        /// <summary>
-        /// Detect if the components gets removed from the canvas and deletes the 
-        /// objects created with this components from the object manager. 
-        /// </summary>
-        /// <param name="sender"> The object that raises the event. </param>
-        /// <param name="e"> The event data. </param>
-        void DocumentObjectsDeleted(object sender, GH_DocObjectEventArgs e);
-        #endregion
-
         #region properties
         /// <summary>
         /// Gets the last set variable name.
