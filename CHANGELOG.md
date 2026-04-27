@@ -3,8 +3,27 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-14 19:29 
+ Generated on: 2026-04-27 09:37 
  --- 
+ - Ensure invariant float formatting, Rhino test infra, RAPID fixes - Use CultureInfo.InvariantCulture for all RAPID float output to ensure locale-independent decimal formatting. 
+ 	 - Add RhinoCoreFixture and RequiresRhino xUnit collection for reliable, single-initialization RhinoCommon test setup. 
+ 	 - Mark all Rhino-dependent tests with RequiresRhino collection and trait. 
+ 	 - Add rhino.runsettings to set PATH for Rhino native dependencies during test runs. 
+ 	 - RAPIDGenerator: enforce axis limits before codegen, always emit PROC/ENDPROC block. 
+ 	 - Minor fixes in Movement.cs for initialization order and float formatting. 
+ 	 - Update settings.local.json for Rhino System directory access and CI scripting. 
+  
+   **Commit:** `a1b5e10` | **Date:** 2026-04-15 
+ 
+ --- 
+ 
+ - Add Timed Path Generator & new icons for RAPID components - Introduce TimedPathGenerator and Grasshopper UI component for time-based robot path simulation. 
+ 	 - Add new icons for EmptyLine and ComparisonSymbolValueList. 
+  
+   **Commit:** `e303c36` | **Date:** 2026-04-14 
+ 
+ --- 
+ 
  - Add consistent indentation for generated RAPID code Introduces IndentationLevel to IAction and all action classes, enabling proper indentation of generated RAPID code, especially for nested control-flow constructs (FOR, WHILE, IF, MessageBox). Control-flow components now increment IndentationLevel for their body actions, and all ToRAPIDGenerator methods apply the correct indentation. Improves code readability and maintainability. 
   
    **Commit:** `3e9f81b` | **Date:** 2026-04-14 

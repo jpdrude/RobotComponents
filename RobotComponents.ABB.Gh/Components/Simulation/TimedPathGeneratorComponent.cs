@@ -349,7 +349,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.PathGen_Icon; }
+            get { return Properties.Resources.TimedPathGen_Icon; }
         }
 
         /// <summary>

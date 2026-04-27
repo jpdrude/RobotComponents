@@ -17,7 +17,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Goos.Actions.Instructions;
 using RobotComponents.ABB.Gh.Utils;
 
@@ -60,7 +60,7 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_SyncMoveOff(), "Sync Move Off", "SMOFF", "Resulting Sync Move Off instruction.");
+            pManager.RegisterParam(new Param_Action(), "Sync Move Off", "SMOFF", "Resulting Sync Move Off instruction.");
         }
 
         /// <summary>

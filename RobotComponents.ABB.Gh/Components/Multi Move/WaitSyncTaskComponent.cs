@@ -18,7 +18,7 @@ using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Actions.Declarations;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Declarations;
 using RobotComponents.ABB.Gh.Goos.Actions.Instructions;
 using RobotComponents.ABB.Gh.Utils;
@@ -64,7 +64,7 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitSyncTask(), "Wait Sync Task", "WST", "Resulting Wait Sync Task instruction.");
+            pManager.RegisterParam(new Param_Action(), "Wait Sync Task", "WST", "Resulting Wait Sync Task instruction.");
         }
 
         /// <summary>

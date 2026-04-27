@@ -21,7 +21,7 @@ using Grasshopper.Kernel.Data;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Gh.Goos.Definitions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -59,7 +59,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitTime(), "Wait Time", "WT", "Resulting Wait Time instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait Time", "WT", "Resulting Wait Time instruction");
         }
 
         /// <summary>

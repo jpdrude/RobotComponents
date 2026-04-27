@@ -220,7 +220,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                             Name = ReturnTypeParamName,
                             NickName = "RT",
                             Description = "Return type of the function. E.g. num, bool, etc.",
-                            Access = GH_ParamAccess.item
+                            Access = GH_ParamAccess.item,
+                            Optional = true
                         }, staticInputCount);
                     }
                     else if (!capturedIsFunc && existingReturnType != null)
@@ -292,7 +293,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             int variableArgsStart = staticInputCount + (_isFunc ? 1 : 0);
             if (_isFunc)
             {
-                DA.GetData(staticInputCount, ref returnType);
+                if(!DA.GetData(staticInputCount, ref returnType))
+                    returnType = "num"; // Default to num if no return type provided, since RAPID requires a return type for FUNC
             }
 
             if (!_isTrap)
@@ -402,6 +404,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                         Params.UnregisterInputParameter(Params.Input[Params.Input.Count - 1], true);
                     }
                 }
+
+                
 
                 Params.OnParametersChanged();
             });

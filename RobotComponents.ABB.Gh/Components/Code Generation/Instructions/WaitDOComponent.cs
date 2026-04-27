@@ -18,7 +18,7 @@ using Grasshopper.Kernel;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Gh.Goos.Definitions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
@@ -55,7 +55,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitDO(), "Wait DO", "WDO", "Resulting Wait for Digital Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait DO", "WDO", "Resulting Wait for Digital Output instruction");
         }
 
         /// <summary>

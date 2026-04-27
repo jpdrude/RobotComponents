@@ -1803,6 +1803,16 @@ namespace RobotComponents.ABB.Gh.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap TimedPathGen_Icon {
+            get {
+                object obj = ResourceManager.GetObject("TimedPathGen_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Timer_Icon {
             get {
                 object obj = ResourceManager.GetObject("Timer_Icon", resourceCulture);

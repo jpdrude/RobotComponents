@@ -16,7 +16,7 @@ using Grasshopper.Kernel;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Enumerations;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -56,7 +56,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_CirclePathMode(), "Circle Path Mode", "CPM", "Resulting Circle Path Mode", GH_ParamAccess.item);
+            pManager.RegisterParam(new Param_Action(), "Circle Path Mode", "CPM", "Resulting Circle Path Mode", GH_ParamAccess.item);
         }
 
         /// <summary>
