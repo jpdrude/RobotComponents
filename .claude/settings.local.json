@@ -12,7 +12,9 @@
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
       "Bash(gh pr *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(python -c *)",
+      "Bash(git stash *)"
     ]
   }
 }
