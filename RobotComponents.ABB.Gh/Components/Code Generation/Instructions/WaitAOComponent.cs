@@ -15,9 +15,12 @@ using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Enumerations;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -47,7 +50,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name of the analog output signal as text.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Value", "V", "Desired value of the analog output signal as number.", GH_ParamAccess.item);
+            pManager.AddParameter(new Param_RAPIDExpression(), "Value", "V",
+                "Desired value of the analog output signal. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
             pManager.AddIntegerParameter("Inequalty", "IS", "Inequality symbol that defines if the instruction waits until the value is less than or greater than the defined signal value.", GH_ParamAccess.item, 0);
 
             pManager[2].Optional = true;
@@ -58,7 +63,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_WaitAO(), "Wait AO", "WAO", "Resulting Wait for Analog Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait AO", "WAO", "Resulting Wait for Analog Output instruction");
         }
 
         /// <summary>
@@ -81,44 +86,30 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 this.ExpireSolution(true);
             }
 
-            // Input variables
             string name = "";
-            double value = 0.0;
+            GH_RAPIDExpression valueExpr = null;
             int inequality = 0;
 
-            // Catch the input data
             if (!DA.GetData(0, ref name)) { return; }
-            if (!DA.GetData(1, ref value)) { return; }
+            if (!DA.GetData(1, ref valueExpr)) { return; }
             if (!DA.GetData(2, ref inequality)) { return; }
 
-            // Check inequality value
             if (inequality != 0 && inequality != 1)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Inequality value <" + inequality + "> is invalid. " +
-                    "In can only be set to 0 or 1. Use 0 for less than (LT) and 1 for greater than (GT).");
-            }
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Inequality value <" + inequality + "> is invalid. Use 0 for LT and 1 for GT.");
 
-            // Check name
             name = HelperMethods.ReplaceSpacesAndRemoveNewLines(name);
-
             if (HelperMethods.StringExeedsCharacterLimit32(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog output name exceeds character limit of 32 characters.");
-            }
             if (HelperMethods.StringStartsWithNumber(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog output name starts with a number which is not allowed in RAPID code.");
-            }
             if (HelperMethods.StringHasSpecialCharacters(name))
-            {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Analog output name contains special characters which is not allowed in RAPID code.");
-            }
 
-            // Create the action
-            WaitAO waitAO = new WaitAO(name, value, (InequalitySymbol)inequality);
+            string value = valueExpr?.Value?.Expression ?? "0";
+            if (!RAPIDExpression.IsValidExpression(value))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Value \"{value}\" does not appear to be a valid RAPID expression.");
 
-            // Sets Output
-            DA.SetData(0, waitAO);
+            DA.SetData(0, new WaitAO(name, value, (InequalitySymbol)inequality));
         }
 
         #region properties

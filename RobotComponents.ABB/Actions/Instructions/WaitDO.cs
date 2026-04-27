@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components (Modified)
 // Original project: https://github.com/RobotComponents/RobotComponents
 // Modified project: https://github.com/jpdrude/RobotComponents
@@ -23,245 +23,120 @@ namespace RobotComponents.ABB.Actions.Instructions
     /// <summary>
     /// Represents a Wait for Digital Output instruction.
     /// </summary>
-    /// <remarks>
-    /// This action is used to wait until a digital output is set.
-    /// </remarks>
     [Serializable()]
     public class WaitDO : IAction, IInstruction, ISerializable
     {
         #region fields
         private string _name;
-        private bool _value;
+        private string _valueExpr;
         private double _maxTime;
         private bool _timeFlag;
         #endregion
 
         #region (de)serialization
-        /// <summary>
-        /// Protected constructor needed for deserialization of the object.  
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to extract the data from. </param>
-        /// <param name="context"> The context of this deserialization. </param>
         protected WaitDO(SerializationInfo info, StreamingContext context)
         {
-            //Version version = (Version)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
             _name = (string)info.GetValue("Name", typeof(string));
-            _value = (bool)info.GetValue("Value", typeof(bool));
+            try { _valueExpr = (string)info.GetValue("ValueExpr", typeof(string)); }
+            catch (SerializationException) { _valueExpr = ((bool)info.GetValue("Value", typeof(bool))) ? "1" : "0"; }
             _maxTime = (double)info.GetValue("Max Time", typeof(double));
             _timeFlag = (bool)info.GetValue("Time Flag", typeof(bool));
         }
 
-        /// <summary>
-        /// Populates a SerializationInfo with the data needed to serialize the object.
-        /// </summary>
-        /// <param name="info"> The SerializationInfo to populate with data. </param>
-        /// <param name="context"> The destination for this serialization. </param>
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Name", _name, typeof(string));
-            info.AddValue("Value", _value, typeof(bool));
+            info.AddValue("ValueExpr", _valueExpr, typeof(string));
             info.AddValue("Max Time", _maxTime, typeof(double));
             info.AddValue("Time Flag", _timeFlag, typeof(bool));
         }
         #endregion
 
         #region constructors
-        /// <summary>
-        /// Initializes an empty instance of the Wait DO class.
-        /// </summary>
-        public WaitDO()
-        {
-        }
+        public WaitDO() { }
 
-        /// <summary>
-        /// Initializes a new instance of the Wait DO class.
-        /// </summary>
-        /// <param name="name"> The name of the signal. </param>
-        /// <param name="value"> Specifies whether the Digital Output is enabled. </param>
-        /// <param name="maxTime"> The maximum time to wait in seconds. </param>
-        /// <param name="timeFlag"> Specifies whether the timeout flag is enabled. </param>
-        public WaitDO(string name, bool value, double maxTime = -1, bool timeFlag = false)
+        /// <summary>Creates a Wait DO instruction with a RAPID expression for the value.</summary>
+        public WaitDO(string name, string value, double maxTime = -1, bool timeFlag = false)
         {
             _name = name;
-            _value = value;
+            _valueExpr = value;
             _maxTime = maxTime;
             _timeFlag = timeFlag;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the Wait DO class by duplicating an existing Wait DO instance. 
-        /// </summary>
-        /// <param name="waitDO"> The Wait DO instance to duplicate. </param>
+        /// <summary>Creates a Wait DO instruction with a boolean value (backward compat).</summary>
+        public WaitDO(string name, bool value, double maxTime = -1, bool timeFlag = false)
+            : this(name, value ? "1" : "0", maxTime, timeFlag) { }
+
         public WaitDO(WaitDO waitDO)
         {
-            _name = waitDO.Name;
-            _value = waitDO.Value;
-            _maxTime = waitDO.MaxTime;
-            _timeFlag = waitDO.TimeFlag;
+            _name = waitDO._name;
+            _valueExpr = waitDO._valueExpr;
+            _maxTime = waitDO._maxTime;
+            _timeFlag = waitDO._timeFlag;
         }
 
-        /// <summary>
-        /// Returns an exact duplicate of this Wait DO instance.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Wait DO instance.
-        /// </returns>
-        public WaitDO Duplicate()
-        {
-            return new WaitDO(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Wait DO instance as IInstruction.
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Wait DO instance as an IInstruction. 
-        /// </returns>
-        public IInstruction DuplicateInstruction()
-        {
-            return new WaitDO(this);
-        }
-
-        /// <summary>
-        /// Returns an exact duplicate of this Wait DO instance as an Action. 
-        /// </summary>
-        /// <returns> 
-        /// A deep copy of the Wait Di instance as an Action. 
-        /// </returns>
-        public IAction DuplicateAction()
-        {
-            return new WaitDO(this);
-        }
+        public WaitDO Duplicate() => new WaitDO(this);
+        public IInstruction DuplicateInstruction() => new WaitDO(this);
+        public IAction DuplicateAction() => new WaitDO(this);
         #endregion
 
-        #region method
-        /// <summary>
-        /// Returns a string that represents the current object.
-        /// </summary>
-        /// <returns> 
-        /// A string that represents the current object. 
-        /// </returns>
+        #region methods
         public override string ToString()
         {
-            if (_name == null)
-            {
-                return "Empty Wait for Digital Output";
-            }
-            if (!IsValid)
-            {
-                return "Invalid Wait for Digital Output";
-            }
-            else
-            {
-                return $"Wait for Digital Output ({_name}\\{_value})";
-            }
+            if (_name == null) return "Empty Wait for Digital Output";
+            if (!IsValid) return "Invalid Wait for Digital Output";
+            return $"Wait for Digital Output ({_name}\\{_valueExpr})";
         }
 
-        /// <summary>
-        /// Returns the RAPID declaration code line of the this action.
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// An empty string. 
-        /// </returns>
-        public string ToRAPIDDeclaration(Robot robot)
-        {
-            return string.Empty;
-        }
+        public string ToRAPIDDeclaration(Robot robot) => string.Empty;
 
-        /// <summary>
-        /// Returns the RAPID instruction code line of the this action. 
-        /// </summary>
-        /// <param name="robot"> The Robot were the code is generated for. </param>
-        /// <returns> 
-        /// The RAPID code line. 
-        /// </returns>
         public string ToRAPIDInstruction(Robot robot)
         {
             HelperMethods.ThrowIfInvalidRapidIdentifier(_name);
-
             if (_maxTime > 0)
             {
-                string result = $"WaitDO {_name}, {(_value ? 1 : 0)} ";
-                result += $"\\MaxTime:={_maxTime:0.###} ";
-                result += $"{(_timeFlag ? $"\\TimeFlag:=TRUE" : $"\\TimeFlag:=FALSE")}";
-                result += ";";
-
-                return result;
+                return $"WaitDO {_name}, {_valueExpr} \\MaxTime:={_maxTime:0.###} " +
+                       $"{(_timeFlag ? "\\TimeFlag:=TRUE" : "\\TimeFlag:=FALSE")};";
             }
-            else
-            {
-                return $"WaitDO {_name}, {(_value ? 1 : 0)};";
-            }
+            return $"WaitDO {_name}, {_valueExpr};";
         }
 
-        /// <summary>
-        /// Creates declarations and instructions in the RAPID program module inside the RAPID Generator.
-        /// </summary>
-        /// <remarks>
-        /// This method is called inside the RAPID generator.
-        /// </remarks>
-        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
-            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + ToRAPIDInstruction(RAPIDGenerator.Robot));
+            RAPIDGenerator.ProgramInstructions.Add("    " + "    " + new string(' ', IndentationLevel * 4) + ToRAPIDInstruction(RAPIDGenerator.Robot));
         }
         #endregion
 
         #region properties
-        /// <summary>
-        /// Gets a value indicating whether or not the object is valid.
-        /// </summary>
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         public bool IsValid
         {
             get
             {
-                if (_name == null) { return false; }
-                if (_name == "") { return false; }
-                if (!HelperMethods.IsValidRapidIdentifier(_name)) { return false; }
+                if (_name == null || _name == "") return false;
+                if (!HelperMethods.IsValidRapidIdentifier(_name)) return false;
+                if (string.IsNullOrEmpty(_valueExpr)) return false;
                 return true;
             }
         }
 
-        /// <summary>
-        /// Gets or sets the desired state of the digital output signal.
-        /// </summary>
+        public string Name { get { return _name; } set { _name = value; } }
+        public double MaxTime { get { return _maxTime; } set { _maxTime = value; } }
+        public bool TimeFlag { get { return _timeFlag; } set { _timeFlag = value; } }
+
+        /// <summary>Gets or sets the value as a RAPID expression string.</summary>
+        public string ValueExpression { get { return _valueExpr; } set { _valueExpr = value; } }
+
+        /// <summary>Gets or sets the value as a boolean (backward compat wrapper).</summary>
         public bool Value
         {
-            get { return _value; }
-            set { _value = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the digital output signal.
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets te max. time to wait in seconds.
-        /// </summary>
-        /// <remarks>
-        /// Set a negative value to wait forever (default is -1).
-        /// </remarks>
-        public double MaxTime
-        {
-            get { return _maxTime; }
-            set { _maxTime = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the timeout flag.
-        /// </summary>
-        public bool TimeFlag
-        {
-            get { return _timeFlag; }
-            set { _timeFlag = value; }
+            get { return _valueExpr == "1" || string.Equals(_valueExpr, "TRUE", StringComparison.OrdinalIgnoreCase); }
+            set { _valueExpr = value ? "1" : "0"; }
         }
         #endregion
     }

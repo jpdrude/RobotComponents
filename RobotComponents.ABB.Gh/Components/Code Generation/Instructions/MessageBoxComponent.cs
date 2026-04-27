@@ -49,7 +49,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public MessageBoxComponent() : base("Message Box", "MB", "Code Generation", 
+        public MessageBoxComponent() : base("Message Box", "MB", "Advanced RAPID Features", 
             "Calls a message box. Different buttons call different code segments.")
         {
         }
@@ -229,7 +229,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 msgBoxCode.Add(new CodeLine($"IF msgBoxAnswer = {answerCounter} THEN", CodeType.Instruction));
                 foreach (IAction action in btnCode)
                 {
-                    msgBoxCode.Add(action);
+                    IAction dup = action.DuplicateAction();
+                    dup.IndentationLevel = action.IndentationLevel + 1;
+                    msgBoxCode.Add(dup);
                 }
                 msgBoxCode.Add(new CodeLine("ENDIF", CodeType.Instruction));
 

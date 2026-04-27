@@ -7,7 +7,29 @@
       "Bash(git show-ref:*)",
       "Bash(git ls-tree:*)",
       "Bash(gh api:*)",
-      "Bash(py:*)"
+      "Bash(py:*)",
+      "Bash(find:*)",
+      "Bash(dotnet test:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"patch_instructions2.ps1\")",
+      "Bash(dotnet build:*)",
+      "Read(//c/Program Files/Rhino 8/System/**)",
+      "Read(//c/Program Files/Rhino 7/System/**)",
+      "Bash(powershell -Command '[System.Reflection.Assembly]::LoadFrom\\('\\\\''C:\\\\Program Files\\\\Rhino 7\\\\System\\\\RhinoCommon.dll'\\\\''\\).GetTypes\\(\\) | Where-Object { $_.Name -like '\\\\''*RhinoCore*'\\\\'' } | Select-Object FullName')",
+      "Bash(where rhcommon_c.dll)",
+      "Bash(sed 's/  Failed //')",
+      "Bash(dotnet package *)",
+      "Bash(curl -s \"https://api.nuget.org/v3-flatcontainer/rhinocommon/index.json\")",
+      "Bash(python -c \"import json,sys; v=json.load\\(sys.stdin\\)['versions']; print\\('\\\\n'.join\\(v[-5:]\\)\\)\")",
+      "Bash(powershell -Command \"[System.Diagnostics.FileVersionInfo]::GetVersionInfo\\('C:\\\\Program Files\\\\Rhino 8\\\\System\\\\RhinoCommon.dll'\\).FileVersion\")",
+      "Bash(pwsh -Command 'Install-Module -Name Pester -MinimumVersion 5.0 -Force -SkipPublisherCheck -Scope CurrentUser -ErrorAction SilentlyContinue; $config = New-PesterConfiguration; $config.Run.Path = '\\\\''.github/tests/Extract-Changelog.Tests.ps1'\\\\''; $config.Output.Verbosity = '\\\\''Detailed'\\\\''; Invoke-Pester -Configuration $config')",
+      "PowerShell(New-PesterConfiguration *)",
+      "Bash(xargs -I{} sh -c 'git show 1382290e:{} 2>/dev/null | grep -l \"public override bool Read\" && echo \"HAS_READ:{}\"')",
+      "Bash(xargs -I{} grep -l \"reader\\\\.GetBoolean\\\\|reader\\\\.GetInt\\\\|reader\\\\.GetString\" \"C:\\\\Users\\\\jpdrude\\\\OneDrive\\\\Dateien\\\\01_Forschung\\\\02_RobotComponents\\\\repository\\\\{}\")",
+      "Bash(powershell -Command \"& { Add-Type -Path 'C:\\\\Users\\\\jpdrude\\\\OneDrive\\\\Dateien\\\\01_Forschung\\\\02_RobotComponents\\\\repository\\\\RobotComponents.ABB.Gh\\\\bin\\\\Debug\\\\net48\\\\RobotComponents.ABB.Gh.gha'; [Grasshopper.Kernel.Types.GH_Number].GetMethod\\('Write'\\).GetMethodBody\\(\\) }\")",
+      "PowerShell($dll = \"C:\\\\Users\\\\jpdrude\\\\.nuget\\\\packages\\\\grasshopper\\\\7.36.23346.16351\\\\lib\\\\net48\\\\Grasshopper.dll\"; Add-Type -Path $dll; $t = [Grasshopper.Kernel.Types.GH_Number]; $m = $t.GetMethod\\(\"Write\"\\); $il = $m.GetMethodBody\\(\\).GetILAsByteArray\\(\\); [System.Text.Encoding]::UTF8.GetString\\($il\\) -replace '[^\\\\x20-\\\\x7E]','.')",
+      "PowerShell($dll = \"C:\\\\Users\\\\jpdrude\\\\.nuget\\\\packages\\\\grasshopper\\\\7.36.23346.16351\\\\lib\\\\net48\\\\Grasshopper.dll\"; $asm = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom\\($dll\\); $t = $asm.GetType\\(\"Grasshopper.Kernel.Types.GH_Number\"\\); $t.GetMethods\\(\\) | Where-Object { $_.Name -eq \"Write\" -or $_.Name -eq \"Read\" } | Select-Object Name, DeclaringType)",
+      "PowerShell(Out-Null *)"
     ]
   }
 }

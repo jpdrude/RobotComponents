@@ -14,6 +14,8 @@ using RobotComponents.ABB.Enumerations;
 
 namespace RobotComponents.Tests.Actions
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class RobotTargetTests
     {
         #region Constructor

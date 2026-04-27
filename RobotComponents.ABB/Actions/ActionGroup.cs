@@ -340,25 +340,35 @@ namespace RobotComponents.ABB.Actions
         /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
         {
+            string extra = new string(' ', IndentationLevel * 4);
+
             if (_name != "")
             {
-                RAPIDGenerator.ProgramInstructions.Add("    " + "    " + $"! Start of group: {_name}");
+                RAPIDGenerator.ProgramInstructions.Add("    " + "    " + extra + $"! Start of group: {_name}");
             }
 
             for (int i = 0; i < _actions.Count; i++)
             {
+                // Temporarily add this group's indentation level to each child so that
+                // nested actions receive the correct cumulative indentation.
+                int original = _actions[i].IndentationLevel;
+                _actions[i].IndentationLevel += IndentationLevel;
                 _actions[i].ToRAPIDGenerator(RAPIDGenerator);
+                _actions[i].IndentationLevel = original;
             }
 
             if (_name != "")
             {
-                RAPIDGenerator.ProgramInstructions.Add("    " + "    " + $"! End of group: {_name}");
+                RAPIDGenerator.ProgramInstructions.Add("    " + "    " + extra + $"! End of group: {_name}");
             }
-
         }
         #endregion
 
         #region properties
+        /// <summary>
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

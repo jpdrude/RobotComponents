@@ -13,9 +13,14 @@
 using System;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+// Grasshopper Libs (additional)
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Goos.Definitions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
+using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -40,8 +45,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Override", "O", "Defines the desired velocity as a percentage (0-100) of the programmed velocity as a Number", GH_ParamAccess.item, 100);
-            pManager.AddNumberParameter("Max", "M", "Defines the the maximum TCP velocity in mm/s as a Number. ", GH_ParamAccess.item, 250);
+            var overrideParam = new Param_RAPIDExpression();
+            overrideParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(100.0)), new GH_Path(0));
+            pManager.AddParameter(overrideParam, "Override", "O",
+                "Desired velocity as a percentage (0-100) of programmed velocity. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
+            var maxParam = new Param_RAPIDExpression();
+            maxParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(250.0)), new GH_Path(0));
+            pManager.AddParameter(maxParam, "Max", "M",
+                "Maximum TCP velocity in mm/s. Accepts a number, RAPID variable, or RAPID expression.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -49,7 +62,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_VelocitySet(), "Velocity Set", "VS", "Resulting Velocity Set instruction");
+            pManager.RegisterParam(new Param_Action(), "Velocity Set", "VS", "Resulting Velocity Set instruction");
         }
 
         /// <summary>
@@ -59,19 +72,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Input variables
-            double @override = 100;
-            double max = 250;
+            GH_RAPIDExpression overrideExpr = null;
+            GH_RAPIDExpression maxExpr = null;
 
-            // Catch the input data
-            if (!DA.GetData(0, ref @override)) { return; }
-            if (!DA.GetData(1, ref max)) { return; }
+            if (!DA.GetData(0, ref overrideExpr)) { return; }
+            if (!DA.GetData(1, ref maxExpr)) { return; }
 
-            // Create the action
-            VelocitySet velocitySet = new VelocitySet(@override, max);
+            string @override = overrideExpr?.Value?.Expression ?? "100";
+            string max = maxExpr?.Value?.Expression ?? "250";
+            if (!RAPIDExpression.IsValidExpression(@override))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Override \"{@override}\" does not appear to be a valid RAPID expression.");
+            if (!RAPIDExpression.IsValidExpression(max))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, $"Max \"{max}\" does not appear to be a valid RAPID expression.");
 
-            // Output
-            DA.SetData(0, velocitySet);
+            DA.SetData(0, new VelocitySet(@override, max));
         }
 
         #region properties

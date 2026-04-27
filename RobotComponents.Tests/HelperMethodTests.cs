@@ -21,6 +21,8 @@ using PresetHelpers = RobotComponents.ABB.Presets.Utils.HelperMethods;
 
 namespace RobotComponents.Tests
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class HelperMethodTests
     {
         #region constants

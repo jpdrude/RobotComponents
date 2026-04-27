@@ -13,6 +13,8 @@ using RobotComponents.ABB.Definitions;
 
 namespace RobotComponents.Tests.Definitions
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class RobotTests
     {
         private const double Tolerance = 1e-6;

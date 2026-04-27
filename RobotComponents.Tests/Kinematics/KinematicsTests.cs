@@ -19,6 +19,8 @@ using RobotComponents.ABB.Actions.Declarations;
 
 namespace RobotComponents.Tests.Kinematics
 {
+    [Collection("RequiresRhino")]
+    [Trait("Category", "RequiresRhino")]
     public class KinematicsTests
     {
         private const double Tolerance = 1e-3;

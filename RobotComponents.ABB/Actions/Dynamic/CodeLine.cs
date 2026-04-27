@@ -34,6 +34,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         private string _code;
         private CodeType _type;
         private List<string> _warnings = new List<string>();
+        private int _indentationLevel = 0;
         #endregion
 
         #region (de)serialization
@@ -108,6 +109,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
             _code = codeLine.Code;
             _type = codeLine.Type;
             _warnings = new List<string>(codeLine.Warnings);
+            _indentationLevel = codeLine._indentationLevel;
         }
 
         /// <summary>
@@ -205,13 +207,14 @@ namespace RobotComponents.ABB.Actions.Dynamic
                 return;
             }
 
+            string extra = new string(' ', _indentationLevel * 4);
             if (_type == CodeType.Declaration)
             {
                 RAPIDGenerator.ProgramDeclarationCustomCodeLines.Add("    " + _code);
             }
             else if (_type == CodeType.Instruction)
             {
-                RAPIDGenerator.ProgramInstructions.Add("    " + "    " + _code);
+                RAPIDGenerator.ProgramInstructions.Add("    " + "    " + extra + _code);
             }
         }
         #endregion
@@ -263,6 +266,13 @@ namespace RobotComponents.ABB.Actions.Dynamic
         {
             get { return _type; }
             set { _type = value; }
+        }
+
+        /// <inheritdoc/>
+        public int IndentationLevel
+        {
+            get { return _indentationLevel; }
+            set { _indentationLevel = value < 0 ? 0 : value; }
         }
         #endregion
     }

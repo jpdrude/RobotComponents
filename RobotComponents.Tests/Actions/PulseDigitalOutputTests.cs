@@ -20,7 +20,7 @@ namespace RobotComponents.Tests.Actions
         {
             PulseDigitalOutput pdo = new PulseDigitalOutput(false, 0.5, "signal");
 
-            Assert.Equal("PulseDO \\PLength:=.5, signal;", pdo.ToRAPIDInstruction(null));
+            Assert.Equal("PulseDO \\PLength:=0.5, signal;", pdo.ToRAPIDInstruction(null));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace RobotComponents.Tests.Actions
         {
             PulseDigitalOutput pdo = new PulseDigitalOutput(true, 0.5, "signal");
 
-            Assert.Equal("PulseDO \\High, \\PLength:=.5, signal;", pdo.ToRAPIDInstruction(null));
+            Assert.Equal("PulseDO \\High, \\PLength:=0.5, signal;", pdo.ToRAPIDInstruction(null));
         }
 
         [Fact]
@@ -53,6 +53,23 @@ namespace RobotComponents.Tests.Actions
             PulseDigitalOutput pdo = new PulseDigitalOutput(false, 0.2, "signal;inject");
 
             Assert.Throws<InvalidOperationException>(() => pdo.ToRAPIDInstruction(null));
+        }
+
+        // Expression path
+        [Fact]
+        public void StringExpression_Length_EmittedVerbatim()
+        {
+            PulseDigitalOutput pdo = new PulseDigitalOutput(false, "myPulseLen", "do1");
+
+            Assert.Equal("PulseDO \\PLength:=myPulseLen, do1;", pdo.ToRAPIDInstruction(null));
+        }
+
+        [Fact]
+        public void IsValid_TrueWithVariableExpression()
+        {
+            PulseDigitalOutput pdo = new PulseDigitalOutput(false, "myVar", "do1");
+
+            Assert.True(pdo.IsValid);
         }
     }
 }

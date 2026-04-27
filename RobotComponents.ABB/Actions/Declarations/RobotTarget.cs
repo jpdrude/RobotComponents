@@ -13,6 +13,7 @@
 
 // System Libs
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
@@ -324,13 +325,13 @@ namespace RobotComponents.ABB.Actions.Declarations
             }
 
             string code = $"[";
-            code += $"[{_plane.OriginX:0.##}, ";
-            code += $"{_plane.OriginY:0.##}, ";
-            code += $"{_plane.OriginZ:0.##}], ";
-            code += $"[{_quat.A:0.######}, ";
-            code += $"{_quat.B:0.######}, ";
-            code += $"{_quat.C:0.######}, ";
-            code += $"{_quat.D:0.######}], ";
+            code += $"[{_plane.OriginX.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_plane.OriginY.ToString("0.##", CultureInfo.InvariantCulture)}, ";
+            code += $"{_plane.OriginZ.ToString("0.##", CultureInfo.InvariantCulture)}], ";
+            code += $"[{_quat.A.ToString("0.######", CultureInfo.InvariantCulture)}, ";
+            code += $"{_quat.B.ToString("0.######", CultureInfo.InvariantCulture)}, ";
+            code += $"{_quat.C.ToString("0.######", CultureInfo.InvariantCulture)}, ";
+            code += $"{_quat.D.ToString("0.######", CultureInfo.InvariantCulture)}], ";
             code += $"{configurationData}, ";
             code += $"{externalJointPosition}]";
 
@@ -386,13 +387,16 @@ namespace RobotComponents.ABB.Actions.Declarations
                 if (!RAPIDGenerator.Targets.ContainsKey(_name))
                 {
                     RAPIDGenerator.Targets.Add(_name, this);
-                    RAPIDGenerator.ProgramDeclarations.Add("    " + ToRAPIDDeclaration(RAPIDGenerator.Robot));
+                    RAPIDGenerator.ProgramDeclarations.Add("    " + new string(' ', IndentationLevel * 4) + ToRAPIDDeclaration(RAPIDGenerator.Robot));
                 }
             }
         }
         #endregion
 
         #region properties
+        /// <inheritdoc/>
+        public int IndentationLevel { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether or not the object is valid.
         /// </summary>

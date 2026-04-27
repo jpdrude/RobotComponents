@@ -15,6 +15,7 @@
 // System Libs
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 // Rhino Libs
@@ -449,11 +450,11 @@ namespace RobotComponents.ABB.Definitions
             string result = _robotHold ? "[TRUE, [[" : "[FALSE, [[";
 
             // Add coordinate of toolframe < tframe of pose > < trans of pos >
-            result += $"{_position.X:0.###}, {_position.Y:0.###}, {_position.Z:0.###}], [";
+            result += $"{_position.X.ToString("0.###", CultureInfo.InvariantCulture)}, {_position.Y.ToString("0.###", CultureInfo.InvariantCulture)}, {_position.Z.ToString("0.###", CultureInfo.InvariantCulture)}], [";
 
             // Add orientation of tool frame < tframe of pose > < rot of orient >
-            result += $"{_orientation.A:0.######}, {_orientation.B:0.######}, " +
-                $"{_orientation.C:0.######}, {_orientation.D:0.######}]], ";
+            result += $"{_orientation.A.ToString("0.######", CultureInfo.InvariantCulture)}, {_orientation.B.ToString("0.######", CultureInfo.InvariantCulture)}, " +
+                $"{_orientation.C.ToString("0.######", CultureInfo.InvariantCulture)}, {_orientation.D.ToString("0.######", CultureInfo.InvariantCulture)}]], ";
 
             // Add tool load < tload of loaddata >
             result += _loadData.ToRAPID();

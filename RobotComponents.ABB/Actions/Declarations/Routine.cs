@@ -30,6 +30,7 @@ namespace RobotComponents.ABB.Actions.Declarations
         #region fields
         private List<IAction> _actions;
         private RoutineType _type;
+        private string _returnType;
         private string _name;
         private Scope _scope;
         private List<RoutineArgument> _arguments;
@@ -46,6 +47,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             // Version version = (int)info.GetValue("Version", typeof(Version)); // <-- use this if the (de)serialization changes
             _actions = (List<IAction>)info.GetValue("Routine Content", typeof(List<IAction>));
             _type = (RoutineType)info.GetValue("Routine Type", typeof(RoutineType));
+            _returnType = (string)info.GetValue("Routine Return Type", typeof(string));
             _name = (string)info.GetValue("Routine Name", typeof(string));
             _scope = (Scope)info.GetValue("Routine Scope", typeof(Scope));
             _arguments = (List<RoutineArgument>)info.GetValue("Routine Arguments", typeof(List<RoutineArgument>));
@@ -62,6 +64,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Routine Content", _actions, typeof(List<IAction>));
             info.AddValue("Routine Type", _type, typeof(RoutineType));
+            info.AddValue("Routine Return Type", _returnType, typeof(string));
             info.AddValue("Routine Name", _name, typeof(string));
             info.AddValue("Routine Scope", _scope, typeof(Scope));
             info.AddValue("Routine Arguments", _arguments, typeof(List<RoutineArgument>));
@@ -87,6 +90,8 @@ namespace RobotComponents.ABB.Actions.Declarations
             _type = RoutineType.PROC;
             _name = name;
             _scope = Scope.GLOBAL;
+            _returnType = null;
+            _arguments  = null;
         }
 
         /// <summary>
@@ -109,6 +114,27 @@ namespace RobotComponents.ABB.Actions.Declarations
                 arguments = null;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the Routine class
+        /// </summary>
+        /// <param name="actions"> The content of the routine </param>
+        /// <param name="type"> The routine Type (PROC, TRAP). </param>
+        /// <param name="returnType"> The return type of the routine. </param>
+        /// <param name="name"> The identifier of the routine. </param>
+        /// <param name="scope"> The scope of the routine. </param>
+        /// <param name="arguments"> Optional arguments for the routine. </param>
+        public Routine(List<IAction> actions, RoutineType type, string returnType, string name, Scope scope = Scope.GLOBAL, List<RoutineArgument> arguments = null)
+        {
+            _actions = actions;
+            _type = type;
+            _returnType = returnType;
+            _name = name;
+            _scope = scope;
+            _arguments = arguments;
+
+            if (arguments != null && arguments.Count == 0)
+                arguments = null;
+        }
 
         /// <summary>
         /// Initializes a new instance of the Routine class by duplicating an existing Routine instance. 
@@ -124,6 +150,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             }
 
             _type = routine._type;
+            _returnType = routine._returnType;
             _name = routine._name;
             _scope = routine._scope;
             _arguments = null;
@@ -174,6 +201,10 @@ namespace RobotComponents.ABB.Actions.Declarations
             if (_type == RoutineType.PROC)
             {
                 return emptyCheck + "Procedure";
+            }
+            else if (_type == RoutineType.FUNC)
+            {
+                return emptyCheck + "Function";
             }
             else if (_type == RoutineType.TRAP)
             {
@@ -226,6 +257,15 @@ namespace RobotComponents.ABB.Actions.Declarations
         {
             get { return _type; }
             set { _type = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the Routine Return Type for functions.
+        /// </summary>
+        public string ReturnType
+        {
+            get { return _returnType; }
+            set { _returnType = value; }
         }
 
         /// <summary>
