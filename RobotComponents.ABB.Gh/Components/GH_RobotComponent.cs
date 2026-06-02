@@ -66,8 +66,8 @@ namespace RobotComponents.ABB.Gh.Components
         /// <param name="e"> The event data. </param>
         internal void MenuItemClickComponentDoc(object sender, EventArgs e)
         {
-            string url = Documentation.ComponentWeblinks[this.GetType()];
-            Documentation.OpenBrowser(url);
+            if (Documentation.ComponentWeblinks.TryGetValue(this.GetType(), out string url))
+                Documentation.OpenBrowser(url);
         }
 
         /// <summary>

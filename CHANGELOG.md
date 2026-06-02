@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-06-02 09:21 
+ Generated on: 2026-06-02 16:49 
  --- 
+ - Changes to loops and addition of ComparerExpression component. While loop now accepts expression, for loops accept from to input with variable names and automatically create i as a counter variable if nothing else is provided. 
+  
+   **Commit:** `5933951` | **Date:** 2026-06-02 
+ 
+ --- 
+ 
  - Bug fix to include Routine Code in RAPIDGenerator. Minor changes to variables including addition of CONST keyword. 
   
    **Commit:** `4c8e463` | **Date:** 2026-06-02 
