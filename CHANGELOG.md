@@ -3,8 +3,20 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-04-27 18:19 
+ Generated on: 2026-05-28 08:56 
  --- 
+ - Update CI Pipeline to correctly create build. 
+  
+   **Commit:** `d1e3af4` | **Date:** 2026-04-28 
+ 
+ --- 
+ 
+ - Generate new Changelog before release. 
+  
+   **Commit:** `1049c05` | **Date:** 2026-04-27 
+ 
+ --- 
+ 
  - Expand Bash commands, bump version, add CLAUDE.md - Bumped RobotComponents version to 1.2.0. 
  	 - Added CLAUDE.md with branch strategy and repository structure documentation. 
   

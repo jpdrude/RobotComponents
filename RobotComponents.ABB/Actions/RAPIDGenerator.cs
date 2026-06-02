@@ -488,8 +488,7 @@ namespace RobotComponents.ABB.Actions
                         if (DeclarationIsUnique(decl))
                             routineUniques.Add(decl);
 
-                    foreach(string name in routineUniques)
-                        _globalDeclarations.Add(name);
+                    AddUniqueIdentifiers(routineUniques);
 
                     uniqueDecls.AddRange(routineUniques);
                 }
@@ -502,12 +501,14 @@ namespace RobotComponents.ABB.Actions
                 }
             }
 
-            // Add the instructions
-            // Always emit the PROC/ENDPROC block so the module name and procedure name are always present
-            _module.Add("   " + $"{_scope} PROC {_procedureName}()");
-            _module.AddRange(_programInstructions);
-            _module.Add("    " + "ENDPROC");
-            _module.Add("    ");
+            // Add the instructions — only emit the PROC block when there are instructions
+            if (_programInstructions.Count != 0)
+            {
+                _module.Add("   " + $"{_scope} PROC {_procedureName}()");
+                _module.AddRange(_programInstructions);
+                _module.Add("    " + "ENDPROC");
+                _module.Add("    ");
+            }
 
             //Add additional routines
             if (_additionalRoutines != null)

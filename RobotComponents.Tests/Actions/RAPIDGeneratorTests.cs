@@ -15,6 +15,7 @@ using Xunit;
 // Robot Components Libs
 using RobotComponents.ABB.Actions;
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Enumerations;
@@ -71,12 +72,31 @@ namespace RobotComponents.Tests.Actions
         {
             Robot robot = CreateTestRobot();
             RAPIDGenerator generator = new RAPIDGenerator(robot, "CustomModule", "myProc");
+
+            RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt1", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+
+            List<string> module = generator.CreateModule(new List<IAction> { move });
+            string joined = string.Join(Environment.NewLine, module);
+
+            Assert.Contains("MODULE CustomModule", joined);
+            Assert.Contains("PROC myProc()", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_EmptyActions_OmitsProcBlock()
+        {
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot, "CustomModule", "myProc");
             List<string> module = generator.CreateModule(new List<IAction>());
 
             string joined = string.Join(Environment.NewLine, module);
 
             Assert.Contains("MODULE CustomModule", joined);
-            Assert.Contains("PROC myProc()", joined);
+            Assert.DoesNotContain("PROC", joined);
+            Assert.DoesNotContain("ENDPROC", joined);
         }
 
         [Fact]
@@ -280,6 +300,170 @@ namespace RobotComponents.Tests.Actions
             Assert.True(procLine < instrLine, "PROC should come before instructions");
             Assert.True(instrLine < endProcLine, "Instructions should come before ENDPROC");
             Assert.True(endProcLine < endModuleLine, "ENDPROC should come before ENDMODULE");
+        }
+        #endregion
+
+        #region Additional Routines
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_WithAdditionalProc_ContainsProcSignature()
+        {
+            Robot robot = CreateTestRobot();
+            var routine = new Routine(new List<IAction>(), RoutineType.PROC, "myRoutine");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            string joined = string.Join(Environment.NewLine, generator.CreateModule(new List<IAction>()));
+
+            Assert.Contains("PROC myRoutine()", joined);
+            Assert.Contains("ENDPROC", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_WithAdditionalProc_InstructionsAppearedInBody()
+        {
+            Robot robot = CreateTestRobot();
+            var actions = new List<IAction> { new CodeLine("x := 1;", CodeType.Instruction) };
+            var routine = new Routine(actions, RoutineType.PROC, "myRoutine");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            List<string> module = generator.CreateModule(new List<IAction>());
+            int procLine    = module.FindIndex(l => l.Contains("PROC myRoutine()"));
+            int endProcLine = module.FindLastIndex(l => l.Contains("ENDPROC"));
+            int instrLine   = module.FindIndex(l => l.Contains("x := 1;"));
+
+            Assert.True(procLine >= 0,  "PROC myRoutine() not found");
+            Assert.True(instrLine > procLine && instrLine < endProcLine,
+                "Instruction should appear inside the routine body");
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_WithAdditionalProc_DeclarationsHoisted()
+        {
+            Robot robot = CreateTestRobot();
+            var actions = new List<IAction> { new CodeLine("VAR num myVar := 0;", CodeType.Declaration) };
+            var routine = new Routine(actions, RoutineType.PROC, "myRoutine");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            List<string> module = generator.CreateModule(new List<IAction>());
+            int declLine = module.FindIndex(l => l.Contains("myVar"));
+            int procLine = module.FindIndex(l => l.Contains("PROC myRoutine()"));
+
+            Assert.True(declLine >= 0, "Declaration 'myVar' not found in module");
+            Assert.True(declLine < procLine, "Declaration should be hoisted before the PROC block");
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_WithAdditionalFunc_ContainsFuncSignature()
+        {
+            Robot robot = CreateTestRobot();
+            var actions = new List<IAction> { new CodeLine("RETURN 42;", CodeType.Instruction) };
+            var routine = new Routine(actions, RoutineType.FUNC, "num", "getVal");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            string joined = string.Join(Environment.NewLine, generator.CreateModule(new List<IAction>()));
+
+            Assert.Contains("FUNC num getVal()", joined);
+            Assert.Contains("ENDFUNC", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_WithAdditionalTrap_ContainsTrapSignature()
+        {
+            Robot robot = CreateTestRobot();
+            var actions = new List<IAction> { new CodeLine("x := 1;", CodeType.Instruction) };
+            var routine = new Routine(actions, RoutineType.TRAP, "myTrap");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            string joined = string.Join(Environment.NewLine, generator.CreateModule(new List<IAction>()));
+
+            Assert.Contains("TRAP myTrap", joined);
+            Assert.Contains("ENDTRAP", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_AdditionalProcWithArguments_ContainsArgsInSignature()
+        {
+            Robot robot = CreateTestRobot();
+            var args = new List<RoutineArgument>
+            {
+                new RoutineArgument("num", "x"),
+                new RoutineArgument("string", "msg")
+            };
+            var routine = new Routine(new List<IAction>(), RoutineType.PROC, "myRoutine", Scope.GLOBAL, args);
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            string joined = string.Join(Environment.NewLine, generator.CreateModule(new List<IAction>()));
+
+            Assert.Contains("PROC myRoutine(num x, string msg)", joined);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_AdditionalRoutineAfterMainProc_OrderCorrect()
+        {
+            Robot robot = CreateTestRobot();
+            RobotJointPosition rjp  = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            Movement move = new Movement(MovementType.MoveAbsJ,
+                new JointTarget("jt1", rjp), new SpeedData(100), new ZoneData(10));
+
+            var routine = new Routine(
+                new List<IAction> { new CodeLine("x := 1;", CodeType.Instruction) },
+                RoutineType.PROC, "helper");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            List<string> module = generator.CreateModule(new List<IAction> { move });
+            int mainEndProc  = module.FindIndex(l => l.Contains("ENDPROC"));
+            int helperProc   = module.FindIndex(l => l.Contains("PROC helper()"));
+
+            Assert.True(mainEndProc >= 0, "Main ENDPROC not found");
+            Assert.True(helperProc  >= 0, "PROC helper() not found");
+            Assert.True(helperProc > mainEndProc, "Additional routine should appear after main ENDPROC");
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_TwoAdditionalRoutinesSameDeclaration_OnlyDeclaredOnce()
+        {
+            Robot robot = CreateTestRobot();
+            var decl = new CodeLine("VAR num sharedVar := 0;", CodeType.Declaration);
+            var routineA = new Routine(new List<IAction> { decl }, RoutineType.PROC, "routineA");
+            var routineB = new Routine(new List<IAction> { decl }, RoutineType.PROC, "routineB");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routineA, routineB });
+
+            List<string> module = generator.CreateModule(new List<IAction>());
+            int count = module.Count(l => l.Contains("VAR num sharedVar"));
+
+            Assert.Equal(1, count);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_MainAndAdditionalRoutineSameDeclaration_OnlyDeclaredOnce()
+        {
+            Robot robot = CreateTestRobot();
+            var decl = new CodeLine("VAR num sharedVar := 0;", CodeType.Declaration);
+            var routine = new Routine(new List<IAction> { decl }, RoutineType.PROC, "helper");
+            var generator = new RAPIDGenerator(robot, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            // Same declaration also in the main actions
+            List<string> module = generator.CreateModule(new List<IAction> { decl });
+            int count = module.Count(l => l.Contains("VAR num sharedVar"));
+
+            Assert.Equal(1, count);
         }
         #endregion
 

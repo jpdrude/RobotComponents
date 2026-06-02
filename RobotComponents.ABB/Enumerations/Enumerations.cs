@@ -168,7 +168,12 @@ namespace RobotComponents.ABB.Enumerations
         /// <summary>
         /// INOUT — parameter mode, passed by reference to a routine.
         /// </summary>
-        INOUT = 2
+        INOUT = 2,
+
+        /// <summary>
+        /// CONST — constant variable, must be initialized at declaration and cannot be changed.
+        /// </summary>
+        CONST = 3
     }
 
     /// <summary>

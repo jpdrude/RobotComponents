@@ -19,10 +19,12 @@ using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Types;
 // RobotComponents
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 
@@ -38,9 +40,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
     {
         #region fields
         private bool _arrayValuesInputParam = false;
+        private bool _arrayIndexInputParam = false;
 
         private const string _scalarValueName = "Value";
         private const string _arrayValuesName = "Values";
+        private const string _indexParamName  = "Index";
         #endregion
 
         /// <summary>
@@ -94,6 +98,38 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 return;
             }
 
+            // Resolve optional array index (int literal or RAPID variable name)
+            string indexExpr = null;
+            if (_arrayIndexInputParam)
+            {
+                IGH_Goo indexGoo = null;
+                if (!DA.GetData(_indexParamName, ref indexGoo) || indexGoo == null)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Array index is missing.");
+                    return;
+                }
+
+                if (indexGoo is GH_RAPIDVariable rapidVarGoo)
+                {
+                    if (string.IsNullOrWhiteSpace(rapidVarGoo.Value?.Name))
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "RAPID Variable used as index has no name.");
+                        return;
+                    }
+                    indexExpr = rapidVarGoo.Value.Name;
+                }
+                else if (indexGoo.CastTo(out int intIndex))
+                {
+                    indexExpr = intIndex.ToString();
+                }
+                else
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Index must be an integer or a RAPID Variable.");
+                    return;
+                }
+            }
+
+            string targetName = indexExpr != null ? $"{variable.Name}{{{indexExpr}}}" : variable.Name;
             bool isArray = Params.Input.Any(x => x.Name == _arrayValuesName);
 
             if (isArray)
@@ -108,7 +144,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 string arrayLiteral = $"[{string.Join(", ", values)}]";
                 variable.Value = arrayLiteral;
-                string code = $"{variable.Name} := {arrayLiteral};";
+                string code = $"{targetName} := {arrayLiteral};";
 
                 DA.SetData(0, variable);
                 DA.SetData(1, new CodeLine(code, CodeType.Instruction));
@@ -126,7 +162,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }
 
                 variable.Value = value.Trim();
-                string code = $"{variable.Name} := {value.Trim()};";
+                string code = $"{targetName} := {value.Trim()};";
 
                 DA.SetData(0, variable);
                 DA.SetData(1, new CodeLine(code, CodeType.Instruction));
@@ -135,12 +171,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
         #region menu items
         /// <summary>
-        /// Appends "Assign Array Values" toggle to the right-click context menu.
+        /// Appends right-click context menu items.
         /// </summary>
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Assign Array Values", MenuItemClickArrayValues, true, _arrayValuesInputParam);
+            Menu_AppendItem(menu, "Assign at Index", MenuItemClickArrayIndex, true, _arrayIndexInputParam);
             base.AppendAdditionalComponentMenuItems(menu);
         }
 
@@ -149,6 +186,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             RecordUndoEvent("Assign Array Values");
             _arrayValuesInputParam = !_arrayValuesInputParam;
             ToggleArrayParams();
+        }
+
+        private void MenuItemClickArrayIndex(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Assign at Index");
+            _arrayIndexInputParam = !_arrayIndexInputParam;
+            ToggleIndexParam();
         }
 
         /// <summary>
@@ -193,12 +237,41 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Params.OnParametersChanged();
             ExpireSolution(true);
         }
+
+        /// <summary>
+        /// Adds or removes the Index input parameter.
+        /// </summary>
+        private void ToggleIndexParam()
+        {
+            if (_arrayIndexInputParam)
+            {
+                Params.RegisterInputParam(new Param_GenericObject
+                {
+                    Name        = _indexParamName,
+                    NickName    = "I",
+                    Description = "Array index (1-based in RAPID). " +
+                                  "Accepts an integer literal or a RAPID Variable whose name is used as the index expression. " +
+                                  "Output: variableName{index} := value;",
+                    Access      = GH_ParamAccess.item
+                });
+            }
+            else
+            {
+                var indexParam = Params.Input.FirstOrDefault(x => x.Name == _indexParamName);
+                if (indexParam != null)
+                    Params.UnregisterInputParameter(indexParam, true);
+            }
+
+            Params.OnParametersChanged();
+            ExpireSolution(true);
+        }
         #endregion
 
         #region serialization
         public override bool Write(GH_IWriter writer)
         {
             writer.SetBoolean("ArrayValuesInputParam", _arrayValuesInputParam);
+            writer.SetBoolean("ArrayIndexInputParam", _arrayIndexInputParam);
             return base.Write(writer);
         }
 
@@ -206,6 +279,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             if (reader.ItemExists("ArrayValuesInputParam"))
                 _arrayValuesInputParam = reader.GetBoolean("ArrayValuesInputParam");
+            if (reader.ItemExists("ArrayIndexInputParam"))
+                _arrayIndexInputParam = reader.GetBoolean("ArrayIndexInputParam");
             return base.Read(reader);
         }
         #endregion

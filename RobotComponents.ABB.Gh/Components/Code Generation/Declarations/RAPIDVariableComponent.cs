@@ -73,7 +73,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 "Variable scope. Use 0 for GLOBAL and 1 for LOCAL.",
                 GH_ParamAccess.item, 2);
             pManager.AddIntegerParameter("Keyword", "K",
-                "Storage keyword. Use 0 for VAR, 1 for PERS, 2 for INOUT.",
+                "Storage keyword. Use 0 for VAR, 1 for PERS, 2 for INOUT, 3 for CONST.",
                 GH_ParamAccess.item, 0);
             pManager.AddTextParameter("Type", "T",
                 "RAPID data type (e.g. num, bool, string).",
@@ -119,7 +119,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (this.Params.Input[1].SourceCount == 0)
             {
                 _expire = true;
-                HelperMethods.CreateValueList(this, typeof(Scope), 0);
+                HelperMethods.CreateValueList(this, typeof(Scope), 1);
             }
             if (this.Params.Input[2].SourceCount == 0)
             {
@@ -151,14 +151,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (level < 0 || level > 1)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     $"Level <{level}> is invalid. Use 0 for Module and 1 for Routine.");
-            if (keyword < 0 || keyword > 2)
+            if (keyword < 0 || keyword > 3)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"Keyword <{keyword}> is invalid. Use 0 for VAR, 1 for PERS, 2 for INOUT.");
+                    $"Keyword <{keyword}> is invalid. Use 0 for VAR, 1 for PERS, 2 for INOUT, 3 for CONST.");
             if (scope == 0 && level == 1)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     "Routine variables cannot be global. Scope set to LOCAL.");
                 scope = 1;
+            }
+            if (keyword == 3 && level == 1)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Routines cannot contain CONST variables. Keyword set to VAR.");
+                keyword = 0;
             }
 
             bool isArray = Params.Input.Any(x => x.Name == _arraySizeName);
@@ -200,6 +206,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 // --- Scalar mode ---
                 string value = null;
                 DA.GetData(_valueName, ref value);
+
+                if (keyword == 3 && string.IsNullOrEmpty(value))
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "CONST variables must have an initial value.");
 
                 var variable = new RAPIDVariable(
                     (RAPIDVariableLevel)level, (Scope)scope, (RAPIDVariableKeyword)keyword,

@@ -73,6 +73,7 @@ namespace RobotComponents.ABB.Gh.Utils
             { typeof(CommentComponent) , "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Dynamic%20Actions/Comment/" },
             // Generators
             { typeof(RAPIDGeneratorComponent) , "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/RAPID%20Generator/" },
+            { typeof(RAPIDVariableComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/" },
             #endregion
 
             #region Controller utility
