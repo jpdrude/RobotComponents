@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-05-28 08:56 
+ Generated on: 2026-06-02 09:21 
  --- 
+ - Bug fix to include Routine Code in RAPIDGenerator. Minor changes to variables including addition of CONST keyword. 
+  
+   **Commit:** `4c8e463` | **Date:** 2026-06-02 
+ 
+ --- 
+ 
  - Update CI Pipeline to correctly create build. 
   
    **Commit:** `d1e3af4` | **Date:** 2026-04-28 

@@ -21,6 +21,9 @@ using System.Drawing;
 using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Special;
+// RobotComponents Libs
+using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 
 namespace RobotComponents.ABB.Gh.Utils
 {
@@ -140,6 +143,26 @@ namespace RobotComponents.ABB.Gh.Utils
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Extracts the RAPID expression string from a <see cref="GH_RAPIDExpression"/> and emits a
+        /// Grasshopper warning when the expression fails the lightweight validity check.
+        /// Accepts both <see cref="GH_RAPIDExpression"/> inputs wired from a parameter and plain
+        /// strings, because <see cref="GH_RAPIDExpression.CastFrom"/> already handles string casting.
+        /// </summary>
+        /// <param name="component"> Component that owns the input (used to attach the warning). </param>
+        /// <param name="goo"> The goo object to read; may be null. </param>
+        /// <param name="paramName"> Human-readable parameter name used in the warning message. </param>
+        /// <param name="fallback"> Value returned when <paramref name="goo"/> is null or carries an empty expression. </param>
+        /// <returns> The expression string, or <paramref name="fallback"/> when the goo is null/empty. </returns>
+        public static string CheckRAPIDExpression(GH_Component component, GH_RAPIDExpression goo, string paramName, string fallback = "")
+        {
+            string expr = goo?.Value?.Expression ?? fallback;
+            if (!RAPIDExpression.IsValidExpression(expr))
+                component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    $"{paramName} \"{expr}\" is not a valid RAPID expression.");
+            return expr;
         }
 
         /// <summary>

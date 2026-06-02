@@ -17,27 +17,21 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions;
-using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
-using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
+using RobotComponents.ABB.Enumerations;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
     /// <summary>
     /// RobotComponents While Loop Component.
-    /// Generates a RAPID WHILE...ENDWHILE loop from a variable, a comparison operator, a compare value,
-    /// and a list of body actions.
+    /// Generates a RAPID WHILE...ENDWHILE loop from a condition expression and a list of body actions.
     /// </summary>
     public class WhileLoopComponent : GH_RobotComponent
     {
-        #region fields
-        private bool _expire = false;
-        #endregion
-
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
@@ -51,14 +45,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new Param_RAPIDVariable(), "Variable", "V",
-                "Variable to compare in the loop condition.",
-                GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Operator", "O",
-                "Comparison operator. Use the Comparison Operators value list to select one.",
-                GH_ParamAccess.item, 0);
-            pManager.AddParameter(new Param_RAPIDExpression(), "Value", "Val",
-                "Value to compare against. Accepts a number, RAPID variable, or RAPID expression.",
+            pManager.AddParameter(new Param_RAPIDExpression(), "Condition", "C",
+                "Loop condition as a RAPID boolean expression (e.g. counter < 10). " +
+                "Accepts a RAPIDExpression or a plain string.",
                 GH_ParamAccess.item);
             pManager.AddParameter(new Param_Action(), "Actions", "A",
                 "Actions to repeat inside the loop body.",
@@ -82,48 +71,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Auto-create the comparison operator value list on first use
-            if (this.Params.Input[1].SourceCount == 0)
-            {
-                _expire = true;
-                HelperMethods.CreateValueList(this, typeof(ComparisonOperator), 1);
-            }
-
-            if (_expire)
-            {
-                _expire = false;
-                this.ExpireSolution(true);
-                return;
-            }
-
-            RAPIDVariable variable = null;
-            int operatorInt = 0;
-            GH_RAPIDExpression compareExpr = null;
+            GH_RAPIDExpression condExpr = null;
             List<IAction> bodyActions = new List<IAction>();
 
-            if (!DA.GetData(0, ref variable)) { return; }
-            if (!DA.GetData(1, ref operatorInt)) { return; }
-            if (!DA.GetData(2, ref compareExpr)) { return; }
-            if (!DA.GetDataList(3, bodyActions)) { return; }
+            if (!DA.GetData(0, ref condExpr)) { return; }
+            if (!DA.GetDataList(1, bodyActions)) { return; }
 
-            // Validate operator range
-            if (!Enum.IsDefined(typeof(ComparisonOperator), operatorInt))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                    $"Operator value {operatorInt} is not a valid ComparisonOperator. Use the Comparison Operators value list.");
-                return;
-            }
+            string condition = HelperMethods.CheckRAPIDExpression(this, condExpr, "Condition", "true");
 
-            // Validate compare expression
-            string compareValue = compareExpr?.Value?.Expression ?? "0";
-            if (!RAPIDExpression.IsValidExpression(compareValue))
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"Value \"{compareValue}\" does not appear to be a valid RAPID expression.");
-
-            string op = OperatorToRAPID((ComparisonOperator)operatorInt);
-            string condition = $"{variable.Name} {op} {compareValue}";
-
-            // Build output code lines
             List<IAction> loopCode = new List<IAction>();
             loopCode.Add(new CodeLine($"WHILE {condition} DO", CodeType.Instruction));
             foreach (IAction action in bodyActions)
@@ -135,23 +90,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             loopCode.Add(new CodeLine("ENDWHILE", CodeType.Instruction));
 
             DA.SetDataList(0, loopCode);
-        }
-
-        /// <summary>
-        /// Returns the RAPID operator symbol for the given <see cref="ComparisonOperator"/>.
-        /// </summary>
-        private static string OperatorToRAPID(ComparisonOperator op)
-        {
-            switch (op)
-            {
-                case ComparisonOperator.LT: return "<";
-                case ComparisonOperator.GT: return ">";
-                case ComparisonOperator.LE: return "<=";
-                case ComparisonOperator.GE: return ">=";
-                case ComparisonOperator.EQ: return "=";
-                case ComparisonOperator.NE: return "<>";
-                default: return "<";
-            }
         }
 
         #region properties

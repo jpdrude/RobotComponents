@@ -17,12 +17,12 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions;
-using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
-using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
+using RobotComponents.ABB.Gh.Utils;
+using RobotComponents.ABB.Enumerations;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -125,11 +125,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 GH_RAPIDExpression condExpr = null;
                 DA.GetData(condIdx, ref condExpr);
-                string cond = condExpr?.Value?.Expression ?? "true";
-
-                if (!RAPIDExpression.IsValidExpression(cond))
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                        $"ELSEIF {i + 1} condition \"{cond}\" does not appear to be a valid RAPID expression.");
+                string cond = HelperMethods.CheckRAPIDExpression(this, condExpr, $"ELSEIF {i + 1} condition", "true");
 
                 List<IAction> actions = new List<IAction>();
                 DA.GetDataList(actIdx, actions);
@@ -141,10 +137,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             DA.GetDataList(elseIndex, elseActions);
 
             // --- Validate IF condition ---
-            string ifCond = ifCondExpr?.Value?.Expression ?? "true";
-            if (!RAPIDExpression.IsValidExpression(ifCond))
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"IF condition \"{ifCond}\" does not appear to be a valid RAPID expression.");
+            string ifCond = HelperMethods.CheckRAPIDExpression(this, ifCondExpr, "IF condition", "true");
 
             // --- Build RAPID code ---
             List<IAction> code = new List<IAction>();

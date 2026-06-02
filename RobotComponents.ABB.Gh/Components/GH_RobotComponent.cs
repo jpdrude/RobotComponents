@@ -55,8 +55,8 @@ namespace RobotComponents.ABB.Gh.Components
         {
             Menu_AppendSeparator(menu);
             Menu_AppendItem(menu, "Documentation", MenuItemClickComponentDoc, Properties.Resources.WikiPage_MenuItem_Icon);
-            Menu_AppendSeparator(menu);
-            Menu_AppendItem(menu, "Support me on Ko-fi", MenuItemClickComponentKofi, Properties.Resources.kofi_symbol);
+            //Menu_AppendSeparator(menu);
+            //Menu_AppendItem(menu, "Support me on Ko-fi", MenuItemClickComponentKofi, Properties.Resources.kofi_symbol);
         }
 
         /// <summary>

@@ -21,14 +21,19 @@ using RobotComponents.ABB.Actions;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
+using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
     /// <summary>
     /// RobotComponents For Loop Component.
-    /// Generates a RAPID FOR...ENDFOR loop from a counter variable, an interval (from/to), and a list of actions.
+    /// Generates a RAPID FOR...ENDFOR loop from an optional counter variable,
+    /// a From value, a To value, and a list of body actions.
+    /// When no counter variable is provided a local VAR num i is used automatically.
+    /// From and To accept integers, doubles, RAPIDExpression strings, or RAPIDVariable references.
     /// </summary>
     public class ForLoopComponent : GH_RobotComponent
     {
@@ -46,14 +51,22 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddParameter(new Param_RAPIDVariable(), "Counter", "C",
-                "Counter variable (must be of RAPID type num).",
+                "Counter variable (must be of RAPID type num). " +
+                "Leave unconnected to automatically use a local VAR num i.",
                 GH_ParamAccess.item);
-            pManager.AddIntervalParameter("Range", "R",
-                "Loop range as a domain. The start (T0) is the FROM value and the end (T1) is the TO value.",
+            pManager.AddParameter(new Param_RAPIDExpression(), "From", "Fr",
+                "Start value of the loop range. Accepts an integer, double, RAPID variable, or expression. " +
+                "Defaults to 1 when unconnected.",
+                GH_ParamAccess.item);
+            pManager.AddParameter(new Param_RAPIDExpression(), "To", "To",
+                "End value of the loop range. Accepts an integer, double, RAPID variable, or expression.",
                 GH_ParamAccess.item);
             pManager.AddParameter(new Param_Action(), "Actions", "A",
                 "Actions to repeat inside the loop body.",
                 GH_ParamAccess.list);
+
+            pManager[0].Optional = true;
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -64,6 +77,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.RegisterParam(new Param_Action(), "For Loop", "FL",
                 "RAPID FOR loop as a list of code lines and actions.",
                 GH_ParamAccess.list);
+            pManager.RegisterParam(new Param_RAPIDVariable(), "Counter", "C",
+                "The counter variable used in the loop (provided or auto-created as VAR num i).",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -73,38 +89,43 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            RAPIDVariable counter = null;
-            Rhino.Geometry.Interval range = new Rhino.Geometry.Interval();
+            GH_RAPIDVariable counterGoo = null;
+            GH_RAPIDExpression fromExpr = null;
+            GH_RAPIDExpression toExpr = null;
             List<IAction> bodyActions = new List<IAction>();
 
-            if (!DA.GetData(0, ref counter)) { return; }
-            if (!DA.GetData(1, ref range)) { return; }
-            if (!DA.GetDataList(2, bodyActions)) { return; }
+            DA.GetData(0, ref counterGoo);
+            DA.GetData(1, ref fromExpr);
+            if (!DA.GetData(2, ref toExpr)) { return; }
+            if (!DA.GetDataList(3, bodyActions)) { return; }
 
-            // Validate that the counter variable has a numeric RAPID type
-            if (!string.Equals(counter.Type, "num", StringComparison.OrdinalIgnoreCase))
-            {
+            // Resolve counter: use supplied variable or fall back to VAR num i
+            RAPIDVariable counter = counterGoo?.Value;
+            bool autoCreated = counter == null || string.IsNullOrEmpty(counter.Name);
+            if (autoCreated)
+                counter = new RAPIDVariable(RAPIDVariableLevel.Routine, Scope.LOCAL, RAPIDVariableKeyword.VAR, "num", "i");
+
+            // Type check only when user supplied the variable
+            if (!autoCreated && !string.Equals(counter.Type, "num", StringComparison.OrdinalIgnoreCase))
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     $"Counter variable type is \"{counter.Type}\". RAPID FOR loops require a num counter.");
-            }
 
-            // Warn if the range values are not integers (FOR loop counters are integers in RAPID)
-            double from = range.T0;
-            double to = range.T1;
+            // Resolve From (default "1" when unconnected) and To
+            string fromStr = fromExpr != null
+                ? HelperMethods.CheckRAPIDExpression(this, fromExpr, "From", "1")
+                : "1";
+            string toStr = HelperMethods.CheckRAPIDExpression(this, toExpr, "To", "");
 
-            if (from != Math.Floor(from))
-            {
+            // Integer check only for numeric literals (variable names will not parse)
+            if (double.TryParse(fromStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double fromNum)
+                && fromNum != Math.Floor(fromNum))
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"FROM value ({from}) is not an integer. RAPID FOR loop counters must be integers.");
-            }
-            if (to != Math.Floor(to))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"TO value ({to}) is not an integer. RAPID FOR loop counters must be integers.");
-            }
+                    $"From value ({fromStr}) is not an integer. RAPID FOR loop counters must be integers.");
 
-            string fromStr = ((int)from).ToString(CultureInfo.InvariantCulture);
-            string toStr = ((int)to).ToString(CultureInfo.InvariantCulture);
+            if (double.TryParse(toStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double toNum)
+                && toNum != Math.Floor(toNum))
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    $"To value ({toStr}) is not an integer. RAPID FOR loop counters must be integers.");
 
             // Build output code lines
             List<IAction> loopCode = new List<IAction>();
@@ -118,6 +139,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             loopCode.Add(new CodeLine("ENDFOR", CodeType.Instruction));
 
             DA.SetDataList(0, loopCode);
+            DA.SetData(1, new GH_RAPIDVariable(counter));
         }
 
         #region properties
