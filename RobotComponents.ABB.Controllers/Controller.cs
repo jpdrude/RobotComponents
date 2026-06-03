@@ -1365,18 +1365,37 @@ namespace RobotComponents.ABB.Controllers
                 status = $"Attempting to write module in branch {path}";
                 Log(status);
 
+                if (module.Count < 2)
+                {
+                    status = $"Could not upload the module: Branch {path} is empty or too short to be a valid module.";
+                    Log(status);
+                    return false;
+                }
+
                 if (!module[0].StartsWith("MODULE "))
                 {
-                    status = $"Branch is not a module. Skipping branch.";
+                    status = $"Could not upload the module: Branch {path} does not start with MODULE.";
                     Log(status);
+                    return false;
+                }
+
+                // Redirect system modules to the appropriate handler
+                if (module[0].Contains("SYSMODULE"))
+                {
+                    status = $"Branch {path} is a system module. Passing on to UploadSystemModule.";
+                    Log(status);
+                    if (!UploadSystemModule(taskName, module, out status, true))
+                    {
+                        return false;
+                    }
                     continue;
                 }
 
                 if (!module[module.Count - 1].Equals("ENDMODULE"))
                 {
-                    status = $"Branch is not a module. Skipping branch.";
+                    status = $"Could not upload the module: Branch {path} does not end with ENDMODULE.";
                     Log(status);
-                    continue;
+                    return false;
                 }
 
                 status = "Retreiving Module name from module content.";
