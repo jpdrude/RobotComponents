@@ -16,6 +16,7 @@ using System.Windows.Forms;
 // Grasshopper Libs
 using Grasshopper;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using GH_IO.Serialization;
 // Robot Components Libs
@@ -23,8 +24,6 @@ using RobotComponents.ABB.Controllers;
 using RobotComponents.ABB.Controllers.Forms;
 using RobotComponents.ABB.Gh.Parameters.Controllers;
 using RobotComponents.ABB.Gh.Utils;
-using Grasshopper.Kernel.Data;
-using Grasshopper.Kernel.Types;
 
 namespace RobotComponents.ABB.Gh.Components.ControllerUtility
 {
@@ -183,7 +182,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendSeparator(menu);
-            Menu_AppendItem(menu, "Pick Task", MenuItemClick);
+            Menu_AppendItem(menu, "Pick Task", MenuItemClick, Properties.Resources.PickItem_Icon);
 
             base.AppendAdditionalComponentMenuItems(menu);
         }
