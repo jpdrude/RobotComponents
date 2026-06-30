@@ -3,8 +3,32 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-06-02 16:49 
+ Generated on: 2026-06-30 15:48 
  --- 
+ - Merge pull request #8 from jpdrude/fix/upload-helper-modules-issues Fix bugs in UploadHelperModules 
+  
+   **Commit:** `ab328df` | **Date:** 2026-06-03 
+ 
+ --- 
+ 
+ - Fix bugs in UploadHelperModules and UploadHelperModulesComponent - Add empty-branch guard (Count < 2) before indexing into module list to prevent IndexOutOfRangeException on empty DataTree branches - Redirect SYSMODULE branches to UploadSystemModule instead of storing them in the wrong directory without updating SYS configuration - Return false with a descriptive message on invalid branches instead of silently skipping them (consistent with UploadModule behaviour) - Remove duplicate `using Grasshopper.Kernel.Types` and move misplaced `using Grasshopper.Kernel.Data` into the Grasshopper usings block - Add missing PickItem_Icon to the Pick Task context menu item Co-Authored-By: Claude Sonnet 4.6 (1M context) <noreply@anthropic.com> 
+  
+   **Commit:** `0268122` | **Date:** 2026-06-03 
+ 
+ --- 
+ 
+ - Updated Version Number 
+  
+   **Commit:** `5ffc68a` | **Date:** 2026-06-02 
+ 
+ --- 
+ 
+ - Update Changelog and minor fix to GH_RobotComponent 
+  
+   **Commit:** `e6e4c8c` | **Date:** 2026-06-02 
+ 
+ --- 
+ 
  - Changes to loops and addition of ComparerExpression component. While loop now accepts expression, for loops accept from to input with variable names and automatically create i as a counter variable if nothing else is provided. 
   
    **Commit:** `5933951` | **Date:** 2026-06-02 

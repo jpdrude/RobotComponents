@@ -14,7 +14,16 @@
       "Bash(gh pr *)",
       "Bash(git add *)",
       "Bash(python -c *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(git checkout *)",
+      "Bash(git commit *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\" /t:Restore,Build /p:Configuration=Release /p:TreatWarningsAsErrors=false /v:minimal 2>&1 | Select-Object -Last 20)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\" /t:Restore,Build /p:Configuration=Release /p:TreatWarningsAsErrors=false /v:quiet 2>&1 | Select-Object -Last 5)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\MSBuild\\\\Current\\\\Bin\\\\MSBuild.exe\" /t:Restore,Build /p:Configuration=Release /p:TreatWarningsAsErrors=false /v:minimal 2>&1 | Select-Object -Last 3)",
+      "PowerShell(vstest.console.exe \"RobotComponents.Tests\\\\bin\\\\Release\\\\net48\\\\RobotComponents.Tests.dll\" /TestCaseFilter:\"Category!=RequiresRhino\" /Logger:\"console;verbosity=normal\" 2>&1 | Select-Object -Last 30)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\TestWindow\\\\vstest.console.exe\" \"RobotComponents.Tests\\\\bin\\\\Release\\\\net48\\\\RobotComponents.Tests.dll\" /TestCaseFilter:\"Category!=RequiresRhino\" /Logger:\"console;verbosity=normal\" 2>&1 | Select-Object -Last 30)",
+      "Bash(git push *)",
+      "Bash(git pull *)"
     ]
   }
 }

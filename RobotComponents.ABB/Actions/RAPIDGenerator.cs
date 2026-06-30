@@ -86,6 +86,7 @@ namespace RobotComponents.ABB.Actions
         private bool _enforceAxisLimits = true;
         private bool _isFirstMovementMoveAbsJ;
         private bool _isSynchronized = false;
+        private string _author = null;
         #endregion
 
         #region constructors
@@ -308,8 +309,11 @@ namespace RobotComponents.ABB.Actions
             _module.Add("    ");
 
             // Add comment lines for tracking which version of RC was used
-            _module.Add("    " + $"! This RAPID code was generated with RobotComponents v{VersionNumbering.CurrentVersion} (GPL v3)");
+            _module.Add("    " + $"! This RAPID code was generated with a modified version of RobotComponents v{VersionNumbering.CurrentVersion} (GPL v3)");
             _module.Add("    " + "! Visit www.github.com/RobotComponents for more information");
+            _module.Add("    " + "! Visit www.github.com/jpdrude/RobotComponents for more information on the modified version");
+            if (!string.IsNullOrEmpty(_author))
+                _module.Add("    " + $"! Author: {_author}");
             _module.Add("    ");
 
             // Add the comments
@@ -875,6 +879,16 @@ namespace RobotComponents.ABB.Actions
         public List<string> RemarksText
         {
             get{ return _remarksText; }
+        }
+
+        /// <summary>
+        /// Gets or sets the script author name written as a comment at the top of the module.
+        /// When null or empty no author comment is emitted.
+        /// </summary>
+        public string Author
+        {
+            get { return _author; }
+            set { _author = value; }
         }
 
         /// <summary>
