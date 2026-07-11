@@ -289,6 +289,14 @@ namespace RobotComponents.ABB.Gh.Utils
         {
             try
             {
+                // Force a layout pass so newly (dynamically) registered input parameters
+                // have valid grip positions before we read them below. Without this, a
+                // parameter that was just added to Params.Input in the same call stack
+                // (e.g. from a right-click menu handler) still has its default, unlaid-out
+                // Attributes, which reads as (0,0) and places the value list at the origin.
+                component.Attributes.ExpireLayout();
+                component.Attributes.PerformLayout();
+
                 var parameter = component.Params.Input[index];
 
                 // Create the value list

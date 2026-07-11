@@ -229,6 +229,27 @@ namespace RobotComponents.ABB.Enumerations
     }
 
     /// <summary>
+    /// Defines how RAPID errors are handled inside a generated procedure.
+    /// </summary>
+    public enum ErrorHandling : int
+    {
+        /// <summary>
+        /// No error handler is added to the procedure.
+        /// </summary>
+        NoErrorHandling = 0,
+
+        /// <summary>
+        /// Adds an error handler that logs the error and stops the task.
+        /// </summary>
+        PauseOnError = 1,
+
+        /// <summary>
+        /// Adds an error handler that skips the instruction that raised the error and continues execution.
+        /// </summary>
+        SkipAllErrors = 2
+    }
+
+    /// <summary>
     /// Defines the variable type of the declaration.
     /// </summary>
     public enum VariableType : int
