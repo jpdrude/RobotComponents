@@ -23,7 +23,13 @@
       "PowerShell(vstest.console.exe \"RobotComponents.Tests\\\\bin\\\\Release\\\\net48\\\\RobotComponents.Tests.dll\" /TestCaseFilter:\"Category!=RequiresRhino\" /Logger:\"console;verbosity=normal\" 2>&1 | Select-Object -Last 30)",
       "PowerShell(& \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\Common7\\\\IDE\\\\CommonExtensions\\\\Microsoft\\\\TestWindow\\\\vstest.console.exe\" \"RobotComponents.Tests\\\\bin\\\\Release\\\\net48\\\\RobotComponents.Tests.dll\" /TestCaseFilter:\"Category!=RequiresRhino\" /Logger:\"console;verbosity=normal\" 2>&1 | Select-Object -Last 30)",
       "Bash(git push *)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(command -v msbuild.exe)",
+      "Bash(dotnet --version)",
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" /p:Configuration=Debug /nologo /v:minimal)",
+      "Bash(MSYS_NO_PATHCONV=1 \"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" -p:Configuration=Debug -nologo -v:minimal)",
+      "Bash(MSYS_NO_PATHCONV=1 \"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" -p:Configuration=Debug -p:RunChangeLog=false -nologo -v:minimal)",
+      "Bash(git fetch *)"
     ]
   }
 }
