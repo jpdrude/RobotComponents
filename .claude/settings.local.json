@@ -29,7 +29,8 @@
       "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" /p:Configuration=Debug /nologo /v:minimal)",
       "Bash(MSYS_NO_PATHCONV=1 \"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" -p:Configuration=Debug -nologo -v:minimal)",
       "Bash(MSYS_NO_PATHCONV=1 \"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" -p:Configuration=Debug -p:RunChangeLog=false -nologo -v:minimal)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Bash(git branch *)"
     ]
   }
 }

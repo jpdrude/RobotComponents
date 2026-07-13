@@ -3,8 +3,27 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-07-10 18:28 
+ Generated on: 2026-07-13 14:45 
  --- 
+ - Merge pull request #10 from jpdrude/comparisonSigns Refactor value list creation for comparison operators 
+  
+   **Commit:** `c4d42e0` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
+ - Refactor value list creation for comparison operators Updated `ComparerExpressionComponent`, `WaitAIComponent`, and `WaitAOComponent` to use explicit `List<string>` for operator value lists instead of relying on enumerations. Added `System.Collections.Generic` to enable generic collections. 
+ - Modified `HelperMethods` to remove sorting of names and set `GH_ValueListItem` values to indices instead of string representations. These changes improve clarity, consistency, and alignment with new requirements. 
+  
+   **Commit:** `e6d53e0` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
+ - New Version Commit 
+  
+   **Commit:** `8c59c86` | **Date:** 2026-07-11 
+ 
+ --- 
+ 
  - Version Number Update 
   
    **Commit:** `07137a3` | **Date:** 2026-06-30 
