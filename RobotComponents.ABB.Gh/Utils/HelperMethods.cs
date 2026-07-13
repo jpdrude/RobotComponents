@@ -269,11 +269,9 @@ namespace RobotComponents.ABB.Gh.Utils
             obj.ListMode = GH_ValueListMode.DropDown;
             obj.ListItems.Clear();
 
-            names.Sort();
-
             for (int i = 0; i < names.Count; i++)
             {
-                obj.ListItems.Add(new GH_ValueListItem(names[i], string.Format("\"{0}\"", names[i])));
+                obj.ListItems.Add(new GH_ValueListItem(names[i], i.ToString()));
             }
 
             return obj;
