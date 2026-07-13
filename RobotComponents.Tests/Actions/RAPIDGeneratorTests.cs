@@ -109,7 +109,7 @@ namespace RobotComponents.Tests.Actions
 
             string joined = string.Join(Environment.NewLine, module);
 
-            Assert.Contains("! This RAPID code was generated with RobotComponents", joined);
+            Assert.Contains("! This RAPID code was generated with a modified version of RobotComponents", joined);
         }
         #endregion
 
