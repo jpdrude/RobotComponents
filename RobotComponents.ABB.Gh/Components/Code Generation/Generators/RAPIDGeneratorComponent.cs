@@ -95,10 +95,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             new Param_Boolean() { Name = "Add loaddata", NickName = "AL", Description = "Indicates if the loaddata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Add tooldata", NickName = "AT", Description = "Indicates if the tooldata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Add wobjdata", NickName = "AW", Description = "Indicates if the wobjdata should be added the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
-            new Param_Boolean() { Name = "Update", NickName = "U", Description = "Updates the RAPID module based on a boolean value. To increase performance, only update when changes were made.", Access = GH_ParamAccess.item, Optional = true },
-            new Param_Boolean() { Name = "Enforce Axis Limits", NickName = "EL", Description = "When true (default), axis limit violations prevent RAPID code generation. Set to false to allow generation with warnings only.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Author", NickName = "AU", Description = "The script author name written as a comment at the beginning of the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
-            new Param_Integer() { Name = "Error Handling", NickName = "EH", Description = "Defines how RAPID errors are handled in the procedure. Use 0 for no error handling, 1 to pause on error and 2 to skip all errors.", Access = GH_ParamAccess.item, Optional = true}
+            new Param_Integer() { Name = "Error Handling", NickName = "EH", Description = "Defines how RAPID errors are handled in the procedure. Use 0 for no error handling, 1 to pause on error and 2 to skip all errors.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Boolean() { Name = "Enforce Axis Limits", NickName = "EL", Description = "When true (default), axis limit violations prevent RAPID code generation. Set to false to allow generation with warnings only.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Boolean() { Name = "Update", NickName = "U", Description = "Updates the RAPID module based on a boolean value. To increase performance, only update when changes were made.", Access = GH_ParamAccess.item, Optional = true }
         };
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddParameter(new Param_Robot(), "Robot", "R", "Robot that is used as Robot.", GH_ParamAccess.item);
             pManager.AddParameter(new Param_Action(), "Actions", "A", "Actions as list of instructive and declarative Actions.", GH_ParamAccess.list);
 
-            AddInputParameter(9);
+            AddInputParameter(12);
         }
 
         /// <summary>
@@ -163,15 +163,25 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (_routineScopeParam && scopeParamIndex != -1 && this.Params.Input[scopeParamIndex].SourceCount == 0)
             {
                 HelperMethods.CreateValueList(this, typeof(Scope), scopeParamIndex);
-                this.ExpireSolution(true);
+
+                // Schedule the recompute instead of expiring synchronously. Calling ExpireSolution(true)
+                // here would re-enter SolveInstance before this call returns, causing two overlapping
+                // solves to write to the "Module" output and corrupt it into a mismatched data tree.
+                GH_Document scopeDoc = OnPingDocument();
+                scopeDoc?.ScheduleSolution(5, _ => ExpireSolution(true));
             }
 
             // Creates the input value list for the error handling and attachs it to the input parameter
-            int errorHandlingParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[12].Name);
+            int errorHandlingParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[10].Name);
             if (_errorHandlingInputParam && errorHandlingParamIndex != -1 && this.Params.Input[errorHandlingParamIndex].SourceCount == 0)
             {
                 HelperMethods.CreateValueList(this, typeof(ErrorHandling), errorHandlingParamIndex);
-                this.ExpireSolution(true);
+
+                // Schedule the recompute instead of expiring synchronously. Calling ExpireSolution(true)
+                // here would re-enter SolveInstance before this call returns, causing two overlapping
+                // solves to write to the "Module" output and corrupt it into a mismatched data tree.
+                GH_Document errorHandlingDoc = OnPingDocument();
+                errorHandlingDoc?.ScheduleSolution(5, _ => ExpireSolution(true));
             }
 
             // Catch the input data from the variable parameteres
@@ -238,27 +248,27 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     addWobjdata = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[9].Name))
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[12].Name))
             {
-                if (!DA.GetData(_variableInputParameters[9].Name, ref update))
+                if (!DA.GetData(_variableInputParameters[12].Name, ref update))
                 {
                     update = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[10].Name))
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[11].Name))
             {
-                if (!DA.GetData(_variableInputParameters[10].Name, ref enforceAxisLimits))
+                if (!DA.GetData(_variableInputParameters[11].Name, ref enforceAxisLimits))
                 {
                     enforceAxisLimits = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[11].Name))
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[9].Name))
             {
-                DA.GetData(_variableInputParameters[11].Name, ref author);
+                DA.GetData(_variableInputParameters[9].Name, ref author);
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[12].Name))
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[10].Name))
             {
-                if (!DA.GetData(_variableInputParameters[12].Name, ref errorHandling))
+                if (!DA.GetData(_variableInputParameters[10].Name, ref errorHandling))
                 {
                     errorHandling = (int)ErrorHandling.NoErrorHandling;
                 }
@@ -485,7 +495,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Set Script Author");
             _authorInputParam = !_authorInputParam;
-            AddInputParameter(11);
+            AddInputParameter(9);
         }
 
         private void MenuItemClickRoutineScope(object sender, EventArgs e)
@@ -504,7 +514,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Specify Error Handling");
             _errorHandlingInputParam = !_errorHandlingInputParam;
-            AddInputParameter(12);
+            AddInputParameter(10);
         }
 
         /// <summary>
@@ -576,7 +586,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             RecordUndoEvent("Enforce Axis Limits");
             _enforceAxisLimitsInputParam = !_enforceAxisLimitsInputParam;
-            AddInputParameter(10);
+            AddInputParameter(11);
         }
 
         /// <summary>

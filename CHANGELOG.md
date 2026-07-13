@@ -3,8 +3,33 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-07-13 14:45 
+ Generated on: 2026-07-13 15:01 
  --- 
+ - Merge pull request #11 from jpdrude/fix/error-handling-menu Add configurable error handling to RAPID Generator 
+  
+   **Commit:** `a79a234` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
+ - Fix stale RAPID version-comment assertion in RAPIDGeneratorTests The generated comment text was changed to "a modified version of RobotComponents" in e9b58501 but the test still asserted the old wording, breaking CI. 
+  
+   **Commit:** `4a3d77b` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
+ - Add configurable error handling to RAPID Generator Adds a right-click "Specify Error Handling" option to the RAPID Generator component, backed by a new ErrorHandling enum (No Error Handling / Pause on Error / Skip all Errors). When enabled, an ERROR handler is appended to the end of the generated procedure: Pause on Error logs the error and stops the task, Skip all Errors adds a TRYNEXT. Also fixes the value-list-attached-to-dynamic-input helper placing new dropdowns at canvas (0,0) instead of next to their input. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `cd8068f` | **Date:** 2026-07-11 
+ 
+ --- 
+ 
+ - New Version Commit 
+  
+   **Commit:** `a952410` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
  - Merge pull request #10 from jpdrude/comparisonSigns Refactor value list creation for comparison operators 
   
    **Commit:** `c4d42e0` | **Date:** 2026-07-13 
