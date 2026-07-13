@@ -20,6 +20,7 @@ using GH_IO.Serialization;
 using Rhino.Geometry;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Gh.Goos.Definitions;
 
 namespace RobotComponents.ABB.Gh.Goos.Actions.Declarations
 {
@@ -309,6 +310,38 @@ namespace RobotComponents.ABB.Gh.Goos.Actions.Declarations
                     Value = target;
                     return true;
                 }
+            }
+
+            //Cast from RAPID Variable Goo: Reference Target by variable name
+            if (source is GH_RAPIDVariable rapidVariableGoo)
+            {
+                if (rapidVariableGoo.Value == null || string.IsNullOrEmpty(rapidVariableGoo.Value.Name)) { return false; }
+                Value = new ReferenceTarget(rapidVariableGoo.Value.Name);
+                return true;
+            }
+
+            //Cast from RAPID Variable: Reference Target by variable name
+            if (source is RAPIDVariable rapidVariable)
+            {
+                if (string.IsNullOrEmpty(rapidVariable.Name)) { return false; }
+                Value = new ReferenceTarget(rapidVariable.Name);
+                return true;
+            }
+
+            //Cast from RAPID Expression Goo: Reference Target by expression
+            if (source is GH_RAPIDExpression rapidExpressionGoo)
+            {
+                if (rapidExpressionGoo.Value == null || string.IsNullOrEmpty(rapidExpressionGoo.Value.Expression)) { return false; }
+                Value = new ReferenceTarget(rapidExpressionGoo.Value.Expression);
+                return true;
+            }
+
+            //Cast from RAPID Expression: Reference Target by expression
+            if (source is RAPIDExpression rapidExpression)
+            {
+                if (string.IsNullOrEmpty(rapidExpression.Expression)) { return false; }
+                Value = new ReferenceTarget(rapidExpression.Expression);
+                return true;
             }
 
             //Cast from Plane

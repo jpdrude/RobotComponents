@@ -30,7 +30,14 @@
       "Bash(MSYS_NO_PATHCONV=1 \"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" -p:Configuration=Debug -nologo -v:minimal)",
       "Bash(MSYS_NO_PATHCONV=1 \"/c/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/MSBuild.exe\" \"RobotComponents.ABB.Gh/RobotComponents.ABB.Gh.csproj\" -p:Configuration=Debug -p:RunChangeLog=false -nologo -v:minimal)",
       "Bash(git fetch *)",
-      "Bash(git branch *)"
+      "Bash(git branch *)",
+      "Bash(git log *)",
+      "Bash(git --version)",
+      "Bash(git merge-tree *)",
+      "Bash(git cherry-pick *)",
+      "Bash(command -v dotnet.exe)",
+      "Bash(command -v dotnet)",
+      "Read(//tmp/**)"
     ]
   }
 }
