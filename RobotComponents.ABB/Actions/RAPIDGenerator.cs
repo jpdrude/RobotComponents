@@ -87,6 +87,7 @@ namespace RobotComponents.ABB.Actions
         private bool _isFirstMovementMoveAbsJ;
         private bool _isSynchronized = false;
         private string _author = null;
+        private ErrorHandling _errorHandling = ErrorHandling.NoErrorHandling;
         #endregion
 
         #region constructors
@@ -140,6 +141,7 @@ namespace RobotComponents.ABB.Actions
             _robot = generator.Robot.Duplicate();
             _isFirstMovementMoveAbsJ = generator.IsFirstMovementMoveAbsJ;
             _enforceAxisLimits = generator.EnforceAxisLimits;
+            _errorHandling = generator.ErrorHandling;
             _scope = generator.RoutineScope;
             _mainModule = generator._mainModule;
             _additionalRoutines = generator._additionalRoutines;
@@ -510,6 +512,7 @@ namespace RobotComponents.ABB.Actions
             {
                 _module.Add("   " + $"{_scope} PROC {_procedureName}()");
                 _module.AddRange(_programInstructions);
+                _module.AddRange(GetErrorHandlerCodeLines(_errorHandling));
                 _module.Add("    " + "ENDPROC");
                 _module.Add("    ");
             }
@@ -605,6 +608,38 @@ namespace RobotComponents.ABB.Actions
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Returns the RAPID error handler code lines for the given error handling mode.
+        /// </summary>
+        /// <param name="errorHandling"> The error handling mode. </param>
+        /// <returns>
+        /// The error handler code lines to be added just before the ENDPROC.
+        /// An empty list is returned when no error handling is requested.
+        /// </returns>
+        private static List<string> GetErrorHandlerCodeLines(ErrorHandling errorHandling)
+        {
+            List<string> lines = new List<string>();
+
+            if (errorHandling == ErrorHandling.PauseOnError)
+            {
+                lines.Add("    ");
+                lines.Add("   " + "     " + "ERROR");
+                lines.Add("   " + "         " + "VAR string msg;");
+                lines.Add("   " + "         " + "msg := \"Task \" + GetTaskName() + \" ERRNO=\" + NumToStr(ERRNO,0) + \" @\" + CDate() + \" \" + CTime();");
+                lines.Add("   " + "         " + "TPWrite msg;");
+                lines.Add("   " + "         " + "ErrWrite \\W, \"Task \" + GetTaskName() + \" stopped\", msg;");
+                lines.Add("   " + "         " + "Stop;");
+            }
+            else if (errorHandling == ErrorHandling.SkipAllErrors)
+            {
+                lines.Add("    ");
+                lines.Add("   " + "     " + "ERROR");
+                lines.Add("   " + "        " + "TRYNEXT;");
+            }
+
+            return lines;
         }
 
         /// <summary>
@@ -902,6 +937,16 @@ namespace RobotComponents.ABB.Actions
         {
             get { return _enforceAxisLimits; }
             set { _enforceAxisLimits = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the error handling mode that defines whether and how an ERROR
+        /// handler is added to the end of the generated procedure.
+        /// </summary>
+        public ErrorHandling ErrorHandling
+        {
+            get { return _errorHandling; }
+            set { _errorHandling = value; }
         }
 
         /// <summary>

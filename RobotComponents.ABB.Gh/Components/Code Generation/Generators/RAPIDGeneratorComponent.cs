@@ -59,6 +59,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _addWobjdataInputParam = false;
         private bool _enforceAxisLimitsInputParam = false;
         private bool _authorInputParam = false;
+        private bool _errorHandlingInputParam = false;
         private readonly int _fixedParamNumInput = 2;
         private bool _loaddataOutputParam = false;
         private bool _tooldataOutputParam = false;
@@ -83,7 +84,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Stores the variable input parameters in an array.
         /// </summary>
-        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[12]
+        private readonly IGH_Param[] _variableInputParameters = new IGH_Param[13]
         {
             new Param_Boolean() { Name = "Is System Moudle", NickName = "SM", Description = "Indicates whether this module should be uploaded as a System Module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Module Name", NickName = "MN", Description = "The name of the module as a text. The default name is MainModule.", Access = GH_ParamAccess.item, Optional = true},
@@ -96,7 +97,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             new Param_Boolean() { Name = "Add wobjdata", NickName = "AW", Description = "Indicates if the wobjdata should be added the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Update", NickName = "U", Description = "Updates the RAPID module based on a boolean value. To increase performance, only update when changes were made.", Access = GH_ParamAccess.item, Optional = true },
             new Param_Boolean() { Name = "Enforce Axis Limits", NickName = "EL", Description = "When true (default), axis limit violations prevent RAPID code generation. Set to false to allow generation with warnings only.", Access = GH_ParamAccess.item, Optional = true},
-            new Param_String() { Name = "Author", NickName = "AU", Description = "The script author name written as a comment at the beginning of the RAPID module.", Access = GH_ParamAccess.item, Optional = true}
+            new Param_String() { Name = "Author", NickName = "AU", Description = "The script author name written as a comment at the beginning of the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Integer() { Name = "Error Handling", NickName = "EH", Description = "Defines how RAPID errors are handled in the procedure. Use 0 for no error handling, 1 to pause on error and 2 to skip all errors.", Access = GH_ParamAccess.item, Optional = true}
         };
 
         /// <summary>
@@ -150,6 +152,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             bool update = true;
             bool enforceAxisLimits = true;
             string author = null;
+            int errorHandling = (int)ErrorHandling.NoErrorHandling;
 
             // Catch the input data
             if (!DA.GetData(0, ref robot)) { return; }
@@ -160,6 +163,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (_routineScopeParam && scopeParamIndex != -1 && this.Params.Input[scopeParamIndex].SourceCount == 0)
             {
                 HelperMethods.CreateValueList(this, typeof(Scope), scopeParamIndex);
+                this.ExpireSolution(true);
+            }
+
+            // Creates the input value list for the error handling and attachs it to the input parameter
+            int errorHandlingParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[12].Name);
+            if (_errorHandlingInputParam && errorHandlingParamIndex != -1 && this.Params.Input[errorHandlingParamIndex].SourceCount == 0)
+            {
+                HelperMethods.CreateValueList(this, typeof(ErrorHandling), errorHandlingParamIndex);
                 this.ExpireSolution(true);
             }
 
@@ -245,6 +256,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 DA.GetData(_variableInputParameters[11].Name, ref author);
             }
+            if (Params.Input.Any(x => x.Name == _variableInputParameters[12].Name))
+            {
+                if (!DA.GetData(_variableInputParameters[12].Name, ref errorHandling))
+                {
+                    errorHandling = (int)ErrorHandling.NoErrorHandling;
+                }
+            }
 
             // Checks if module name exceeds max character limit for RAPID Code
             if (HelperMethods.StringExeedsCharacterLimit32(moduleName))
@@ -297,6 +315,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 _rapidGenerator = new RAPIDGenerator(robot, moduleName, routineName, (Scope)scope, mainModule, additionalRoutines, isSystemModule);
                 _rapidGenerator.EnforceAxisLimits = enforceAxisLimits;
                 _rapidGenerator.Author = author;
+                _rapidGenerator.ErrorHandling = (ErrorHandling)errorHandling;
 
                 // Generator code
                 _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
@@ -408,6 +427,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Menu_AppendItem(menu, "Overwrite Routine Name", MenuItemClickRoutineName, true, _routineNameInputParam);
             Menu_AppendItem(menu, "Set Script Author", MenuItemClickAuthor, true, _authorInputParam);
             Menu_AppendItem(menu, "Specify Routine Scope", MenuItemClickRoutineScope, true, _routineScopeParam);
+            Menu_AppendItem(menu, "Specify Error Handling", MenuItemClickErrorHandling, true, _errorHandlingInputParam);
             Menu_AppendItem(menu, "Add Superordinate Main Method", MenuItemClickMainModule, true, _addMainModuleInputParam);
             Menu_AppendItem(menu, "Add Additional Routines", MenuItemClickAdditionalRoutines, true, _addAdditionalRoutinesInputParam);
             Menu_AppendItem(menu, "Add Load Data", MenuItemClickLoaddata, true, _addLoaddataInputParam);
@@ -473,6 +493,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             RecordUndoEvent("Specify Routine Scope");
             _routineScopeParam = !_routineScopeParam;
             AddInputParameter(3);
+        }
+
+        /// <summary>
+        /// Handles the event when the custom menu item "Specify Error Handling" is clicked.
+        /// </summary>
+        /// <param name="sender"> The object that raises the event. </param>
+        /// <param name="e"> The event data. </param>
+        private void MenuItemClickErrorHandling(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Specify Error Handling");
+            _errorHandlingInputParam = !_errorHandlingInputParam;
+            AddInputParameter(12);
         }
 
         /// <summary>
@@ -647,6 +679,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             writer.SetBoolean("Output wobjdata", _wobjdataOutputParam);
             writer.SetBoolean("Enforce Axis Limits", _enforceAxisLimitsInputParam);
             writer.SetBoolean("Author", _authorInputParam);
+            writer.SetBoolean("Error Handling", _errorHandlingInputParam);
             return base.Write(writer);
         }
 
@@ -677,6 +710,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 _enforceAxisLimitsInputParam = reader.GetBoolean("Enforce Axis Limits");
             if (reader.ItemExists("Author"))
                 _authorInputParam = reader.GetBoolean("Author");
+            if (reader.ItemExists("Error Handling"))
+                _errorHandlingInputParam = reader.GetBoolean("Error Handling");
             return base.Read(reader);
         }
 
