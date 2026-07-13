@@ -12,6 +12,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
@@ -80,7 +81,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (this.Params.Input[1].SourceCount == 0)
             {
                 _expire = true;
-                HelperMethods.CreateValueList(this, typeof(ComparisonOperator), 1);
+                HelperMethods.CreateValueList(this, new List<string>() { "<", ">", "<=", ">=", "\uFF1D", "<>" }, 1);
             }
 
             if (_expire)

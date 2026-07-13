@@ -11,6 +11,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
@@ -75,7 +76,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (this.Params.Input[2].SourceCount == 0)
             {
                 _expire = true;
-                HelperMethods.CreateValueList(this, typeof(InequalitySymbol), 2);
+                HelperMethods.CreateValueList(this, new List<string>() { "<", ">" }, 2);
             }
 
             // Expire solution of this component
