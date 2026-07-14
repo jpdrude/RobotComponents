@@ -3,8 +3,22 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-07-13 15:01 
+ Generated on: 2026-07-14 12:23 
  --- 
+ - Merge pull request #12 from jpdrude/RAPIDVariable_Compatibility Add ReferenceTarget and enhance RAPID Generator 
+  
+   **Commit:** `9a8e755` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
+ - Add ReferenceTarget and enhance RAPID Generator Introduced the `ReferenceTarget` class for symbolic RAPID target references, including serialization, duplication, and validation. Enhanced `RAPIDGeneratorComponent` with reordered input parameters, asynchronous solution scheduling, and improved error handling. 
+ - Added new Git commands in `settings.local.json` to expand repository interaction capabilities. Updated `GH_Target.cs` to support casting for `RAPIDVariable` and `RAPIDExpression` types. Incremented version to 1.3.4 in `VersionNumbering.cs`. 
+ - Updated `CHANGELOG.md` with recent changes and fixed parameter indexing issues. Added SPDX license headers and author information for better compliance. 
+  
+   **Commit:** `d67f88e` | **Date:** 2026-07-13 
+ 
+ --- 
+ 
  - Merge pull request #11 from jpdrude/fix/error-handling-menu Add configurable error handling to RAPID Generator 
   
    **Commit:** `a79a234` | **Date:** 2026-07-13 

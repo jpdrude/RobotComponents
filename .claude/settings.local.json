@@ -37,7 +37,8 @@
       "Bash(git cherry-pick *)",
       "Bash(command -v dotnet.exe)",
       "Bash(command -v dotnet)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(gh auth *)"
     ]
   }
 }
