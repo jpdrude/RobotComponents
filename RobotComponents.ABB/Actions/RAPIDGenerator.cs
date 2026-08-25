@@ -626,7 +626,7 @@ namespace RobotComponents.ABB.Actions
             {
                 lines.Add("    ");
                 lines.Add("   " + "     " + "ERROR");
-                lines.Add("   " + "         " + "ErrWrite \\W, \"Task \" + GetTaskName() + \" stopped\", \"Task \" + GetTaskName() + \" ERRNO=\" + NumToStr(ERRNO,0) + \" @\" + CDate() + \" \" + CTime();;");
+                lines.Add("   " + "         " + "ErrWrite \\W, \"Task \" + GetTaskName() + \" stopped\", \"Task \" + GetTaskName() + \" ERRNO=\" + NumToStr(ERRNO,0) + \" @\" + CDate() + \" \" + CTime();");
                 lines.Add("   " + "         " + "Stop;");
             }
             else if (errorHandling == ErrorHandling.SkipAllErrors)

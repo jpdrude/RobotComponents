@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-08-25 10:10 
+ Generated on: 2026-08-25 10:45 
  --- 
+ - Update version number before new version 1.3.6 
+  
+   **Commit:** `9cf1f30` | **Date:** 2026-08-25 
+ 
+ --- 
+ 
  - Merge pull request #13 from jpdrude/fix/path-generator-stale-cache Fix Path/Timed Path Generator caching to include tool and robot changes 
   
    **Commit:** `349a9ca` | **Date:** 2026-08-25 
