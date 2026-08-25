@@ -763,7 +763,20 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             int hash = (int)(timeInterval * 1000);
             hash = hash * 31 + robot.Name.GetHashCode();
             hash = hash * 31 + robot.Tool.Name.GetHashCode();
+            hash = hash * 31 + robot.Tool.ToRAPID().GetHashCode();
             hash = hash * 31 + robot.BasePlane.GetHashCode();
+            hash = hash * 31 + robot.MountingFrame.GetHashCode();
+
+            foreach (Plane plane in robot.InternalAxisPlanes)
+            {
+                hash = hash * 31 + plane.GetHashCode();
+            }
+
+            foreach (Interval limit in robot.InternalAxisLimits)
+            {
+                hash = hash * 31 + limit.GetHashCode();
+            }
+
             hash = hash * 31 + robot.ExternalAxes.Count.GetHashCode();
 
             foreach (IExternalAxis axis in robot.ExternalAxes)
@@ -784,6 +797,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
                 if (action is OverrideRobotTool overrideRobotTool)
                 {
                     hash = hash * 31 + overrideRobotTool.RobotTool.Name.GetHashCode();
+                    hash = hash * 31 + overrideRobotTool.RobotTool.ToRAPID().GetHashCode();
                 }
                 else if (action is JointConfigurationControl jointConfigurationControl)
                 {
