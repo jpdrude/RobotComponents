@@ -3,8 +3,29 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-07-14 12:23 
+ Generated on: 2026-08-25 10:10 
  --- 
+ - Merge pull request #13 from jpdrude/fix/path-generator-stale-cache Fix Path/Timed Path Generator caching to include tool and robot changes 
+  
+   **Commit:** `349a9ca` | **Date:** 2026-08-25 
+ 
+ --- 
+ 
+ - Fix Path/Timed Path Generator caching to include tool and robot changes PathGeneratorComponent and TimedPathGeneratorComponent cache the generated path per iteration and only recompute it when an input hash changes. That hash previously only accounted for the tool's Name, so changing the tool's TCP plane, attachment plane, robot-hold flag, or load data (without renaming it) silently kept the stale cached path. The same gap existed for OverrideRobotTool actions. 
+ - The hash also omitted robot-model data that can change independently of the robot Name: mounting frame, internal axis planes, and internal axis limits. 
+ - Include RobotTool.ToRAPID() (which already encodes the TCP transform relative to the attachment plane, robot-hold, and load data) in the hash, and add the robot's mounting frame, internal axis planes, and internal axis limits. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_012FWAydD7Dwp39BFS6E7bxy 
+  
+   **Commit:** `0336107` | **Date:** 2026-08-25 
+ 
+ --- 
+ 
+ - Fixed Syntax Error in Error-Handling in RAPIDGenerator. 
+  
+   **Commit:** `805ebe6` | **Date:** 2026-07-14 
+ 
+ --- 
+ 
  - Merge pull request #12 from jpdrude/RAPIDVariable_Compatibility Add ReferenceTarget and enhance RAPID Generator 
   
    **Commit:** `9a8e755` | **Date:** 2026-07-13 
