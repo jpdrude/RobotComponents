@@ -3,8 +3,22 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-02 11:38 
+ Generated on: 2026-09-02 11:42 
  --- 
+ - Merge pull request #15 from jpdrude/fix/assign-variable-value-rapid-values Fix Assign Variable Value assigning type names instead of values 
+  
+   **Commit:** `75aca09` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
+ - Fix Assign Variable Value assigning type names instead of values The Value/Values inputs were text parameters, so wiring in a RAPID declaration (Robot Target, Speed Data, RAPID Variable, ...) got silently stringified by Grasshopper's default ToString() before SolveInstance ever ran, producing text like "Robot Target" instead of a usable RAPID value. 
+ - Both inputs are now generic parameters, and the component resolves the underlying value itself: RAPID declarations resolve to their declared name (or inline RAPID value if unnamed), RAPID Expressions resolve to their expression text, and plain values (bool/number/ string) are formatted with invariant culture so decimal points don't turn into commas. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `583cf5c` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
  - Merge pull request #14 from jpdrude/feature/routine-argument-variable-output Add RAPIDVariable output to Routine Argument component 
   
    **Commit:** `80fb390` | **Date:** 2026-09-02 

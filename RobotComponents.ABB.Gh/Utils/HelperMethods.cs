@@ -15,12 +15,14 @@
 // System Libs
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Drawing;
 // Grasshopper Libs
 using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Special;
+using Grasshopper.Kernel.Types;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Gh.Goos.Definitions;
@@ -163,6 +165,48 @@ namespace RobotComponents.ABB.Gh.Utils
                 component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     $"{paramName} \"{expr}\" is not a valid RAPID expression.");
             return expr;
+        }
+
+        /// <summary>
+        /// Resolves an arbitrary input value (typically read via <c>DA.GetData(i, ref object)</c>) to the
+        /// RAPID text it should contribute to generated code, e.g. an argument value or the right-hand side
+        /// of an assignment. A RAPID declaration/variable (Robot Target, Speed Data, RAPID Variable, ...) is
+        /// resolved to its declared name so the generated code references the existing declaration, falling
+        /// back to its inline RAPID value if it was not given a name. A RAPID Expression is resolved to its
+        /// raw expression text. Anything else (bool, number, string, ...) is converted with invariant
+        /// formatting so it produces valid RAPID syntax regardless of the current culture.
+        /// </summary>
+        /// <param name="raw"> The raw value, either an <see cref="IGH_Goo"/> or an already-unwrapped object. </param>
+        /// <returns> The RAPID text for <paramref name="raw"/>, or null if <paramref name="raw"/> is null. </returns>
+        public static string ResolveRAPIDValueExpression(object raw)
+        {
+            object value = raw is IGH_Goo goo ? goo.ScriptVariable() : raw;
+
+            switch (value)
+            {
+                case null:
+                    return null;
+                case RAPIDVariable rapidVariable:
+                    return rapidVariable.Name;
+                case RAPIDExpression rapidExpression:
+                    return rapidExpression.Expression;
+                case RoutineArgument routineArgument:
+                    return routineArgument.ToCallString();
+                case IDeclaration declaration:
+                    return !string.IsNullOrEmpty(declaration.Name) ? declaration.Name : declaration.ToRAPID();
+                case bool boolean:
+                    return boolean ? "TRUE" : "FALSE";
+                case double number:
+                    return number.ToString("0.######", CultureInfo.InvariantCulture);
+                case float number:
+                    return number.ToString("0.######", CultureInfo.InvariantCulture);
+                case int integer:
+                    return integer.ToString(CultureInfo.InvariantCulture);
+                case string text:
+                    return text;
+                default:
+                    return value.ToString();
+            }
         }
 
         /// <summary>
