@@ -18,6 +18,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Gh.Goos.Actions.Declarations;
 using RobotComponents.ABB.Gh.Parameters.Actions.Declarations;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
@@ -69,6 +70,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_RoutineArgument(), "Argument", "Arg", "Resulting Routine Argument");
+            pManager.RegisterParam(new Param_RAPIDVariable(), "Variable", "V",
+                "The argument represented as a RAPID Variable, so it can be referenced inside the routine body " +
+                "(e.g. as input for Assign Variable Value).",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -99,8 +104,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (valueObject != null)
                 value = valueObject.ToString();
 
-            // Sets Output
+            // Resolve the argument keyword to a RAPIDVariableKeyword (defaults to VAR for
+            // unmarked / by-value arguments, which behave as plain local variables in the body).
+            RAPIDVariableKeyword variableKeyword = RAPIDVariableKeyword.VAR;
+            if (!string.IsNullOrEmpty(keyword) && !Enum.TryParse(keyword, true, out variableKeyword))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    $"Keyword <{keyword}> is not a valid RAPID variable keyword. Use VAR, PERS, INOUT or CONST.");
+                variableKeyword = RAPIDVariableKeyword.VAR;
+            }
+
+            // Sets Outputs
             DA.SetData(0, new RoutineArgument(type, name, value, keyword));
+            DA.SetData(1, new RAPIDVariable(
+                RAPIDVariableLevel.Routine, Scope.LOCAL, variableKeyword, type, name));
         }
 
         #region properties
