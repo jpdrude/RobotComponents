@@ -3,8 +3,29 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-02 11:46 
+ Generated on: 2026-09-02 15:29 
  --- 
+ - Version Number update 
+  
+   **Commit:** `08cc05c` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
+ - Merge pull request #17 from jpdrude/feature/offs-expression-component Add Offs Expression component wrapping RAPID's Offs() function 
+  
+   **Commit:** `f893d3f` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
+ - Add Offs Expression component wrapping RAPID's Offs() function New GH component that wraps the RAPID built-in Offs(Target, X, Y, Z) function into a RAPIDExpression, so it can be wired into a Move target, Assign Variable Value, or any other RAPID Expression input. 
+ 	 - Target accepts a Robot Target, a RAPID Variable (e.g. an INOUT robtarget routine argument), or a RAPID Expression, resolved via HelperMethods.ResolveRAPIDValueExpression (same resolution used by Assign Variable Value and Routine Call). 
+ 	 - X/Y/Z are Param_RAPIDExpression inputs (default 0.0), matching the existing convention used by Acceleration Set/Velocity Set/etc., so plain numbers, RAPID variables, or expressions can all be wired in. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `2584017` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
  - Merge pull request #16 from jpdrude/fix/routine-call-rapid-variable-argument Fix Routine Call printing full declaration for RAPID Variable arguments 
   
    **Commit:** `b9dd15a` | **Date:** 2026-09-02 

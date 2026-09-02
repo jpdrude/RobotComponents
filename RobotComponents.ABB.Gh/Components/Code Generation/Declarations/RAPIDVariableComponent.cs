@@ -42,8 +42,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
         // Fixed parameter count: Level(0), Scope(1), Keyword(2), Type(3), Name(4).
         // Index 5 onward is mode-dependent:
-        //   Scalar : Value       (text, item,  optional)
-        //   Array  : Array Size  (int,  item)  +  Values  (text, list, optional)
+        //   Scalar : Value       (generic, item,  optional)
+        //   Array  : Array Size  (int,     item)  +  Values  (generic, list, optional)
         private const int _fixedParamCount = 5;
 
         private const string _valueName     = "Value";
@@ -82,8 +82,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 "Variable name.",
                 GH_ParamAccess.item);
             // Index 5 — scalar mode default
-            pManager.AddTextParameter(_valueName, "V",
-                "Initial value. Leave unconnected to omit the assignment.",
+            pManager.AddGenericParameter(_valueName, "V",
+                "Initial value. Leave unconnected to omit the assignment. Accepts a literal RAPID expression " +
+                "(e.g. 42, TRUE, \"hello\") or any RAPID declaration/variable/expression (Robot Target, Speed Data, " +
+                "RAPID Variable, ...), which is resolved to its declared name, or its inline RAPID value if it has no name.",
                 GH_ParamAccess.item);
 
             pManager[0].Optional = true;
@@ -182,8 +184,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     return;
                 }
 
-                List<string> values = new List<string>();
-                DA.GetDataList(_valuesName, values); // optional
+                List<object> rawValues = new List<object>();
+                DA.GetDataList(_valuesName, rawValues); // optional
+                List<string> values = rawValues.Select(HelperMethods.ResolveRAPIDValueExpression).ToList();
 
                 if (values.Count > 0 && values.Count != arraySize)
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
@@ -204,8 +207,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             else
             {
                 // --- Scalar mode ---
-                string value = null;
-                DA.GetData(_valueName, ref value);
+                object rawValue = null;
+                DA.GetData(_valueName, ref rawValue);
+                string value = HelperMethods.ResolveRAPIDValueExpression(rawValue);
 
                 if (keyword == 3 && string.IsNullOrEmpty(value))
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
@@ -292,12 +296,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }, _fixedParamCount);
 
                 // Add "Values" after Array Size
-                Params.RegisterInputParam(new Param_String
+                Params.RegisterInputParam(new Param_GenericObject
                 {
                     Name        = _valuesName,
                     NickName    = "V",
-                    Description = "Initial values for the array elements as a list of strings. " +
-                                  "Count must match Array Size. Leave unconnected for an uninitialised array.",
+                    Description = "Initial values for the array elements as a list. Count must match Array Size. " +
+                                  "Leave unconnected for an uninitialised array. Each item accepts a literal RAPID " +
+                                  "expression or any RAPID declaration/variable/expression, resolved the same way " +
+                                  "as the scalar Value input.",
                     Access      = GH_ParamAccess.list,
                     Optional    = true
                 }, _fixedParamCount + 1);
@@ -314,11 +320,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     Params.UnregisterInputParameter(valuesParam, true);
 
                 // Restore scalar "Value" param
-                Params.RegisterInputParam(new Param_String
+                Params.RegisterInputParam(new Param_GenericObject
                 {
                     Name        = _valueName,
                     NickName    = "V",
-                    Description = "Initial value. Leave unconnected to omit the assignment.",
+                    Description = "Initial value. Leave unconnected to omit the assignment. Accepts a literal RAPID " +
+                                  "expression (e.g. 42, TRUE, \"hello\") or any RAPID declaration/variable/expression " +
+                                  "(Robot Target, Speed Data, RAPID Variable, ...), which is resolved to its declared " +
+                                  "name, or its inline RAPID value if it has no name.",
                     Access      = GH_ParamAccess.item,
                     Optional    = true
                 }, _fixedParamCount);
