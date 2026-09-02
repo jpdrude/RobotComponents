@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-02 11:05 
+ Generated on: 2026-09-02 11:38 
  --- 
+ - Merge pull request #14 from jpdrude/feature/routine-argument-variable-output Add RAPIDVariable output to Routine Argument component 
+  
+   **Commit:** `80fb390` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
+ - Add RAPIDVariable output to Routine Argument component Routine Argument now also outputs the argument as a RAPIDVariable (Routine level, LOCAL scope) so it can be referenced inside the routine body, e.g. as input for Assign Variable Value. The Keyword text input is parsed into RAPIDVariableKeyword (VAR/PERS/INOUT/CONST), defaulting to VAR for unmarked arguments. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `7fb6048` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
  - Minor fix in error handling. ErrWrite was called with two ';' in GetErrorHandlerCodeLines 
   
    **Commit:** `2cdd0b5` | **Date:** 2026-08-25 
