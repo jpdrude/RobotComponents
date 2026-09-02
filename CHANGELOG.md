@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-08-25 10:45 
+ Generated on: 2026-09-02 11:05 
  --- 
+ - Minor fix in error handling. ErrWrite was called with two ';' in GetErrorHandlerCodeLines 
+  
+   **Commit:** `2cdd0b5` | **Date:** 2026-08-25 
+ 
+ --- 
+ 
  - Update version number before new version 1.3.6 
   
    **Commit:** `9cf1f30` | **Date:** 2026-08-25 
