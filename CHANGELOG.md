@@ -3,8 +3,23 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-02 11:42 
+ Generated on: 2026-09-02 11:46 
  --- 
+ - Merge pull request #16 from jpdrude/fix/routine-call-rapid-variable-argument Fix Routine Call printing full declaration for RAPID Variable arguments 
+  
+   **Commit:** `b9dd15a` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
+ - Fix Routine Call printing full declaration for RAPID Variable arguments RoutineCallComponent resolved a RAPIDVariable argument via ToString() on the raw Goo, which prints the full declaration (e.g. 'VAR num x := 5;') instead of just the variable name to reference in the call. 
+ - Extracted the RAPID value-resolution logic already added to AssignVariableValueComponent into a shared HelperMethods. 
+ - ResolveRAPIDValueExpression(), and use it in both components so a RAPIDVariable resolves to its Name, an IDeclaration (Robot Target, Speed Data, ...) to its Name (or inline RAPID value if unnamed), a RAPIDExpression to its expression text, and RoutineArgument via ToCallString(), consistently wherever an argument/value is resolved. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `d843a7e` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
  - Merge pull request #15 from jpdrude/fix/assign-variable-value-rapid-values Fix Assign Variable Value assigning type names instead of values 
   
    **Commit:** `75aca09` | **Date:** 2026-09-02 
