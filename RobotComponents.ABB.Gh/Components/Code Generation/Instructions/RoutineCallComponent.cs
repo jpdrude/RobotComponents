@@ -14,7 +14,6 @@
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
-using Grasshopper.Kernel.Types;
 // RobotComponents
 using RobotComponents.ABB.Actions;
 using RobotComponents.ABB.Actions.Declarations;
@@ -194,21 +193,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 object arg = null;
                 if (DA.GetData(i, ref arg))
                 {
-                    IGH_Goo gooArg = arg as IGH_Goo;
-                    object value = gooArg.ScriptVariable();
-
-                    if (value is RoutineArgument routineArg)
-                    {
-                        argValues.Add(routineArg.ToCallString());
-                    }
-                    else if (value is IDeclaration decl)
-                    {
-                        argValues.Add(decl.ToRAPID());
-                    }
-                    else
-                    {
-                        argValues.Add(arg.ToString());
-                    }
+                    argValues.Add(HelperMethods.ResolveRAPIDValueExpression(arg));
                 }
             }
 

@@ -13,7 +13,6 @@
 // System Libs
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 // Grasshopper Libs
@@ -28,6 +27,7 @@ using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Gh.Goos.Definitions;
 using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
+using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
@@ -145,7 +145,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     return;
                 }
 
-                List<string> values = rawValues.Select(ResolveValueExpression).ToList();
+                List<string> values = rawValues.Select(HelperMethods.ResolveRAPIDValueExpression).ToList();
                 if (values.Any(string.IsNullOrWhiteSpace))
                 {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more values are empty.");
@@ -165,7 +165,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 object rawValue = null;
                 if (!DA.GetData(_scalarValueName, ref rawValue)) { return; }
 
-                string value = ResolveValueExpression(rawValue);
+                string value = HelperMethods.ResolveRAPIDValueExpression(rawValue);
 
                 if (string.IsNullOrWhiteSpace(value))
                 {
@@ -178,45 +178,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 DA.SetData(0, variable);
                 DA.SetData(1, new CodeLine(code, CodeType.Instruction));
-            }
-        }
-
-        /// <summary>
-        /// Resolves an input value to the RAPID text used on the right-hand side of the assignment.
-        /// A RAPID declaration/variable (Robot Target, Speed Data, RAPID Variable, ...) is resolved to
-        /// its declared name so the assignment references the existing declaration, falling back to its
-        /// inline RAPID value if it was not given a name. A RAPID Expression is resolved to its raw
-        /// expression text. Anything else (bool, number, string, ...) is converted with invariant
-        /// formatting so it produces valid RAPID syntax regardless of the current culture.
-        /// </summary>
-        private static string ResolveValueExpression(object raw)
-        {
-            object value = raw is IGH_Goo goo ? goo.ScriptVariable() : raw;
-
-            switch (value)
-            {
-                case null:
-                    return null;
-                case RAPIDVariable rapidVariable:
-                    return rapidVariable.Name;
-                case RAPIDExpression rapidExpression:
-                    return rapidExpression.Expression;
-                case RoutineArgument routineArgument:
-                    return routineArgument.ToCallString();
-                case IDeclaration declaration:
-                    return !string.IsNullOrEmpty(declaration.Name) ? declaration.Name : declaration.ToRAPID();
-                case bool boolean:
-                    return boolean ? "TRUE" : "FALSE";
-                case double number:
-                    return number.ToString("0.######", CultureInfo.InvariantCulture);
-                case float number:
-                    return number.ToString("0.######", CultureInfo.InvariantCulture);
-                case int integer:
-                    return integer.ToString(CultureInfo.InvariantCulture);
-                case string text:
-                    return text;
-                default:
-                    return value.ToString();
             }
         }
 
