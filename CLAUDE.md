@@ -52,6 +52,37 @@ Existing `.gh` files keep loading the frozen `_OBSOLETE` class exactly as before
 toolbar, so it can't be newly placed); new placements get the live component. Users with old files must
 replace the component instance to pick up the change — same as swapping in any new component.
 
+### Also add an `IGH_UpgradeObject` so GH's own "Upgrade Components" can do that replacement
+
+Alongside the `_OBSOLETE` snapshot, add a matching upgrader class in
+`RobotComponents.ABB.Gh/Upgraders/vN/<ComponentName>Upgrader.cs` (same `vN` folder name as the
+`Obsolete` snapshot for that change) implementing `Grasshopper.Kernel.IGH_UpgradeObject`
+(`Version`, `UpgradeFrom` = the old/obsolete guid, `UpgradeTo` = the new live guid, and
+`Upgrade(IGH_DocumentObject target, GH_Document document)`). GH auto-discovers it the same way it
+discovers components — no registration needed, just a public parameterless constructor. This lets a
+user run GH's built-in Solution → "Upgrade Components" to swap every old instance in a file for the
+live one, with wires reconnected automatically, instead of manually replacing each one.
+
+Inside `Upgrade(...)`: construct a new live-component instance (not yet in a document), migrate each
+input/output's wires from the old instance onto the matching new one via
+`GH_UpgradeUtil.MigrateSources(oldParam, newParam)` (inputs) / `GH_UpgradeUtil.MigrateRecipients(oldParam, newParam)`
+(outputs) — verified via IL decompilation to be **pure wire-only** migration (moves `Sources`/`Recipients`
+list entries, safe regardless of whether the param's type changed) — then finish with
+`GH_UpgradeUtil.SwapComponents(oldComponent, newComponent, false)` (the `false` is required: `true` would
+call `ReplaceInputParameters`/`ReplaceOutputParameters`, which **transplant the param object itself**
+rather than just its wires, silently carrying a stale param type onto the new component for any
+parameter whose type changed). See `RobotComponents.ABB.Gh/Upgraders/v5/UpgradeHelpers.cs` and its
+sibling upgrader classes for the established pattern, including how to read an old instance's
+menu-toggled mode (array/index on or off) off which of its named params are currently registered, and
+put a freshly-constructed new instance into the matching mode *before* migrating wires (via an
+`internal ConfigureForUpgrade(...)` hook on the component, see `AssignVariableValueComponent`/
+`RAPIDVariableComponent`) so the params to migrate onto actually exist.
+
+Each upgrader's XML doc comment carries a "reference list" table of the old→new input/output name,
+type and index mapping for that component — write one for every new upgrader; it's what makes the
+wire-migration calls in `Upgrade(...)` auditable against the actual param shapes instead of having to
+re-derive them from the two component files by hand.
+
 **When this pattern is applied, remind the user to bump the MINOR (second) version number** in
 `RobotComponents/VersionNumbering.cs` (`CurrentVersion` and `Version`) — e.g. `1.3.8` → `1.4.0` — per the
 versioning rule already documented in that file ("MINOR version when you add functionality in a

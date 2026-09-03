@@ -274,10 +274,40 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
+        /// Puts a freshly-constructed instance (not yet part of a document) into the given
+        /// array mode, matching whatever mode an old component being upgraded to this one was
+        /// in, so the upgrader can then wire-migrate "Value"/"Array Size"/"Values" onto the
+        /// correct slot. Deliberately skips ExpireSolution — the component isn't attached to a
+        /// document yet, so there's nothing to (re)solve, and calling it here would be reentrant
+        /// with whatever solve is already in progress. Same-assembly use only (upgrader classes);
+        /// not part of the public component API.
+        /// </summary>
+        internal void ConfigureForUpgrade(bool arrayMode)
+        {
+            if (_arraySizeInputParam != arrayMode)
+            {
+                _arraySizeInputParam = arrayMode;
+                ApplyArrayMode();
+            }
+        }
+
+        /// <summary>
         /// Swaps the parameter set at index 5+ between scalar mode (Value item) and
         /// array mode (Array Size int + Values list).
         /// </summary>
         private void ToggleArrayParams()
+        {
+            ApplyArrayMode();
+            Params.OnParametersChanged();
+            ExpireSolution(true);
+        }
+
+        /// <summary>
+        /// Registers/unregisters the mode-dependent input params to match
+        /// <see cref="_arraySizeInputParam"/>. Pure param bookkeeping — no solve-triggering
+        /// side effects — so it is also safe to call before the component is added to a document.
+        /// </summary>
+        private void ApplyArrayMode()
         {
             if (_arraySizeInputParam)
             {
@@ -312,9 +342,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 // Restore scalar "Value" param
                 Params.RegisterInputParam(CreateScalarValueParam(), _fixedParamCount);
             }
-
-            Params.OnParametersChanged();
-            ExpireSolution(true);
         }
 
         /// <summary>

@@ -217,9 +217,43 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
+        /// Puts a freshly-constructed instance (not yet part of a document) into the given
+        /// array/index mode, matching whatever mode an old component being upgraded to this one
+        /// was in, so the upgrader can then wire-migrate "Value"/"Values"/"Index" onto the
+        /// correct slot. Deliberately skips ExpireSolution — the component isn't attached to a
+        /// document yet, so there's nothing to (re)solve, and calling it here would be reentrant
+        /// with whatever solve is already in progress. Same-assembly use only (upgrader classes);
+        /// not part of the public component API.
+        /// </summary>
+        internal void ConfigureForUpgrade(bool arrayMode, bool indexEnabled)
+        {
+            if (_arrayValuesInputParam != arrayMode)
+            {
+                _arrayValuesInputParam = arrayMode;
+                ApplyArrayMode();
+            }
+            if (_arrayIndexInputParam != indexEnabled)
+            {
+                _arrayIndexInputParam = indexEnabled;
+                ApplyIndexParam();
+            }
+        }
+
+        /// <summary>
         /// Swaps the value parameter at index 1 between scalar (item) and array (list) mode.
         /// </summary>
         private void ToggleArrayParams()
+        {
+            ApplyArrayMode();
+            Params.OnParametersChanged();
+            ExpireSolution(true);
+        }
+
+        /// <summary>
+        /// Registers the "Value" or "Values" input matching the current _arrayValuesInputParam
+        /// state, without touching solution/expire state (see ConfigureForUpgrade).
+        /// </summary>
+        private void ApplyArrayMode()
         {
             if (_arrayValuesInputParam)
             {
@@ -241,9 +275,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 // Restore scalar "Value" param at index 1
                 Params.RegisterInputParam(CreateScalarValueParam(), 1);
             }
-
-            Params.OnParametersChanged();
-            ExpireSolution(true);
         }
 
         /// <summary>
@@ -285,6 +316,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private void ToggleIndexParam()
         {
+            ApplyIndexParam();
+            Params.OnParametersChanged();
+            ExpireSolution(true);
+        }
+
+        /// <summary>
+        /// Registers or removes the "Index" input matching the current _arrayIndexInputParam
+        /// state, without touching solution/expire state (see ConfigureForUpgrade).
+        /// </summary>
+        private void ApplyIndexParam()
+        {
             if (_arrayIndexInputParam)
             {
                 Params.RegisterInputParam(new Param_GenericObject
@@ -303,9 +345,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 if (indexParam != null)
                     Params.UnregisterInputParameter(indexParam, true);
             }
-
-            Params.OnParametersChanged();
-            ExpireSolution(true);
         }
         #endregion
 
