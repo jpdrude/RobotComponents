@@ -32,7 +32,7 @@ namespace RobotComponents.ABB.Gh.Components.Deconstruct.CodeGeneration
         /// <summary>
         /// Initializes a new instance of the DeconstructZoneData class.
         /// </summary>
-        public DeconstructGroupSignalComponent() : base("Deconstruct GroupSignal", "DeGS", "Deconstruct",
+        public DeconstructGroupSignalComponent() : base("Deconstruct Group Signal", "DeGS", "Deconstruct",
               "Deconstructs a Group Signal component into its bit parameters.")
         {
         }

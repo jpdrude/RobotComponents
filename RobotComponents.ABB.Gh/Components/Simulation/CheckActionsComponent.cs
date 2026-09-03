@@ -52,7 +52,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public CheckActionsComponent() : base("CheckActions", "CA", "Simulation",
+        public CheckActionsComponent() : base("Check Actions", "CA", "Simulation",
               "Checks the valitity of the provided actions.")
         {
 

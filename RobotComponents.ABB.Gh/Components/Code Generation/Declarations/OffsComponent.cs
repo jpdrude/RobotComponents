@@ -33,7 +33,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
-        public OffsComponent() : base("Offs", "Offs", "Advanced RAPID Features",
+        public OffsComponent() : base("Offset Target", "Offs", "Advanced RAPID Features",
             "Wraps the RAPID built-in Offs(Target, X, Y, Z) function into a RAPID expression, offsetting " +
             "a Robot Target along its own X, Y and Z axes. The result can be wired into any RAPID Expression input.")
         {

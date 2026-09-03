@@ -39,7 +39,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
-        public NumEntryBoxComponent() : base("Num Entry Box", "NEB", "Advanced RAPID Features",
+        public NumEntryBoxComponent() : base("Numeric Entry Box", "NEB", "Advanced RAPID Features",
             "Calls UINumEntry to prompt the user for a numeric input during robot program execution. " +
             "Assigns the result to the provided RAPID variable.")
         {
