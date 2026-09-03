@@ -75,6 +75,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_CodeLine(), "Connect Code", "CC", "Code to connect interrupt. Both Declaration and Instruction Code is generated");
+            pManager.RegisterParam(new Param_CodeLine(), "Enable Interrupts", "IE",
+                "RAPID IEnable; instruction, (re-)enabling interrupts. Interrupts that were registered while " +
+                "interrupts were disabled are queued and executed once interrupts are re-enabled with this instruction.",
+                GH_ParamAccess.item);
+            pManager.RegisterParam(new Param_CodeLine(), "Disable Interrupts", "ID",
+                "RAPID IDisable; instruction, disabling interrupts. Interrupts that are registered while interrupts " +
+                "are disabled are not discarded: they are queued to be executed once interrupts are re-enabled.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -97,6 +105,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 this.ExpireSolution(true);
                 return;
             }
+
+            // The Enable/Disable Interrupts outputs are static instructions, independent of the
+            // connect-interrupt inputs, so they are always available.
+            DA.SetData(1, new CodeLine("IEnable;", CodeType.Instruction));
+            DA.SetData(2, new CodeLine("IDisable;", CodeType.Instruction));
 
             // Declare variables to store input data
             string interruptName = string.Empty;

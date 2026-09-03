@@ -3,8 +3,22 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-02 15:29 
+ Generated on: 2026-09-03 13:10 
  --- 
+ - Merge pull request #18 from jpdrude/fix/rapid-variable-initial-value Fix RAPID Variable initial value printing full declaration 
+  
+   **Commit:** `aae37bb` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
+ - Fix RAPID Variable initial value printing full declaration The RAPID Variable component's initial Value/Values inputs were still plain text parameters (the same bug already fixed in Assign Variable Value and Routine Call). Wiring another RAPID Variable in as the initial value got stringified by Grasshopper's default ToString() before SolveInstance ran, producing e.g. 'VAR num a := VAR num b;;' instead of 'VAR num a := b;'. 
+ - Both inputs are now generic parameters, resolved through the shared HelperMethods.ResolveRAPIDValueExpression() used by the other two components. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `3cd1d97` | **Date:** 2026-09-02 
+ 
+ --- 
+ 
  - Version Number update 
   
    **Commit:** `08cc05c` | **Date:** 2026-09-02 
