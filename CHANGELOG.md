@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-03 13:29 
+ Generated on: 2026-09-03 13:42 
  --- 
+ - Merge pull request #21 from jpdrude/fix/parameter-full-names Fix input/output parameter full names for 'Draw Full Names' display 
+  
+   **Commit:** `410e609` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
+ - Fix input/output parameter full names for 'Draw Full Names' display Audited every component's RegisterInputParams/RegisterOutputParams (and dynamically-registered parameters) for the Name shown when 'Draw Full Names' is enabled. Fixed: - Missing spaces: 'ExternalAxis' -> 'External Axis' (DeconstructWorkObjectComponent), 'SignalType' -> 'Signal Type' (ConnectInterruptComponent) - Abbreviated output names that didn't match their own component's full name: Wait AI/AO/DI/DO/GI/GO/Robot outputs now read 'Wait for Analog Input' etc.; NumEntryBoxComponent's output now matches its renamed 'Numeric Entry Box' component - Typos: 'Inequalty' -> 'Inequality' (WaitAI/WaitAO), 'Moudle' -> 'Module', 'Add loaddata/tooldata/wobjdata' -> Title Case (RAPIDGeneratorComponent), 'Configurations Datas' -> 'Configuration Datas' (Path/TimedPathGeneratorComponent) - Capitalization consistency: 'Robot/External joint position N' -> 'Robot/External Joint Position N' across RobotJointPositionComponent, ExternalJointPositionComponent, and their Deconstruct counterparts; 'Error messages' -> 'Error Messages'; 'Attachment plane' -> 'Attachment Plane' (ExternalLinearAxisComponent) All other parameters already had correctly set, descriptive full names. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `cf3e05f` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
  - Merge pull request #20 from jpdrude/fix/component-full-names Fix component full names for 'Draw Full Names' display 
   
    **Commit:** `486fe41` | **Date:** 2026-09-03 
