@@ -50,7 +50,7 @@ namespace RobotComponents.ABB.Gh.Components.Deconstruct.Definitions
         {
             pManager.Register_StringParam("Name", "N", "Name as string");
             pManager.Register_PlaneParam("Plane", "WP", "Work Object Plane as a Plane");
-            pManager.RegisterParam(new Param_ExternalAxis(), "ExternalAxis", "EA", "External Axis as External Axis");
+            pManager.RegisterParam(new Param_ExternalAxis(), "External Axis", "EA", "External Axis as External Axis");
         }
 
         /// <summary>

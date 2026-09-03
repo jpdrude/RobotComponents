@@ -54,7 +54,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddParameter(new Param_RAPIDExpression(), "Value", "V",
                 "Desired value of the analog output signal. Accepts a number, RAPID variable, or RAPID expression.",
                 GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Inequalty", "IS", "Inequality symbol that defines if the instruction waits until the value is less than or greater than the defined signal value.", GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("Inequality", "IS", "Inequality symbol that defines if the instruction waits until the value is less than or greater than the defined signal value.", GH_ParamAccess.item, 0);
 
             pManager[2].Optional = true;
         }
@@ -64,7 +64,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_Action(), "Wait AO", "WAO", "Resulting Wait for Analog Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait for Analog Output", "WAO", "Resulting Wait for Analog Output instruction");
         }
 
         /// <summary>

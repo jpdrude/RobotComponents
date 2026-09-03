@@ -55,7 +55,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_Action(), "Wait DO", "WDO", "Resulting Wait for Digital Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait for Digital Output", "WDO", "Resulting Wait for Digital Output instruction");
         }
 
         /// <summary>

@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-03 13:11 
+ Generated on: 2026-09-03 13:29 
  --- 
+ - Merge pull request #20 from jpdrude/fix/component-full-names Fix component full names for 'Draw Full Names' display 
+  
+   **Commit:** `486fe41` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
+ - Fix component full names for 'Draw Full Names' display Audited all GH components' Name (shown on canvas when Draw Full Names is enabled). Fixed: - CheckActionsComponent: 'CheckActions' -> 'Check Actions' - RoutineCallComponent: 'RoutineCall' -> 'Routine Call' - DeconstructGroupSignalComponent: 'Deconstruct GroupSignal' -> 'Deconstruct Group Signal' - OverrideRobotToolComponent: nickname was accidentally the full sentence 'Overrides the current Robot Tool' instead of a short nickname (the real description was already correct in the 4th constructor argument) -> nickname is now 'ORT' - OffsComponent: 'Offs' -> 'Offset Target' (nickname stays 'Offs') - ComparerExpressionComponent: 'Comparer Expression' -> 'Comparison Expression' - NumEntryBoxComponent: 'Num Entry Box' -> 'Numeric Entry Box' All other ~120 components already had correctly set, descriptive full names. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `c915727` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
  - Merge pull request #19 from jpdrude/feature/connect-interrupt-enable-disable Add Enable/Disable Interrupts outputs to Connect Interrupt component 
   
    **Commit:** `ef79570` | **Date:** 2026-09-03 

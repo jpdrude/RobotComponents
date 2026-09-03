@@ -55,7 +55,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_Action(), "Wait GO", "WGO", "Resulting Wait for Group Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait for Group Output", "WGO", "Resulting Wait for Group Output instruction");
         }
 
         /// <summary>

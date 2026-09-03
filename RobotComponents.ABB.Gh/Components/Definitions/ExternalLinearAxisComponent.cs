@@ -67,7 +67,7 @@ namespace RobotComponents.ABB.Gh.Components.Definitions
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Axis Name as a Text", GH_ParamAccess.item, "default_ela");
-            pManager.AddPlaneParameter("Attachment plane", "AP", "Attachement plane of robot. Overrides robot position plane.", GH_ParamAccess.item);
+            pManager.AddPlaneParameter("Attachment Plane", "AP", "Attachement plane of robot. Overrides robot position plane.", GH_ParamAccess.item);
             pManager.AddVectorParameter("Axis", "A", "Axis as Vector", GH_ParamAccess.item);
             pManager.AddIntervalParameter("Axis Limits", "AL", "Axis Limits as Domain", GH_ParamAccess.item);
             pManager.AddMeshParameter("Base Mesh", "BM", "Base Mesh as Mesh", GH_ParamAccess.list);

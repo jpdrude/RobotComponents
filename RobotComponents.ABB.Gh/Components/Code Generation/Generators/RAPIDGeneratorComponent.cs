@@ -86,15 +86,15 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private readonly IGH_Param[] _variableInputParameters = new IGH_Param[13]
         {
-            new Param_Boolean() { Name = "Is System Moudle", NickName = "SM", Description = "Indicates whether this module should be uploaded as a System Module.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Boolean() { Name = "Is System Module", NickName = "SM", Description = "Indicates whether this module should be uploaded as a System Module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Module Name", NickName = "MN", Description = "The name of the module as a text. The default name is MainModule.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Procedure Name", NickName = "RN", Description = "The name of the RAPID routine as a text. The default name is main.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Integer() { Name = "Routine Scope", NickName = "RS", Description = "The scope of the RAPID routine. Use 0 for GLOBAL scope, 1 for LOCAL scope and 2 for TASK scope.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Superordinate Main Method", NickName = "MM", Description = "The contents of the superordinate main method if this routine is called from another routine.", Access = GH_ParamAccess.list, Optional = true},
             new Param_Routine() { Name = "Additional Routines", NickName = "AR", Description = "Additional routines to be added to the RAPID module.", Access = GH_ParamAccess.list, Optional = true},
-            new Param_Boolean() { Name = "Add loaddata", NickName = "AL", Description = "Indicates if the loaddata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
-            new Param_Boolean() { Name = "Add tooldata", NickName = "AT", Description = "Indicates if the tooldata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
-            new Param_Boolean() { Name = "Add wobjdata", NickName = "AW", Description = "Indicates if the wobjdata should be added the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Boolean() { Name = "Add Loaddata", NickName = "AL", Description = "Indicates if the loaddata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Boolean() { Name = "Add Tooldata", NickName = "AT", Description = "Indicates if the tooldata should be added to the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
+            new Param_Boolean() { Name = "Add Wobjdata", NickName = "AW", Description = "Indicates if the wobjdata should be added the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_String() { Name = "Author", NickName = "AU", Description = "The script author name written as a comment at the beginning of the RAPID module.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Integer() { Name = "Error Handling", NickName = "EH", Description = "Defines how RAPID errors are handled in the procedure. Use 0 for no error handling, 1 to pause on error and 2 to skip all errors.", Access = GH_ParamAccess.item, Optional = true},
             new Param_Boolean() { Name = "Enforce Axis Limits", NickName = "EL", Description = "When true (default), axis limit violations prevent RAPID code generation. Set to false to allow generation with warnings only.", Access = GH_ParamAccess.item, Optional = true},

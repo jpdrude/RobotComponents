@@ -82,7 +82,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.RegisterParam(new Param_RAPIDVariable(), "Variable", "V",
                 "Pass-through of the input RAPID variable.",
                 GH_ParamAccess.item);
-            pManager.RegisterParam(new Param_Action(), "Num Entry Box", "NEB",
+            pManager.RegisterParam(new Param_Action(), "Numeric Entry Box", "NEB",
                 "UINumEntry assignment as a RAPID code line.",
                 GH_ParamAccess.item);
         }
