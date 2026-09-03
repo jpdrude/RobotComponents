@@ -57,7 +57,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_Action(), "Wait DI", "WDI", "Resulting Wait for Digital Input instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait for Digital Input", "WDI", "Resulting Wait for Digital Input instruction");
         }
 
         /// <summary>

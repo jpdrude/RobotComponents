@@ -97,12 +97,12 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             new Param_RobotJointPosition() { Name = "Robot Joint Position", NickName = "RJ", Description = "The current Robot Joint Position", Access = GH_ParamAccess.item},
             new Param_RobotJointPosition() { Name = "Robot Joint Positions", NickName = "RJs", Description = "The Robot Joint Positions of the whole path", Access = GH_ParamAccess.list},
             new Param_ConfigurationData() { Name = "Configuration Data", NickName = "CD", Description = "The current Configuration Data", Access = GH_ParamAccess.item},
-            new Param_ConfigurationData() { Name = "Configurations Datas", NickName = "CDs", Description = "The Configuration Datas of the whole path", Access = GH_ParamAccess.list},
+            new Param_ConfigurationData() { Name = "Configuration Datas", NickName = "CDs", Description = "The Configuration Datas of the whole path", Access = GH_ParamAccess.list},
             new Param_Plane() { Name = "External Axis Planes", NickName = "EAP", Description = "The current position and orientation of the external axes", Access = GH_ParamAccess.list},
             new Param_ExternalJointPosition() { Name = "External Joint Position", NickName = "EJ", Description = "The current External Joint Position", Access = GH_ParamAccess.item},
             new Param_ExternalJointPosition() { Name = "External Joint Positions", NickName = "EJs", Description = "The External Joint Positions of the whole path", Access = GH_ParamAccess.list},
             new Param_Number() { Name = "Time", NickName = "T", Description = "An estimation of the program time in minutes", Access = GH_ParamAccess.item},
-            new Param_String() { Name = "Error messages", NickName = "E", Description = "The error messages collected during the generation of the path", Access = GH_ParamAccess.list},
+            new Param_String() { Name = "Error Messages", NickName = "E", Description = "The error messages collected during the generation of the path", Access = GH_ParamAccess.list},
             new Param_Mesh() { Name = "Posed Meshes", NickName = "PM", Description = "Posed Robot and External Axis meshes.", Access = GH_ParamAccess.tree},
         };
 

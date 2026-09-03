@@ -47,12 +47,12 @@ namespace RobotComponents.ABB.Gh.Components.Deconstruct.CodeGeneration
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.Register_StringParam("Name", "N", "External joint position variable name as text");
-            pManager.Register_DoubleParam("External joint position A", "EJa", "Defines the position of the external logical axis A");
-            pManager.Register_DoubleParam("External joint position B", "EJb", "Defines the position of the external logical axis B");
-            pManager.Register_DoubleParam("External joint position C", "EJc", "Defines the position of the external logical axis C");
-            pManager.Register_DoubleParam("External joint position D", "EJd", "Defines the position of the external logical axis D");
-            pManager.Register_DoubleParam("External joint position E", "EJe", "Defines the position of the external logical axis E");
-            pManager.Register_DoubleParam("External joint position F", "EJf", "Defines the position of the external logical axis F");
+            pManager.Register_DoubleParam("External Joint Position A", "EJa", "Defines the position of the external logical axis A");
+            pManager.Register_DoubleParam("External Joint Position B", "EJb", "Defines the position of the external logical axis B");
+            pManager.Register_DoubleParam("External Joint Position C", "EJc", "Defines the position of the external logical axis C");
+            pManager.Register_DoubleParam("External Joint Position D", "EJd", "Defines the position of the external logical axis D");
+            pManager.Register_DoubleParam("External Joint Position E", "EJe", "Defines the position of the external logical axis E");
+            pManager.Register_DoubleParam("External Joint Position F", "EJf", "Defines the position of the external logical axis F");
         }
 
         /// <summary>

@@ -54,12 +54,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name as text", GH_ParamAccess.item, string.Empty);
-            pManager.AddNumberParameter("Robot joint position 1", "RJ1", "Defines the position of robot joint 1 in degrees.", GH_ParamAccess.item, 0.0);
-            pManager.AddNumberParameter("Robot joint position 2", "RJ2", "Defines the position of robot joint 2 in degrees.", GH_ParamAccess.item, 0.0);
-            pManager.AddNumberParameter("Robot joint position 3", "RJ3", "Defines the position of robot joint 3 in degrees.", GH_ParamAccess.item, 0.0);
-            pManager.AddNumberParameter("Robot joint position 4", "RJ4", "Defines the position of robot joint 4 in degrees.", GH_ParamAccess.item, 0.0);
-            pManager.AddNumberParameter("Robot joint position 5", "RJ5", "Defines the position of robot joint 5 in degrees.", GH_ParamAccess.item, 0.0);
-            pManager.AddNumberParameter("Robot joint position 6", "RJ6", "Defines the position of robot joint 6 in degrees.", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Robot Joint Position 1", "RJ1", "Defines the position of robot joint 1 in degrees.", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Robot Joint Position 2", "RJ2", "Defines the position of robot joint 2 in degrees.", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Robot Joint Position 3", "RJ3", "Defines the position of robot joint 3 in degrees.", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Robot Joint Position 4", "RJ4", "Defines the position of robot joint 4 in degrees.", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Robot Joint Position 5", "RJ5", "Defines the position of robot joint 5 in degrees.", GH_ParamAccess.item, 0.0);
+            pManager.AddNumberParameter("Robot Joint Position 6", "RJ6", "Defines the position of robot joint 6 in degrees.", GH_ParamAccess.item, 0.0);
         }
 
         /// <summary>

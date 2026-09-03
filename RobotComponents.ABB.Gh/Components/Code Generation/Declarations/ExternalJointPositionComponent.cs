@@ -57,12 +57,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private readonly IGH_Param[] externalAxisParameters = new IGH_Param[6]
         {
-            new Param_Number() { Name = "External joint position A", NickName = "EJa", Description = "Defines the position of external logical axis A", Access = GH_ParamAccess.item, Optional = true }, // fixed
-            new Param_Number() { Name = "External joint position B", NickName = "EJb", Description = "Defines the position of external logical axis B", Access = GH_ParamAccess.item, Optional = true }, // fixed
-            new Param_Number() { Name = "External joint position C", NickName = "EJc", Description = "Defines the position of external logical axis C", Access = GH_ParamAccess.item, Optional = true }, // variable
-            new Param_Number() { Name = "External joint position D", NickName = "EJd", Description = "Defines the position of external logical axis D", Access = GH_ParamAccess.item, Optional = true }, // variable
-            new Param_Number() { Name = "External joint position E", NickName = "EJe", Description = "Defines the position of external logical axis E", Access = GH_ParamAccess.item, Optional = true }, // variable
-            new Param_Number() { Name = "External joint position F", NickName = "EJf", Description = "Defines the position of external logical axis F", Access = GH_ParamAccess.item, Optional = true } // variable
+            new Param_Number() { Name = "External Joint Position A", NickName = "EJa", Description = "Defines the position of external logical axis A", Access = GH_ParamAccess.item, Optional = true }, // fixed
+            new Param_Number() { Name = "External Joint Position B", NickName = "EJb", Description = "Defines the position of external logical axis B", Access = GH_ParamAccess.item, Optional = true }, // fixed
+            new Param_Number() { Name = "External Joint Position C", NickName = "EJc", Description = "Defines the position of external logical axis C", Access = GH_ParamAccess.item, Optional = true }, // variable
+            new Param_Number() { Name = "External Joint Position D", NickName = "EJd", Description = "Defines the position of external logical axis D", Access = GH_ParamAccess.item, Optional = true }, // variable
+            new Param_Number() { Name = "External Joint Position E", NickName = "EJe", Description = "Defines the position of external logical axis E", Access = GH_ParamAccess.item, Optional = true }, // variable
+            new Param_Number() { Name = "External Joint Position F", NickName = "EJf", Description = "Defines the position of external logical axis F", Access = GH_ParamAccess.item, Optional = true } // variable
         };
 
         /// <summary>

@@ -63,7 +63,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddTextParameter("TRAP Routine Name", "TR", "Name of the TRAP routine to be called when the signal change occurs.", GH_ParamAccess.item);
             pManager.AddTextParameter("Signal Name", "SN", "Name of the signal that is monitored for changes.", GH_ParamAccess.item);
             pManager.AddNumberParameter("Signal Value", "SV", "Value of the signal that triggers the interrupt when the signal changes to this value.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("SignalType", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO)", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Signal Type", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO)", GH_ParamAccess.item);
 
             pManager[2].Optional = true;
             pManager[3].Optional = true;    

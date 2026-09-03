@@ -49,7 +49,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_Action(), "Wait Robot", "WR", "Resulting Wait Rob instruction");
+            pManager.RegisterParam(new Param_Action(), "Wait for Robot", "WR", "Resulting Wait Rob instruction");
         }
 
         /// <summary>

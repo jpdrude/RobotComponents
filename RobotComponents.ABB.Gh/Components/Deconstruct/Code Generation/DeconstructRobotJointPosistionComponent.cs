@@ -47,12 +47,12 @@ namespace RobotComponents.ABB.Gh.Components.Deconstruct.CodeGeneration
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.Register_StringParam("Name", "N", "Robot joint position variable name as text");
-            pManager.Register_DoubleParam("Robot joint position 1", "RJ1", "Defines the position of robot joint 1 in degrees.");
-            pManager.Register_DoubleParam("Robot joint position 2", "RJ2", "Defines the position of robot joint 2 in degrees.");
-            pManager.Register_DoubleParam("Robot joint position 3", "RJ3", "Defines the position of robot joint 3 in degrees.");
-            pManager.Register_DoubleParam("Robot joint position 4", "RJ4", "Defines the position of robot joint 4 in degrees.");
-            pManager.Register_DoubleParam("Robot joint position 5", "RJ5", "Defines the position of robot joint 5 in degrees.");
-            pManager.Register_DoubleParam("Robot joint position 6", "RJ6", "Defines the position of robot joint 6 in degrees.");
+            pManager.Register_DoubleParam("Robot Joint Position 1", "RJ1", "Defines the position of robot joint 1 in degrees.");
+            pManager.Register_DoubleParam("Robot Joint Position 2", "RJ2", "Defines the position of robot joint 2 in degrees.");
+            pManager.Register_DoubleParam("Robot Joint Position 3", "RJ3", "Defines the position of robot joint 3 in degrees.");
+            pManager.Register_DoubleParam("Robot Joint Position 4", "RJ4", "Defines the position of robot joint 4 in degrees.");
+            pManager.Register_DoubleParam("Robot Joint Position 5", "RJ5", "Defines the position of robot joint 5 in degrees.");
+            pManager.Register_DoubleParam("Robot Joint Position 6", "RJ6", "Defines the position of robot joint 6 in degrees.");
         }
 
         /// <summary>
