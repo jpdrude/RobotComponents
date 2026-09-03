@@ -159,7 +159,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!DA.GetDataList(1, actions)) { return; }
 
             // Creates the input value list for the scope and attachs it to the input parameter
-            int scopeParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[3].Name);
+            int scopeParamIndex = FindVariableInputIndex(3);
             if (_routineScopeParam && scopeParamIndex != -1 && this.Params.Input[scopeParamIndex].SourceCount == 0)
             {
                 HelperMethods.CreateValueList(this, typeof(Scope), scopeParamIndex);
@@ -172,7 +172,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             // Creates the input value list for the error handling and attachs it to the input parameter
-            int errorHandlingParamIndex = Params.Input.FindIndex(x => x.Name == _variableInputParameters[10].Name);
+            int errorHandlingParamIndex = FindVariableInputIndex(10);
             if (_errorHandlingInputParam && errorHandlingParamIndex != -1 && this.Params.Input[errorHandlingParamIndex].SourceCount == 0)
             {
                 HelperMethods.CreateValueList(this, typeof(ErrorHandling), errorHandlingParamIndex);
@@ -184,91 +184,105 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 errorHandlingDoc?.ScheduleSolution(5, _ => ExpireSolution(true));
             }
 
-            // Catch the input data from the variable parameteres
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[0].Name))
+            // Catch the input data from the variable parameteres.
+            // Each parameter is located by its stable NickName (via FindVariableInputIndex), never by
+            // its current display Name — Name can be renamed in code, and an older .gh file may still
+            // have the parameter serialized under whatever Name text was current when it was saved.
+            int idx0 = FindVariableInputIndex(0);
+            if (idx0 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[0].Name, ref isSystemModule))
+                if (!DA.GetData(idx0, ref isSystemModule))
                 {
                     isSystemModule = false;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[1].Name))
+            int idx1 = FindVariableInputIndex(1);
+            if (idx1 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[1].Name, ref moduleName))
+                if (!DA.GetData(idx1, ref moduleName))
                 {
                     moduleName = "MainModule";
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[2].Name))
+            int idx2 = FindVariableInputIndex(2);
+            if (idx2 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[2].Name, ref routineName))
+                if (!DA.GetData(idx2, ref routineName))
                 {
                     routineName = "main";
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[3].Name))
+            if (scopeParamIndex != -1)
             {
-                if (!DA.GetData(_variableInputParameters[3].Name, ref scope))
+                if (!DA.GetData(scopeParamIndex, ref scope))
                 {
                     scope = (int)Scope.GLOBAL;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[4].Name))
+            int idx4 = FindVariableInputIndex(4);
+            if (idx4 != -1)
             {
-                if (!DA.GetDataList(_variableInputParameters[4].Name, mainModule))
+                if (!DA.GetDataList(idx4, mainModule))
                 {
                     mainModule = null;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[5].Name))
+            int idx5 = FindVariableInputIndex(5);
+            if (idx5 != -1)
             {
-                if (!DA.GetDataList(_variableInputParameters[5].Name, additionalRoutines))
+                if (!DA.GetDataList(idx5, additionalRoutines))
                 {
                     additionalRoutines = new List<Routine>();
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[6].Name))
+            int idx6 = FindVariableInputIndex(6);
+            if (idx6 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[6].Name, ref addLoaddata))
+                if (!DA.GetData(idx6, ref addLoaddata))
                 {
                     addLoaddata = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[7].Name))
+            int idx7 = FindVariableInputIndex(7);
+            if (idx7 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[7].Name, ref addTooldata))
+                if (!DA.GetData(idx7, ref addTooldata))
                 {
                     addTooldata = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[8].Name))
+            int idx8 = FindVariableInputIndex(8);
+            if (idx8 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[8].Name, ref addWobjdata))
+                if (!DA.GetData(idx8, ref addWobjdata))
                 {
                     addWobjdata = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[12].Name))
+            int idx12 = FindVariableInputIndex(12);
+            if (idx12 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[12].Name, ref update))
+                if (!DA.GetData(idx12, ref update))
                 {
                     update = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[11].Name))
+            int idx11 = FindVariableInputIndex(11);
+            if (idx11 != -1)
             {
-                if (!DA.GetData(_variableInputParameters[11].Name, ref enforceAxisLimits))
+                if (!DA.GetData(idx11, ref enforceAxisLimits))
                 {
                     enforceAxisLimits = true;
                 }
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[9].Name))
+            int idx9 = FindVariableInputIndex(9);
+            if (idx9 != -1)
             {
-                DA.GetData(_variableInputParameters[9].Name, ref author);
+                DA.GetData(idx9, ref author);
             }
-            if (Params.Input.Any(x => x.Name == _variableInputParameters[10].Name))
+            if (errorHandlingParamIndex != -1)
             {
-                if (!DA.GetData(_variableInputParameters[10].Name, ref errorHandling))
+                if (!DA.GetData(errorHandlingParamIndex, ref errorHandling))
                 {
                     errorHandling = (int)ErrorHandling.NoErrorHandling;
                 }
@@ -726,6 +740,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
+        /// Finds the pManager input index of a variable input parameter (identified by its position
+        /// in <see cref="_variableInputParameters"/>) by its stable NickName, rather than its current
+        /// display Name. Name can be renamed in code, and an older .gh file may still have the
+        /// parameter serialized under whatever Name text was current when it was saved; NickName is
+        /// not affected by that, so lookups stay correct across renames and across old files.
+        /// </summary>
+        /// <param name="arrayIndex"> Index into <see cref="_variableInputParameters"/>. </param>
+        /// <returns> The parameter's index in Params.Input, or -1 if not currently added. </returns>
+        private int FindVariableInputIndex(int arrayIndex)
+        {
+            return Params.Input.FindIndex(x => x.NickName == _variableInputParameters[arrayIndex].NickName);
+        }
+
+        /// <summary>
         /// Adds or destroys the input parameter to the component.
         /// </summary>
         /// <param name="index"> The index number of the parameter that needs to be added. </param>
@@ -733,12 +761,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Pick the parameter
             IGH_Param parameter = _variableInputParameters[index];
-            string name = _variableInputParameters[index].Name;
+            string nickName = _variableInputParameters[index].NickName;
 
             // If the parameter already exist: remove it
-            if (Params.Input.Any(x => x.Name == name))
+            if (Params.Input.Any(x => x.NickName == nickName))
             {
-                Params.UnregisterInputParameter(Params.Input.First(x => x.Name == name), true);
+                Params.UnregisterInputParameter(Params.Input.First(x => x.NickName == nickName), true);
             }
 
             // Else remove the variable input parameter
@@ -750,7 +778,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 // Check if other parameters are already added and correct the insert index
                 for (int i = 0; i < index; i++)
                 {
-                    if (Params.Input.Any(x => x.Name == _variableInputParameters[i].Name))
+                    if (Params.Input.Any(x => x.NickName == _variableInputParameters[i].NickName))
                     {
                         insertIndex += 1;
                     }

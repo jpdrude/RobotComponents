@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components (Modified)
 // Original project: https://github.com/RobotComponents/RobotComponents
 // Modified project: https://github.com/jpdrude/RobotComponents
@@ -10,6 +10,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+#pragma warning disable CS1591 // Missing XML comment — obsolete shim, kept for .ghx backwards compatibility.
+
 // System Libs
 using System;
 using System.Collections.Generic;
@@ -18,18 +20,24 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
-using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Components;
 using RobotComponents.ABB.Gh.Goos.Actions.Declarations;
 using RobotComponents.ABB.Gh.Parameters.Actions.Declarations;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
-namespace RobotComponents.ABB.Gh.Components.CodeGeneration
+namespace RobotComponents.ABB.Gh.Obsolete
 {
     /// <summary>
-    /// RobotComponents Action : Speed Data component.
+    /// RobotComponents Action : Routine Argument component.
     /// </summary>
-    public class RoutineArgumentComponent : GH_RobotComponent
+    /// <remarks>
+    /// Hidden from the menu since the "Variable" output was added. Retained so older .gh files
+    /// that placed this component before that change continue to load and resolve their saved
+    /// param GUIDs unchanged; the live component now has a new GUID for its new output shape.
+    /// </remarks>
+    [Obsolete("This component is OBSOLETE and will be removed in the future. Use Routine Argument instead.", false)]
+    public class RoutineArgumentComponent_OBSOLETE : GH_RobotComponent
     {
         #region fields
         private GH_Structure<GH_SpeedData> _tree = new GH_Structure<GH_SpeedData>();
@@ -40,19 +48,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _isUnique = true;
         #endregion
 
-        /// <summary>
-        /// Each implementation of GH_Component must provide a public constructor without any arguments.
-        /// Category represents the Tab in which the component will appear, Subcategory the panel. 
-        /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
-        /// </summary>
-        public RoutineArgumentComponent() : base("Routine Argument", "RA", "Advanced RAPID Features",
+        public RoutineArgumentComponent_OBSOLETE() : base("Routine Argument", "RA", "Advanced RAPID Features",
               "Defines an argument to be used by an additional routine.")
         {
         }
 
-        /// <summary>
-        /// Registers all the input parameters for this component.
-        /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Keyword", "K", "Optional Argument keyword (INOUT, PERS)", GH_ParamAccess.item);
@@ -64,25 +64,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager[3].Optional = true;
         }
 
-        /// <summary>
-        /// Registers all the output parameters for this component.
-        /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_RoutineArgument(), "Argument", "Arg", "Resulting Routine Argument");
-            pManager.RegisterParam(new Param_RAPIDVariable(), "Variable", "V",
-                "The argument represented as a RAPID Variable, so it can be referenced inside the routine body " +
-                "(e.g. as input for Assign Variable Value).",
-                GH_ParamAccess.item);
         }
 
-        /// <summary>
-        /// This is the method that actually does the work.
-        /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Sets inputs 
+            // Sets inputs
             string keyword = null;
             string type = "";
             string name = "";
@@ -104,59 +93,35 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (valueObject != null)
                 value = valueObject.ToString();
 
-            // Resolve the argument keyword to a RAPIDVariableKeyword (defaults to VAR for
-            // unmarked / by-value arguments, which behave as plain local variables in the body).
-            RAPIDVariableKeyword variableKeyword = RAPIDVariableKeyword.VAR;
-            if (!string.IsNullOrEmpty(keyword) && !Enum.TryParse(keyword, true, out variableKeyword))
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"Keyword <{keyword}> is not a valid RAPID variable keyword. Use VAR, PERS, INOUT or CONST.");
-                variableKeyword = RAPIDVariableKeyword.VAR;
-            }
-
-            // Sets Outputs
+            // Sets Output
             DA.SetData(0, new RoutineArgument(type, name, value, keyword));
-            DA.SetData(1, new RAPIDVariable(
-                RAPIDVariableLevel.Routine, Scope.LOCAL, variableKeyword, type, name));
         }
 
         #region properties
-        /// <summary>
-        /// Override the component exposure (makes the tab subcategory).
-        /// Can be set to hidden, primary, secondary, tertiary, quarternary, quinary, senary, septenary and obscure
-        /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.secondary; }
+            get { return GH_Exposure.hidden; }
         }
 
-        /// <summary>
-        /// Gets whether this object is obsolete.
-        /// </summary>
         public override bool Obsolete
         {
-            get { return false; }
+            get { return true; }
         }
 
-        /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
-        /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
             get { return Properties.Resources.RoutineArgument_Icon; }
         }
 
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
+        /// Each component must have a unique Guid to identify it.
+        /// It is vital this Guid doesn't change otherwise old ghx files
         /// that use the old ID will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("7972F652-B35B-4DD1-8AC1-2A1FAE633694"); }
+            get { return new Guid("5F92D4A8-B1E7-4C63-8D2F-7A3E9B6C1D5F"); }
         }
         #endregion
     }
 }
-

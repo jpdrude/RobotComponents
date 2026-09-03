@@ -3,8 +3,23 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-03 13:42 
+ Generated on: 2026-09-03 13:47 
  --- 
+ - Merge pull request #22 from jpdrude/feature/get-array-at-index-component Add Get Array At Index component 
+  
+   **Commit:** `b2769d3` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
+ - Add Get Array At Index component New GH component that wraps RAPID array element access (arrayName{index}) into a RAPIDExpression, so it can be wired into Assign Variable Value, a Move target, or any other RAPID Expression input. 
+ 	 - Variable: a Param_RAPIDVariable, expected to be an array-declared RAPID Variable (RAPID Variable component, 'Set Array Size'). 
+ 	 - Index: a Param_RAPIDExpression (default 1), so a plain integer, a RAPID variable, or a RAPID expression can all be wired in. The input hint reminds that RAPID arrays are 1-based. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `00266f8` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
  - Merge pull request #21 from jpdrude/fix/parameter-full-names Fix input/output parameter full names for 'Draw Full Names' display 
   
    **Commit:** `410e609` | **Date:** 2026-09-03 

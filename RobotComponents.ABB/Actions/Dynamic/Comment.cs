@@ -216,13 +216,21 @@ namespace RobotComponents.ABB.Actions.Dynamic
         {
             if (_type == CodeType.Declaration)
             {
+                // Added to ProgramDeclarationCustomCodeLines (not ProgramDeclarations, and not
+                // ProgramDeclarationComments): that's where a RAPID Variable's own declaration
+                // (built as a declaration-type CodeLine) and CodeLineComponent's custom code lines
+                // already land, in insertion order, under the "User defined code lines" section.
+                // ProgramDeclarations is only for the implicit declarations Movement/Target objects
+                // generate on their own (robtarget, speeddata, ...) and isn't where a user's own
+                // RAPID Variable declarations end up, so a comment placed next to one of those in
+                // the actions list needs to land in the same list to actually stay interleaved.
                 if (_comment != "")
                 {
-                    RAPIDGenerator.ProgramDeclarationComments.Add("    " + $"! {_comment}");
+                    RAPIDGenerator.ProgramDeclarationCustomCodeLines.Add("    " + $"! {_comment}");
                 }
                 else
                 {
-                    RAPIDGenerator.ProgramDeclarationComments.Add("    ");
+                    RAPIDGenerator.ProgramDeclarationCustomCodeLines.Add("    ");
                 }
             }
             else if (_type == CodeType.Instruction)
