@@ -38,7 +38,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
-        public ComparerExpressionComponent() : base("Comparer Expression", "CE", "Advanced RAPID Features",
+        public ComparerExpressionComponent() : base("Comparison Expression", "CE", "Advanced RAPID Features",
             "Combines two RAPID operands (A and B) with a comparison operator into a boolean RAPID expression " +
             "(e.g. counter < 10). The result can be wired into IF condition or WHILE condition inputs.")
         {

@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public RoutineCallComponent() : base("RoutineCall", "RC", "Advanced RAPID Features", 
+        public RoutineCallComponent() : base("Routine Call", "RC", "Advanced RAPID Features",
             "Creates a routine call code line.")
         {
         }

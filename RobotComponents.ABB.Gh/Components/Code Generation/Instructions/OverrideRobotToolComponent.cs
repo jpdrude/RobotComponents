@@ -34,7 +34,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// Category represents the Tab in which the component will appear, Subcategory the panel. 
         /// If you use non-existing tab or panel names, new tabs/panels will automatically be created.
         /// </summary>
-        public OverrideRobotToolComponent() : base("Override Robot Tool", "Overrides the current Robot Tool", "Code Generation",
+        public OverrideRobotToolComponent() : base("Override Robot Tool", "ORT", "Code Generation",
               "Defines an instruction to change the current robot tool of the ABB robot.")
         {
         }

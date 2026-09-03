@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-03 13:10 
+ Generated on: 2026-09-03 13:11 
  --- 
+ - Merge pull request #19 from jpdrude/feature/connect-interrupt-enable-disable Add Enable/Disable Interrupts outputs to Connect Interrupt component 
+  
+   **Commit:** `ef79570` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
+ - Add Enable/Disable Interrupts outputs to Connect Interrupt component Adds two static outputs to ConnectInterruptComponent: - Enable Interrupts: RAPID IEnable; instruction - Disable Interrupts: RAPID IDisable; instruction Both are independent of the connect-interrupt inputs and always available. The output hints note that interrupts registered while disabled are queued and executed once interrupts are re-enabled, not discarded. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `e981ed6` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
  - Merge pull request #18 from jpdrude/fix/rapid-variable-initial-value Fix RAPID Variable initial value printing full declaration 
   
    **Commit:** `aae37bb` | **Date:** 2026-09-02 
