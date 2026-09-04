@@ -3,57 +3,18 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 18:24 
+ Generated on: 2026-09-04 18:33 
  --- 
- - Preserve custom input names across copy/paste on Multi Relay Copying (or duplicating) a Multi Relay instance lost every input's custom rename, resetting them back to "Input N" placeholders. Root cause: the "has this input been manually renamed" tracking is a Dictionary<Guid, string> keyed by each input param's InstanceGuid, persisted through Write/Read -- but a copy/paste gives the copied param a fresh InstanceGuid (so it can coexist with the original) while the rest of its serialized state, including a user's rename, carries over faithfully. The dictionary lookup by the new guid then always missed, and the old "first time seeing this param" branch responded by unconditionally resetting it to a fresh placeholder, discarding the name that was actually still sitting right there on the param. 
- - Fixed by distinguishing the two cases that land in "first time seeing this guid": if the param's Name is empty, it's genuinely brand new (zui-created or the initial one), so it gets the placeholder as before -- including the hidden-wire-display default, which only makes sense for a truly fresh input. 
- - If it already has a name, it's a copy/paste/duplicate whose tracking just hasn't caught up yet: adopt that existing name as the new tracked baseline instead of overwriting it, which also means a wire display a user had deliberately turned back on before copying survives too (it's ordinary serialized state, just like Name). 
- - Build clean (MSBuild), 658/658 tests passing. 
+ - Make Robot optional on the RAPID Generator; error only if movements need one Robot is now an optional input on RAPID Generator and on RAPIDGenerator's constructors (a null robot is fine, e.g. for a declaration-only module). 
+ - CreateModule scans the actions -- including inside ActionGroups and additional routines -- for a Movement instruction before doing anything else; if it finds one and no Robot was provided, it throws InvalidOperationException with a clear message instead of the NullReferenceException that would otherwise come from dereferencing an absent robot's tool/kinematics deep inside code generation. Movement instructions genuinely cannot be resolved to RAPID code (tool/workobject declarations, robtargets, ...) without a Robot, so this is a hard failure, not a toggleable warning like axis-limit enforcement. 
+ 	 - RAPIDGenerator: constructors now do robot?.Duplicate() instead of robot.Duplicate(); added ContainsMovement(actions) (recursing into ActionGroups, matching CheckFirstMovement's own ungrouping) and the robot-required check in CreateModule; guarded the two _robot.Tool declaration call sites. 
+ 	 - RAPIDGeneratorComponent: Robot input now Optional; SolveInstance no longer short-circuits when it's unconnected; CreateModule's call is wrapped in a try/catch that surfaces the exception as a GH runtime Error. 
+ 	 - 5 new RAPIDGeneratorTests: no robot + no movement succeeds, no robot + top-level movement throws, no robot + movement inside an ActionGroup throws, no robot + movement inside an additional routine throws, and a previously-set Robot cleared back to null behaves the same as never having had one. 
+ - No GH component parameter shape changed (Robot stays the same Param_Robot, same index -- Optional is a per-parameter flag restored from each saved component instance's own archived state on load, not a shape change), so this doesn't need the Obsolete/vN treatment. 
+ - Build clean (MSBuild), 663/663 tests passing. 
  - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
   
-   **Commit:** `1f0e115` | **Date:** 2026-09-04 
- 
- --- 
- 
- - Mirror an input rename onto its output immediately on Multi Relay Previously a renamed input's matching output only picked up the new name on the next unrelated solve, since nothing prompted a recompute right when the rename itself happened. 
- - GH_ComponentParamServer exposes a ParameterNickNameChanged event, confirmed via IL decompilation to be raised specifically when a parameter rename is *accepted* (GH_ObjectEventType.NickNameAccepted) -- fired only by GH's own interactive-rename-commit and undo/redo machinery, never by code merely assigning .NickName (that setter doesn't raise it at all). Subscribed to it in the constructor; on an accepted input-side rename, immediately calls the existing EnsureConsistentState() (mirrors the name, same as any solve would) followed by ExpireSolution(true), instead of waiting for whatever the next solve happens to be triggered by. 
- - Because the event genuinely can't be re-triggered by our own programmatic renames (verified: not raised by the property setter), there's no reentrancy risk with EnsureConsistentState()'s own input.NickName assignments. 
- - Build clean (MSBuild), 658/658 tests passing. 
- - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
-  
-   **Commit:** `9e28763` | **Date:** 2026-09-04 
- 
- --- 
- 
- - Fix Multi Relay's hidden wire display and harden the minimum-1 seeding; update icon Wire display: GH's own +/- zui insert handler overwrites whatever WireDisplay CreateParameter() sets on a freshly-inserted param with its own "implied" style, right after calling it (verified via IL decompilation of GH_ComponentAttributes' insert-click handler) -- so setting it only inside CreateInputParam() was silently clobbered for every input added via the zui. 
- - Re-asserted it from EnsureConsistentState(), which runs (via VariableParameterMaintenance()) right after that clobber, so it's the last word; only for a param not seen before, so a user who deliberately turns display back on for one input later keeps it. 
- - Minimum 1 input/output: the structural fix (RegisterInputParams/ RegisterOutputParams seeding one pair, CanRemoveParameter refusing to remove the last one) was already correct, but the seeded pair had no Name/NickName set until EnsureConsistentState() backfilled it on the first solve. Set "Input 1" directly at registration time instead, removing any dependency on solve timing for the initial pair's identity. 
- - Also pushed the updated MultiRelay_Icon.png. 
- - Build clean (MSBuild), 658/658 tests passing. 
- - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
-  
-   **Commit:** `0e2f69a` | **Date:** 2026-09-04 
- 
- --- 
- 
- - Always keep at least 1 input/output on Multi Relais; rename to Multi Relay - RegisterInputParams/RegisterOutputParams now seed one pair up front instead of starting empty, and CanRemoveParameter refuses to remove the last remaining input, so the component can never be reduced to 0/0. 
- 	 - Renamed MultiRelaisComponent -> MultiRelayComponent throughout (class, file, display Name, icon file + resx/Designer.cs entries): "Relais" is the German/French spelling, "Relay" is the correct English word. Component was never merged/shipped, so this needed no GUID change or Obsolete/vN handling -- same ComponentGuid, purely a naming fix. 
- - Build clean (MSBuild), 658/658 tests passing. 
- - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
-  
-   **Commit:** `98533fb` | **Date:** 2026-09-04 
- 
- --- 
- 
- - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
- 	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
- 	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 
- 	 - The moment a user renames an input by hand, it's excluded from further auto-renaming for good (tracked via a persisted Guid->name dictionary recording what name was last auto-assigned; a mismatch means the user changed it). The matching output always mirrors whatever the input's current name is, auto-detected or manual. 
- 	 - Outputs are added/removed by the component itself (SyncOutputCount, from VariableParameterMaintenance) to stay 1:1 with the inputs; the +/- zui only applies directly to the input side. 
- - Build clean (MSBuild), 658/658 tests passing. 
- - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
-  
-   **Commit:** `35ffebf` | **Date:** 2026-09-04 
+   **Commit:** `fb890ea` | **Date:** 2026-09-04 
  
  --- 
  
