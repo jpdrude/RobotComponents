@@ -116,8 +116,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new Param_Robot(), "Robot", "R", "Robot that is used as Robot.", GH_ParamAccess.item);
+            pManager.AddParameter(new Param_Robot(), "Robot", "R",
+                "Robot that is used as Robot. Optional: only required if Actions contains movement instructions, " +
+                "which cannot be resolved to RAPID code (tool/workobject declarations, robtargets, ...) without one.",
+                GH_ParamAccess.item);
             pManager.AddParameter(new Param_Action(), "Actions", "A", "Actions as list of instructive and declarative Actions.", GH_ParamAccess.list);
+
+            pManager[0].Optional = true;
 
             AddInputParameter(12);
         }
@@ -138,7 +143,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // Input variables
-            Robot robot = new Robot();
+            Robot robot = null;
             List<RobotComponents.ABB.Actions.IAction> actions = new List<RobotComponents.ABB.Actions.IAction>();
             bool isSystemModule = false;
             string moduleName = "MainModule";
@@ -154,8 +159,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             string author = null;
             int errorHandling = (int)ErrorHandling.NoErrorHandling;
 
-            // Catch the input data
-            if (!DA.GetData(0, ref robot)) { return; }
+            // Catch the input data. Robot is optional: DA.GetData returns false and leaves robot
+            // null when unconnected. RAPIDGenerator.CreateModule throws a clear error below if
+            // the actions turn out to need one (movement instructions) after all.
+            DA.GetData(0, ref robot);
             if (!DA.GetDataList(1, actions)) { return; }
 
             // Creates the input value list for the scope and attachs it to the input parameter
@@ -341,8 +348,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 _rapidGenerator.Author = author;
                 _rapidGenerator.ErrorHandling = (ErrorHandling)errorHandling;
 
-                // Generator code
-                _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
+                // Generator code. Throws if Robot is unconnected and Actions contains movement
+                // instructions, since those cannot be resolved to RAPID code without one.
+                try
+                {
+                    _rapidGenerator.CreateModule(actions, addTooldata, addWobjdata, addLoaddata);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, ex.Message);
+                    return;
+                }
 
                 // Check if the first movement is an absolute joint movement. 
                 _firstMovementIsMoveAbsJ = _rapidGenerator.IsFirstMovementMoveAbsJ;
