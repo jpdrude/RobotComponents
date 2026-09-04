@@ -127,9 +127,12 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// <summary>
         /// Keeps the output list mirroring the input list 1:1 (same count, same order), auto-names
         /// any input that still has its original/auto-assigned name once something gets wired into
-        /// it, and mirrors each input's current Name/NickName onto its matching output. Called by
-        /// GH after every input add/remove via the +/- zui, and defensively again at the start of
-        /// every solve.
+        /// it, and mirrors each input's current Name/NickName onto its matching output. Also
+        /// recovers a custom rename across copy/paste or duplicate, where the copied param gets a
+        /// fresh InstanceGuid our own per-param bookkeeping (keyed by that guid) has never seen,
+        /// even though the rest of its state -- including a user's rename -- was carried over
+        /// faithfully. Called by GH after every input add/remove via the +/- zui, after an input
+        /// rename is accepted, and defensively again at the start of every solve.
         /// </summary>
         private void EnsureConsistentState()
         {
@@ -142,23 +145,42 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
                 if (!_autoNames.TryGetValue(id, out string lastAuto))
                 {
-                    // First time seeing this param: it was just created (by the zui, or by
-                    // RegisterInputParams for the initial one). Give it a placeholder name until
-                    // something is wired into it.
-                    lastAuto = $"Input {i + 1}";
-                    input.Name = lastAuto;
-                    input.NickName = lastAuto;
-                    _autoNames[id] = lastAuto;
+                    // First time seeing this param under its current InstanceGuid. Two different
+                    // situations land here, and they need different treatment:
+                    if (string.IsNullOrEmpty(input.Name))
+                    {
+                        // Genuinely brand new: just created by the zui or the initial
+                        // RegisterInputParams call, with no name of its own yet. Give it a
+                        // placeholder name until something is wired into it.
+                        lastAuto = $"Input {i + 1}";
+                        input.Name = lastAuto;
+                        input.NickName = lastAuto;
 
-                    // Re-assert hidden wire display here too: GH's own +/- zui insert handler
-                    // overwrites whatever WireDisplay CreateParameter() set on a freshly-inserted
-                    // param with its own "implied" style right after calling it (verified via IL
-                    // decompilation of GH_ComponentAttributes' insert-click handler), so setting it
-                    // only in CreateInputParam() is silently clobbered for every zui-added input.
-                    // This runs from VariableParameterMaintenance(), which fires right after that
-                    // clobber, so it's the last word. Only for a param we haven't seen before, so a
-                    // user who deliberately turns display back on for a specific input later keeps it.
-                    input.WireDisplay = GH_ParamWireDisplay.hidden;
+                        // Re-assert hidden wire display here too: GH's own +/- zui insert handler
+                        // overwrites whatever WireDisplay CreateParameter() set on a freshly-inserted
+                        // param with its own "implied" style right after calling it (verified via IL
+                        // decompilation of GH_ComponentAttributes' insert-click handler), so setting
+                        // it only in CreateInputParam() is silently clobbered for every zui-added
+                        // input. This runs from VariableParameterMaintenance(), which fires right
+                        // after that clobber, so it's the last word. Only reached for a param with no
+                        // name of its own yet, so this can't re-hide a pasted/duplicated param whose
+                        // wire display had been deliberately turned back on before the copy (see the
+                        // else branch below -- that carries its Name across, and WireDisplay is
+                        // ordinary serialized state that survives a copy the same way Name does).
+                        input.WireDisplay = GH_ParamWireDisplay.hidden;
+                    }
+                    else
+                    {
+                        // Already has a name, just not one tracked under this guid -- this is a
+                        // copy/paste or duplicate: GH gives the pasted param a fresh InstanceGuid
+                        // (so it can coexist with the original), but the rest of its serialized
+                        // state -- Name, NickName, WireDisplay, ... -- carries over faithfully.
+                        // Adopt its existing name as the new tracked baseline instead of overwriting
+                        // it with the placeholder, so a custom rename survives the copy.
+                        lastAuto = input.Name;
+                    }
+
+                    _autoNames[id] = lastAuto;
                 }
 
                 bool stillOurs = input.Name == lastAuto;
