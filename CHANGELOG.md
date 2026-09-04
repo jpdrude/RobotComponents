@@ -3,8 +3,26 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-03 20:00 
+ Generated on: 2026-09-04 13:27 
  --- 
+ - version number bump 
+  
+   **Commit:** `af79f61` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge pull request #23 from jpdrude/fix/backward-compat-and-declaration-ordering Fix backward compatibility, RAPID expression parsing, declaration ordering, and add upgrade mechanics 
+  
+   **Commit:** `0ffa8c6` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Update auto-generated CHANGELOG.md Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `10c8fd1` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Add IGH_UpgradeObject upgraders for the v5 Obsolete/live component pairs Lets GH's built-in Solution -> "Upgrade Components" swap RoutineArgumentComponent, ConnectInterruptComponent, EmptyLineComponent, AssignVariableValueComponent and RAPIDVariableComponent old instances for the live ones automatically, with wires reconnected, instead of requiring manual replacement per instance. 
  	 - New RobotComponents.ABB.Gh/Upgraders/v5/ folder: one IGH_UpgradeObject per pair plus a shared UpgradeHelpers (MigrateInputByIndex/ByName, MigrateOutputByIndex), all built on GH_UpgradeUtil.MigrateSources/MigrateRecipients (verified via IL decompilation to be pure wire-only migration, safe even where a param's type changed), followed by GH_UpgradeUtil.SwapComponents(old, new, migrateParameters: false) -- false is required, since true would additionally transplant param objects via Replace{Input,Output}Parameters and silently carry a stale param type onto the new component wherever a param's type changed. 
  	 - Each upgrader's XML doc carries the old->new input/output name/type/index reference mapping for that component. 

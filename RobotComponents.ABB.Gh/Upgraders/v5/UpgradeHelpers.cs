@@ -11,9 +11,12 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
+using System;
+using System.Collections.Generic;
 using System.Linq;
 // Grasshopper Libs
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Special;
 
 namespace RobotComponents.ABB.Gh.Upgraders
 {
@@ -71,6 +74,41 @@ namespace RobotComponents.ABB.Gh.Upgraders
             if (newIndex < 0 || newIndex >= newComponent.Params.Output.Count) return;
 
             GH_UpgradeUtil.MigrateRecipients(oldComponent.Params.Output[oldIndex], newComponent.Params.Output[newIndex]);
+        }
+
+        /// <summary>
+        /// Puts newComponent into every GH_Group in the document that oldComponent was a member
+        /// of, replacing oldComponent's membership. Call this after
+        /// GH_UpgradeUtil.SwapComponents(oldComponent, newComponent, ...) has succeeded.
+        /// </summary>
+        /// <remarks>
+        /// SwapComponents only removes/adds the two components themselves; it doesn't know about
+        /// group membership, which GH tracks separately as a list of member InstanceGuids on each
+        /// GH_Group object (an ordinary document object like any other, found by scanning
+        /// document.Objects). Rather than editing that list by hand, this goes through
+        /// GH_Group.InstanceGuidsChanged(SortedDictionary&lt;Guid,Guid&gt;) — the same
+        /// IGH_InstanceGuidDependent notification GH_Document itself sends to every group when
+        /// object instance guids are remapped (e.g. GH_Document.MutateAllIds, used on duplicate/
+        /// paste) — since a group's own implementation already does exactly the old-guid ->
+        /// new-guid swap in its ObjectIDs list and refreshes its cached member/content-box state
+        /// (ExpireCaches) as a result.
+        /// </remarks>
+        internal static void MigrateGroupMembership(IGH_Component oldComponent, IGH_Component newComponent, GH_Document document)
+        {
+            if (document == null) { return; }
+
+            SortedDictionary<Guid, Guid> map = new SortedDictionary<Guid, Guid>
+            {
+                { oldComponent.InstanceGuid, newComponent.InstanceGuid }
+            };
+
+            foreach (GH_Group group in document.Objects.OfType<GH_Group>())
+            {
+                if (group.ObjectIDs.Contains(oldComponent.InstanceGuid))
+                {
+                    group.InstanceGuidsChanged(map);
+                }
+            }
         }
     }
 }
