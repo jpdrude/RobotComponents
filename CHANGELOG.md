@@ -3,8 +3,21 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 14:56 
+ Generated on: 2026-09-04 15:48 
  --- 
+ - Add Persistent Data signal type to Connect Interrupt Signal Type gains a "Persistent Data" entry (SignalType.PersistentData), which connects the interrupt via RAPID's IPers instead of an ISignalXX instruction: CONNECT pers1int WITH iroutine1; IPers counter, pers1int; - Signal Name now accepts either plain text (for the existing DI/DO/AI/AO/GI/GO modes) or a RAPID Variable (for the PERS variable to monitor in Persistent Data mode), resolved via HelperMethods.ResolveRAPIDValueExpression -- the same handling used everywhere else a value can be either a literal or a RAPID declaration/variable/expression. 
+ 	 - Signal Value has no equivalent in IPers (it takes no triggering value), so it's now flagged with a runtime warning when connected in Persistent Data mode instead of being silently ignored. 
+ - Signal Name's input param type change (Param_String -> Param_GenericObject) is a breaking serialization change for an already-shipped component, so this follows the project's Obsolete/vN + IGH_UpgradeObject pattern a second time for this component (the first was v5, when the Enable/Disable Interrupts outputs were added): - RobotComponents.ABB.Gh/Obsolete/v7/ConnectInterruptComponent_OBSOLETE2.cs: frozen pre-change snapshot of the v5 shape, same guid, hidden + Obsolete = true. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v7/ConnectInterruptComponentUpgrader2.cs: wires every input/output across by index (wire-only migration throughout). 
+ - This is a second upgrade hop after the v5 upgrader -- an instance saved with the original shipped guid needs "Upgrade Components" run twice to reach the current live shape. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `ea2d94b` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Merge pull request #26 from jpdrude/fix/current-robot-target-icon Update Current Robot Target icon 
   
    **Commit:** `077f67f` | **Date:** 2026-09-04 
