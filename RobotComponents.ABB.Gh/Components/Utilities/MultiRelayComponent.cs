@@ -53,6 +53,27 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
             "utility: it does not touch the data at all.")
         {
             Message = "+/-";
+
+            // Mirror an input's rename onto its matching output the moment the rename is
+            // committed, rather than waiting for the next unrelated solve. Params.
+            // ParameterNickNameChanged fires only once a rename is actually accepted (interactive
+            // edit committed, or undo/redo of one) -- confirmed via IL decompilation of
+            // GH_ComponentParamServer.LocalParameterChanged, which is what raises it, gated on
+            // GH_ObjectEventType.NickNameAccepted -- never merely from code assigning .NickName,
+            // so this can't re-fire itself from EnsureConsistentState()'s own renaming below.
+            Params.ParameterNickNameChanged += OnParameterNickNameChanged;
+        }
+
+        /// <summary>
+        /// Fires once a parameter rename on this component is accepted. Immediately re-syncs and
+        /// expires so a renamed input's matching output picks up the new name right away.
+        /// </summary>
+        private void OnParameterNickNameChanged(object sender, GH_ParamServerEventArgs e)
+        {
+            if (e.ParameterSide != GH_ParameterSide.Input) { return; }
+
+            EnsureConsistentState();
+            ExpireSolution(true);
         }
 
         /// <summary>
