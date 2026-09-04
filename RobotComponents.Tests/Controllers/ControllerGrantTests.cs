@@ -36,10 +36,11 @@ namespace RobotComponents.Tests.Controllers
         {
             Controller controller = new Controller();
 
-            bool result = controller.UploadModule("T_ROB1", new List<string>(), out string status);
+            bool result = controller.UploadModule("T_ROB1", new List<string>(), out string status, out List<string> warnings);
 
             Assert.False(result);
             Assert.Contains("empty", status, System.StringComparison.OrdinalIgnoreCase);
+            Assert.Empty(warnings);
         }
 
         [Fact]
@@ -47,10 +48,11 @@ namespace RobotComponents.Tests.Controllers
         {
             Controller controller = new Controller();
 
-            bool result = controller.UploadSystemModule("T_ROB1", new List<string>(), out string status, false);
+            bool result = controller.UploadSystemModule(new List<string>(), out string status, out List<string> warnings);
 
             Assert.False(result);
             Assert.Contains("empty", status, System.StringComparison.OrdinalIgnoreCase);
+            Assert.Empty(warnings);
         }
 
         [Fact]

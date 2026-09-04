@@ -3,8 +3,26 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 13:46 
+ Generated on: 2026-09-04 14:05 
  --- 
+ - Merge pull request #26 from jpdrude/fix/current-robot-target-icon Update Current Robot Target icon 
+  
+   **Commit:** `077f67f` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Update Current Robot Target icon Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `3338dbd` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge pull request #25 from jpdrude/feature/current-robot-target-component Add Current Robot Target component wrapping RAPID's CRobT 
+  
+   **Commit:** `738fe8c` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Add Current Robot Target component wrapping RAPID's CRobT New GH component (Advanced RAPID Features > Current Robot Target, nickname CRobT) that wraps CRobT([\TaskRef]|[\TaskName] [\Tool] [\WObj]) into a RAPID expression, returning the robot's current TCP position as a robtarget. 
  	 - Two optional generic inputs, Tool and Work Object, each resolved via HelperMethods.ResolveRAPIDValueExpression (accepts a Robot Tool/Work Object declaration, a RAPID Variable, a RAPID Expression, or plain text). Leaving either unconnected omits its \Tool / \WObj switch; with neither connected the output is plain CRobT(). 
  	 - Built directly via RAPIDExpression.FromString rather than FromFunctionCall, since CRobT's optional switch arguments are space-separated (\Tool:=t1 \WObj:=w1), not comma-separated like a regular RAPID function call. 

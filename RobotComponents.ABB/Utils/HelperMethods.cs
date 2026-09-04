@@ -14,6 +14,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 // Rhino Libs
@@ -496,6 +497,62 @@ namespace RobotComponents.ABB.Utils
 
             // Values
             values = value.Split(',');
+        }
+
+        /// <summary>
+        /// Scans a RAPID module's shared-data section -- everything between the MODULE header
+        /// and the module's first routine declaration (PROC, FUNC or TRAP) -- and returns the
+        /// data declarations found there that use a keyword other than PERS or CONST.
+        /// </summary>
+        /// <remarks>
+        /// A module marked with the SYSMODULE attribute that is loaded into multiple tasks
+        /// resolves same-named PERS and CONST declarations to a single instance shared across
+        /// those tasks, regardless of how the module got loaded into each task. VAR does not get
+        /// this treatment: each task that loads the module gets its own independent VAR instance.
+        /// A VAR declared in a system module's shared-data section therefore looks shared at a
+        /// glance -- it is textually declared once, before any routine -- but silently is not.
+        /// TASK PERS is deliberately excluded from the result: it declares data that is
+        /// per-task by design, so it is not a case of accidentally-unshared data.
+        /// </remarks>
+        /// <param name="module"> The module as a list of RAPID code lines, starting with the "MODULE ..." header line. </param>
+        /// <returns>
+        /// The trimmed declaration lines, in the shared-data section, that use a keyword other
+        /// than PERS or CONST (i.e. VAR). Empty if the module has no such declarations.
+        /// </returns>
+        public static List<string> FindNonSharedModuleData(IList<string> module)
+        {
+            List<string> result = new List<string>();
+
+            if (module == null) { return result; }
+
+            // Start after the "MODULE ..." header line; stop at the first routine declaration.
+            for (int i = 1; i < module.Count; i++)
+            {
+                string trimmed = module[i]?.Trim() ?? "";
+                if (trimmed.Length == 0) { continue; }
+                if (trimmed.StartsWith("!")) { continue; }
+
+                string[] tokens = trimmed.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (tokens.Length == 0) { continue; }
+
+                int keywordIndex = string.Equals(tokens[0], "LOCAL", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
+                if (keywordIndex >= tokens.Length) { continue; }
+
+                string keyword = tokens[keywordIndex].ToUpperInvariant();
+
+                // The shared-data section ends at the module's first routine declaration.
+                if (keyword == "PROC" || keyword == "FUNC" || keyword == "TRAP") { break; }
+
+                // TASK PERS is intentionally per-task, not accidentally-unshared data.
+                if (keyword == "TASK") { continue; }
+
+                if (keyword == "VAR")
+                {
+                    result.Add(trimmed);
+                }
+            }
+
+            return result;
         }
         #endregion
 
