@@ -3,26 +3,17 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 17:24 
+ Generated on: 2026-09-04 17:37 
  --- 
- - Freeze the v7 obsolete Connect Interrupt's Signal Type dropdown too Same issue as the v5 snapshot, introduced in this same branch: reflecting off the live SignalType enum (typeof(SignalType)) for the auto-generated dropdown means this component's own Persistent Data addition leaks into this frozen component's dropdown as well, even though its switch statement is (correctly) still frozen at cases 0-5. Replaced with the hardcoded 6-name list the enum had before this branch's change, matching the same fix just applied to the v5 snapshot on fix/connect-interrupt-obsolete-valuelist-drift. 
+ - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
+ 	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
+ 	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 
+ 	 - The moment a user renames an input by hand, it's excluded from further auto-renaming for good (tracked via a persisted Guid->name dictionary recording what name was last auto-assigned; a mismatch means the user changed it). The matching output always mirrors whatever the input's current name is, auto-detected or manual. 
+ 	 - Outputs are added/removed by the component itself (SyncOutputCount, from VariableParameterMaintenance) to stay 1:1 with the inputs; the +/- zui only applies directly to the input side. 
  - Build clean (MSBuild), 658/658 tests passing. 
  - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
   
-   **Commit:** `4996dc1` | **Date:** 2026-09-04 
- 
- --- 
- 
- - Add Persistent Data signal type to Connect Interrupt Signal Type gains a "Persistent Data" entry (SignalType.PersistentData), which connects the interrupt via RAPID's IPers instead of an ISignalXX instruction: CONNECT pers1int WITH iroutine1; IPers counter, pers1int; - Signal Name now accepts either plain text (for the existing DI/DO/AI/AO/GI/GO modes) or a RAPID Variable (for the PERS variable to monitor in Persistent Data mode), resolved via HelperMethods.ResolveRAPIDValueExpression -- the same handling used everywhere else a value can be either a literal or a RAPID declaration/variable/expression. 
- 	 - Signal Value has no equivalent in IPers (it takes no triggering value), so it's now flagged with a runtime warning when connected in Persistent Data mode instead of being silently ignored. 
- - Signal Name's input param type change (Param_String -> Param_GenericObject) is a breaking serialization change for an already-shipped component, so this follows the project's Obsolete/vN + IGH_UpgradeObject pattern a second time for this component (the first was v5, when the Enable/Disable Interrupts outputs were added): - RobotComponents.ABB.Gh/Obsolete/v7/ConnectInterruptComponent_OBSOLETE2.cs: frozen pre-change snapshot of the v5 shape, same guid, hidden + Obsolete = true. 
- 	 - Live component: new guid. 
- 	 - RobotComponents.ABB.Gh/Upgraders/v7/ConnectInterruptComponentUpgrader2.cs: wires every input/output across by index (wire-only migration throughout). 
- - This is a second upgrade hop after the v5 upgrader -- an instance saved with the original shipped guid needs "Upgrade Components" run twice to reach the current live shape. 
- - Build clean (MSBuild), 658/658 tests passing. 
- - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
-  
-   **Commit:** `ea2d94b` | **Date:** 2026-09-04 
+   **Commit:** `35ffebf` | **Date:** 2026-09-04 
  
  --- 
  
