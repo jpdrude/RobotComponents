@@ -291,6 +291,18 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         {
             Param_GenericObject param = CreateRelayParam();
             param.WireDisplay = GH_ParamWireDisplay.hidden;
+
+            // Param_GenericObject's own default constructor already sets Name/NickName to "Data"/
+            // "D" -- that's GH's standard generic-object-parameter default, not an absence of a
+            // name. EnsureConsistentState() tells a genuinely new, not-yet-auto-named slot apart
+            // from an already-named one purely by checking string.IsNullOrEmpty(input.Name), so
+            // leaving that default in place made every zui-added input look "already named" and
+            // get frozen on "Data" forever instead of ever receiving its "Input N" placeholder.
+            // Blank both out here so that check actually sees an unnamed param, same as the very
+            // first input RegisterInputParams sets up explicitly.
+            param.Name = string.Empty;
+            param.NickName = string.Empty;
+
             return param;
         }
 
