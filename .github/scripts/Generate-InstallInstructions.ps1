@@ -41,6 +41,10 @@ $content = @"
 The components should now be available in Grasshopper.
 
 The RobotComponentsEDEK.gha assembly can be installed in the same manner. It is a current built from the [RobotComponents-EDEK-Presets](https://github.com/EDEK-UniKassel/RobotComponents-EDEK-Presets) repository.
+
+## Updating Existing Definitions
+
+If you have `.gh`/`.ghx` files with components from an older version, Grasshopper can swap them for the current versions automatically, with wires reconnected: open the file, then use the Grasshopper menu **Solution -> Upgrade Components** (or right-click the canvas and choose **Solution -> Upgrade Components**). Any component this affects will be flagged with an "obsolete" (grey/hidden) icon beforehand if you'd rather check first.
 "@
 
 $content | Out-File -FilePath $OutputPath -Encoding UTF8
