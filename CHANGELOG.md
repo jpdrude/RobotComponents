@@ -3,8 +3,19 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-03 18:21 
+ Generated on: 2026-09-03 20:00 
  --- 
+ - Add IGH_UpgradeObject upgraders for the v5 Obsolete/live component pairs Lets GH's built-in Solution -> "Upgrade Components" swap RoutineArgumentComponent, ConnectInterruptComponent, EmptyLineComponent, AssignVariableValueComponent and RAPIDVariableComponent old instances for the live ones automatically, with wires reconnected, instead of requiring manual replacement per instance. 
+ 	 - New RobotComponents.ABB.Gh/Upgraders/v5/ folder: one IGH_UpgradeObject per pair plus a shared UpgradeHelpers (MigrateInputByIndex/ByName, MigrateOutputByIndex), all built on GH_UpgradeUtil.MigrateSources/MigrateRecipients (verified via IL decompilation to be pure wire-only migration, safe even where a param's type changed), followed by GH_UpgradeUtil.SwapComponents(old, new, migrateParameters: false) -- false is required, since true would additionally transplant param objects via Replace{Input,Output}Parameters and silently carry a stale param type onto the new component wherever a param's type changed. 
+ 	 - Each upgrader's XML doc carries the old->new input/output name/type/index reference mapping for that component. 
+ 	 - AssignVariableValueComponent/RAPIDVariableComponent needed a new internal ConfigureForUpgrade(...) hook so a freshly-constructed instance can be put into the old instance's array/index mode *before* wires are migrated onto it; refactored their existing Toggle*Params methods into Apply*/Toggle* so the pure param-registration logic is reusable without the solve-triggering ExpireSolution side effect (which would be reentrant here, since the new instance isn't attached to a document yet). 
+ 	 - Documented the required companion-upgrader step in CLAUDE.md alongside the existing Obsolete/vN pattern write-up. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+  
+   **Commit:** `01fa18a` | **Date:** 2026-09-03 
+ 
+ --- 
+ 
  - Fix backward compatibility for changed components, RAPID Expression text parsing, and declaration/comment ordering Backward compatibility (Archive corrupted on load): - Non-IGH_VariableParameterComponent components restore parameters positionally against the *current* code's param count on load, not the archive's. Adding/removing a param on a shipped component breaks every pre-existing .gh file with 'archive is corrupt' per missing chunk. Applies the project's established Obsolete/vN pattern: froze the pre-change shape of RoutineArgumentComponent, ConnectInterruptComponent, EmptyLineComponent, AssignVariableValueComponent and RAPIDVariableComponent as hidden _OBSOLETE classes (original GUIDs, Obsolete=true) under Obsolete/v5/, and gave each live component a new GUID. Removed the fragile SolveInstance-based param-type reconciliation this replaces. 
  	 - Documented the pattern and its rationale in CLAUDE.md as required going forward. 
  - RAPID Expression text parsing (GH_RAPIDExpression.CastFrom): - Text wired into a Param_RAPIDExpression input (e.g. via a Panel) was stored verbatim, never parsed as a number, unlike a native Number/Integer input. Added invariant-culture int/double parsing with verbatim fallback, centralized so it fixes every Param_RAPIDExpression input at once. 
