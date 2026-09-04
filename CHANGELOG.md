@@ -3,17 +3,40 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 17:37 
+ Generated on: 2026-09-04 17:45 
  --- 
- - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
- 	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
- 	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 
- 	 - The moment a user renames an input by hand, it's excluded from further auto-renaming for good (tracked via a persisted Guid->name dictionary recording what name was last auto-assigned; a mismatch means the user changed it). The matching output always mirrors whatever the input's current name is, auto-detected or manual. 
- 	 - Outputs are added/removed by the component itself (SyncOutputCount, from VariableParameterMaintenance) to stay 1:1 with the inputs; the +/- zui only applies directly to the input side. 
+ - Add optional interrupt variable name override to Connect Interrupt The generated intnum variable is always named "int_" + TRAP Routine Name, so connecting more than one interrupt to the same TRAP routine (fully legal in RAPID -- multiple distinct intnum variables can each CONNECT to the same trap) produced two colliding VAR intnum declarations for the same name -- a compile error on the controller. 
+ - Right-click "Override Interrupt Variable Name" adds an optional text input that, when supplied, is used verbatim as the intnum name instead of the derived default; unconnected/off, behavior is unchanged. The override is validated with the same HelperMethods.IsValidRapidIdentifier check used elsewhere in this project (Controller module/task names), warning rather than silently emitting broken RAPID if it isn't a legal identifier. 
+ - Went with an explicit override rather than having RAPIDGenerator auto-detect and rename colliding declarations: the three related lines (VAR intnum, the CONNECT, and the ISignalXX/IPers call) are only linked in ConnectInterrupt's own SolveInstance, not in any structure RAPIDGenerator understands, so coordinated auto-renaming across them would mean fragile text-pattern rewriting or a much larger refactor into a real structured Interrupt action; auto-picked suffixes would also be liable to shift between recomputes depending on solve order, which is exactly the kind of instability you don't want in RAPID variable names you're deploying to a controller. An explicit, user-controlled name matches how every other named RAPID declaration in this project already works. 
+ - This turns the component into a (menu-driven only, no +/- zui) variable parameter component to add the optional input without disturbing the 4 fixed ones, which is itself a parameter-restore-mechanism change for an already-shipped component, so it needs the project's Obsolete/vN + IGH_UpgradeObject treatment a third time for this component: - RobotComponents.ABB.Gh/Obsolete/v8/ConnectInterruptComponent_OBSOLETE3.cs: frozen pre-change snapshot of the v7 shape, same guid, hidden + Obsolete = true. 
+ - Also pinned its Signal Type dropdown to a hardcoded name list rather than reflecting off the live SignalType enum, per the shared-enum-drift check documented in CLAUDE.md -- doing it now rather than needing to fix it later. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v8/ConnectInterruptComponentUpgrader3.cs: wires all 4 existing inputs and all 3 outputs across by index (wire-only migration throughout); the new 5th input has nothing to migrate onto it and simply starts off. 
  - Build clean (MSBuild), 658/658 tests passing. 
  - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
   
-   **Commit:** `35ffebf` | **Date:** 2026-09-04 
+   **Commit:** `cc1633d` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Freeze the v7 obsolete Connect Interrupt's Signal Type dropdown too Same issue as the v5 snapshot, introduced in this same branch: reflecting off the live SignalType enum (typeof(SignalType)) for the auto-generated dropdown means this component's own Persistent Data addition leaks into this frozen component's dropdown as well, even though its switch statement is (correctly) still frozen at cases 0-5. Replaced with the hardcoded 6-name list the enum had before this branch's change, matching the same fix just applied to the v5 snapshot on fix/connect-interrupt-obsolete-valuelist-drift. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `4996dc1` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add Persistent Data signal type to Connect Interrupt Signal Type gains a "Persistent Data" entry (SignalType.PersistentData), which connects the interrupt via RAPID's IPers instead of an ISignalXX instruction: CONNECT pers1int WITH iroutine1; IPers counter, pers1int; - Signal Name now accepts either plain text (for the existing DI/DO/AI/AO/GI/GO modes) or a RAPID Variable (for the PERS variable to monitor in Persistent Data mode), resolved via HelperMethods.ResolveRAPIDValueExpression -- the same handling used everywhere else a value can be either a literal or a RAPID declaration/variable/expression. 
+ 	 - Signal Value has no equivalent in IPers (it takes no triggering value), so it's now flagged with a runtime warning when connected in Persistent Data mode instead of being silently ignored. 
+ - Signal Name's input param type change (Param_String -> Param_GenericObject) is a breaking serialization change for an already-shipped component, so this follows the project's Obsolete/vN + IGH_UpgradeObject pattern a second time for this component (the first was v5, when the Enable/Disable Interrupts outputs were added): - RobotComponents.ABB.Gh/Obsolete/v7/ConnectInterruptComponent_OBSOLETE2.cs: frozen pre-change snapshot of the v5 shape, same guid, hidden + Obsolete = true. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v7/ConnectInterruptComponentUpgrader2.cs: wires every input/output across by index (wire-only migration throughout). 
+ - This is a second upgrade hop after the v5 upgrader -- an instance saved with the original shipped guid needs "Upgrade Components" run twice to reach the current live shape. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `ea2d94b` | **Date:** 2026-09-04 
  
  --- 
  
