@@ -78,11 +78,18 @@ namespace RobotComponents.ABB.Gh.Obsolete
 
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            // Creates the input value list and attachs it to the input parameter
+            // Creates the input value list and attachs it to the input parameter. Uses a hardcoded
+            // name list frozen to this component's own 6-case switch below, rather than reflecting
+            // off the live SignalType enum (typeof(SignalType)): that enum later gained a
+            // PersistentData entry the switch below has no case for, and this component -- unlike
+            // the live one -- can never gain one either, since nothing about it may change again.
             if (this.Params.Input[3].SourceCount == 0)
             {
                 _expire = true;
-                HelperMethods.CreateValueList(this, typeof(SignalType), 3);
+                HelperMethods.CreateValueList(this, new List<string>
+                {
+                    "DigitalInput", "DigitalOutput", "AnalogInput", "AnalogOutput", "GroupInput", "GroupOutput"
+                }, 3);
             }
 
             // Expire solution of this component
