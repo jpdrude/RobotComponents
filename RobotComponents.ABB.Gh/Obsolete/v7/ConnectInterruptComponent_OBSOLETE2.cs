@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components (Modified)
 // Original project: https://github.com/RobotComponents/RobotComponents
 // Modified project: https://github.com/jpdrude/RobotComponents
@@ -10,74 +10,59 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+#pragma warning disable CS1591 // Missing XML comment — obsolete shim, kept for .ghx backwards compatibility.
+
 // System Libs
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-// Rhino Libs
-using Rhino.Geometry;
 // Grasshopper Libs
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Parameters;
-using GH_IO.Serialization;
 // RobotComponents Libs
-using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Actions.Declarations;
-using RobotComponents.ABB.Definitions;
-using RobotComponents.ABB.Enumerations;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Declarations;
-using RobotComponents.ABB.Gh.Parameters.Definitions;
-using RobotComponents.ABB.Gh.Utils;
-using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
 using RobotComponents.ABB.Actions.Dynamic;
+using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Components;
+using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
+using RobotComponents.ABB.Gh.Utils;
 
-namespace RobotComponents.ABB.Gh.Components.CodeGeneration
+namespace RobotComponents.ABB.Gh.Obsolete
 {
     /// <summary>
     /// RobotComponents Action : Connect Interrupt Component.
     /// </summary>
-    public class ConnectInterruptComponent : GH_RobotComponent
+    /// <remarks>
+    /// Hidden from the menu since the Signal Name input was changed from Param_String to
+    /// Param_GenericObject (so it can also accept a RAPID Variable, for the new Persistent Data
+    /// signal type) and the SignalType enum gained a PersistentData entry. Retained so older .gh
+    /// files that placed this component before that change continue to load and resolve their
+    /// saved param GUIDs and param type unchanged; the live component now has a new GUID for its
+    /// new input type. This is the second obsolete snapshot for this component -- see also
+    /// ConnectInterruptComponent_OBSOLETE (v5), frozen when the Enable/Disable Interrupts outputs
+    /// were added.
+    /// </remarks>
+    [Obsolete("This component is OBSOLETE and will be removed in the future. Use Connect Interrupt instead.", false)]
+    public class ConnectInterruptComponent_OBSOLETE2 : GH_RobotComponent
     {
         #region fields
         private bool _expire = false;
         #endregion
 
-        /// <summary>
-        /// Each implementation of GH_Component must provide a public constructor without any arguments.
-        /// Category represents the Tab in which the component will appear, subcategory the panel. 
-        /// If you use non-existing tab or panel names new tabs/panels will automatically be created.
-        /// </summary>
-        public ConnectInterruptComponent() : base("Connect Interrupt", "CI", "Advanced RAPID Features",
+        public ConnectInterruptComponent_OBSOLETE2() : base("Connect Interrupt", "CI", "Advanced RAPID Features",
               "Connects a TRAP routine to a signal change.")
-
         {
         }
 
-        /// <summary>
-        /// Registers all the input parameters for this component.
-        /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("TRAP Routine Name", "TR", "Name of the TRAP routine to be called when the signal change occurs.", GH_ParamAccess.item);
-            pManager.AddParameter(new Param_GenericObject(), "Signal Name", "SN",
-                "Name of the signal that is monitored for changes. In Persistent Data mode, this is instead the " +
-                "RAPID persistent (PERS) variable to monitor: connect a RAPID Variable component, or type its name.",
-                GH_ParamAccess.item);
-            pManager.AddNumberParameter("Signal Value", "SV",
-                "Value of the signal that triggers the interrupt when the signal changes to this value. " +
-                "Not used in Persistent Data mode: the RAPID IPers instruction has no triggering value.",
-                GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Signal Type", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO, or Persistent Data)", GH_ParamAccess.item);
+            pManager.AddTextParameter("Signal Name", "SN", "Name of the signal that is monitored for changes.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Signal Value", "SV", "Value of the signal that triggers the interrupt when the signal changes to this value.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Signal Type", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO)", GH_ParamAccess.item);
 
             pManager[2].Optional = true;
             pManager[3].Optional = true;
         }
 
-        /// <summary>
-        /// Registers all the output parameters for this component.
-        /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_CodeLine(), "Connect Code", "CC", "Code to connect interrupt. Both Declaration and Instruction Code is generated");
@@ -91,10 +76,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 GH_ParamAccess.item);
         }
 
-        /// <summary>
-        /// This is the method that actually does the work.
-        /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // Creates the input value list and attachs it to the input parameter
@@ -120,28 +101,15 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Declare variables to store input data
             string interruptName = string.Empty;
             string trapRoutineName = string.Empty;
-            object rawSignalName = null;
+            string signalName = string.Empty;
             double signalValue = 1;
             int signalTypeInt = 1;
 
             // Get data from input parameters
             if (!DA.GetData(0, ref trapRoutineName)) return;
-            if (!DA.GetData(1, ref rawSignalName)) return;
-            bool hasSignalValue = DA.GetData(2, ref signalValue);
-            if (!hasSignalValue) signalValue = 1;
+            if (!DA.GetData(1, ref signalName)) return;
+            if (!DA.GetData(2, ref signalValue)) signalValue = 1;
             if (!DA.GetData(3, ref signalTypeInt)) signalTypeInt = 1;
-
-            // Resolves to the signal name (plain text) or, in Persistent Data mode, the declared
-            // name of the connected RAPID Variable -- same handling used for any other input that
-            // accepts either a literal or a RAPID declaration/variable/expression.
-            string signalName = HelperMethods.ResolveRAPIDValueExpression(rawSignalName);
-
-            if ((SignalType)signalTypeInt == SignalType.PersistentData && hasSignalValue)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    "Signal Value is connected but is not used in Persistent Data mode: the RAPID IPers " +
-                    "instruction has no triggering value. Disconnect it to remove this warning.");
-            }
 
             interruptName = "int_" + trapRoutineName;
 
@@ -172,57 +140,37 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 case 5:
                     codeLines.Add(new CodeLine("ISignalGO " + signalName + ", " + (int)signalValue + ", " + interruptName + ";", CodeType.Instruction));
                     break;
-                case 6:
-                    // Persistent data: IPers takes the PERS name and the interrupt variable, no
-                    // triggering value (unlike the ISignalXX instructions above).
-                    codeLines.Add(new CodeLine("IPers " + signalName + ", " + interruptName + ";", CodeType.Instruction));
-                    break;
             }
 
             //Set output data
             DA.SetDataList(0, codeLines);
         }
 
-
         #region properties
-        /// <summary>
-        /// Override the component exposure (makes the tab subcategory).
-        /// Can be set to hidden, primary, secondary, tertiary, quarternary, quinary, senary, septenary and obscure
-        /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.tertiary; }
+            get { return GH_Exposure.hidden; }
         }
 
-        /// <summary>
-        /// Gets whether this object is obsolete.
-        /// </summary>
         public override bool Obsolete
         {
-            get { return false; }
+            get { return true; }
         }
 
-        /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
-        /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
             get { return Properties.Resources.ConnectInterrupt_Icon; }
         }
 
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
+        /// Each component must have a unique Guid to identify it.
+        /// It is vital this Guid doesn't change otherwise old ghx files
         /// that use the old ID will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("FB7FCD2B-9A1D-4213-BC52-66DBAF9E314F"); }
+            get { return new Guid("F77FEF07-D879-436A-AC00-B63FE3820BCD"); }
         }
         #endregion
-
-
-     
     }
 }

@@ -298,7 +298,12 @@ namespace RobotComponents.ABB.Enumerations
         /// <summary>
         /// Group output signal
         /// </summary>
-        GroupOutput = 5
+        GroupOutput = 5,
+        /// <summary>
+        /// Persistent (PERS) variable, monitored via the RAPID IPers instruction instead of an
+        /// ISignalXX instruction. Its interrupt does not take a triggering value.
+        /// </summary>
+        PersistentData = 6
     }
 
     /// <summary>
