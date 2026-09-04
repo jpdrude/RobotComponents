@@ -3,8 +3,24 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 13:27 
+ Generated on: 2026-09-04 13:38 
  --- 
+ - Merge pull request #24 from jpdrude/fix/upgrader-group-membership Restore group membership when the v5 upgraders swap a component 
+  
+   **Commit:** `45ff357` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Restore group membership when the upgraders swap a component GH_UpgradeUtil.SwapComponents only removes/adds the two components themselves; it has no notion of GH groups, which track membership separately as a list of member InstanceGuids on each GH_Group document object. Without this, running Upgrade Components on an old instance that was inside a group silently dropped the new instance out of that group. 
+ - Added UpgradeHelpers.MigrateGroupMembership(old, new, document), called after a successful swap in all 5 v5 upgraders: scans document.Objects for GH_Group instances containing the old component's InstanceGuid, and for each one calls GH_Group.InstanceGuidsChanged(...) -- the same IGH_InstanceGuidDependent notification GH_Document itself sends to every group when object instance guids are remapped (e.g. GH_Document.MutateAllIds, used on duplicate/paste) -- rather than editing each group's ObjectIDs list by hand. 
+ - Documented in CLAUDE.md alongside the rest of the upgrader write-up. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `dc4e0ca` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - version number bump 
   
    **Commit:** `af79f61` | **Date:** 2026-09-04 
