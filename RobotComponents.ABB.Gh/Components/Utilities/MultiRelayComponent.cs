@@ -13,7 +13,6 @@
 // System Libs
 using System;
 using System.Collections.Generic;
-using System.Linq;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
@@ -33,13 +32,22 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
     public class MultiRelayComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
-        // For each currently-registered input (keyed by its InstanceGuid, stable for the life of
-        // the param object), the Name/NickName we ourselves last assigned it -- either the "Input N"
-        // placeholder given at creation, or a type name detected from what got wired into it. As
-        // long as the param's current Name still matches this, it's still "ours" to auto-rename; the
-        // moment a user renames it to anything else, it falls out of sync here and we leave it alone
-        // from then on. Persisted across save/reload so that distinction survives too.
-        private readonly Dictionary<Guid, string> _autoNames = new Dictionary<Guid, string>();
+        // For each CURRENT input, by position (index-aligned with Params.Input -- not keyed by
+        // InstanceGuid: that isn't reliably stable across copy/paste/duplicate, which was the
+        // root cause of two earlier attempts at this each failing a different way), the
+        // Name/NickName we ourselves last assigned it -- either the "Input N" placeholder given
+        // at creation, or a type name detected from what got wired into it. As long as the
+        // param's current Name still matches this, it's still "ours" to auto-rename; the moment a
+        // user renames it to anything else, it falls out of sync here and we leave it alone from
+        // then on. A null entry means "not yet assigned" (a genuinely new slot); "" is used as a
+        // baseline the param's real Name can never equal, for a slot that's been permanently
+        // excluded from auto-renaming (see EnsureConsistentState()).
+        //
+        // Persisted directly via Write/Read (see #region serialization below), the same one
+        // mechanism GH itself uses for both a plain save/reload *and* copy/paste/duplicate -- so
+        // fixing this to survive one fixes it for the other too, and there's no separate
+        // guid-remapping case to reason about at all.
+        private readonly List<string> _lastAutoNames = new List<string>();
         #endregion
 
         /// <summary>
@@ -128,25 +136,45 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// Keeps the output list mirroring the input list 1:1 (same count, same order), auto-names
         /// any input that still has its original/auto-assigned name once something gets wired into
         /// it, and mirrors each input's current Name/NickName onto its matching output. Also leaves
-        /// an already-named input's name alone across copy/paste or duplicate, where the copied
-        /// param gets a fresh InstanceGuid our own per-param bookkeeping (keyed by that guid) has
-        /// never seen, even though the rest of its state -- including a user's rename -- was
-        /// carried over faithfully. Called by GH after every input add/remove via the +/- zui, after
-        /// an input rename is accepted, and defensively again at the start of every solve.
+        /// an already-named input's name alone the first time it's seen -- whether that name arrived
+        /// via GH's own Read() (a plain file reload or a copy/paste/duplicate: both go through the
+        /// identical IGH_DocumentObject.Write/Read mechanism) racing ahead of our own bookkeeping
+        /// list catching up, or any other way a param could show up already named but untracked.
+        /// Tracking is by position in Params.Input, not by InstanceGuid: a guid isn't stable across
+        /// copy/paste/duplicate (a pasted param gets a fresh one), which was the root cause of two
+        /// earlier, guid-keyed attempts at this each failing a different way. Called by GH after
+        /// every input add/remove via the +/- zui, after an input rename is accepted, and
+        /// defensively again at the start of every solve.
         /// </summary>
         private void EnsureConsistentState()
         {
             SyncOutputCount();
 
+            // Keep the tracking list index-aligned with Params.Input. Shrinking only ever happens
+            // right after an input removal (zui '-' always removes the last input), so trimming
+            // from the end here stays aligned with what SyncOutputCount just did to Params.Output.
+            // Growing covers both a zui '+' (new slot, no name assigned yet) and this component's
+            // own tracking list not having caught up yet with a param count that arrived some other
+            // way (notably: right after Read(), before this list has been resized to match).
+            while (_lastAutoNames.Count > Params.Input.Count)
+            {
+                _lastAutoNames.RemoveAt(_lastAutoNames.Count - 1);
+            }
+
+            while (_lastAutoNames.Count < Params.Input.Count)
+            {
+                _lastAutoNames.Add(null);
+            }
+
             for (int i = 0; i < Params.Input.Count; i++)
             {
                 IGH_Param input = Params.Input[i];
-                Guid id = input.InstanceGuid;
+                string lastAuto = _lastAutoNames[i];
 
-                if (!_autoNames.TryGetValue(id, out string lastAuto))
+                if (lastAuto == null)
                 {
-                    // First time seeing this param under its current InstanceGuid. Two different
-                    // situations land here, and they need different treatment:
+                    // First time this slot is seen as tracked. Two different situations land here,
+                    // and they need different treatment:
                     if (string.IsNullOrEmpty(input.Name))
                     {
                         // Genuinely brand new: just created by the zui or the initial
@@ -163,39 +191,40 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                         // it only in CreateInputParam() is silently clobbered for every zui-added
                         // input. This runs from VariableParameterMaintenance(), which fires right
                         // after that clobber, so it's the last word. Only reached for a param with no
-                        // name of its own yet, so this can't re-hide a pasted/duplicated param whose
-                        // wire display had been deliberately turned back on before the copy (see the
-                        // else branch below -- that carries its Name across, and WireDisplay is
-                        // ordinary serialized state that survives a copy the same way Name does).
+                        // name of its own yet, so this can't re-hide a pasted/duplicated/reloaded
+                        // param whose wire display had been deliberately turned back on before --
+                        // WireDisplay is ordinary serialized state that survives Write/Read the same
+                        // way Name does.
                         input.WireDisplay = GH_ParamWireDisplay.hidden;
                     }
                     else
                     {
-                        // Already has a name, just not one tracked under this guid -- this is a
-                        // copy/paste or duplicate: GH gives the pasted param a fresh InstanceGuid
-                        // (so it can coexist with the original), but the rest of its serialized
-                        // state -- Name, NickName, WireDisplay, ... -- carries over faithfully.
+                        // Already has a name, just not tracked in this slot yet. Whether this is a
+                        // plain reload or a copy/paste/duplicate, GH's own Read() has already
+                        // restored this param's Name/NickName/WireDisplay/... faithfully by the time
+                        // VariableParameterMaintenance() runs -- our _lastAutoNames list is simply
+                        // one step behind that until this pass.
                         //
                         // There's no way to tell from here whether that name was a deliberate user
-                        // rename or one we auto-assigned from the wire type on the original before
-                        // it was copied -- the very distinction _autoNames exists to make was itself
-                        // lost along with the old guid. So: leave the name exactly as it is, and
-                        // record a baseline ("") that input.Name can never legitimately equal (Name
-                        // is never actually set to "" anywhere else), which makes the "stillOurs"
-                        // check below permanently false for this param. Getting this wrong the other
-                        // way -- treating the copy as still-auto-eligible -- was the actual bug
+                        // rename or one we auto-assigned from a wire type before the save/copy -- and
+                        // it doesn't matter: either way, leave the name exactly as it is, and record
+                        // a baseline ("") that input.Name can never legitimately equal (Name is never
+                        // actually set to "" anywhere else), which makes the "stillOurs" check below
+                        // permanently false for this slot. Getting this wrong the other way --
+                        // treating a restored name as still-auto-eligible -- was the original bug
                         // report: input.Name == lastAuto came out true immediately after adopting
-                        // input.Name as lastAuto, so a copy with a live wire got its preserved name
-                        // overwritten by the connected type right back on this same pass. Freezing it
-                        // here costs only the (rare, harmless) case of an untouched auto-detected
-                        // name no longer following a later type change after a copy.
+                        // input.Name as lastAuto, so a restored param with a live wire got its
+                        // preserved name overwritten by the connected type right back on this same
+                        // pass. Freezing it here costs only the (rare, harmless) case of an untouched
+                        // auto-detected name no longer following a later type change after a
+                        // reload/copy.
                         lastAuto = "";
                     }
 
-                    _autoNames[id] = lastAuto;
+                    _lastAutoNames[i] = lastAuto;
                 }
 
-                bool stillOurs = input.Name == lastAuto;
+                bool stillOurs = lastAuto.Length > 0 && input.Name == lastAuto;
 
                 if (stillOurs && input.SourceCount > 0)
                 {
@@ -205,7 +234,7 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                     {
                         input.Name = typeName;
                         input.NickName = typeName;
-                        _autoNames[id] = typeName;
+                        _lastAutoNames[i] = typeName;
                     }
                 }
 
@@ -218,13 +247,6 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                     output.NickName = input.NickName;
                     output.Attributes?.ExpireLayout();
                 }
-            }
-
-            // Drop bookkeeping for params that were removed via the zui since the last pass.
-            HashSet<Guid> current = new HashSet<Guid>(Params.Input.Select(p => p.InstanceGuid));
-            foreach (Guid stale in _autoNames.Keys.Where(g => !current.Contains(g)).ToList())
-            {
-                _autoNames.Remove(stale);
             }
 
             Attributes?.ExpireLayout();
@@ -316,14 +338,18 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// <returns> True on success, false on failure. </returns>
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("AutoNameCount", _autoNames.Count);
+            // Positional, not guid-keyed: index i here lines up with Params.Input[i] both now and
+            // (since input order/count is itself part of the archive, restored before
+            // VariableParameterMaintenance() ever runs) after a subsequent Read(). A null entry is
+            // written as an empty string with a companion bool, since GH_IWriter has no native
+            // "null string" chunk item.
+            writer.SetInt32("AutoNameCount", _lastAutoNames.Count);
 
-            int i = 0;
-            foreach (KeyValuePair<Guid, string> entry in _autoNames)
+            for (int i = 0; i < _lastAutoNames.Count; i++)
             {
-                writer.SetGuid("AutoNameGuid", i, entry.Key);
-                writer.SetString("AutoNameValue", i, entry.Value);
-                i++;
+                string value = _lastAutoNames[i];
+                writer.SetBoolean("AutoNameIsNull", i, value == null);
+                writer.SetString("AutoNameValue", i, value ?? string.Empty);
             }
 
             return base.Write(writer);
@@ -336,7 +362,7 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// <returns> True on success, false on failure. </returns>
         public override bool Read(GH_IReader reader)
         {
-            _autoNames.Clear();
+            _lastAutoNames.Clear();
 
             if (reader.ItemExists("AutoNameCount"))
             {
@@ -344,12 +370,16 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
                 for (int i = 0; i < count; i++)
                 {
-                    Guid guid = reader.GetGuid("AutoNameGuid", i);
-                    string value = reader.GetString("AutoNameValue", i);
-                    _autoNames[guid] = value;
+                    bool isNull = reader.GetBoolean("AutoNameIsNull", i);
+                    _lastAutoNames.Add(isNull ? null : reader.GetString("AutoNameValue", i));
                 }
             }
 
+            // base.Read() restores Params (input/output params, including each one's own Name/
+            // NickName/WireDisplay/...) before returning. EnsureConsistentState() -- called from
+            // VariableParameterMaintenance() right after this, per GH's own documented IO sequence
+            // -- then reconciles _lastAutoNames' length against the just-restored Params.Input.Count
+            // (they should already match here, since both were saved together, but doesn't assume it).
             return base.Read(reader);
         }
         #endregion
