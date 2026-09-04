@@ -71,7 +71,9 @@ namespace RobotComponents.ABB.Gh.Upgraders
             UpgradeHelpers.MigrateOutputByIndex(oldComponent, 0, newComponent, 0);
             UpgradeHelpers.MigrateOutputByIndex(oldComponent, 1, newComponent, 1);
 
-            return GH_UpgradeUtil.SwapComponents(oldComponent, newComponent, false) ? newComponent : null;
+            if (!GH_UpgradeUtil.SwapComponents(oldComponent, newComponent, false)) { return null; }
+            UpgradeHelpers.MigrateGroupMembership(oldComponent, newComponent, document);
+            return newComponent;
         }
     }
 }

@@ -78,6 +78,16 @@ put a freshly-constructed new instance into the matching mode *before* migrating
 `internal ConfigureForUpgrade(...)` hook on the component, see `AssignVariableValueComponent`/
 `RAPIDVariableComponent`) so the params to migrate onto actually exist.
 
+After a successful swap, also call `UpgradeHelpers.MigrateGroupMembership(oldComponent, newComponent,
+document)`. `GH_UpgradeUtil.SwapComponents` only removes/adds the two components themselves — it has no
+notion of GH groups, which track membership separately as a list of member `InstanceGuid`s on each
+`GH_Group` object (an ordinary document object, found by scanning `document.Objects`). Without this
+step, upgrading a component that was in a group silently drops the new instance out of that group.
+`MigrateGroupMembership` goes through `GH_Group.InstanceGuidsChanged(SortedDictionary<Guid,Guid>)` —
+the same `IGH_InstanceGuidDependent` notification `GH_Document` itself sends to every group when object
+instance guids are remapped (e.g. `GH_Document.MutateAllIds`, used on duplicate/paste) — rather than
+editing each group's `ObjectIDs` list by hand.
+
 Each upgrader's XML doc comment carries a "reference list" table of the old→new input/output name,
 type and index mapping for that component — write one for every new upgrader; it's what makes the
 wire-migration calls in `Upgrade(...)` auditable against the actual param shapes instead of having to
