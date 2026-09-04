@@ -27,6 +27,7 @@ using RobotComponents.ABB.Actions.Instructions;
 // RobotComponents Libs
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -101,10 +102,14 @@ namespace RobotComponents.ABB.Actions
         /// <summary>
         /// Initializes a new instance of the RAPID Generator class with a main routine.
         /// </summary>
-        /// <param name="robot"> The robot info wherefore the code should be created. </param>
+        /// <param name="robot">
+        /// The robot info wherefore the code should be created. May be <see langword="null"/> if
+        /// the actions contain no movement instructions -- <see cref="CreateModule"/> throws if
+        /// they do and no robot was provided.
+        /// </param>
         public RAPIDGenerator(Robot robot)
         {
-            _robot = robot.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
+            _robot = robot?.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
             _moduleName = "MainModule";
             _procedureName = "main";
         }
@@ -112,7 +117,11 @@ namespace RobotComponents.ABB.Actions
         /// <summary>
         /// Initializes a new instance of the RAPID Generator class with custom names.
         /// </summary>
-        /// <param name="robot"> The robot info wherefore the code should be created. </param>
+        /// <param name="robot">
+        /// The robot info wherefore the code should be created. May be <see langword="null"/> if
+        /// the actions contain no movement instructions -- <see cref="CreateModule"/> throws if
+        /// they do and no robot was provided.
+        /// </param>
         /// <param name="moduleName"> The name of the program module </param>
         /// <param name="routineName"> The name of the RAPID procedure </param>
         /// <param name="scope"> Specifies whether the RAPID procedure is declared as LOCAL. </param>
@@ -120,7 +129,7 @@ namespace RobotComponents.ABB.Actions
         /// <param name="additionalRoutines"> Optionally provides additional routines to be included in the RAPID module. </param>
         public RAPIDGenerator(Robot robot, string moduleName, string routineName, Scope scope = Scope.GLOBAL, List<string> mainModule = null, List<Routine> additionalRoutines = null, bool isSystemModule = false)
         {
-            _robot = robot.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
+            _robot = robot?.Duplicate(); // Since we might swap tools and therefore change the robot tool we make a deep copy
             _moduleName = moduleName;
             _procedureName = routineName;
             _additionalRoutines = additionalRoutines;
@@ -130,7 +139,7 @@ namespace RobotComponents.ABB.Actions
         }
 
         /// <summary>
-        /// Initializes a new instance of the RAPID Generator class by duplicating an existing RAPID Generator instance. 
+        /// Initializes a new instance of the RAPID Generator class by duplicating an existing RAPID Generator instance.
         /// </summary>
         /// <param name="generator"> The RAPID Generator instance to duplicate. </param>
         public RAPIDGenerator(RAPIDGenerator generator)
@@ -138,7 +147,7 @@ namespace RobotComponents.ABB.Actions
             _module = generator.Module.ConvertAll(line => line);
             _moduleName = generator.ModuleName;
             _procedureName = generator.ProcedureName;
-            _robot = generator.Robot.Duplicate();
+            _robot = generator.Robot?.Duplicate();
             _isFirstMovementMoveAbsJ = generator.IsFirstMovementMoveAbsJ;
             _enforceAxisLimits = generator.EnforceAxisLimits;
             _errorHandling = generator.ErrorHandling;
@@ -221,8 +230,38 @@ namespace RobotComponents.ABB.Actions
             _isSynchronized = false;
             _isFirstMovementMoveAbsJ = false;
 
+            // Robot is optional (e.g. a declaration-only module has no need for one), but movement
+            // instructions cannot be resolved to RAPID code without one (tool/workobject
+            // declarations, robtargets, axis configuration, ...). Check this before touching
+            // _robot at all below, rather than letting it surface later as a confusing
+            // NullReferenceException. Additional routines are checked too, since a movement can be
+            // hidden inside one with no movement at the top level.
+            if (_robot == null)
+            {
+                bool hasMovement = ContainsMovement(actions);
+
+                if (!hasMovement && _additionalRoutines != null)
+                {
+                    for (int i = 0; i < _additionalRoutines.Count && !hasMovement; i++)
+                    {
+                        hasMovement = ContainsMovement(_additionalRoutines[i].Actions);
+                    }
+                }
+
+                if (hasMovement)
+                {
+                    throw new InvalidOperationException(
+                        "Cannot generate RAPID code: the actions contain one or more movement instructions, " +
+                        "but no Robot was provided to the RAPID Generator. Movement instructions cannot be " +
+                        "resolved to RAPID code (tool/workobject declarations, robtargets, ...) without a Robot.");
+                }
+            }
+
             #region get data
-            _robot.Tool.ToRAPIDGenerator(this);
+            if (_robot != null)
+            {
+                _robot.Tool.ToRAPIDGenerator(this);
+            }
 
             // Check if the first movement is an Absolute Joint Movement
             _isFirstMovementMoveAbsJ = CheckFirstMovement(actions);
@@ -232,7 +271,10 @@ namespace RobotComponents.ABB.Actions
                 _globalDeclarations = GetMainModuleDeclarations(_mainModule);
 
             // Initial tool
-            _robot.Tool.ToRAPIDGenerator(this);
+            if (_robot != null)
+            {
+                _robot.Tool.ToRAPIDGenerator(this);
+            }
 
             // Sync ID counter
             int syncID = 10;
@@ -649,6 +691,29 @@ namespace RobotComponents.ABB.Actions
         /// <returns> 
         /// Specifies whether the first movement type is an absolute joint movement. 
         /// </returns>
+        /// <summary>
+        /// Checks whether the given actions contain a Movement instruction, including any nested
+        /// inside an ActionGroup (recursively).
+        /// </summary>
+        /// <param name="actions"> The list with actions to check. </param>
+        /// <returns> <see langword="true"/> if at least one Movement instruction was found. </returns>
+        private static bool ContainsMovement(IList<IAction> actions)
+        {
+            for (int i = 0; i != actions.Count; i++)
+            {
+                if (actions[i] is Movement)
+                {
+                    return true;
+                }
+                else if (actions[i] is ActionGroup group && ContainsMovement(group.Ungroup()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool CheckFirstMovement(IList<IAction> actions)
         {
             List<IAction> ungrouped = new List<IAction>() { };
