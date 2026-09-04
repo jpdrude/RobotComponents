@@ -25,6 +25,15 @@ Describe 'Generate-InstallInstructions' {
         $content | Should -Match 'Restart'
     }
 
+    It 'hints at Upgrade Components for updating existing definitions' {
+        $output = Join-Path $TestDrive 'INSTALL.md'
+
+        & $script:ScriptPath -OutputPath $output
+
+        $content = Get-Content $output -Raw
+        $content | Should -Match 'Upgrade Components'
+    }
+
     It 'overwrites existing file' {
         $output = Join-Path $TestDrive 'INSTALL.md'
         'old content' | Set-Content $output

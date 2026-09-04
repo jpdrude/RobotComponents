@@ -3,8 +3,219 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 13:46 
+ Generated on: 2026-09-04 17:54 
  --- 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `b9f4c57` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix Multi Relay's hidden wire display and harden the minimum-1 seeding; update icon Wire display: GH's own +/- zui insert handler overwrites whatever WireDisplay CreateParameter() sets on a freshly-inserted param with its own "implied" style, right after calling it (verified via IL decompilation of GH_ComponentAttributes' insert-click handler) -- so setting it only inside CreateInputParam() was silently clobbered for every input added via the zui. 
+ - Re-asserted it from EnsureConsistentState(), which runs (via VariableParameterMaintenance()) right after that clobber, so it's the last word; only for a param not seen before, so a user who deliberately turns display back on for one input later keeps it. 
+ - Minimum 1 input/output: the structural fix (RegisterInputParams/ RegisterOutputParams seeding one pair, CanRemoveParameter refusing to remove the last one) was already correct, but the seeded pair had no Name/NickName set until EnsureConsistentState() backfilled it on the first solve. Set "Input 1" directly at registration time instead, removing any dependency on solve timing for the initial pair's identity. 
+ - Also pushed the updated MultiRelay_Icon.png. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `0e2f69a` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/connect-interrupt-name-override' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `8dcdddf` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Collapse Connect Interrupt's v7/v8 upgrade chain into a single hop The v8 obsolete snapshot (ConnectInterruptComponent_OBSOLETE3, freezing guid FB7FCD2B) and its upgrader existed purely to protect an intermediate shape between the Persistent Data change and the Interrupt Variable Name override -- but that guid never made it to main; it only ever existed transiently across this session's own unmerged branches. No saved .gh file could ever reference it, so freezing it was unnecessary churn. 
+ - Deleted v8 entirely. ConnectInterruptComponentUpgrader2 (v7) now upgrades directly from the shape actually shipped on main (guid F77FEF07, unchanged -- verified it still matches main's live component byte-for-byte on the parts that matter) straight to the current live component (guid 774F2525, carrying both changes together). No code changes needed inside Upgrade() itself: it already migrated the 4 original inputs/3 outputs by index, which is exactly right for a direct jump too -- just updated UpgradeTo and the doc comments. 
+ - v7's obsolete snapshot already had its Signal Type dropdown pinned to a hardcoded list (done when Persistent Data was added), so nothing needed there. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `7b510e5` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `632fcc5` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Always keep at least 1 input/output on Multi Relais; rename to Multi Relay - RegisterInputParams/RegisterOutputParams now seed one pair up front instead of starting empty, and CanRemoveParameter refuses to remove the last remaining input, so the component can never be reduced to 0/0. 
+ 	 - Renamed MultiRelaisComponent -> MultiRelayComponent throughout (class, file, display Name, icon file + resx/Designer.cs entries): "Relais" is the German/French spelling, "Relay" is the correct English word. Component was never merged/shipped, so this needed no GUID change or Obsolete/vN handling -- same ComponentGuid, purely a naming fix. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `98533fb` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/connect-interrupt-name-override' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `4d0a2a6` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add optional interrupt variable name override to Connect Interrupt The generated intnum variable is always named "int_" + TRAP Routine Name, so connecting more than one interrupt to the same TRAP routine (fully legal in RAPID -- multiple distinct intnum variables can each CONNECT to the same trap) produced two colliding VAR intnum declarations for the same name -- a compile error on the controller. 
+ - Right-click "Override Interrupt Variable Name" adds an optional text input that, when supplied, is used verbatim as the intnum name instead of the derived default; unconnected/off, behavior is unchanged. The override is validated with the same HelperMethods.IsValidRapidIdentifier check used elsewhere in this project (Controller module/task names), warning rather than silently emitting broken RAPID if it isn't a legal identifier. 
+ - Went with an explicit override rather than having RAPIDGenerator auto-detect and rename colliding declarations: the three related lines (VAR intnum, the CONNECT, and the ISignalXX/IPers call) are only linked in ConnectInterrupt's own SolveInstance, not in any structure RAPIDGenerator understands, so coordinated auto-renaming across them would mean fragile text-pattern rewriting or a much larger refactor into a real structured Interrupt action; auto-picked suffixes would also be liable to shift between recomputes depending on solve order, which is exactly the kind of instability you don't want in RAPID variable names you're deploying to a controller. An explicit, user-controlled name matches how every other named RAPID declaration in this project already works. 
+ - This turns the component into a (menu-driven only, no +/- zui) variable parameter component to add the optional input without disturbing the 4 fixed ones, which is itself a parameter-restore-mechanism change for an already-shipped component, so it needs the project's Obsolete/vN + IGH_UpgradeObject treatment a third time for this component: - RobotComponents.ABB.Gh/Obsolete/v8/ConnectInterruptComponent_OBSOLETE3.cs: frozen pre-change snapshot of the v7 shape, same guid, hidden + Obsolete = true. 
+ - Also pinned its Signal Type dropdown to a hardcoded name list rather than reflecting off the live SignalType enum, per the shared-enum-drift check documented in CLAUDE.md -- doing it now rather than needing to fix it later. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v8/ConnectInterruptComponentUpgrader3.cs: wires all 4 existing inputs and all 3 outputs across by index (wire-only migration throughout); the new 5th input has nothing to migrate onto it and simply starts off. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `cc1633d` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `e92eb83` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/docs/claude-md-enum-drift-check' into integration/combined-open-changes 
+  
+   **Commit:** `1dfe382` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/fix/connect-interrupt-obsolete-valuelist-drift' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `0649aa7` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/rapid-generator-optional-robot' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `026863f` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/connect-interrupt-persistent-data' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `c190967` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/numentrybox-rapid-expression-initvalue' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `c73a0bb` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
+ 	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
+ 	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 
+ 	 - The moment a user renames an input by hand, it's excluded from further auto-renaming for good (tracked via a persisted Guid->name dictionary recording what name was last auto-assigned; a mismatch means the user changed it). The matching output always mirrors whatever the input's current name is, auto-detected or manual. 
+ 	 - Outputs are added/removed by the component itself (SyncOutputCount, from VariableParameterMaintenance) to stay 1:1 with the inputs; the +/- zui only applies directly to the input side. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `35ffebf` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Document the shared-enum-drift check for Obsolete/vN snapshots Add a required checklist item to the Obsolete/vN pattern write-up: an _OBSOLETE snapshot that builds a dropdown via CreateValueList(this, typeof(SomeEnum), index) references the live enum directly, not a frozen copy. If that enum later gains a member, every snapshot reflecting off it silently starts offering an option its own frozen switch has no case for -- no crash, just silently incomplete/wrong generated code. Document checking both directions (extending an enum; freezing a new snapshot that reflects off one) so this gets caught as a matter of course. 
+ - Found and fixed after the fact for SignalType gaining PersistentData (both the v5 and v7 obsolete Connect Interrupt snapshots had drifted); this documents it so it happens automatically going forward instead of needing to be asked for. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `8f2fe0b` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Freeze the v7 obsolete Connect Interrupt's Signal Type dropdown too Same issue as the v5 snapshot, introduced in this same branch: reflecting off the live SignalType enum (typeof(SignalType)) for the auto-generated dropdown means this component's own Persistent Data addition leaks into this frozen component's dropdown as well, even though its switch statement is (correctly) still frozen at cases 0-5. Replaced with the hardcoded 6-name list the enum had before this branch's change, matching the same fix just applied to the v5 snapshot on fix/connect-interrupt-obsolete-valuelist-drift. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `4996dc1` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Freeze the obsolete Connect Interrupt's Signal Type dropdown ConnectInterruptComponent_OBSOLETE (v5) builds its Signal Type value list by reflecting off the live SignalType enum (typeof(SignalType)). Today's Persistent Data addition to that enum (PersistentData = 6) leaked straight into this frozen component's dropdown too, since it shares the enum -- but its own switch statement is (correctly, per the freeze rule) still frozen at cases 0-5. Picking the new option on an old, obsolete instance would silently emit incomplete RAPID code (missing the third instruction line) with no warning. 
+ - Replaced the typeof(SignalType) reflection with the hardcoded 6-name list the enum had at freeze time, so the dropdown can no longer drift out from under this component's own switch statement regardless of what the live enum grows into later. Same fix needed (and applied separately) in ConnectInterruptComponent_OBSOLETE2 (v7), on the yet-unmerged feature/connect-interrupt-persistent-data branch that introduced the enum member in the first place. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `95cda73` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Make Robot optional on the RAPID Generator; error only if movements need one Robot is now an optional input on RAPID Generator and on RAPIDGenerator's constructors (a null robot is fine, e.g. for a declaration-only module). 
+ - CreateModule scans the actions -- including inside ActionGroups and additional routines -- for a Movement instruction before doing anything else; if it finds one and no Robot was provided, it throws InvalidOperationException with a clear message instead of the NullReferenceException that would otherwise come from dereferencing an absent robot's tool/kinematics deep inside code generation. Movement instructions genuinely cannot be resolved to RAPID code (tool/workobject declarations, robtargets, ...) without a Robot, so this is a hard failure, not a toggleable warning like axis-limit enforcement. 
+ 	 - RAPIDGenerator: constructors now do robot?.Duplicate() instead of robot.Duplicate(); added ContainsMovement(actions) (recursing into ActionGroups, matching CheckFirstMovement's own ungrouping) and the robot-required check in CreateModule; guarded the two _robot.Tool declaration call sites. 
+ 	 - RAPIDGeneratorComponent: Robot input now Optional; SolveInstance no longer short-circuits when it's unconnected; CreateModule's call is wrapped in a try/catch that surfaces the exception as a GH runtime Error. 
+ 	 - 5 new RAPIDGeneratorTests: no robot + no movement succeeds, no robot + top-level movement throws, no robot + movement inside an ActionGroup throws, no robot + movement inside an additional routine throws, and a previously-set Robot cleared back to null behaves the same as never having had one. 
+ - No GH component parameter shape changed (Robot stays the same Param_Robot, same index -- Optional is a per-parameter flag restored from each saved component instance's own archived state on load, not a shape change), so this doesn't need the Obsolete/vN treatment. 
+ - Build clean (MSBuild), 663/663 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `fb890ea` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add Persistent Data signal type to Connect Interrupt Signal Type gains a "Persistent Data" entry (SignalType.PersistentData), which connects the interrupt via RAPID's IPers instead of an ISignalXX instruction: CONNECT pers1int WITH iroutine1; IPers counter, pers1int; - Signal Name now accepts either plain text (for the existing DI/DO/AI/AO/GI/GO modes) or a RAPID Variable (for the PERS variable to monitor in Persistent Data mode), resolved via HelperMethods.ResolveRAPIDValueExpression -- the same handling used everywhere else a value can be either a literal or a RAPID declaration/variable/expression. 
+ 	 - Signal Value has no equivalent in IPers (it takes no triggering value), so it's now flagged with a runtime warning when connected in Persistent Data mode instead of being silently ignored. 
+ - Signal Name's input param type change (Param_String -> Param_GenericObject) is a breaking serialization change for an already-shipped component, so this follows the project's Obsolete/vN + IGH_UpgradeObject pattern a second time for this component (the first was v5, when the Enable/Disable Interrupts outputs were added): - RobotComponents.ABB.Gh/Obsolete/v7/ConnectInterruptComponent_OBSOLETE2.cs: frozen pre-change snapshot of the v5 shape, same guid, hidden + Obsolete = true. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v7/ConnectInterruptComponentUpgrader2.cs: wires every input/output across by index (wire-only migration throughout). 
+ - This is a second upgrade hop after the v5 upgrader -- an instance saved with the original shipped guid needs "Upgrade Components" run twice to reach the current live shape. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `ea2d94b` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Accept RAPID Variables/Expressions for Numeric Entry Box's Initial Value The Initial Value input only took a literal double, unlike the RAPID-expression handling used elsewhere for numeric inputs (Offs' X/Y/Z, Get Array At Index's Index): changed it from Param_Number to Param_RAPIDExpression, resolved via HelperMethods.CheckRAPIDExpression like those. The range-vs-initial-value sanity-check warning still fires for a literal numeric value, and is skipped (rather than throwing) when Initial Value is a variable/expression that can't be range-checked at solve time. 
+ - This changes an already-shipped component's input param type, so it needs the project's Obsolete/vN + IGH_UpgradeObject treatment: - RobotComponents.ABB.Gh/Obsolete/v6/NumEntryBoxComponent_OBSOLETE.cs: frozen pre-change snapshot, original GUID, hidden + Obsolete = true. 
+ 	 - Live component: new GUID. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v6/NumEntryBoxComponentUpgrader.cs: wires every input/output across by index (wire-only migration throughout, per the established convention -- see UpgradeHelpers), so GH's own "Upgrade Components" can swap old instances for the live one automatically. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `5afa661` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Load system modules into every task directly instead of via AllTask config + restart The previous UploadSystemModule wrote the module to HOME:/Robot Components/System Modules, registered it in the controller's SYS configuration domain for automatic AllTask-shared loading, and warm-restarted the controller on every upload. That restart-on-every-upload has proven unreliable and is disruptive during iteration. 
+ - UploadSystemModule now uploads the module the same way UploadModule uploads a regular module (write to the regular temp directory, PutDirectory, then LoadModuleFromFile) and loops that load step over every task on the controller, skipping (not aborting on) any task that's currently running. No restart, no SYS config edits, no HOME: placement. 
+ - The module still carries the SYSMODULE attribute, so PERS/CONST data declared before its first routine still resolves to a single shared instance across every task that loads it -- that part of RAPID's behavior is tied to the SYSMODULE attribute itself, not to how the module got loaded. VAR data declared there does NOT get this treatment: each task gets its own independent copy, which silently defeats the point of putting it there since it reads as shared (declared once, before any routine). 
+ 	 - HelperMethods.FindNonSharedModuleData(module): scans a module's shared-data section (MODULE header up to its first PROC/FUNC/TRAP) and returns the declarations that use a keyword other than PERS or CONST. TASK PERS is deliberately excluded (it's per-task by design, not accidentally unshared). 
+ - 7 new regression tests in HelperMethodTests.cs. 
+ 	 - UploadModule/UploadHelperModules/UploadSystemModule gain an `out List<string> warnings` parameter carrying any such findings; UploadProgramComponent and UploadHelperModulesComponent now surface each as a GH runtime warning even when the upload itself succeeds. 
+ 	 - UploadSystemModule dropped its now-unused taskName/shared parameters (every system module now always loads into every task) and the dead _localSystemDirectory/_remoteSystemDirectory fields + ConfigurationDomain using it depended on. 
+ 	 - Updated the 2 existing ControllerGrantTests call sites for the new signatures. 
+ - Build clean (MSBuild), 665/665 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `6c520dc` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge pull request #26 from jpdrude/fix/current-robot-target-icon Update Current Robot Target icon 
+  
+   **Commit:** `077f67f` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Update Current Robot Target icon Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `3338dbd` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge pull request #25 from jpdrude/feature/current-robot-target-component Add Current Robot Target component wrapping RAPID's CRobT 
+  
+   **Commit:** `738fe8c` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Add Current Robot Target component wrapping RAPID's CRobT New GH component (Advanced RAPID Features > Current Robot Target, nickname CRobT) that wraps CRobT([\TaskRef]|[\TaskName] [\Tool] [\WObj]) into a RAPID expression, returning the robot's current TCP position as a robtarget. 
  	 - Two optional generic inputs, Tool and Work Object, each resolved via HelperMethods.ResolveRAPIDValueExpression (accepts a Robot Tool/Work Object declaration, a RAPID Variable, a RAPID Expression, or plain text). Leaving either unconnected omits its \Tool / \WObj switch; with neither connected the output is plain CRobT(). 
  	 - Built directly via RAPIDExpression.FromString rather than FromFunctionCall, since CRobT's optional switch arguments are space-separated (\Tool:=t1 \WObj:=w1), not comma-separated like a regular RAPID function call. 
