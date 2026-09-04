@@ -3,8 +3,18 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 18:06 
+ Generated on: 2026-09-04 18:12 
  --- 
+ - Mirror an input rename onto its output immediately on Multi Relay Previously a renamed input's matching output only picked up the new name on the next unrelated solve, since nothing prompted a recompute right when the rename itself happened. 
+ - GH_ComponentParamServer exposes a ParameterNickNameChanged event, confirmed via IL decompilation to be raised specifically when a parameter rename is *accepted* (GH_ObjectEventType.NickNameAccepted) -- fired only by GH's own interactive-rename-commit and undo/redo machinery, never by code merely assigning .NickName (that setter doesn't raise it at all). Subscribed to it in the constructor; on an accepted input-side rename, immediately calls the existing EnsureConsistentState() (mirrors the name, same as any solve would) followed by ExpireSolution(true), instead of waiting for whatever the next solve happens to be triggered by. 
+ - Because the event genuinely can't be re-triggered by our own programmatic renames (verified: not raised by the property setter), there's no reentrancy risk with EnsureConsistentState()'s own input.NickName assignments. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `9e28763` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Fix Multi Relay's hidden wire display and harden the minimum-1 seeding; update icon Wire display: GH's own +/- zui insert handler overwrites whatever WireDisplay CreateParameter() sets on a freshly-inserted param with its own "implied" style, right after calling it (verified via IL decompilation of GH_ComponentAttributes' insert-click handler) -- so setting it only inside CreateInputParam() was silently clobbered for every input added via the zui. 
  - Re-asserted it from EnsureConsistentState(), which runs (via VariableParameterMaintenance()) right after that clobber, so it's the last word; only for a param not seen before, so a user who deliberately turns display back on for one input later keeps it. 
  - Minimum 1 input/output: the structural fix (RegisterInputParams/ RegisterOutputParams seeding one pair, CanRemoveParameter refusing to remove the last one) was already correct, but the seeded pair had no Name/NickName set until EnsureConsistentState() backfilled it on the first solve. Set "Input 1" directly at registration time instead, removing any dependency on solve timing for the initial pair's identity. 
