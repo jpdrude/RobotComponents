@@ -37,20 +37,26 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
     /// <summary>
     /// RobotComponents Action : Connect Interrupt Component.
+    /// Right-click → "Override Interrupt Variable Name" adds an optional input to override the
+    /// generated intnum variable name, needed when connecting more than one interrupt to the same
+    /// TRAP routine (the default int_&lt;TrapRoutineName&gt; naming would otherwise collide).
     /// </summary>
-    public class ConnectInterruptComponent : GH_RobotComponent
+    public class ConnectInterruptComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
         private bool _expire = false;
+        private bool _interruptNameInputParam = false;
+        private const string _interruptNameParamName = "Interrupt Variable Name";
         #endregion
 
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
-        /// Category represents the Tab in which the component will appear, subcategory the panel. 
+        /// Category represents the Tab in which the component will appear, subcategory the panel.
         /// If you use non-existing tab or panel names new tabs/panels will automatically be created.
         /// </summary>
         public ConnectInterruptComponent() : base("Connect Interrupt", "CI", "Advanced RAPID Features",
-              "Connects a TRAP routine to a signal change.")
+              "Connects a TRAP routine to a signal change. Right-click to override the generated " +
+              "interrupt variable name, e.g. to connect more than one interrupt to the same TRAP routine.")
 
         {
         }
@@ -143,7 +149,34 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     "instruction has no triggering value. Disconnect it to remove this warning.");
             }
 
-            interruptName = "int_" + trapRoutineName;
+            // Optional override for the generated intnum variable name. Needed to connect more
+            // than one interrupt to the same TRAP routine: the default int_<TrapRoutineName>
+            // naming is purely a function of the trap name, so two components targeting the same
+            // trap would otherwise both try to declare the same intnum variable.
+            string interruptNameOverride = null;
+            if (_interruptNameInputParam)
+            {
+                int interruptNameParamIndex = Params.Input.FindIndex(x => x.Name == _interruptNameParamName);
+                if (interruptNameParamIndex != -1)
+                {
+                    DA.GetData(interruptNameParamIndex, ref interruptNameOverride);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(interruptNameOverride))
+            {
+                interruptName = interruptNameOverride.Trim();
+
+                if (!RobotComponents.ABB.Utils.HelperMethods.IsValidRapidIdentifier(interruptName))
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        $"Interrupt Variable Name \"{interruptName}\" is not a valid RAPID identifier.");
+                }
+            }
+            else
+            {
+                interruptName = "int_" + trapRoutineName;
+            }
 
             //Create CodeLine Container
             List<CodeLine> codeLines = new List<CodeLine>();
@@ -183,6 +216,88 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             DA.SetDataList(0, codeLines);
         }
 
+        #region menu items
+        /// <summary>
+        /// Appends "Override Interrupt Variable Name" toggle to the right-click context menu.
+        /// </summary>
+        protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+        {
+            Menu_AppendSeparator(menu);
+            Menu_AppendItem(menu, "Override Interrupt Variable Name", MenuItemClickInterruptName, true, _interruptNameInputParam);
+            base.AppendAdditionalComponentMenuItems(menu);
+        }
+
+        private void MenuItemClickInterruptName(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Override Interrupt Variable Name");
+            _interruptNameInputParam = !_interruptNameInputParam;
+            ToggleInterruptNameParam();
+        }
+
+        /// <summary>
+        /// Adds or removes the optional Interrupt Variable Name input parameter.
+        /// </summary>
+        private void ToggleInterruptNameParam()
+        {
+            if (_interruptNameInputParam)
+            {
+                Params.RegisterInputParam(new Param_String
+                {
+                    Name        = _interruptNameParamName,
+                    NickName    = "IVN",
+                    Description = "Overrides the generated interrupt (intnum) variable name, instead of the " +
+                                  "default \"int_\" + TRAP Routine Name. Needed when connecting more than one " +
+                                  "interrupt to the same TRAP routine, since RAPID requires each intnum to have " +
+                                  "a distinct name.",
+                    Access      = GH_ParamAccess.item,
+                    Optional    = true
+                });
+            }
+            else
+            {
+                var param = Params.Input.FirstOrDefault(x => x.Name == _interruptNameParamName);
+                if (param != null)
+                    Params.UnregisterInputParameter(param, true);
+            }
+
+            Params.OnParametersChanged();
+            ExpireSolution(true);
+        }
+        #endregion
+
+        #region serialization
+        /// <summary>
+        /// Add our own fields. Needed for (de)serialization of the variable input parameter.
+        /// </summary>
+        /// <param name="writer"> Provides access to a subset of GH_Chunk methods used for writing archives. </param>
+        /// <returns> True on success, false on failure. </returns>
+        public override bool Write(GH_IWriter writer)
+        {
+            writer.SetBoolean("InterruptNameInputParam", _interruptNameInputParam);
+            return base.Write(writer);
+        }
+
+        /// <summary>
+        /// Read our own fields. Needed for (de)serialization of the variable input parameter.
+        /// </summary>
+        /// <param name="reader"> Provides access to a subset of GH_Chunk methods used for reading archives. </param>
+        /// <returns> True on success, false on failure. </returns>
+        public override bool Read(GH_IReader reader)
+        {
+            if (reader.ItemExists("InterruptNameInputParam"))
+                _interruptNameInputParam = reader.GetBoolean("InterruptNameInputParam");
+            return base.Read(reader);
+        }
+        #endregion
+
+        #region IGH_VariableParameterComponent
+        // Menu-driven only — no + / - buttons.
+        bool IGH_VariableParameterComponent.CanInsertParameter(GH_ParameterSide side, int index) => false;
+        bool IGH_VariableParameterComponent.CanRemoveParameter(GH_ParameterSide side, int index) => false;
+        IGH_Param IGH_VariableParameterComponent.CreateParameter(GH_ParameterSide side, int index) => null;
+        bool IGH_VariableParameterComponent.DestroyParameter(GH_ParameterSide side, int index) => false;
+        void IGH_VariableParameterComponent.VariableParameterMaintenance() { }
+        #endregion
 
         #region properties
         /// <summary>
@@ -218,7 +333,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("FB7FCD2B-9A1D-4213-BC52-66DBAF9E314F"); }
+            get { return new Guid("774F2525-1176-49B6-9C8D-887EC696896A"); }
         }
         #endregion
 
