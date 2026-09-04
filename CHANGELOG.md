@@ -3,8 +3,18 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 18:12 
+ Generated on: 2026-09-04 18:24 
  --- 
+ - Preserve custom input names across copy/paste on Multi Relay Copying (or duplicating) a Multi Relay instance lost every input's custom rename, resetting them back to "Input N" placeholders. Root cause: the "has this input been manually renamed" tracking is a Dictionary<Guid, string> keyed by each input param's InstanceGuid, persisted through Write/Read -- but a copy/paste gives the copied param a fresh InstanceGuid (so it can coexist with the original) while the rest of its serialized state, including a user's rename, carries over faithfully. The dictionary lookup by the new guid then always missed, and the old "first time seeing this param" branch responded by unconditionally resetting it to a fresh placeholder, discarding the name that was actually still sitting right there on the param. 
+ - Fixed by distinguishing the two cases that land in "first time seeing this guid": if the param's Name is empty, it's genuinely brand new (zui-created or the initial one), so it gets the placeholder as before -- including the hidden-wire-display default, which only makes sense for a truly fresh input. 
+ - If it already has a name, it's a copy/paste/duplicate whose tracking just hasn't caught up yet: adopt that existing name as the new tracked baseline instead of overwriting it, which also means a wire display a user had deliberately turned back on before copying survives too (it's ordinary serialized state, just like Name). 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `1f0e115` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Mirror an input rename onto its output immediately on Multi Relay Previously a renamed input's matching output only picked up the new name on the next unrelated solve, since nothing prompted a recompute right when the rename itself happened. 
  - GH_ComponentParamServer exposes a ParameterNickNameChanged event, confirmed via IL decompilation to be raised specifically when a parameter rename is *accepted* (GH_ObjectEventType.NickNameAccepted) -- fired only by GH's own interactive-rename-commit and undo/redo machinery, never by code merely assigning .NickName (that setter doesn't raise it at all). Subscribed to it in the constructor; on an accepted input-side rename, immediately calls the existing EnsureConsistentState() (mirrors the name, same as any solve would) followed by ExpireSolution(true), instead of waiting for whatever the next solve happens to be triggered by. 
  - Because the event genuinely can't be re-triggered by our own programmatic renames (verified: not raised by the property setter), there's no reentrancy risk with EnsureConsistentState()'s own input.NickName assignments. 
