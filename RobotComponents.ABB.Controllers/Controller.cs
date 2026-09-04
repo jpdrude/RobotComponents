@@ -16,7 +16,6 @@
 
 // System Libs
 using ABB.Robotics.Controllers;
-using ABB.Robotics.Controllers.ConfigurationDomain;
 using ABB.Robotics.Controllers.Discovery;
 using ABB.Robotics.Controllers.MotionDomain;
 using Grasshopper;
@@ -84,10 +83,8 @@ namespace RobotComponents.ABB.Controllers
 
         private static readonly string _remoteDirectory = Path.Combine("Robot Components", "temp");
         private static readonly string _remoteAdditionalDirectory = Path.Combine("Robot Components", "Additional Modules");
-        private static readonly string _remoteSystemDirectory = Path.Combine("Robot Components", "System Modules");
         private static readonly string _localDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "temp");
         private static readonly string _localAdditionalDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "tempAdd");
-        private static readonly string _localSystemDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Robot Components", "tempSys");
         #endregion
 
         #region constructors
@@ -1053,19 +1050,24 @@ namespace RobotComponents.ABB.Controllers
         }
 
         /// <summary>
-        /// Uploads a module to the controller. 
+        /// Uploads a module to the controller.
         /// </summary>
         /// <param name="taskName"> The task to upload to. </param>
         /// <param name="module"> The module to upload. </param>
         /// <param name="status"> The status message. </param>
-        /// <returns> 
-        /// True on success, false on failure. 
+        /// <param name="warnings">
+        /// Non-fatal warnings about the upload. Populated when <paramref name="module"/> is a
+        /// system module (see <see cref="UploadSystemModule"/>); otherwise empty.
+        /// </param>
+        /// <returns>
+        /// True on success, false on failure.
         /// </returns>
-        public bool UploadModule(string taskName, List<string> module, out string status)
+        public bool UploadModule(string taskName, List<string> module, out string status, out List<string> warnings)
         {
             status = "Started the upload of the RAPID module.";
             Log(status);
             string moduleName = "";
+            warnings = new List<string>();
 
             #region checks
             if (_isEmpty == true)
@@ -1107,7 +1109,7 @@ namespace RobotComponents.ABB.Controllers
             if (module[0].Contains("SYSMODULE"))
             {
                 status = "Module is System Module. Passing on to UploadSystem Module Method.";
-                return UploadSystemModule(taskName, module, out status, true);
+                return UploadSystemModule(module, out status, out warnings);
             }
 
             if (!module[module.Count - 1].Equals("ENDMODULE"))
@@ -1278,18 +1280,24 @@ namespace RobotComponents.ABB.Controllers
         }
 
         /// <summary>
-        /// Uploads an additional module to the controller's storage. 
+        /// Uploads an additional module to the controller's storage.
         /// </summary>
         /// <param name="taskName"> The task to upload to. </param>
         /// <param name="modules"> The modules to upload. </param>
         /// <param name="status"> The status message. </param>
+        /// <param name="warnings">
+        /// Non-fatal warnings about the upload, collected across every branch of
+        /// <paramref name="modules"/> that is a system module (see <see cref="UploadSystemModule"/>).
+        /// Empty if none of the branches are system modules.
+        /// </param>
         /// <param name="loadToTask"> If true, the module will be loaded to the task after upload. </param>
-        /// <returns> 
-        /// True on success, false on failure. 
+        /// <returns>
+        /// True on success, false on failure.
         /// </returns>
-        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status, bool loadToTask = false)
+        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status, out List<string> warnings, bool loadToTask = false)
         {
             List<string> remotefilePaths = new List<string>();
+            warnings = new List<string>();
 
             status = "Started the upload of an additional RAPID module.";
             Log(status);
@@ -1384,10 +1392,11 @@ namespace RobotComponents.ABB.Controllers
                 {
                     status = $"Branch {path} is a system module. Passing on to UploadSystemModule.";
                     Log(status);
-                    if (!UploadSystemModule(taskName, module, out status, true))
+                    if (!UploadSystemModule(module, out status, out List<string> branchWarnings))
                     {
                         return false;
                     }
+                    warnings.AddRange(branchWarnings);
                     continue;
                 }
 
@@ -1538,18 +1547,43 @@ namespace RobotComponents.ABB.Controllers
         }
 
         /// <summary>
-        /// Uploads a shared system module to the controller. Warmstart will be necessary. 
+        /// Uploads a system module to the controller and loads it into every available task,
+        /// the same way a regular module is loaded into a single task.
         /// </summary>
-        /// <param name="taskName"> The task to upload to. </param>
+        /// <remarks>
+        /// Previously, system modules were uploaded to HOME:/Robot Components/System Modules and
+        /// registered in the controller's SYS configuration domain for automatic AllTask-shared
+        /// loading. That required a warm restart on every upload and has proven unreliable in
+        /// practice. This instead loads the module file directly into every task the same way
+        /// <see cref="UploadModule"/> loads a regular module into one task -- no restart needed.
+        /// <para>
+        /// Because the module still carries the SYSMODULE attribute, PERS and CONST data declared
+        /// before its first routine still resolve to a single instance shared across every task
+        /// that loads it, regardless of this different loading mechanism. VAR data does not get
+        /// this treatment: each task gets its own independent copy. Any VAR declared in that
+        /// shared-data section is reported back via <paramref name="warnings"/>, since it looks
+        /// shared (declared once, before any routine) but silently is not -- see
+        /// <see cref="HelperMethods.FindNonSharedModuleData"/>.
+        /// </para>
+        /// A task whose <see cref="RapidDomainNS.TaskExecutionStatus"/> is
+        /// <see cref="RapidDomainNS.TaskExecutionStatus.Running"/> is skipped rather than aborting
+        /// the whole upload; skipped and failed tasks are both reported in <paramref name="status"/>.
+        /// </remarks>
         /// <param name="module"> The module to upload. </param>
         /// <param name="status"> The status message. </param>
-        /// <returns> 
-        /// True on success, false on failure. 
+        /// <param name="warnings">
+        /// Non-fatal warnings about data that was declared in the module's shared-data section
+        /// with a keyword other than PERS or CONST, and will therefore not actually be shared
+        /// between the tasks the module is loaded into. Empty if there are none.
+        /// </param>
+        /// <returns>
+        /// True if the module was loaded into at least one task, false on failure.
         /// </returns>
-        public bool UploadSystemModule(string taskName, List<string> module, out string status, bool shared)
+        public bool UploadSystemModule(List<string> module, out string status, out List<string> warnings)
         {
             status = "Started the upload of a system RAPID module.";
             Log(status);
+            warnings = new List<string>();
 
             #region checks
             if (_isEmpty == true)
@@ -1559,71 +1593,30 @@ namespace RobotComponents.ABB.Controllers
                 return false;
             }
 
-            if (!shared)
+            if (module.Count < 2)
             {
-                if (TryPickTask(taskName, out RapidDomainNS.Task task) == false)
-                {
-                    status = "Could not pick the task from the controller: The task name is invalid.";
-                    Log(status);
-                    return false;
-                }
-
-
-                if (!shared && task.ExecutionStatus == RapidDomainNS.TaskExecutionStatus.Running)
-                {
-                    status = "Could not upload the module: The task is still running.";
-                    Log(status);
-                    return false;
-                }
-            }
-            #endregion
-
-            #region write temporary files to local directory
-            try
-            {
-                if (!Directory.Exists(_localSystemDirectory))
-                {
-                    Directory.CreateDirectory(_localSystemDirectory);
-
-                    status = $"Created the local temporary directory: {_localSystemDirectory}";
-                    Log(status);
-                }
-            }
-            catch
-            {
-                status = $"Could not create the local temporary directory: {_localSystemDirectory}";
+                status = "Could not upload the module: No module defined.";
                 Log(status);
                 return false;
             }
 
-            //Delete all files in the local additional directory before writing new ones.
-            foreach (string file in Directory.GetFiles(_localSystemDirectory))
-            {
-                try
-                {
-                    File.Delete(file);
-                }
-                catch (Exception ex)
-                {
-                    status = $"Could not delete file {file} from the local additional directory: {ex.Message}";
-                    Log(status);
-                    return false;
-                }
-            }
-
-            status = $"Attempting to write module";
-            Log(status);
-
             if (!module[0].StartsWith("MODULE "))
             {
-                status = $"Branch is not a module. Skipping branch.";
+                status = "Could not upload the module: The provided module is invalid. Provide a module that starts with MODULE.";
                 Log(status);
                 return false;
             }
 
             if (!module[module.Count - 1].Equals("ENDMODULE"))
             {
-                status = $"Branch is not a module. Skipping branch.";
+                status = "Could not upload the module: The provided module is invalid. Provide a module that ends with ENDMODULE.";
+                Log(status);
+                return false;
+            }
+
+            if (_tasks.Count == 0)
+            {
+                status = "Could not upload the module: No tasks found on the controller.";
                 Log(status);
                 return false;
             }
@@ -1643,10 +1636,44 @@ namespace RobotComponents.ABB.Controllers
 
             moduleName += ".SYS";
             status = $"Module name retreived: {moduleName}";
+            #endregion
 
-            string filePathLocal = Path.Combine(_localSystemDirectory, moduleName);
+            #region write temporary file to local directory
+            try
+            {
+                if (!Directory.Exists(_localDirectory))
+                {
+                    Directory.CreateDirectory(_localDirectory);
 
-            if (!HelperMethods.IsPathWithinDirectory(_localSystemDirectory, filePathLocal))
+                    status = $"Created the local temporary directory: {_localDirectory}";
+                    Log(status);
+                }
+            }
+            catch
+            {
+                status = $"Could not create the local temporary directory: {_localDirectory}";
+                Log(status);
+                return false;
+            }
+
+            //Delete all files in the local directory before writing new ones.
+            foreach (string file in Directory.GetFiles(_localDirectory))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    status = $"Could not delete file {file} from the local directory: {ex.Message}";
+                    Log(status);
+                    return false;
+                }
+            }
+
+            string filePathLocal = Path.Combine(_localDirectory, moduleName);
+
+            if (!HelperMethods.IsPathWithinDirectory(_localDirectory, filePathLocal))
             {
                 status = "Could not upload the module: The resolved file path escapes the target directory.";
                 Log(status);
@@ -1689,7 +1716,7 @@ namespace RobotComponents.ABB.Controllers
             }
             try
             {
-                _controller.FileSystem.PutDirectory(_localSystemDirectory, _remoteSystemDirectory, true);
+                _controller.FileSystem.PutDirectory(_localDirectory, _remoteDirectory, true);
 
                 status = "Put the local temporary directory to the filesytem of the controller.";
                 Log(status);
@@ -1702,148 +1729,90 @@ namespace RobotComponents.ABB.Controllers
             }
             #endregion
 
-            #region add module to Automatic Loading of Modules List
-            //Clear existing entries pointing to HOME:/Robot Components/System Modules
-            ConfigurationDatabase cfgDb = _controller.Configuration;
+            #region load module into every available task
+            List<string> loadedTasks = new List<string>();
+            List<string> skippedTasks = new List<string>();
+            List<string> failedTasks = new List<string>();
 
-            try
+            using (ControllersNS.Mastership master = ControllersNS.Mastership.Request(_controller))
             {
-                string localTemp = Path.Combine(Path.GetTempPath(), "SYS.cfg");
-
-                using (Mastership.Request(_controller))
+                try
                 {
-
-                    // Get the domain using IndexOf
-                    Domain sysDomain = _controller.Configuration.Domains[_controller.Configuration.Domains.IndexOf("SYS")];
-                    sysDomain.Save(localTemp);
-                }                   
-
-                // 2. Read and modify
-                string content = File.ReadAllText(localTemp);
-
-                string filePath = $"HOME:/Robot Components/System Modules/{moduleName}";
-                string modName = Path.GetFileNameWithoutExtension(moduleName);
-
-                // Remove existing entries pointing to our directory
-                var lines = content.Split('\n').ToList();
-
-                List<string> newLines = new List<string>();
-                bool inCabTaskModules = false;
-                bool skipEntry = false;
-                bool entryAdded = false;
-                bool inContinuation = false;
-
-                for (int i = 0; i < lines.Count; i++)
+                    _controller.AuthenticationSystem.DemandGrant(ControllersNS.Grant.LoadRapidProgram);
+                    status = "Acquired the LoadRapidProgram grant.";
+                    Log(status);
+                }
+                catch (Exception e)
                 {
-                    string line = lines[i];
+                    status = $"Could not acquire the LoadRapidProgram grant: {e.Message}.";
+                    Log(status);
+                    return false;
+                }
 
-                    // Detect section start
-                    if (line.Trim().StartsWith("CAB_TASK_MODULES:"))
+                string filePathRemote = Path.Combine(_remoteDirectory, moduleName);
+
+                if (!HelperMethods.IsPathWithinDirectory(_remoteDirectory, filePathRemote))
+                {
+                    status = "Could not upload the module: The resolved remote file path escapes the target directory.";
+                    Log(status);
+                    return false;
+                }
+
+                try
+                {
+                    foreach (RapidDomainNS.Task task in _tasks)
                     {
-                        inCabTaskModules = true;
-                        newLines.Add(line);
-                        
-                        // Add our new entry once right after the section header
-                        if (!entryAdded)
+                        if (task.ExecutionStatus == RapidDomainNS.TaskExecutionStatus.Running)
                         {
-                            newLines.Add($"      -File \"{filePath}\" -ModName \"{modName}\" -Shared -AllTask");
-                            entryAdded = true;
-                        }
-                        continue;
-                    }
-
-                    // Detect next section (starts with #)
-                    if (inCabTaskModules && line.TrimStart().StartsWith("#"))
-                    {
-                        inCabTaskModules = false;
-                    }
-                    else if (inCabTaskModules && !string.IsNullOrWhiteSpace(line) && !char.IsWhiteSpace(line[0]) && !line.Trim().StartsWith("-"))
-                    {
-                        inCabTaskModules = false;
-                    }
-
-                    // If in CAB_TASK_MODULES section, filter entries
-                    if (inCabTaskModules)
-                    {
-                        string trimmed = line.Trim();
-
-                        // Skip empty lines
-                        if (string.IsNullOrWhiteSpace(trimmed))
+                            skippedTasks.Add(task.Name);
                             continue;
-
-                        // Check if this is a new entry (starts with -File)
-                        if (trimmed.StartsWith("-File"))
-                        {
-                            // Check if this entry should be skipped
-                            skipEntry = line.Contains("HOME:/Robot Components/System Modules");
-                            inContinuation = line.TrimEnd().EndsWith("\\");
-
-                            if (skipEntry)
-                                continue;
                         }
-                        // This is a continuation or orphaned flag
-                        else if (trimmed.StartsWith("-"))
-                        {
-                            // If we're skipping an entry, skip its continuations too
-                            if (skipEntry)
-                            {
-                                if (!line.TrimEnd().EndsWith("\\"))
-                                {
-                                    skipEntry = false;
-                                    inContinuation = false;
-                                }
-                                continue;
-                            }
 
-                            // If we're in a valid continuation, keep it
-                            if (inContinuation)
-                            {
-                                if (!line.TrimEnd().EndsWith("\\"))
-                                {
-                                    inContinuation = false;
-                                }
-                                // Keep this line - it's a valid continuation
-                            }
-                            else
-                            {
-                                // Orphaned flag - skip it
-                                continue;
-                            }
+                        try
+                        {
+                            task.LoadModuleFromFile(filePathRemote, RapidDomainNS.RapidLoadMode.Replace);
+                            loadedTasks.Add(task.Name);
+                        }
+                        catch (Exception e)
+                        {
+                            failedTasks.Add($"{task.Name} ({e.Message})");
                         }
                     }
-                    newLines.Add(line);
                 }
-
-                content = string.Join("\n", newLines);
-
-                File.WriteAllText(localTemp, content);
-
-                using (Mastership.Request(_controller))
+                finally
                 {
-                    _controller.Rapid.Stop();
-
-                    if (!_controller.Configuration.IsMaster)
-                    {
-                        status = "Could not upload the system module: Could not acquire mastership of the configuration.";
-                        Log(status);
-                        return false;
-                    }
-                    // 3. Upload modified config to controller
-                    _controller.Configuration.Load(localTemp, LoadMode.ResetAndAdd);
-
-                    _controller.Restart(ControllerStartMode.Warm);
+                    master.Release();
                 }
-               
-            }
-            catch (Exception e)
-            {
-                status = $"{e.GetBaseException().Message}: {e.StackTrace}.";
-                Log(status);
-                return false;
             }
             #endregion
 
-            status = "Uploaded and loaded the RAPID module(s).";
+            if (loadedTasks.Count == 0)
+            {
+                status = "Could not load the system module into any task.";
+                if (skippedTasks.Count > 0) { status += $" Skipped (running): {string.Join(", ", skippedTasks)}."; }
+                if (failedTasks.Count > 0) { status += $" Failed: {string.Join(", ", failedTasks)}."; }
+                Log(status);
+                return false;
+            }
+
+            status = $"Uploaded the system module and loaded it into task(s) {string.Join(", ", loadedTasks)}.";
+            if (skippedTasks.Count > 0) { status += $" Skipped (running): {string.Join(", ", skippedTasks)}."; }
+            if (failedTasks.Count > 0) { status += $" Failed: {string.Join(", ", failedTasks)}."; }
+
+            #region sweep the shared-data section for data that will not actually be shared
+            List<string> nonSharedData = HelperMethods.FindNonSharedModuleData(module);
+
+            if (nonSharedData.Count > 0)
+            {
+                string warning = $"Module {moduleName} declares data with a VAR keyword before its first routine: " +
+                    $"{string.Join("; ", nonSharedData)}. Only PERS and CONST data declared there is shared between " +
+                    "tasks; this VAR data will get an independent copy per task.";
+                warnings.Add(warning);
+                status += $" WARNING: {warning}";
+                Log(warning);
+            }
+            #endregion
+
             Log(status);
 
             return true;

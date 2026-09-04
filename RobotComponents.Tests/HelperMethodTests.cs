@@ -6,6 +6,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 using System.IO;
 // Rhino Libs
 using Rhino.Geometry;
@@ -671,6 +672,129 @@ namespace RobotComponents.Tests
         public void IsValidRapidIdentifier_ValidModuleName_ReturnsTrue(string name)
         {
             Assert.True(HelperMethods.IsValidRapidIdentifier(name));
+        }
+        #endregion
+
+        #region FindNonSharedModuleData
+        [Fact]
+        public void FindNonSharedModuleData_VarBeforeFirstRoutine_IsReported()
+        {
+            List<string> module = new List<string>
+            {
+                "MODULE MyModule (SYSMODULE)",
+                "    VAR num counter := 0;",
+                "    PERS tooldata myTool := [...];",
+                "    CONST num limit := 10;",
+                "    PROC main()",
+                "        VAR num local := 1;",
+                "    ENDPROC",
+                "ENDMODULE"
+            };
+
+            List<string> result = HelperMethods.FindNonSharedModuleData(module);
+
+            Assert.Single(result);
+            Assert.Contains("counter", result[0]);
+        }
+
+        [Fact]
+        public void FindNonSharedModuleData_OnlyPersAndConst_ReturnsEmpty()
+        {
+            List<string> module = new List<string>
+            {
+                "MODULE MyModule (SYSMODULE)",
+                "    PERS tooldata myTool := [...];",
+                "    CONST num limit := 10;",
+                "    PROC main()",
+                "    ENDPROC",
+                "ENDMODULE"
+            };
+
+            List<string> result = HelperMethods.FindNonSharedModuleData(module);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void FindNonSharedModuleData_TaskPers_IsNotReported()
+        {
+            List<string> module = new List<string>
+            {
+                "MODULE MyModule (SYSMODULE)",
+                "    TASK PERS num counter := 0;",
+                "    PROC main()",
+                "    ENDPROC",
+                "ENDMODULE"
+            };
+
+            List<string> result = HelperMethods.FindNonSharedModuleData(module);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void FindNonSharedModuleData_VarAfterFirstRoutine_IsIgnored()
+        {
+            List<string> module = new List<string>
+            {
+                "MODULE MyModule (SYSMODULE)",
+                "    CONST num limit := 10;",
+                "    PROC main()",
+                "        VAR num local := 1;",
+                "    ENDPROC",
+                "    VAR num afterRoutine := 2;",
+                "ENDMODULE"
+            };
+
+            List<string> result = HelperMethods.FindNonSharedModuleData(module);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void FindNonSharedModuleData_LocalVar_IsReported()
+        {
+            List<string> module = new List<string>
+            {
+                "MODULE MyModule (SYSMODULE)",
+                "    LOCAL VAR num counter := 0;",
+                "    FUNC num GetValue()",
+                "        RETURN counter;",
+                "    ENDFUNC",
+                "ENDMODULE"
+            };
+
+            List<string> result = HelperMethods.FindNonSharedModuleData(module);
+
+            Assert.Single(result);
+            Assert.Contains("counter", result[0]);
+        }
+
+        [Fact]
+        public void FindNonSharedModuleData_StopsAtTrapDeclaration()
+        {
+            List<string> module = new List<string>
+            {
+                "MODULE MyModule (SYSMODULE)",
+                "    CONST num limit := 10;",
+                "    TRAP MyTrap",
+                "        VAR num local := 1;",
+                "    ENDTRAP",
+                "    VAR num afterTrap := 2;",
+                "ENDMODULE"
+            };
+
+            List<string> result = HelperMethods.FindNonSharedModuleData(module);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void FindNonSharedModuleData_NullModule_ReturnsEmpty()
+        {
+            List<string> result = HelperMethods.FindNonSharedModuleData(null);
+
+            Assert.Empty(result);
         }
         #endregion
 

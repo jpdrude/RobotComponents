@@ -582,5 +582,74 @@ namespace RobotComponents.Tests.Actions
             Assert.False(copy.EnforceAxisLimits);
         }
         #endregion
+
+        #region Optional Robot
+        [Fact]
+        public void CreateModule_NoRobotNoMovement_Succeeds()
+        {
+            RAPIDGenerator generator = new RAPIDGenerator(null, "MainModule", "main");
+            var actions = new List<IAction> { new CodeLine("VAR num myVar := 0;", CodeType.Declaration) };
+
+            List<string> module = generator.CreateModule(actions);
+
+            Assert.Contains("MODULE MainModule", string.Join(Environment.NewLine, module));
+        }
+
+        [Fact]
+        public void CreateModule_NoRobotWithMovement_Throws()
+        {
+            RAPIDGenerator generator = new RAPIDGenerator(null, "MainModule", "main");
+            RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt1", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => generator.CreateModule(new List<IAction> { move }));
+
+            Assert.Contains("Robot", ex.Message);
+        }
+
+        [Fact]
+        public void CreateModule_NoRobotWithMovementInActionGroup_Throws()
+        {
+            RAPIDGenerator generator = new RAPIDGenerator(null, "MainModule", "main");
+            RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt1", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+            ActionGroup group = new ActionGroup(new List<IAction> { move });
+
+            Assert.Throws<InvalidOperationException>(
+                () => generator.CreateModule(new List<IAction> { group }));
+        }
+
+        [Fact]
+        public void CreateModule_NoRobotWithMovementInAdditionalRoutine_Throws()
+        {
+            RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);
+            JointTarget target = new JointTarget("jt1", rjp);
+            Movement move = new Movement(MovementType.MoveAbsJ, target, new SpeedData(100), new ZoneData(10));
+            var routine = new Routine(new List<IAction> { move }, RoutineType.PROC, "myRoutine");
+            RAPIDGenerator generator = new RAPIDGenerator(null, "MainModule", "main", Scope.GLOBAL, null,
+                new List<Routine> { routine });
+
+            Assert.Throws<InvalidOperationException>(
+                () => generator.CreateModule(new List<IAction>()));
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_RobotThenNull_DoesNotThrowOnEmptyActions()
+        {
+            // A Robot originally provided, then swapped out (e.g. Robot property set to null
+            // directly), should behave exactly like never having had one.
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+            generator.Robot = null;
+
+            List<string> module = generator.CreateModule(new List<IAction>());
+
+            Assert.Contains("MODULE MainModule", string.Join(Environment.NewLine, module));
+        }
+        #endregion
     }
 }

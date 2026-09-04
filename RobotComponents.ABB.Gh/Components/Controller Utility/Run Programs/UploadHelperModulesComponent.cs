@@ -117,6 +117,8 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
                 this.ExpirePreview(true);
             }
 
+            List<string> warnings = new List<string>();
+
             if (upload)
             {
                 if (_taskName == "-")
@@ -126,13 +128,20 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
                 }
                 else
                 {
-                    _succeeded = _controller.UploadHelperModules(_taskName, modules, out _status, loadToTask);
+                    _succeeded = _controller.UploadHelperModules(_taskName, modules, out _status, out warnings, loadToTask);
                 }
             }
 
             if (_succeeded == false)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, _status);
+            }
+
+            // Non-fatal: a system module branch declared shared-data with a keyword other than
+            // PERS or CONST, so it will not actually be shared between the tasks it is loaded into.
+            foreach (string warning in warnings)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warning);
             }
 
             // Output

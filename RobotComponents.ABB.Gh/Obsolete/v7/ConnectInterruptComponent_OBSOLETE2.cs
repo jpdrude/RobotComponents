@@ -31,19 +31,23 @@ namespace RobotComponents.ABB.Gh.Obsolete
     /// RobotComponents Action : Connect Interrupt Component.
     /// </summary>
     /// <remarks>
-    /// Hidden from the menu since the Enable/Disable Interrupts outputs were added. Retained so
-    /// older .gh files that placed this component before that change continue to load and resolve
-    /// their saved param GUIDs unchanged; the live component now has a new GUID for its new
-    /// output shape.
+    /// Hidden from the menu since the Signal Name input was changed from Param_String to
+    /// Param_GenericObject (so it can also accept a RAPID Variable, for the new Persistent Data
+    /// signal type) and the SignalType enum gained a PersistentData entry. Retained so older .gh
+    /// files that placed this component before that change continue to load and resolve their
+    /// saved param GUIDs and param type unchanged; the live component now has a new GUID for its
+    /// new input type. This is the second obsolete snapshot for this component -- see also
+    /// ConnectInterruptComponent_OBSOLETE (v5), frozen when the Enable/Disable Interrupts outputs
+    /// were added.
     /// </remarks>
     [Obsolete("This component is OBSOLETE and will be removed in the future. Use Connect Interrupt instead.", false)]
-    public class ConnectInterruptComponent_OBSOLETE : GH_RobotComponent
+    public class ConnectInterruptComponent_OBSOLETE2 : GH_RobotComponent
     {
         #region fields
         private bool _expire = false;
         #endregion
 
-        public ConnectInterruptComponent_OBSOLETE() : base("Connect Interrupt", "CI", "Advanced RAPID Features",
+        public ConnectInterruptComponent_OBSOLETE2() : base("Connect Interrupt", "CI", "Advanced RAPID Features",
               "Connects a TRAP routine to a signal change.")
         {
         }
@@ -53,7 +57,7 @@ namespace RobotComponents.ABB.Gh.Obsolete
             pManager.AddTextParameter("TRAP Routine Name", "TR", "Name of the TRAP routine to be called when the signal change occurs.", GH_ParamAccess.item);
             pManager.AddTextParameter("Signal Name", "SN", "Name of the signal that is monitored for changes.", GH_ParamAccess.item);
             pManager.AddNumberParameter("Signal Value", "SV", "Value of the signal that triggers the interrupt when the signal changes to this value.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("SignalType", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO)", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Signal Type", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO)", GH_ParamAccess.item);
 
             pManager[2].Optional = true;
             pManager[3].Optional = true;
@@ -62,6 +66,14 @@ namespace RobotComponents.ABB.Gh.Obsolete
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_CodeLine(), "Connect Code", "CC", "Code to connect interrupt. Both Declaration and Instruction Code is generated");
+            pManager.RegisterParam(new Param_CodeLine(), "Enable Interrupts", "IE",
+                "RAPID IEnable; instruction, (re-)enabling interrupts. Interrupts that were registered while " +
+                "interrupts were disabled are queued and executed once interrupts are re-enabled with this instruction.",
+                GH_ParamAccess.item);
+            pManager.RegisterParam(new Param_CodeLine(), "Disable Interrupts", "ID",
+                "RAPID IDisable; instruction, disabling interrupts. Interrupts that are registered while interrupts " +
+                "are disabled are not discarded: they are queued to be executed once interrupts are re-enabled.",
+                GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -87,6 +99,11 @@ namespace RobotComponents.ABB.Gh.Obsolete
                 this.ExpireSolution(true);
                 return;
             }
+
+            // The Enable/Disable Interrupts outputs are static instructions, independent of the
+            // connect-interrupt inputs, so they are always available.
+            DA.SetData(1, new CodeLine("IEnable;", CodeType.Instruction));
+            DA.SetData(2, new CodeLine("IDisable;", CodeType.Instruction));
 
             // Declare variables to store input data
             string interruptName = string.Empty;
@@ -159,7 +176,7 @@ namespace RobotComponents.ABB.Gh.Obsolete
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("F7A3C8E1-9D42-4B6F-A158-2E7D0C9B34F6"); }
+            get { return new Guid("F77FEF07-D879-436A-AC00-B63FE3820BCD"); }
         }
         #endregion
     }

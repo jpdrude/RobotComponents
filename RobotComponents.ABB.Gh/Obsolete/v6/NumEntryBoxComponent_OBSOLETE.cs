@@ -10,6 +10,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+#pragma warning disable CS1591 // Missing XML comment — obsolete shim, kept for .ghx backwards compatibility.
+
 // System Libs
 using System;
 using System.Collections.Generic;
@@ -22,34 +24,32 @@ using RobotComponents.ABB.Actions;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Enumerations;
-using RobotComponents.ABB.Gh.Goos.Definitions;
+using RobotComponents.ABB.Gh.Components;
 using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
-using RobotComponents.ABB.Gh.Utils;
 
-namespace RobotComponents.ABB.Gh.Components.CodeGeneration
+namespace RobotComponents.ABB.Gh.Obsolete
 {
     /// <summary>
     /// RobotComponents Numeric Entry Box Component.
     /// Assigns the result of UINumEntry to a user-supplied RAPID variable.
-    ///
-    /// Generated code example:
-    ///   answer := UINumEntry(\Header:="Enter value" \Message:="How many?" \InitValue:=5 \MinValue:=1 \MaxValue:=10 \AsInteger);
     /// </summary>
-    public class NumEntryBoxComponent : GH_RobotComponent
+    /// <remarks>
+    /// Hidden from the menu since the Initial Value input was changed from Param_Number to
+    /// Param_RAPIDExpression (so it can also accept a RAPID variable/expression, not just a
+    /// literal number). Retained so older .gh files that placed this component before that
+    /// change continue to load and resolve their saved param GUIDs and param type unchanged;
+    /// the live component now has a new GUID for its new input type.
+    /// </remarks>
+    [Obsolete("This component is OBSOLETE and will be removed in the future. Use Numeric Entry Box instead.", false)]
+    public class NumEntryBoxComponent_OBSOLETE : GH_RobotComponent
     {
-        /// <summary>
-        /// Each implementation of GH_Component must provide a public constructor without any arguments.
-        /// </summary>
-        public NumEntryBoxComponent() : base("Numeric Entry Box", "NEB", "Advanced RAPID Features",
+        public NumEntryBoxComponent_OBSOLETE() : base("Numeric Entry Box", "NEB", "Advanced RAPID Features",
             "Calls UINumEntry to prompt the user for a numeric input during robot program execution. " +
             "Assigns the result to the provided RAPID variable.")
         {
         }
 
-        /// <summary>
-        /// Registers all the input parameters for this component.
-        /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddParameter(new Param_RAPIDVariable(), "Variable", "V",
@@ -61,8 +61,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddTextParameter("Message", "M",
                 "Message text. Connect a list for multiple lines (generates a RAPID MsgArray).",
                 GH_ParamAccess.list);
-            pManager.AddParameter(new Param_RAPIDExpression(), "Initial Value", "IV",
-                "Initial value shown in the entry box (\\InitValue). Accepts a number, RAPID variable, or RAPID expression.",
+            pManager.AddNumberParameter("Initial Value", "IV",
+                "Initial value shown in the entry box (\\InitValue).",
                 GH_ParamAccess.item);
             pManager.AddIntervalParameter("Range", "R",
                 "Valid input range. T0 = minimum (\\MinValue), T1 = maximum (\\MaxValue).",
@@ -76,9 +76,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager[5].Optional = true;
         }
 
-        /// <summary>
-        /// Registers all the output parameters for this component.
-        /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_RAPIDVariable(), "Variable", "V",
@@ -89,15 +86,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 GH_ParamAccess.item);
         }
 
-        /// <summary>
-        /// This is the method that actually does the work.
-        /// </summary>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             RAPIDVariable variable = null;
             string header   = string.Empty;
             var    message  = new List<string>();
-            GH_RAPIDExpression initValExpr = null;
+            double initVal  = 0.0;
+            bool   hasInit  = false;
             var    range    = new Rhino.Geometry.Interval();
             bool   hasRange = false;
             bool   asInt    = false;
@@ -105,7 +100,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!DA.GetData(0, ref variable))   { return; }
             if (!DA.GetData(1, ref header))     { return; }
             if (!DA.GetDataList(2, message))    { return; }
-            bool hasInit = DA.GetData(3, ref initValExpr) && initValExpr != null;
+            hasInit  = DA.GetData(3, ref initVal);
             hasRange = DA.GetData(4, ref range);
             DA.GetData(5, ref asInt);
 
@@ -115,20 +110,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 return;
             }
 
-            string initValText = hasInit ? HelperMethods.CheckRAPIDExpression(this, initValExpr, "Initial Value", "0") : null;
-
             // --- Validate range ---
             if (hasRange && range.T0 > range.T1)
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     "Range minimum (T0) is greater than maximum (T1).");
 
-            // Only a literal numeric Initial Value can be checked against the range here; a
-            // variable/expression is resolved at runtime on the controller, not at solve time.
-            if (hasRange && hasInit &&
-                double.TryParse(initValText, NumberStyles.Float, CultureInfo.InvariantCulture, out double initValNumber) &&
-                (initValNumber < range.T0 || initValNumber > range.T1))
+            if (hasRange && hasInit && (initVal < range.T0 || initVal > range.T1))
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    $"Initial value ({initValText}) is outside the specified range [{range.T0}, {range.T1}].");
+                    $"Initial value ({initVal}) is outside the specified range [{range.T0}, {range.T1}].");
 
             // --- Build UINumEntry assignment ---
             var sb = new StringBuilder();
@@ -148,7 +137,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             if (hasInit)
-                sb.Append($" \\InitValue:={initValText}");
+                sb.Append($" \\InitValue:={initVal.ToString("0.######", CultureInfo.InvariantCulture)}");
 
             if (hasRange)
             {
@@ -166,41 +155,29 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         #region properties
-        /// <summary>
-        /// Override the component exposure (makes the tab subcategory).
-        /// Can be set to hidden, primary, secondary, tertiary, quarternary, quinary, senary, septenary and obscure
-        /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.tertiary; }
+            get { return GH_Exposure.hidden; }
         }
 
-        /// <summary>
-        /// Gets whether this object is obsolete.
-        /// </summary>
         public override bool Obsolete
         {
-            get { return false; }
+            get { return true; }
         }
 
-        /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
-        /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
             get { return Properties.Resources.NumEntryBox_Icon; }
         }
 
-
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
+        /// Each component must have a unique Guid to identify it.
+        /// It is vital this Guid doesn't change otherwise old ghx files
         /// that use the old ID will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("803742EC-9493-453C-BD24-02C5304AD8F2"); }
+            get { return new Guid("E7B3C9F2-4A18-4D3B-A8E6-1C5D2F7B4E93"); }
         }
         #endregion
     }
