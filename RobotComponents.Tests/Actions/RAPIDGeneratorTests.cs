@@ -230,6 +230,37 @@ namespace RobotComponents.Tests.Actions
         }
         #endregion
 
+        #region Declaration Comments
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
+        public void CreateModule_DeclarationComments_InterleaveWithCustomCodeLineDeclarations()
+        {
+            // A declaration-type Comment must land in the same section, in the same relative
+            // order, as declaration-type CodeLines (e.g. a RAPID Variable's own declaration output,
+            // or CodeLineComponent's custom code lines) — both are user-authored declaration text,
+            // as opposed to the implicit declarations Movement/Target objects generate on their own.
+            Robot robot = CreateTestRobot();
+            RAPIDGenerator generator = new RAPIDGenerator(robot);
+
+            CodeLine declA = new CodeLine("VAR num a := 1;", CodeType.Declaration);
+            Comment comment = new Comment("comment between a and b", CodeType.Declaration);
+            CodeLine declB = new CodeLine("VAR num b := 2;", CodeType.Declaration);
+
+            List<string> module = generator.CreateModule(new List<IAction> { declA, comment, declB });
+
+            int idxA = module.FindIndex(l => l.Contains("VAR num a"));
+            int idxComment = module.FindIndex(l => l.Contains("comment between a and b"));
+            int idxB = module.FindIndex(l => l.Contains("VAR num b"));
+
+            Assert.True(idxA >= 0, "Declaration 'a' should be present in the module.");
+            Assert.True(idxComment >= 0, "The comment should be present in the module.");
+            Assert.True(idxB >= 0, "Declaration 'b' should be present in the module.");
+
+            Assert.True(idxA < idxComment, "Declaration 'a' should come before the comment.");
+            Assert.True(idxComment < idxB, "The comment should come before declaration 'b'.");
+        }
+        #endregion
+
         #region Optional Sections
         [Fact]
         [Trait("Category", "RequiresRhino")]

@@ -104,35 +104,40 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Catch input data
             if (!DA.GetData(0, ref name)) { return; }
 
+            // Read each axis by its fixed pManager slot index (Name(0), A(1), B(2), C(3), D(4), E(5), F(6)),
+            // never by matching the parameter's current display Name. Name is just a label and can be
+            // renamed (e.g. for "Draw Full Names" clarity) without affecting which slot holds which axis;
+            // it's also whatever text was saved in an older .gh file, which no longer has to match the
+            // current constant here for the component to keep working.
             // External joint position A
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[0].Name))
+            if (Params.Input.Count > 1)
             {
-                if (!DA.GetData(externalAxisParameters[0].Name, ref externalJointPositionA)) { externalJointPositionA = 9e9; }
+                if (!DA.GetData(1, ref externalJointPositionA)) { externalJointPositionA = 9e9; }
             }
             // External joint position B
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[1].Name))
+            if (Params.Input.Count > 2)
             {
-                if (!DA.GetData(externalAxisParameters[1].Name, ref externalJointPositionB)) { externalJointPositionB = 9e9; }
+                if (!DA.GetData(2, ref externalJointPositionB)) { externalJointPositionB = 9e9; }
             }
             // External joint position C
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[2].Name))
+            if (Params.Input.Count > 3)
             {
-                if (!DA.GetData(externalAxisParameters[2].Name, ref externalJointPositionC)) { externalJointPositionC = 9e9; }
+                if (!DA.GetData(3, ref externalJointPositionC)) { externalJointPositionC = 9e9; }
             }
             // External joint position D
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[3].Name))
+            if (Params.Input.Count > 4)
             {
-                if (!DA.GetData(externalAxisParameters[3].Name, ref externalJointPositionD)) { externalJointPositionD = 9e9; }
+                if (!DA.GetData(4, ref externalJointPositionD)) { externalJointPositionD = 9e9; }
             }
             // External joint position E
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[4].Name))
+            if (Params.Input.Count > 5)
             {
-                if (!DA.GetData(externalAxisParameters[4].Name, ref externalJointPositionE)) { externalJointPositionE = 9e9; }
+                if (!DA.GetData(5, ref externalJointPositionE)) { externalJointPositionE = 9e9; }
             }
             // External joint position F
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[5].Name))
+            if (Params.Input.Count > 6)
             {
-                if (!DA.GetData(externalAxisParameters[5].Name, ref externalJointPositionF)) { externalJointPositionF = 9e9; }
+                if (!DA.GetData(6, ref externalJointPositionF)) { externalJointPositionF = 9e9; }
             }
 
             // Create external joint position
@@ -323,8 +328,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <returns> Return True if your component supports a variable parameter at the given location. </returns>
         bool IGH_VariableParameterComponent.CanRemoveParameter(GH_ParameterSide side, int index)
         {
-            // If the first external axis override parameter is added it is allowed to remove parameters
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[0].Name))
+            // If the fixed input parameters (Name, A, B) are present it is allowed to remove parameters
+            if (Params.Input.Count >= 3)
             {
                 // Makes it impossible to remove the fixed input parameters
                 if (side == GH_ParameterSide.Input && index < 3)
@@ -377,8 +382,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// typically the CanRemoveParameter function should return false if the parameter in question is not removable. </returns>
         bool IGH_VariableParameterComponent.DestroyParameter(GH_ParameterSide side, int index)
         {
-            // If the first external axis is added it is allowed to destroy input parameters
-            if (Params.Input.Any(x => x.Name == externalAxisParameters[0].Name))
+            // If the fixed input parameters (Name, A, B) are present it is allowed to destroy input parameters
+            if (Params.Input.Count >= 3)
             {
                 // Makes it impossible to detroy the fixed input parameters
                 if (side == GH_ParameterSide.Input && index < 3)

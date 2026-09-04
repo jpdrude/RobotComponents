@@ -10,6 +10,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+// System Libs
+using System.Globalization;
 // Grasshopper Libs
 using GH_IO;
 using GH_IO.Serialization;
@@ -131,16 +133,20 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
                 Value = RAPIDExpression.FromLiteral(ghNum.Value);
                 return true;
             }
-            // GH_String — stored verbatim; component validates separately
+            // GH_String — parsed as a number first, matching how a native Number/Integer input
+            // auto-parses typed text (e.g. a Panel showing "42"), so plugging text into a
+            // RAPID Expression input behaves the same way it would into a plain numeric input.
+            // Anything that isn't a clean int/double is stored verbatim as the RAPID expression
+            // (a variable name, TRUE/FALSE, a quoted string, a function call, ...).
             if (source is GH_String ghStr)
             {
-                Value = RAPIDExpression.FromString(ghStr.Value);
+                Value = ParseNumericOrVerbatim(ghStr.Value);
                 return true;
             }
             // raw string
             if (source is string str)
             {
-                Value = RAPIDExpression.FromString(str);
+                Value = ParseNumericOrVerbatim(str);
                 return true;
             }
             // GH_RAPIDVariable → use variable Name as expression
@@ -158,6 +164,29 @@ namespace RobotComponents.ABB.Gh.Goos.Definitions
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Parses text into a numeric literal RAPIDExpression if it cleanly parses as an int or
+        /// double (invariant culture, matching how Rhino/Grasshopper's own numeric inputs parse
+        /// typed text), otherwise falls back to storing the text verbatim as the expression.
+        /// </summary>
+        /// <param name="text"> The raw text to resolve. </param>
+        /// <returns> A literal numeric RAPIDExpression, or a verbatim-text RAPIDExpression. </returns>
+        private static RAPIDExpression ParseNumericOrVerbatim(string text)
+        {
+            string trimmed = text?.Trim() ?? string.Empty;
+
+            if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intValue))
+            {
+                return RAPIDExpression.FromLiteral(intValue);
+            }
+            if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double doubleValue))
+            {
+                return RAPIDExpression.FromLiteral(doubleValue);
+            }
+
+            return RAPIDExpression.FromString(text);
         }
         #endregion
 

@@ -405,8 +405,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     }
                 }
 
-                
-
                 Params.OnParametersChanged();
             });
         }

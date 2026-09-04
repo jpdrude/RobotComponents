@@ -10,6 +10,8 @@
 //
 // For license details, see the LICENSE file in the project root.
 
+#pragma warning disable CS1591 // Missing XML comment — obsolete shim, kept for .ghx backwards compatibility.
+
 // System Libs
 using System;
 using System.Collections.Generic;
@@ -23,18 +25,27 @@ using Grasshopper.Kernel.Parameters;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Dynamic;
 using RobotComponents.ABB.Enumerations;
+using RobotComponents.ABB.Gh.Components;
 using RobotComponents.ABB.Gh.Parameters.Actions.Dynamic;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
-namespace RobotComponents.ABB.Gh.Components.CodeGeneration
+namespace RobotComponents.ABB.Gh.Obsolete
 {
     /// <summary>
     /// RobotComponents RAPID Variable Declaration Component.
     /// Supports both scalar and array declarations.
     /// Right-click → "Set Array Size" switches between scalar and array mode.
     /// </summary>
-    public class RAPIDVariableComponent : GH_RobotComponent, IGH_VariableParameterComponent
+    /// <remarks>
+    /// Hidden from the menu since the Value/Values inputs were changed from Param_String to
+    /// Param_GenericObject (so a RAPID declaration/variable/expression resolves to its actual
+    /// value instead of a stringified description). Retained so older .gh files that placed this
+    /// component before that change continue to load and resolve their saved param GUIDs and
+    /// param type unchanged; the live component now has a new GUID for its new input type.
+    /// </remarks>
+    [Obsolete("This component is OBSOLETE and will be removed in the future. Use RAPID Variable instead.", false)]
+    public class RAPIDVariableComponent_OBSOLETE : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
         private bool _expire = false;
@@ -42,8 +53,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
         // Fixed parameter count: Level(0), Scope(1), Keyword(2), Type(3), Name(4).
         // Index 5 onward is mode-dependent:
-        //   Scalar : Value       (generic, item,  optional)
-        //   Array  : Array Size  (int,     item)  +  Values  (generic, list, optional)
+        //   Scalar : Value       (text, item,  optional)
+        //   Array  : Array Size  (int,  item)  +  Values  (text, list, optional)
         private const int _fixedParamCount = 5;
 
         private const string _valueName     = "Value";
@@ -51,19 +62,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private const string _valuesName    = "Values";
         #endregion
 
-        /// <summary>
-        /// Each implementation of GH_Component must provide a public constructor without any arguments.
-        /// </summary>
-        public RAPIDVariableComponent() : base("RAPID Variable", "RV", "Advanced RAPID Features",
+        public RAPIDVariableComponent_OBSOLETE() : base("RAPID Variable", "RV", "Advanced RAPID Features",
             "Declares a RAPID variable (VAR, PERS, or INOUT). " +
             "Right-click to enable array mode.")
         {
             Message = "EXTENDABLE";
         }
 
-        /// <summary>
-        /// Registers all the input parameters for this component.
-        /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddIntegerParameter("Level", "L",
@@ -82,10 +87,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 "Variable name.",
                 GH_ParamAccess.item);
             // Index 5 — scalar mode default
-            pManager.AddGenericParameter(_valueName, "V",
-                "Initial value. Leave unconnected to omit the assignment. Accepts a literal RAPID expression " +
-                "(e.g. 42, TRUE, \"hello\") or any RAPID declaration/variable/expression (Robot Target, Speed Data, " +
-                "RAPID Variable, ...), which is resolved to its declared name, or its inline RAPID value if it has no name.",
+            pManager.AddTextParameter(_valueName, "V",
+                "Initial value. Leave unconnected to omit the assignment.",
                 GH_ParamAccess.item);
 
             pManager[0].Optional = true;
@@ -94,9 +97,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager[5].Optional = true;
         }
 
-        /// <summary>
-        /// Registers all the output parameters for this component.
-        /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.RegisterParam(new Param_RAPIDVariable(), "Variable", "V",
@@ -107,9 +107,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 GH_ParamAccess.item);
         }
 
-        /// <summary>
-        /// This is the method that actually does the work.
-        /// </summary>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             // Auto-create value lists on first use
@@ -184,9 +181,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     return;
                 }
 
-                List<object> rawValues = new List<object>();
-                DA.GetDataList(_valuesName, rawValues); // optional
-                List<string> values = rawValues.Select(HelperMethods.ResolveRAPIDValueExpression).ToList();
+                List<string> values = new List<string>();
+                DA.GetDataList(_valuesName, values); // optional
 
                 if (values.Count > 0 && values.Count != arraySize)
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
@@ -207,9 +203,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             else
             {
                 // --- Scalar mode ---
-                object rawValue = null;
-                DA.GetData(_valueName, ref rawValue);
-                string value = HelperMethods.ResolveRAPIDValueExpression(rawValue);
+                string value = null;
+                DA.GetData(_valueName, ref value);
 
                 if (keyword == 3 && string.IsNullOrEmpty(value))
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
@@ -256,9 +251,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         #endregion
 
         #region menu items
-        /// <summary>
-        /// Appends "Set Array Size" toggle to the right-click context menu.
-        /// </summary>
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
             Menu_AppendSeparator(menu);
@@ -274,40 +266,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
-        /// Puts a freshly-constructed instance (not yet part of a document) into the given
-        /// array mode, matching whatever mode an old component being upgraded to this one was
-        /// in, so the upgrader can then wire-migrate "Value"/"Array Size"/"Values" onto the
-        /// correct slot. Deliberately skips ExpireSolution — the component isn't attached to a
-        /// document yet, so there's nothing to (re)solve, and calling it here would be reentrant
-        /// with whatever solve is already in progress. Same-assembly use only (upgrader classes);
-        /// not part of the public component API.
-        /// </summary>
-        internal void ConfigureForUpgrade(bool arrayMode)
-        {
-            if (_arraySizeInputParam != arrayMode)
-            {
-                _arraySizeInputParam = arrayMode;
-                ApplyArrayMode();
-            }
-        }
-
-        /// <summary>
         /// Swaps the parameter set at index 5+ between scalar mode (Value item) and
         /// array mode (Array Size int + Values list).
         /// </summary>
         private void ToggleArrayParams()
-        {
-            ApplyArrayMode();
-            Params.OnParametersChanged();
-            ExpireSolution(true);
-        }
-
-        /// <summary>
-        /// Registers/unregisters the mode-dependent input params to match
-        /// <see cref="_arraySizeInputParam"/>. Pure param bookkeeping — no solve-triggering
-        /// side effects — so it is also safe to call before the component is added to a document.
-        /// </summary>
-        private void ApplyArrayMode()
         {
             if (_arraySizeInputParam)
             {
@@ -326,7 +288,15 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }, _fixedParamCount);
 
                 // Add "Values" after Array Size
-                Params.RegisterInputParam(CreateArrayValuesParam(), _fixedParamCount + 1);
+                Params.RegisterInputParam(new Param_String
+                {
+                    Name        = _valuesName,
+                    NickName    = "V",
+                    Description = "Initial values for the array elements as a list of strings. " +
+                                  "Count must match Array Size. Leave unconnected for an uninitialised array.",
+                    Access      = GH_ParamAccess.list,
+                    Optional    = true
+                }, _fixedParamCount + 1);
             }
             else
             {
@@ -340,46 +310,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     Params.UnregisterInputParameter(valuesParam, true);
 
                 // Restore scalar "Value" param
-                Params.RegisterInputParam(CreateScalarValueParam(), _fixedParamCount);
+                Params.RegisterInputParam(new Param_String
+                {
+                    Name        = _valueName,
+                    NickName    = "V",
+                    Description = "Initial value. Leave unconnected to omit the assignment.",
+                    Access      = GH_ParamAccess.item,
+                    Optional    = true
+                }, _fixedParamCount);
             }
-        }
 
-        /// <summary>
-        /// Creates a fresh scalar "Value" input parameter (the current, correct type).
-        /// Shared by ToggleArrayParams and the stale-parameter-type reconciliation in SolveInstance.
-        /// </summary>
-        private static Param_GenericObject CreateScalarValueParam()
-        {
-            return new Param_GenericObject
-            {
-                Name        = _valueName,
-                NickName    = "V",
-                Description = "Initial value. Leave unconnected to omit the assignment. Accepts a literal RAPID " +
-                              "expression (e.g. 42, TRUE, \"hello\") or any RAPID declaration/variable/expression " +
-                              "(Robot Target, Speed Data, RAPID Variable, ...), which is resolved to its declared " +
-                              "name, or its inline RAPID value if it has no name.",
-                Access      = GH_ParamAccess.item,
-                Optional    = true
-            };
-        }
-
-        /// <summary>
-        /// Creates a fresh "Values" list input parameter (the current, correct type).
-        /// Shared by ToggleArrayParams and the stale-parameter-type reconciliation in SolveInstance.
-        /// </summary>
-        private static Param_GenericObject CreateArrayValuesParam()
-        {
-            return new Param_GenericObject
-            {
-                Name        = _valuesName,
-                NickName    = "V",
-                Description = "Initial values for the array elements as a list. Count must match Array Size. " +
-                              "Leave unconnected for an uninitialised array. Each item accepts a literal RAPID " +
-                              "expression or any RAPID declaration/variable/expression, resolved the same way " +
-                              "as the scalar Value input.",
-                Access      = GH_ParamAccess.list,
-                Optional    = true
-            };
+            Params.OnParametersChanged();
+            ExpireSolution(true);
         }
         #endregion
 
@@ -408,41 +350,29 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         #endregion
 
         #region properties
-        /// <summary>
-        /// Override the component exposure (makes the tab subcategory).
-        /// Can be set to hidden, primary, secondary, tertiary, quarternary, quinary, senary, septenary and obscure
-        /// </summary>
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.secondary; }
+            get { return GH_Exposure.hidden; }
         }
 
-        /// <summary>
-        /// Gets whether this object is obsolete.
-        /// </summary>
         public override bool Obsolete
         {
-            get { return false; }
+            get { return true; }
         }
 
-        /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
-        /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
             get { return Properties.Resources.Variable_Icon; }
         }
 
-
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
+        /// Each component must have a unique Guid to identify it.
+        /// It is vital this Guid doesn't change otherwise old ghx files
         /// that use the old ID will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("9E34F983-96A8-495D-B0C4-AC607CE805BB"); }
+            get { return new Guid("3B7E1F4A-9C82-4D16-A05B-6E3D2C8F7B94"); }
         }
         #endregion
     }
