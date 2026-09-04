@@ -173,58 +173,60 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
                 if (lastAuto == null)
                 {
-                    // First time this slot is seen as tracked. Two different situations land here,
-                    // and they need different treatment:
-                    if (string.IsNullOrEmpty(input.Name))
-                    {
-                        // Genuinely brand new: just created by the zui or the initial
-                        // RegisterInputParams call, with no name of its own yet. Give it a
-                        // placeholder name until something is wired into it.
-                        lastAuto = $"Input {i + 1}";
-                        input.Name = lastAuto;
-                        input.NickName = lastAuto;
+                    // Not tracked for this slot. Under normal operation this only happens for a
+                    // genuinely brand new input (zui '+', or the initial RegisterInputParams call):
+                    // a round-tripped reload or copy/paste goes through this same component's own
+                    // Write/Read, so _lastAutoNames is already correctly populated for every
+                    // existing input by the time this runs, and never lands here.
+                    //
+                    // The one other way to get here is an archive Read() couldn't recover tracking
+                    // from at all -- e.g. a file saved by an earlier version of this component that
+                    // used a different, no-longer-understood serialization shape (see Read() below,
+                    // which deliberately leaves a slot untracked rather than throw when it can't
+                    // make sense of what's on disk for it). There's no reliable history to fall back
+                    // on either way, so both cases get the same treatment: default to whatever type
+                    // is currently wired in, if anything is -- this is the one piece of fresh
+                    // information actually available, and matches what a brand new input would
+                    // settle on the moment something's connected anyway. If nothing's wired in, keep
+                    // the param's current name if it has one (there's nothing to gain by discarding
+                    // it), else fall back to the plain "Input N" placeholder.
+                    bool wasUnnamed = string.IsNullOrEmpty(input.Name);
+                    string typeName = input.SourceCount > 0 ? input.Sources[0].TypeName : null;
 
+                    if (!string.IsNullOrEmpty(typeName))
+                    {
+                        lastAuto = typeName;
+                    }
+                    else if (wasUnnamed)
+                    {
+                        lastAuto = $"Input {i + 1}";
+                    }
+                    else
+                    {
+                        lastAuto = input.Name;
+                    }
+
+                    input.Name = lastAuto;
+                    input.NickName = lastAuto;
+
+                    if (wasUnnamed)
+                    {
                         // Re-assert hidden wire display here too: GH's own +/- zui insert handler
                         // overwrites whatever WireDisplay CreateParameter() set on a freshly-inserted
                         // param with its own "implied" style right after calling it (verified via IL
                         // decompilation of GH_ComponentAttributes' insert-click handler), so setting
                         // it only in CreateInputParam() is silently clobbered for every zui-added
                         // input. This runs from VariableParameterMaintenance(), which fires right
-                        // after that clobber, so it's the last word. Only reached for a param with no
-                        // name of its own yet, so this can't re-hide a pasted/duplicated/reloaded
-                        // param whose wire display had been deliberately turned back on before --
-                        // WireDisplay is ordinary serialized state that survives Write/Read the same
-                        // way Name does.
+                        // after that clobber, so it's the last word. Gated on wasUnnamed so this
+                        // can't re-hide a recovered-but-untracked param's wire display, which is
+                        // ordinary serialized state independent of our own tracking.
                         input.WireDisplay = GH_ParamWireDisplay.hidden;
-                    }
-                    else
-                    {
-                        // Already has a name, just not tracked in this slot yet. Whether this is a
-                        // plain reload or a copy/paste/duplicate, GH's own Read() has already
-                        // restored this param's Name/NickName/WireDisplay/... faithfully by the time
-                        // VariableParameterMaintenance() runs -- our _lastAutoNames list is simply
-                        // one step behind that until this pass.
-                        //
-                        // There's no way to tell from here whether that name was a deliberate user
-                        // rename or one we auto-assigned from a wire type before the save/copy -- and
-                        // it doesn't matter: either way, leave the name exactly as it is, and record
-                        // a baseline ("") that input.Name can never legitimately equal (Name is never
-                        // actually set to "" anywhere else), which makes the "stillOurs" check below
-                        // permanently false for this slot. Getting this wrong the other way --
-                        // treating a restored name as still-auto-eligible -- was the original bug
-                        // report: input.Name == lastAuto came out true immediately after adopting
-                        // input.Name as lastAuto, so a restored param with a live wire got its
-                        // preserved name overwritten by the connected type right back on this same
-                        // pass. Freezing it here costs only the (rare, harmless) case of an untouched
-                        // auto-detected name no longer following a later type change after a
-                        // reload/copy.
-                        lastAuto = "";
                     }
 
                     _lastAutoNames[i] = lastAuto;
                 }
 
-                bool stillOurs = lastAuto.Length > 0 && input.Name == lastAuto;
+                bool stillOurs = input.Name == lastAuto;
 
                 if (stillOurs && input.SourceCount > 0)
                 {
@@ -370,8 +372,26 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
                 for (int i = 0; i < count; i++)
                 {
-                    bool isNull = reader.GetBoolean("AutoNameIsNull", i);
-                    _lastAutoNames.Add(isNull ? null : reader.GetString("AutoNameValue", i));
+                    // Only trust an entry actually written in this (current) format. An archive
+                    // saved by the earlier, InstanceGuid-keyed version of this component wrote
+                    // "AutoNameCount" under this same name, but never wrote "AutoNameIsNull" at
+                    // all -- GetBoolean/GetString on a chunk item that doesn't exist throws (GH_IO's
+                    // GetXxx(name, index) looks the item up and calls straight into it with no null
+                    // check), which is exactly what broke loading a file saved before this rewrite.
+                    // Leave a slot unresolved (null) instead for anything that doesn't match the
+                    // current shape; EnsureConsistentState() treats an unresolved slot as having no
+                    // reliable history and defaults it to the connected data type (or its existing
+                    // name, or a placeholder), which is the right behavior for recovering from a
+                    // format it no longer has a way to actually read back.
+                    if (reader.ItemExists("AutoNameIsNull", i))
+                    {
+                        bool isNull = reader.GetBoolean("AutoNameIsNull", i);
+                        _lastAutoNames.Add(isNull ? null : reader.GetString("AutoNameValue", i));
+                    }
+                    else
+                    {
+                        _lastAutoNames.Add(null);
+                    }
                 }
             }
 
