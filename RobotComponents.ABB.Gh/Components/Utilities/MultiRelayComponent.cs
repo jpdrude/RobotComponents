@@ -182,51 +182,48 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                     // The one other way to get here is an archive Read() couldn't recover tracking
                     // from at all -- e.g. a file saved by an earlier version of this component that
                     // used a different, no-longer-understood serialization shape (see Read() below,
-                    // which deliberately leaves a slot untracked rather than throw when it can't
-                    // make sense of what's on disk for it). There's no reliable history to fall back
-                    // on either way, so both cases get the same treatment: default to whatever type
-                    // is currently wired in, if anything is -- this is the one piece of fresh
-                    // information actually available, and matches what a brand new input would
-                    // settle on the moment something's connected anyway. If nothing's wired in, keep
-                    // the param's current name if it has one (there's nothing to gain by discarding
-                    // it), else fall back to the plain "Input N" placeholder.
-                    bool wasUnnamed = string.IsNullOrEmpty(input.Name);
-                    string typeName = input.SourceCount > 0 ? input.Sources[0].TypeName : null;
-
-                    if (!string.IsNullOrEmpty(typeName))
-                    {
-                        lastAuto = typeName;
-                    }
-                    else if (wasUnnamed)
+                    // which deliberately leaves a slot untracked rather than throw when it can't make
+                    // sense of what's on disk for it). There's no reliable history to fall back on
+                    // either way, so: if the param has no name of its own yet, treat it exactly like
+                    // a brand new input (placeholder name, hidden wire display). If it already has
+                    // some name, freeze it in place instead -- deliberately NOT touching it even if
+                    // something's wired in. This intentionally does not try to be clever about
+                    // recovering a "fresher" name from the connected type: an untracked-but-named
+                    // param almost always means archive tracking that's out of sync with an otherwise
+                    // perfectly good, possibly user-set Name (e.g. this exact file, mid-migration
+                    // across a couple of serialization-format changes to this component) -- silently
+                    // overwriting that with the wired type was tried and is worse: it clobbers a
+                    // legitimate custom name the instant this branch is hit for any reason, which is
+                    // far more likely in practice than genuinely wanting a re-derived type name here.
+                    if (string.IsNullOrEmpty(input.Name))
                     {
                         lastAuto = $"Input {i + 1}";
-                    }
-                    else
-                    {
-                        lastAuto = input.Name;
-                    }
+                        input.Name = lastAuto;
+                        input.NickName = lastAuto;
 
-                    input.Name = lastAuto;
-                    input.NickName = lastAuto;
-
-                    if (wasUnnamed)
-                    {
                         // Re-assert hidden wire display here too: GH's own +/- zui insert handler
                         // overwrites whatever WireDisplay CreateParameter() set on a freshly-inserted
                         // param with its own "implied" style right after calling it (verified via IL
                         // decompilation of GH_ComponentAttributes' insert-click handler), so setting
                         // it only in CreateInputParam() is silently clobbered for every zui-added
                         // input. This runs from VariableParameterMaintenance(), which fires right
-                        // after that clobber, so it's the last word. Gated on wasUnnamed so this
-                        // can't re-hide a recovered-but-untracked param's wire display, which is
-                        // ordinary serialized state independent of our own tracking.
+                        // after that clobber, so it's the last word. Only reached for a param with no
+                        // name of its own yet, so this can't re-hide a recovered-but-untracked param's
+                        // wire display, which is ordinary serialized state independent of our own
+                        // tracking.
                         input.WireDisplay = GH_ParamWireDisplay.hidden;
+                    }
+                    else
+                    {
+                        // Freeze via a baseline ("") the param's real Name can never equal, which
+                        // makes "stillOurs" below permanently false for this slot from here on.
+                        lastAuto = "";
                     }
 
                     _lastAutoNames[i] = lastAuto;
                 }
 
-                bool stillOurs = input.Name == lastAuto;
+                bool stillOurs = lastAuto.Length > 0 && input.Name == lastAuto;
 
                 if (stillOurs && input.SourceCount > 0)
                 {
@@ -380,9 +377,9 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                     // check), which is exactly what broke loading a file saved before this rewrite.
                     // Leave a slot unresolved (null) instead for anything that doesn't match the
                     // current shape; EnsureConsistentState() treats an unresolved slot as having no
-                    // reliable history and defaults it to the connected data type (or its existing
-                    // name, or a placeholder), which is the right behavior for recovering from a
-                    // format it no longer has a way to actually read back.
+                    // reliable history and freezes whatever name is already on the param rather than
+                    // guess at one, which is the right behavior for recovering from a format it no
+                    // longer has a way to actually read back.
                     if (reader.ItemExists("AutoNameIsNull", i))
                     {
                         bool isNull = reader.GetBoolean("AutoNameIsNull", i);
