@@ -3,8 +3,17 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 17:37 
+ Generated on: 2026-09-04 17:53 
  --- 
+ - Always keep at least 1 input/output on Multi Relais; rename to Multi Relay - RegisterInputParams/RegisterOutputParams now seed one pair up front instead of starting empty, and CanRemoveParameter refuses to remove the last remaining input, so the component can never be reduced to 0/0. 
+ 	 - Renamed MultiRelaisComponent -> MultiRelayComponent throughout (class, file, display Name, icon file + resx/Designer.cs entries): "Relais" is the German/French spelling, "Relay" is the correct English word. Component was never merged/shipped, so this needed no GUID change or Obsolete/vN handling -- same ComponentGuid, purely a naming fix. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `98533fb` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
  	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
  	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 

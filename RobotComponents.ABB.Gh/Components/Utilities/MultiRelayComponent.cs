@@ -60,8 +60,13 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            // Always starts with one; further pairs are added via the +/- zui.
-            pManager.AddParameter(CreateInputParam());
+            // Always starts with one; further pairs are added via the +/- zui. Named directly here
+            // (rather than leaving it to EnsureConsistentState() on first solve) so the seeded
+            // input has its final identity from construction on, with no dependency on solve timing.
+            IGH_Param input = CreateInputParam();
+            input.Name = "Input 1";
+            input.NickName = "Input 1";
+            pManager.AddParameter(input);
         }
 
         /// <summary>
@@ -69,9 +74,12 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            // Kept in sync with the inputs from EnsureConsistentState(); registering one here up
-            // front just avoids a single-solve flash of 1 input/0 outputs before that first runs.
-            pManager.RegisterParam(CreateRelayParam());
+            // Mirrors the seeded input above; further pairs are kept in sync from
+            // EnsureConsistentState(). Named directly here for the same reason as the input.
+            Param_GenericObject output = CreateRelayParam();
+            output.Name = "Input 1";
+            output.NickName = "Input 1";
+            pManager.RegisterParam(output);
         }
 
         /// <summary>
@@ -113,12 +121,23 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
                 if (!_autoNames.TryGetValue(id, out string lastAuto))
                 {
-                    // First time seeing this param: it was just created by the zui. Give it a
-                    // placeholder name until something is wired into it.
+                    // First time seeing this param: it was just created (by the zui, or by
+                    // RegisterInputParams for the initial one). Give it a placeholder name until
+                    // something is wired into it.
                     lastAuto = $"Input {i + 1}";
                     input.Name = lastAuto;
                     input.NickName = lastAuto;
                     _autoNames[id] = lastAuto;
+
+                    // Re-assert hidden wire display here too: GH's own +/- zui insert handler
+                    // overwrites whatever WireDisplay CreateParameter() set on a freshly-inserted
+                    // param with its own "implied" style right after calling it (verified via IL
+                    // decompilation of GH_ComponentAttributes' insert-click handler), so setting it
+                    // only in CreateInputParam() is silently clobbered for every zui-added input.
+                    // This runs from VariableParameterMaintenance(), which fires right after that
+                    // clobber, so it's the last word. Only for a param we haven't seen before, so a
+                    // user who deliberately turns display back on for a specific input later keeps it.
+                    input.WireDisplay = GH_ParamWireDisplay.hidden;
                 }
 
                 bool stillOurs = input.Name == lastAuto;
