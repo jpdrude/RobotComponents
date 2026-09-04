@@ -903,13 +903,28 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         }
 
         /// <summary>
-        /// This method will be called when a closely related set of variable parameter operations completes. 
-        /// This would be a good time to ensure all Nicknames and parameter properties are correct. 
+        /// This method will be called when a closely related set of variable parameter operations completes.
+        /// This would be a good time to ensure all Nicknames and parameter properties are correct.
         /// This method will also be called upon IO operations such as Open, Paste, Undo and Redo.
         /// </summary>
         void IGH_VariableParameterComponent.VariableParameterMaintenance()
         {
-
+            // The Robot input (always index 0) is optional -- only truly required when Actions
+            // contains movement instructions, which RAPIDGenerator.CreateModule checks for and
+            // throws a clear error about if so. An instance placed or saved before Robot became
+            // optional still has Optional=false archived on that param specifically: for a
+            // variable-parameter component, GH_ComponentParamServer.ReadAllParameterData restores
+            // each param's own persisted properties (Optional included) from the archive verbatim
+            // rather than re-deriving them from a fresh RegisterInputParams call (verified via IL
+            // decompilation) -- so setting Optional = true only in RegisterInputParams left every
+            // already-placed instance still requiring Robot regardless of whether Actions has any
+            // movements at all. This method is called on Open/Paste/Undo/Redo as well as after
+            // zui operations, so re-asserting it here corrects an old instance the moment it's
+            // loaded, before it ever gets a chance to solve.
+            if (Params.Input.Count > 0)
+            {
+                Params.Input[0].Optional = true;
+            }
         }
         #endregion
     }
