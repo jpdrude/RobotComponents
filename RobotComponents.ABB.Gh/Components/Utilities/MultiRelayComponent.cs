@@ -127,12 +127,12 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// <summary>
         /// Keeps the output list mirroring the input list 1:1 (same count, same order), auto-names
         /// any input that still has its original/auto-assigned name once something gets wired into
-        /// it, and mirrors each input's current Name/NickName onto its matching output. Also
-        /// recovers a custom rename across copy/paste or duplicate, where the copied param gets a
-        /// fresh InstanceGuid our own per-param bookkeeping (keyed by that guid) has never seen,
-        /// even though the rest of its state -- including a user's rename -- was carried over
-        /// faithfully. Called by GH after every input add/remove via the +/- zui, after an input
-        /// rename is accepted, and defensively again at the start of every solve.
+        /// it, and mirrors each input's current Name/NickName onto its matching output. Also leaves
+        /// an already-named input's name alone across copy/paste or duplicate, where the copied
+        /// param gets a fresh InstanceGuid our own per-param bookkeeping (keyed by that guid) has
+        /// never seen, even though the rest of its state -- including a user's rename -- was
+        /// carried over faithfully. Called by GH after every input add/remove via the +/- zui, after
+        /// an input rename is accepted, and defensively again at the start of every solve.
         /// </summary>
         private void EnsureConsistentState()
         {
@@ -175,9 +175,21 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                         // copy/paste or duplicate: GH gives the pasted param a fresh InstanceGuid
                         // (so it can coexist with the original), but the rest of its serialized
                         // state -- Name, NickName, WireDisplay, ... -- carries over faithfully.
-                        // Adopt its existing name as the new tracked baseline instead of overwriting
-                        // it with the placeholder, so a custom rename survives the copy.
-                        lastAuto = input.Name;
+                        //
+                        // There's no way to tell from here whether that name was a deliberate user
+                        // rename or one we auto-assigned from the wire type on the original before
+                        // it was copied -- the very distinction _autoNames exists to make was itself
+                        // lost along with the old guid. So: leave the name exactly as it is, and
+                        // record a baseline ("") that input.Name can never legitimately equal (Name
+                        // is never actually set to "" anywhere else), which makes the "stillOurs"
+                        // check below permanently false for this param. Getting this wrong the other
+                        // way -- treating the copy as still-auto-eligible -- was the actual bug
+                        // report: input.Name == lastAuto came out true immediately after adopting
+                        // input.Name as lastAuto, so a copy with a live wire got its preserved name
+                        // overwritten by the connected type right back on this same pass. Freezing it
+                        // here costs only the (rare, harmless) case of an untouched auto-detected
+                        // name no longer following a later type change after a copy.
+                        lastAuto = "";
                     }
 
                     _autoNames[id] = lastAuto;
