@@ -24,12 +24,13 @@ using GH_IO.Serialization;
 namespace RobotComponents.ABB.Gh.Components.Utilities
 {
     /// <summary>
-    /// RobotComponents Multi Relais Component.
+    /// RobotComponents Multi Relay Component.
     /// A generic pass-through utility with variable inputs (+/- zui, like Merge): each input gets
     /// a matching output that simply relays its tree through unchanged. Meant purely to tidy up a
     /// GH script's canvas by collapsing a bundle of otherwise-crossing wires through one component.
+    /// Always keeps at least one input/output pair; the "-" zui stops working once just one is left.
     /// </summary>
-    public class MultiRelaisComponent : GH_RobotComponent, IGH_VariableParameterComponent
+    public class MultiRelayComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
         // For each currently-registered input (keyed by its InstanceGuid, stable for the life of
@@ -44,12 +45,12 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
-        public MultiRelaisComponent() : base("Multi Relais", "MR", "Utility",
+        public MultiRelayComponent() : base("Multi Relay", "MR", "Utility",
             "Relays any number of data trees straight through, one matching output per input. " +
-            "Right-click, or use the +/- zui like Merge, to add or remove input/output pairs. " +
-            "Each input is auto-named after whatever type first gets wired into it (still renameable " +
-            "by hand), and its output mirrors that name. Purely a canvas tidy-up utility: it does not " +
-            "touch the data at all.")
+            "Right-click, or use the +/- zui like Merge, to add or remove input/output pairs (always " +
+            "keeps at least one). Each input is auto-named after whatever type first gets wired into " +
+            "it (still renameable by hand), and its output mirrors that name. Purely a canvas tidy-up " +
+            "utility: it does not touch the data at all.")
         {
             Message = "+/-";
         }
@@ -59,7 +60,8 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            // Starts with none; add pairs via the +/- zui.
+            // Always starts with one; further pairs are added via the +/- zui.
+            pManager.AddParameter(CreateInputParam());
         }
 
         /// <summary>
@@ -67,7 +69,9 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            // Starts with none; kept in sync with the inputs from EnsureConsistentState().
+            // Kept in sync with the inputs from EnsureConsistentState(); registering one here up
+            // front just avoids a single-solve flash of 1 input/0 outputs before that first runs.
+            pManager.RegisterParam(CreateRelayParam());
         }
 
         /// <summary>
@@ -206,7 +210,8 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
         bool IGH_VariableParameterComponent.CanRemoveParameter(GH_ParameterSide side, int index)
         {
-            return side == GH_ParameterSide.Input;
+            // Never remove the last remaining pair.
+            return side == GH_ParameterSide.Input && Params.Input.Count > 1;
         }
 
         IGH_Param IGH_VariableParameterComponent.CreateParameter(GH_ParameterSide side, int index)
@@ -298,7 +303,7 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.MultiRelais_Icon; }
+            get { return Properties.Resources.MultiRelay_Icon; }
         }
 
         /// <summary>

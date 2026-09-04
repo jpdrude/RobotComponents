@@ -3,18 +3,17 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 15:51 
+ Generated on: 2026-09-04 17:37 
  --- 
- - Make Robot optional on the RAPID Generator; error only if movements need one Robot is now an optional input on RAPID Generator and on RAPIDGenerator's constructors (a null robot is fine, e.g. for a declaration-only module). 
- - CreateModule scans the actions -- including inside ActionGroups and additional routines -- for a Movement instruction before doing anything else; if it finds one and no Robot was provided, it throws InvalidOperationException with a clear message instead of the NullReferenceException that would otherwise come from dereferencing an absent robot's tool/kinematics deep inside code generation. Movement instructions genuinely cannot be resolved to RAPID code (tool/workobject declarations, robtargets, ...) without a Robot, so this is a hard failure, not a toggleable warning like axis-limit enforcement. 
- 	 - RAPIDGenerator: constructors now do robot?.Duplicate() instead of robot.Duplicate(); added ContainsMovement(actions) (recursing into ActionGroups, matching CheckFirstMovement's own ungrouping) and the robot-required check in CreateModule; guarded the two _robot.Tool declaration call sites. 
- 	 - RAPIDGeneratorComponent: Robot input now Optional; SolveInstance no longer short-circuits when it's unconnected; CreateModule's call is wrapped in a try/catch that surfaces the exception as a GH runtime Error. 
- 	 - 5 new RAPIDGeneratorTests: no robot + no movement succeeds, no robot + top-level movement throws, no robot + movement inside an ActionGroup throws, no robot + movement inside an additional routine throws, and a previously-set Robot cleared back to null behaves the same as never having had one. 
- - No GH component parameter shape changed (Robot stays the same Param_Robot, same index -- Optional is a per-parameter flag restored from each saved component instance's own archived state on load, not a shape change), so this doesn't need the Obsolete/vN treatment. 
- - Build clean (MSBuild), 663/663 tests passing. 
+ - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
+ 	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
+ 	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 
+ 	 - The moment a user renames an input by hand, it's excluded from further auto-renaming for good (tracked via a persisted Guid->name dictionary recording what name was last auto-assigned; a mismatch means the user changed it). The matching output always mirrors whatever the input's current name is, auto-detected or manual. 
+ 	 - Outputs are added/removed by the component itself (SyncOutputCount, from VariableParameterMaintenance) to stay 1:1 with the inputs; the +/- zui only applies directly to the input side. 
+ - Build clean (MSBuild), 658/658 tests passing. 
  - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
   
-   **Commit:** `fb890ea` | **Date:** 2026-09-04 
+   **Commit:** `35ffebf` | **Date:** 2026-09-04 
  
  --- 
  
