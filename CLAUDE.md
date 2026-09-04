@@ -93,6 +93,32 @@ type and index mapping for that component — write one for every new upgrader; 
 wire-migration calls in `Upgrade(...)` auditable against the actual param shapes instead of having to
 re-derive them from the two component files by hand.
 
+### Check for shared-enum drift into already-frozen Obsolete snapshots
+
+Several components build a right-click/auto-populated dropdown by reflecting directly off a live
+enum: `HelperMethods.CreateValueList(this, typeof(SomeEnum), index)`. An `_OBSOLETE` snapshot that
+does this (grep the `Obsolete/` tree for `CreateValueList(this, typeof(` to find them all) still
+references that **same, live** enum type — it was never given its own frozen copy. If that enum
+later gains a new member, every existing `_OBSOLETE` snapshot that reflects off it will silently
+start offering that new option too, even though the snapshot's own `SolveInstance` switch/logic —
+frozen at the time it was written — has no case for it. The result isn't a load-time crash; it's
+worse: the component loads fine, the user picks the new-looking option, and it silently emits
+incomplete/wrong RAPID code with no error or warning.
+
+Check this in **both** directions, every time:
+- **Adding a member to an existing enum**: grep `Obsolete/` for `CreateValueList(this, typeof(<ThatEnum>)`.
+  For every match, replace it with `CreateValueList(this, new List<string> { ... }, index)` listing
+  exactly the member names that enum had *before* your change (i.e. exactly the cases that
+  snapshot's own switch already handles) — freezing the dropdown to match the frozen logic behind it.
+- **Freezing a new `_OBSOLETE` snapshot** whose `SolveInstance` calls `CreateValueList(this, typeof(...), index)`:
+  that reflection call is itself already a latent instance of this bug against *future* growth of
+  that enum — pin it to a hardcoded name list the same way, in the same commit that creates the
+  snapshot, rather than waiting to discover it later.
+
+This was missed initially when `SignalType` gained `PersistentData` (both the v5 and v7 obsolete
+Connect Interrupt snapshots drifted) and had to be fixed after the fact — do this check as a
+standard part of every Obsolete/vN change, not just when something reminds you to.
+
 **When this pattern is applied, remind the user to bump the MINOR (second) version number** in
 `RobotComponents/VersionNumbering.cs` (`CurrentVersion` and `Version`) — e.g. `1.3.8` → `1.4.0` — per the
 versioning rule already documented in that file ("MINOR version when you add functionality in a
