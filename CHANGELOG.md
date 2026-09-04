@@ -3,8 +3,19 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 17:53 
+ Generated on: 2026-09-04 18:06 
  --- 
+ - Fix Multi Relay's hidden wire display and harden the minimum-1 seeding; update icon Wire display: GH's own +/- zui insert handler overwrites whatever WireDisplay CreateParameter() sets on a freshly-inserted param with its own "implied" style, right after calling it (verified via IL decompilation of GH_ComponentAttributes' insert-click handler) -- so setting it only inside CreateInputParam() was silently clobbered for every input added via the zui. 
+ - Re-asserted it from EnsureConsistentState(), which runs (via VariableParameterMaintenance()) right after that clobber, so it's the last word; only for a param not seen before, so a user who deliberately turns display back on for one input later keeps it. 
+ - Minimum 1 input/output: the structural fix (RegisterInputParams/ RegisterOutputParams seeding one pair, CanRemoveParameter refusing to remove the last one) was already correct, but the seeded pair had no Name/NickName set until EnsureConsistentState() backfilled it on the first solve. Set "Input 1" directly at registration time instead, removing any dependency on solve timing for the initial pair's identity. 
+ - Also pushed the updated MultiRelay_Icon.png. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `0e2f69a` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Always keep at least 1 input/output on Multi Relais; rename to Multi Relay - RegisterInputParams/RegisterOutputParams now seed one pair up front instead of starting empty, and CanRemoveParameter refuses to remove the last remaining input, so the component can never be reduced to 0/0. 
  	 - Renamed MultiRelaisComponent -> MultiRelayComponent throughout (class, file, display Name, icon file + resx/Designer.cs entries): "Relais" is the German/French spelling, "Relay" is the correct English word. Component was never merged/shipped, so this needed no GUID change or Obsolete/vN handling -- same ComponentGuid, purely a naming fix. 
  - Build clean (MSBuild), 658/658 tests passing. 
