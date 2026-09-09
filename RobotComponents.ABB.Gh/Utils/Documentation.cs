@@ -65,6 +65,7 @@ namespace RobotComponents.ABB.Gh.Utils
             { typeof(WaitDIComponent) , "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/Wait%20for%20Digital%20Input/" },
             { typeof(CirclePathModeComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/" }, // TODO
             { typeof(PulseDigitalOutputComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/" }, // TODO
+            { typeof(InvertDigitalOutputComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/" }, // TODO
             { typeof(PathAccelerationLimitationComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/" }, // TODO
             { typeof(VelocitySetComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/" }, // TODO
             { typeof(AccelerationSetComponent), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Code%20Generation/Instructive%20Actions/" }, // TODO
@@ -187,6 +188,7 @@ namespace RobotComponents.ABB.Gh.Utils
             { typeof(Param_ConfigurationData), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Parameters/Actions/"}, // TODO
             { typeof(Param_PathAccelerationLimitation), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Parameters/Actions/"}, // TODO
             { typeof(Param_PulseDigitalOutput), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Parameters/Actions/"}, // TODO
+            { typeof(Param_InvertDigitalOutput), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Parameters/Actions/"}, // TODO
             { typeof(Param_VelocitySet), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Parameters/Actions/"}, // TODO
             { typeof(Param_AccelerationSet), "https://robotcomponents.github.io/RobotComponents-Documentation/docs/Parameters/Actions/"}, // TODO
             // Multi Move

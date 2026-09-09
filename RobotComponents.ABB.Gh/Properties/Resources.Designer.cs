@@ -959,7 +959,27 @@ namespace RobotComponents.ABB.Gh.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap InvertDigitalOutput_Icon {
+            get {
+                object obj = ResourceManager.GetObject("InvertDigitalOutput_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap InvertDigitalOutput_Parameter_Icon {
+            get {
+                object obj = ResourceManager.GetObject("InvertDigitalOutput_Parameter_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
