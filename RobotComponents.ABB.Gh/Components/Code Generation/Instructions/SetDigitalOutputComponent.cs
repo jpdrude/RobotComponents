@@ -20,7 +20,7 @@ using Grasshopper.Kernel;
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Actions.Instructions;
 using RobotComponents.ABB.Gh.Goos.Definitions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Parameters.Definitions;
 using RobotComponents.ABB.Gh.Utils;
 
@@ -46,7 +46,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_SetDigitalOutput(), "Set Digital Output", "SDO", "Resulting Set Digital Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Set Digital Output", "SDO", "Resulting Set Digital Output instruction");
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)

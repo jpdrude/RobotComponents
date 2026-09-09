@@ -16,7 +16,7 @@ using System;
 using Grasshopper.Kernel;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
-using RobotComponents.ABB.Gh.Parameters.Actions.Instructions;
+using RobotComponents.ABB.Gh.Parameters.Actions;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
@@ -38,7 +38,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.RegisterParam(new Param_InvertDigitalOutput(), "Invert Digital Output", "IDO", "Resulting Invert Digital Output instruction");
+            pManager.RegisterParam(new Param_Action(), "Invert Digital Output", "IDO", "Resulting Invert Digital Output instruction");
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
