@@ -49,6 +49,7 @@ namespace RobotComponents.ABB.Kinematics
         private readonly List<ConfigurationData> _configurationDatas; // The configurations datas for each robot joint position
         private readonly List<bool> _isInLimits; // Indicates whether or not the joint positions are within their limits
         private List<string> _errorText = new List<string>(); // List with collected error messages
+        private readonly List<string> _remarksText = new List<string>(); // List with collected non-critical remarks
 
         private bool _isFirstMovementMoveAbsJ; // Bool that indicates if the first movement is an absolute joint movement
         private readonly RobotTool _initialTool; // Defines the first tool that will be used
@@ -119,6 +120,7 @@ namespace RobotComponents.ABB.Kinematics
             _paths.Clear();
             _isInLimits.Clear();
             _errorText.Clear();
+            _remarksText.Clear();
 
             // Reinitiate starting values
             _currentTool = _initialTool;
@@ -897,7 +899,9 @@ namespace RobotComponents.ABB.Kinematics
                     }
                     else
                     {
-                        _errorText.Add("The first movement is not set as an absolute joint movement.");
+                        // Non-critical: does not affect the calculated path itself, so it's a
+                        // remark rather than an error -- matches RAPIDGenerator's equivalent check.
+                        _remarksText.Add("The first movement is not set as an absolute joint movement.");
                         return false;
                     }
                 }
@@ -1156,6 +1160,14 @@ namespace RobotComponents.ABB.Kinematics
         public List<string> ErrorText
         {
             get { return _errorText; }
+        }
+
+        /// <summary>
+        /// Gets the collected remarks messages.
+        /// </summary>
+        public List<string> RemarksText
+        {
+            get { return _remarksText; }
         }
 
         /// <summary>

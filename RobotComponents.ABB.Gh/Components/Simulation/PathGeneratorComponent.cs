@@ -223,6 +223,16 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
                 }
             }
 
+            // Show remarks (e.g. the first movement not being an absolute joint movement) as a
+            // hint rather than a warning, matching RAPIDGeneratorComponent.
+            if (_pathGenerators[DA.Iteration].RemarksText.Count != 0)
+            {
+                for (int i = 0; i < _pathGenerators[DA.Iteration].RemarksText.Count; i++)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, _pathGenerators[DA.Iteration].RemarksText[i]);
+                }
+            }
+
             // Add to list with FK
             _forwardKinematics.Add(forwardKinematics);
 
