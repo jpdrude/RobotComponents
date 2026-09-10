@@ -48,6 +48,15 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         // fixing this to survive one fixes it for the other too, and there's no separate
         // guid-remapping case to reason about at all.
         private readonly List<string> _lastAutoNames = new List<string>();
+
+        // Same idea as _lastAutoNames above, but for the OUTPUT side of each pair: the Name we
+        // ourselves last mirrored onto output i from its matching input. As long as the output's
+        // current Name still matches this, it's still ours to keep mirroring; the moment a user
+        // renames an output directly, it falls out of sync here and -- exactly like a custom
+        // input rename -- is left alone forever after. Without this, EnsureConsistentState()
+        // used to force output.Name = input.Name unconditionally on every solve, with no way for
+        // a user-set output name to ever survive past the next solve.
+        private readonly List<string> _lastMirroredOutputNames = new List<string>();
         #endregion
 
         /// <summary>
@@ -62,24 +71,26 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         {
             Message = "+/-";
 
-            // Mirror an input's rename onto its matching output the moment the rename is
-            // committed, rather than waiting for the next unrelated solve. Params.
-            // ParameterNickNameChanged fires only once a rename is actually accepted (interactive
-            // edit committed, or undo/redo of one) -- confirmed via IL decompilation of
-            // GH_ComponentParamServer.LocalParameterChanged, which is what raises it, gated on
+            // React to a rename on EITHER side the moment it's committed, rather than waiting for
+            // the next unrelated solve: an input rename should mirror onto its output right away,
+            // and an output rename should immediately freeze that output out of further mirroring
+            // (see _lastMirroredOutputNames) instead of only taking effect retroactively next
+            // solve. Params.ParameterNickNameChanged fires only once a rename is actually accepted
+            // (interactive edit committed, or undo/redo of one) -- confirmed via IL decompilation
+            // of GH_ComponentParamServer.LocalParameterChanged, which is what raises it, gated on
             // GH_ObjectEventType.NickNameAccepted -- never merely from code assigning .NickName,
             // so this can't re-fire itself from EnsureConsistentState()'s own renaming below.
             Params.ParameterNickNameChanged += OnParameterNickNameChanged;
         }
 
         /// <summary>
-        /// Fires once a parameter rename on this component is accepted. Immediately re-syncs and
-        /// expires so a renamed input's matching output picks up the new name right away.
+        /// Fires once a parameter rename on this component (either side) is accepted. Immediately
+        /// re-syncs and expires so the result -- a renamed input's matching output picking up the
+        /// new name, or a renamed output freezing out of further mirroring -- takes effect right
+        /// away instead of waiting for the next unrelated solve.
         /// </summary>
         private void OnParameterNickNameChanged(object sender, GH_ParamServerEventArgs e)
         {
-            if (e.ParameterSide != GH_ParameterSide.Input) { return; }
-
             EnsureConsistentState();
             ExpireSolution(true);
         }
@@ -103,8 +114,9 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            // Mirrors the seeded input above; further pairs are kept in sync from
-            // EnsureConsistentState(). Named directly here for the same reason as the input.
+            // Mirrors the seeded input above; further pairs are added/removed in lockstep by
+            // CreateParameter/DestroyParameter below. Named directly here for the same reason as
+            // the input.
             Param_GenericObject output = CreateRelayParam();
             output.Name = "Input 1";
             output.NickName = "Input 1";
@@ -133,22 +145,26 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
         #region variable parameters
         /// <summary>
-        /// Keeps the output list mirroring the input list 1:1 (same count, same order), auto-names
-        /// any input that still has its original/auto-assigned name once something gets wired into
-        /// it, and mirrors each input's current Name/NickName onto its matching output. Also leaves
-        /// an already-named input's name alone the first time it's seen -- whether that name arrived
-        /// via GH's own Read() (a plain file reload or a copy/paste/duplicate: both go through the
-        /// identical IGH_DocumentObject.Write/Read mechanism) racing ahead of our own bookkeeping
-        /// list catching up, or any other way a param could show up already named but untracked.
-        /// Tracking is by position in Params.Input, not by InstanceGuid: a guid isn't stable across
-        /// copy/paste/duplicate (a pasted param gets a fresh one), which was the root cause of two
-        /// earlier, guid-keyed attempts at this each failing a different way. Called by GH after
-        /// every input add/remove via the +/- zui, after an input rename is accepted, and
-        /// defensively again at the start of every solve.
+        /// Auto-names any input that still has its original/auto-assigned name once something
+        /// gets wired into it, and mirrors each input's current Name/NickName onto its matching
+        /// output -- but only for as long as neither side has been custom-renamed by the user.
+        /// Also leaves an already-named input's name alone the first time it's seen -- whether
+        /// that name arrived via GH's own Read() (a plain file reload or a copy/paste/duplicate:
+        /// both go through the identical IGH_DocumentObject.Write/Read mechanism) racing ahead of
+        /// our own bookkeeping list catching up, or any other way a param could show up already
+        /// named but untracked. Tracking is by position in Params.Input/Params.Output, not by
+        /// InstanceGuid: a guid isn't stable across copy/paste/duplicate (a pasted param gets a
+        /// fresh one), which was the root cause of two earlier, guid-keyed attempts at this each
+        /// failing a different way. Called by GH after every input add/remove via the +/- zui,
+        /// after a rename on either side is accepted, and defensively again at the start of every
+        /// solve. Adding/removing the output list itself to match an input add/remove is NOT done
+        /// here -- CreateParameter/DestroyParameter below already do that precisely, at the exact
+        /// index of the change; see EnsureOutputCountFallback() for why a count-only fallback
+        /// still exists here too.
         /// </summary>
         private void EnsureConsistentState()
         {
-            SyncOutputCount();
+            EnsureOutputCountFallback();
 
             // Fallback only: CreateParameter/DestroyParameter above already insert/remove at the
             // exact index GH gives them, so by the time this runs after an ordinary zui add/remove
@@ -167,6 +183,18 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
             while (_lastAutoNames.Count < Params.Input.Count)
             {
                 _lastAutoNames.Add(null);
+            }
+
+            // Same fallback reasoning as _lastAutoNames above, mirrored for the output-side
+            // tracking list.
+            while (_lastMirroredOutputNames.Count > Params.Output.Count)
+            {
+                _lastMirroredOutputNames.RemoveAt(_lastMirroredOutputNames.Count - 1);
+            }
+
+            while (_lastMirroredOutputNames.Count < Params.Output.Count)
+            {
+                _lastMirroredOutputNames.Add(null);
             }
 
             for (int i = 0; i < Params.Input.Count; i++)
@@ -240,14 +268,26 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                     }
                 }
 
-                // Mirror onto the matching output regardless of where the name came from.
+                // Mirror onto the matching output -- but only while the output itself hasn't
+                // been custom-renamed by the user. _lastMirroredOutputNames[i] is the Name we
+                // ourselves last wrote to output i; a null entry means this slot has never been
+                // mirrored yet (a genuinely fresh pair), which is just as safe to mirror as a
+                // match. The moment output.Name diverges from that, it's a custom rename -- stop
+                // touching this output's Name/NickName for good, the same one-way freeze already
+                // used for a custom input rename above.
                 IGH_Param output = Params.Output[i];
+                string lastMirrored = _lastMirroredOutputNames[i];
 
-                if (output.Name != input.Name || output.NickName != input.NickName)
+                if (lastMirrored == null || output.Name == lastMirrored)
                 {
-                    output.Name = input.Name;
-                    output.NickName = input.NickName;
-                    output.Attributes?.ExpireLayout();
+                    if (output.Name != input.Name || output.NickName != input.NickName)
+                    {
+                        output.Name = input.Name;
+                        output.NickName = input.NickName;
+                        output.Attributes?.ExpireLayout();
+                    }
+
+                    _lastMirroredOutputNames[i] = input.Name;
                 }
             }
 
@@ -255,9 +295,20 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         }
 
         /// <summary>
-        /// Adds or removes outputs so their count matches the inputs, one-for-one, same order.
+        /// Last-resort safety net only: pads/trims Params.Output at the *end* so its count matches
+        /// Params.Input, with no attempt at positional correctness. Under normal operation this
+        /// never has anything to do -- CreateParameter/DestroyParameter already add/remove the
+        /// matching output at the exact index of the input change (see below), which is the whole
+        /// fix for the "wires get disconnected on add/remove" bug this method used to cause: a
+        /// mid-list input removal used to leave the count-only version of this method blindly
+        /// deleting whatever output happened to be *last*, destroying that output's wire
+        /// connections while the output that actually corresponded to the removed input survived
+        /// untouched -- permanently misaligned with every input after it. What's left for this
+        /// fallback to catch is Params.Output ever arriving out of step some other way this
+        /// component can't positionally reason about at all (e.g. an externally corrupted
+        /// archive) -- an extremely defensive last resort, not a claim of correctness.
         /// </summary>
-        private void SyncOutputCount()
+        private void EnsureOutputCountFallback()
         {
             while (Params.Output.Count < Params.Input.Count)
             {
@@ -326,8 +377,7 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
 
         IGH_Param IGH_VariableParameterComponent.CreateParameter(GH_ParameterSide side, int index)
         {
-            // Only ever invoked for side == Input, per CanInsertParameter above; the matching
-            // output is created separately by SyncOutputCount() from VariableParameterMaintenance().
+            // Only ever invoked for side == Input, per CanInsertParameter above.
             //
             // GH splices the returned param into Params.Input at exactly this index right after
             // this call returns -- and index is NOT always Params.Input.Count: dropping a wire on
@@ -347,13 +397,29 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                 _lastAutoNames.Insert(index, null);
             }
 
+            // Create and insert the matching OUTPUT at this exact same index, right now -- rather
+            // than leaving it to EnsureOutputCountFallback(), which only ever appends at the
+            // *end* and has no idea which input index actually changed. Left to the fallback, a
+            // mid-list insert landed the new output at the end of Params.Output instead of
+            // alongside its actual input, silently shifting every later output's data by one
+            // position from that point on (each wire stayed attached to the same, now-misaligned
+            // param object, so nothing looked disconnected on canvas -- the data flowing through
+            // it was simply for the wrong input). Params.Output.Count still equals the
+            // pre-insert Params.Input.Count here (GH hasn't spliced the new input in yet), which
+            // is exactly the valid range for `index`, so no clamping is needed.
+            Params.RegisterOutputParam(CreateRelayParam(), index);
+
+            if (index >= 0 && index <= _lastMirroredOutputNames.Count)
+            {
+                _lastMirroredOutputNames.Insert(index, null);
+            }
+
             return CreateInputParam();
         }
 
         bool IGH_VariableParameterComponent.DestroyParameter(GH_ParameterSide side, int index)
         {
-            // Only ever invoked for side == Input, per CanRemoveParameter above; the matching
-            // output is destroyed separately by SyncOutputCount() from VariableParameterMaintenance().
+            // Only ever invoked for side == Input, per CanRemoveParameter above.
             //
             // Mirrors CreateParameter above: CanRemoveParameter permits removing any input, not
             // just the last one (e.g. via right-click "Remove parameter"), so remove tracking for
@@ -363,6 +429,24 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
             if (index >= 0 && index < _lastAutoNames.Count)
             {
                 _lastAutoNames.RemoveAt(index);
+            }
+
+            // Destroy the matching OUTPUT at this exact same index, right now -- see
+            // CreateParameter above for why. Left to EnsureOutputCountFallback() instead, a
+            // mid-list removal deleted whatever output happened to be *last* (destroying that
+            // output's wire connections in the process), while the output that actually
+            // corresponded to the removed input survived untouched -- permanently misaligned
+            // with every input after it. Params.Output.Count still equals the pre-removal
+            // Params.Input.Count here (GH removes the input itself separately), so `index` is
+            // valid for Params.Output too by the same invariant as CreateParameter above.
+            if (index >= 0 && index < Params.Output.Count)
+            {
+                Params.UnregisterOutputParameter(Params.Output[index], true);
+            }
+
+            if (index >= 0 && index < _lastMirroredOutputNames.Count)
+            {
+                _lastMirroredOutputNames.RemoveAt(index);
             }
 
             return true;
@@ -394,6 +478,18 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                 string value = _lastAutoNames[i];
                 writer.SetBoolean("AutoNameIsNull", i, value == null);
                 writer.SetString("AutoNameValue", i, value ?? string.Empty);
+            }
+
+            // Same shape, for the output-side mirroring tracking. Must be persisted too: without
+            // this, a custom output rename's protection would be forgotten on every reload, and
+            // the very next solve would mirror the input's name straight back over it.
+            writer.SetInt32("MirrorNameCount", _lastMirroredOutputNames.Count);
+
+            for (int i = 0; i < _lastMirroredOutputNames.Count; i++)
+            {
+                string value = _lastMirroredOutputNames[i];
+                writer.SetBoolean("MirrorNameIsNull", i, value == null);
+                writer.SetString("MirrorNameValue", i, value ?? string.Empty);
             }
 
             return base.Write(writer);
@@ -437,11 +533,40 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                 }
             }
 
+            _lastMirroredOutputNames.Clear();
+
+            if (reader.ItemExists("MirrorNameCount"))
+            {
+                int count = reader.GetInt32("MirrorNameCount");
+
+                for (int i = 0; i < count; i++)
+                {
+                    if (reader.ItemExists("MirrorNameIsNull", i))
+                    {
+                        bool isNull = reader.GetBoolean("MirrorNameIsNull", i);
+                        _lastMirroredOutputNames.Add(isNull ? null : reader.GetString("MirrorNameValue", i));
+                    }
+                    else
+                    {
+                        _lastMirroredOutputNames.Add(null);
+                    }
+                }
+            }
+
+            // A file saved before this output-mirroring protection existed has no "MirrorNameCount"
+            // at all, so the list above stays empty here; EnsureConsistentState()'s fallback grow
+            // loop then pads it with null for every output. A null entry means "never mirrored yet",
+            // which is treated as safe to mirror -- correct for these old files, since the old
+            // Write()-time code always force-mirrored output.Name = input.Name on every solve
+            // before a save could ever happen, so no old archive could contain a genuinely-diverged
+            // (and therefore worth protecting) output name to begin with.
+            //
             // base.Read() restores Params (input/output params, including each one's own Name/
             // NickName/WireDisplay/...) before returning. EnsureConsistentState() -- called from
             // VariableParameterMaintenance() right after this, per GH's own documented IO sequence
-            // -- then reconciles _lastAutoNames' length against the just-restored Params.Input.Count
-            // (they should already match here, since both were saved together, but doesn't assume it).
+            // -- then reconciles both tracking lists' lengths against the just-restored Params
+            // counts (they should already match here, since both were saved together, but doesn't
+            // assume it).
             return base.Read(reader);
         }
         #endregion
