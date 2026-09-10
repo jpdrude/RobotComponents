@@ -150,12 +150,15 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         {
             SyncOutputCount();
 
-            // Keep the tracking list index-aligned with Params.Input. Shrinking only ever happens
-            // right after an input removal (zui '-' always removes the last input), so trimming
-            // from the end here stays aligned with what SyncOutputCount just did to Params.Output.
-            // Growing covers both a zui '+' (new slot, no name assigned yet) and this component's
-            // own tracking list not having caught up yet with a param count that arrived some other
-            // way (notably: right after Read(), before this list has been resized to match).
+            // Fallback only: CreateParameter/DestroyParameter above already insert/remove at the
+            // exact index GH gives them, so by the time this runs after an ordinary zui add/remove
+            // or mid-list insert, the counts here already match and neither loop below does
+            // anything. What's left for these to catch is a count arriving out of step some other
+            // way it can't be positionally reasoned about -- notably right after Read(), before
+            // this list has necessarily settled to match Params.Input.Count (e.g. the legacy-format
+            // fallback in Read() below, which can leave _lastAutoNames shorter than Params.Input
+            // with no positional information to recover at all). Trimming/padding at the end is the
+            // best available default for that case, not a claim that it's positionally correct.
             while (_lastAutoNames.Count > Params.Input.Count)
             {
                 _lastAutoNames.RemoveAt(_lastAutoNames.Count - 1);
@@ -325,6 +328,25 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         {
             // Only ever invoked for side == Input, per CanInsertParameter above; the matching
             // output is created separately by SyncOutputCount() from VariableParameterMaintenance().
+            //
+            // GH splices the returned param into Params.Input at exactly this index right after
+            // this call returns -- and index is NOT always Params.Input.Count: dropping a wire on
+            // the joint between two existing inputs (or the canvas's own "Insert parameter"
+            // context menu) inserts in the middle, shifting every later input up by one. Insert
+            // a matching "not yet assigned" slot into _lastAutoNames at that same index now, so
+            // it lines back up with Params.Input immediately -- rather than leaving it to
+            // EnsureConsistentState()'s grow loop below, which only ever appends at the *end* and
+            // so is only correct for a plain append. Left uncorrected here, a mid-list insert
+            // desynced this list from Params.Input by one slot from that point on: the new input
+            // inherited whatever tracked auto-name used to belong to the input now one slot further
+            // along, and that shifted input in turn got treated as freshly untracked -- which is
+            // exactly the "inserted pair, and an old pair's identity moved back onto the new one"
+            // bug reported after this fix went in without it.
+            if (index >= 0 && index <= _lastAutoNames.Count)
+            {
+                _lastAutoNames.Insert(index, null);
+            }
+
             return CreateInputParam();
         }
 
@@ -332,6 +354,17 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         {
             // Only ever invoked for side == Input, per CanRemoveParameter above; the matching
             // output is destroyed separately by SyncOutputCount() from VariableParameterMaintenance().
+            //
+            // Mirrors CreateParameter above: CanRemoveParameter permits removing any input, not
+            // just the last one (e.g. via right-click "Remove parameter"), so remove tracking for
+            // exactly the slot being destroyed here rather than relying on EnsureConsistentState()'s
+            // shrink loop, which only ever trims from the *end* and so is only correct when the
+            // removed input happens to be the last one.
+            if (index >= 0 && index < _lastAutoNames.Count)
+            {
+                _lastAutoNames.RemoveAt(index);
+            }
+
             return true;
         }
 
