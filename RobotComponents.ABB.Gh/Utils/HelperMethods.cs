@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -35,6 +35,23 @@ namespace RobotComponents.ABB.Gh.Utils
     internal static class HelperMethods
     {
         #region fields
+        /// <summary>
+        /// The RAPID comparison operator symbols, in the exact order of the ComparisonOperator
+        /// enum's underlying values (LT=0, GT=1, LE=2, GE=3, EQ=4, NE=5) -- the single source of
+        /// truth for any value list that lets a user pick one, so a dropped-down "Comparison
+        /// Operators" value list always shows the actual RAPID symbols (&lt;, &gt;, ...) rather
+        /// than the enum's C# member names (LT, GT, ...).
+        /// </summary>
+        /// <remarks>
+        /// A literal '=' can't be used as a GH value list item's display name -- GH_ValueListItem
+        /// stores each item as a "name=expression" string pair, so a literal '=' inside the name
+        /// half corrupts that parsing. EQ uses the visually identical fullwidth equals sign
+        /// (U+FF1D, "＝") instead, display-only: the RAPID code actually generated for EQ is still
+        /// the plain ASCII "=" (see ComparerExpressionComponent.OperatorToRAPID), since RAPID has
+        /// no notion of the fullwidth character.
+        /// </remarks>
+        public static readonly List<string> ComparisonOperatorSymbols =
+            new List<string>() { "<", ">", "<=", ">=", "\uFF1D", "<>" };
         #endregion
 
         #region methods
@@ -460,7 +477,7 @@ namespace RobotComponents.ABB.Gh.Utils
         }
 
         /// <summary>
-        /// Creates a Grasshopper value list from a dictionary and places it on the given location on the canvas. 
+        /// Creates a Grasshopper value list from a dictionary and places it on the given location on the canvas.
         /// Returns true if it's created.
         /// </summary>
         /// <param name="data"> Data to populate the valuelist with. </param>
@@ -469,6 +486,18 @@ namespace RobotComponents.ABB.Gh.Utils
         public static bool CreateValueList(Dictionary<string, double> data, PointF location)
         {
             return CreateValueList(CreateValueList(data), location);
+        }
+
+        /// <summary>
+        /// Creates a Grasshopper value list from a list with strings and places it on the given
+        /// location on the canvas. Returns true if it's created.
+        /// </summary>
+        /// <param name="names"> List with strings. </param>
+        /// <param name="location"> Location on the canvas. </param>
+        /// <returns> True, if created. </returns>
+        public static bool CreateValueList(List<string> names, PointF location)
+        {
+            return CreateValueList(CreateValueList(names), location);
         }
         #endregion
 

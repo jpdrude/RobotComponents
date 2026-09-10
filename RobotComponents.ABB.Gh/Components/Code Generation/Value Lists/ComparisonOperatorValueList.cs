@@ -17,7 +17,6 @@ using System.Drawing;
 using Grasshopper;
 using Grasshopper.Kernel;
 // RobotComponents Libs
-using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration.ValueLists
@@ -63,7 +62,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration.ValueLists
             if (_created == false)
             {
                 PointF location = new PointF(this.Attributes.Pivot.X, this.Attributes.Pivot.Y);
-                _created = HelperMethods.CreateValueList(typeof(ComparisonOperator), location);
+                _created = HelperMethods.CreateValueList(HelperMethods.ComparisonOperatorSymbols, location);
             }
 
             Instances.ActiveCanvas.Document.RemoveObject(this, true);
