@@ -82,7 +82,23 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference to every optional output this instance can
+            // ever show, without risking overwriting a name customized after one is shown, and
+            // why the snapshot below must be taken before that loop runs.
+            _optionalParameterDefaults = _variableOutputParameters.Skip(1).Select(p => (p.Name, p.NickName)).ToList();
+
+            for (int i = 0; i < _variableOutputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableOutputParameters[i]);
+            }
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults
+            => _optionalParameterDefaults;
+        private readonly IReadOnlyList<(string Name, string NickName)> _optionalParameterDefaults;
 
         /// <summary>
         /// Stores the variable output parameters in an array.
@@ -219,6 +235,16 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
                 {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, _pathGenerators[DA.Iteration].ErrorText[i]);
                     if (i == 30) { break; }
+                }
+            }
+
+            // Show remarks (e.g. the first movement not being an absolute joint movement) as a
+            // hint rather than a warning, matching RAPIDGeneratorComponent.
+            if (_pathGenerators[DA.Iteration].RemarksText.Count != 0)
+            {
+                for (int i = 0; i < _pathGenerators[DA.Iteration].RemarksText.Count; i++)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, _pathGenerators[DA.Iteration].RemarksText[i]);
                 }
             }
 

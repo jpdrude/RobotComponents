@@ -50,7 +50,26 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference -- but only to the truly optional slots
+            // (indices 2-5, "C".."F"). Indices 0/1 ("A"/"B") are never registered as-is; their
+            // Name/NickName are only read as templates for a fresh pManager-created param in
+            // RegisterInputParams, which already goes through the normal, already-covered path.
+            // The snapshot below (same indices) must be taken before the loop runs.
+            _optionalParameterDefaults = externalAxisParameters.Skip(2)
+                .Select(p => (p.Name, p.NickName)).ToList();
+
+            for (int i = 2; i < externalAxisParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(externalAxisParameters[i]);
+            }
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults
+            => _optionalParameterDefaults;
+        private readonly IReadOnlyList<(string Name, string NickName)> _optionalParameterDefaults;
 
         /// <summary>
         /// Stores the variable input parameters in an array.

@@ -58,6 +58,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
         }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Only Return Type/Return Value are listed -- the "Argument N" inputs are an unbounded,
+        /// parameterized series (see VariableParameterMaintenance below), not a fixed set of
+        /// defaults, so there's no finite list to give here for them.
+        /// </remarks>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
+        {
+            (ReturnTypeParamName, "RT"),
+            (ReturnValueOutputName, "RV"),
+        };
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
@@ -152,6 +164,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 Params.Input[i].Name = $"Argument {i - floor + 1}";
                 Params.Input[i].NickName = $"Arg{i - floor + 1}";
+                HelperMethods.ApplyFullNamesPreference(Params.Input[i]);
             }
         }
 
@@ -215,14 +228,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     IGH_Param existingReturnType = Params.Input.FirstOrDefault(p => p.Name == ReturnTypeParamName);
                     if (capturedIsFunc && existingReturnType == null)
                     {
-                        Params.RegisterInputParam(new Param_String()
+                        Param_String returnTypeParam = new Param_String()
                         {
                             Name = ReturnTypeParamName,
                             NickName = "RT",
                             Description = "Return type of the function. E.g. num, bool, etc.",
                             Access = GH_ParamAccess.item,
                             Optional = true
-                        }, staticInputCount);
+                        };
+
+                        HelperMethods.ApplyFullNamesPreference(returnTypeParam);
+                        Params.RegisterInputParam(returnTypeParam, staticInputCount);
                     }
                     else if (!capturedIsFunc && existingReturnType != null)
                     {
@@ -233,13 +249,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     IGH_Param existingReturnValue = Params.Output.FirstOrDefault(p => p.Name == ReturnValueOutputName);
                     if (capturedIsFunc && existingReturnValue == null)
                     {
-                        Params.RegisterOutputParam(new Param_RAPIDExpression()
+                        Param_RAPIDExpression returnValueParam = new Param_RAPIDExpression()
                         {
                             Name = ReturnValueOutputName,
                             NickName = "RV",
                             Description = "The FUNC call as a RAPID expression, usable as a value in other instructions.",
                             Access = GH_ParamAccess.item
-                        });
+                        };
+
+                        HelperMethods.ApplyFullNamesPreference(returnValueParam);
+                        Params.RegisterOutputParam(returnValueParam);
                     }
                     else if (!capturedIsFunc && existingReturnValue != null)
                     {

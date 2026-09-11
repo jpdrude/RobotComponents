@@ -59,6 +59,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Message = "EXTENDABLE";
         }
 
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
+        {
+            (_scalarValueName, "Val"),
+            (_arrayValuesName, "Val"),
+            (_indexParamName, "I"),
+        };
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
@@ -283,7 +291,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private static Param_GenericObject CreateScalarValueParam()
         {
-            return new Param_GenericObject
+            Param_GenericObject param = new Param_GenericObject
             {
                 Name        = _scalarValueName,
                 NickName    = "Val",
@@ -292,6 +300,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                               "which is resolved to its declared name, or its inline RAPID value if it has no name.",
                 Access      = GH_ParamAccess.item
             };
+
+            HelperMethods.ApplyFullNamesPreference(param);
+            return param;
         }
 
         /// <summary>
@@ -300,7 +311,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private static Param_GenericObject CreateArrayValuesParam()
         {
-            return new Param_GenericObject
+            Param_GenericObject param = new Param_GenericObject
             {
                 Name        = _arrayValuesName,
                 NickName    = "Val",
@@ -309,6 +320,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                               "scalar Value input. Output: variableName := [v1, v2, ...];",
                 Access      = GH_ParamAccess.list
             };
+
+            HelperMethods.ApplyFullNamesPreference(param);
+            return param;
         }
 
         /// <summary>
@@ -329,7 +343,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             if (_arrayIndexInputParam)
             {
-                Params.RegisterInputParam(new Param_GenericObject
+                Param_GenericObject indexParam = new Param_GenericObject
                 {
                     Name        = _indexParamName,
                     NickName    = "I",
@@ -337,7 +351,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                                   "Accepts an integer literal or a RAPID Variable whose name is used as the index expression. " +
                                   "Output: variableName{index} := value;",
                     Access      = GH_ParamAccess.item
-                });
+                };
+
+                HelperMethods.ApplyFullNamesPreference(indexParam);
+                Params.RegisterInputParam(indexParam);
             }
             else
             {

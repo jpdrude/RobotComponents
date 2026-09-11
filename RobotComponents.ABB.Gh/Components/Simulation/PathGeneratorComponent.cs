@@ -81,7 +81,33 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // _variableOutputParameters (field initializer, already populated by this point) holds
+            // every optional output this component can ever show, constructed fresh right here for
+            // this instance -- exactly the "nothing to protect yet" moment ApplyFullNamesPreference
+            // is meant for. Only index 0 ("Path") goes through RegisterOutputParams normally and so
+            // is already covered by GH's own Draw Full Names conversion; the rest (1-14) are added
+            // later via the right-click menu, at which point they're just re-registered as-is (see
+            // AddOutputParameter) with no further Name/NickName changes -- so this is also the only
+            // safe point to apply the preference without risking overwriting a name the user
+            // customized after showing one of them.
+            //
+            // Snapshot the true, unmutated defaults into _optionalParameterDefaults BEFORE that
+            // loop runs -- OptionalParameterDefaults must always report the real original short
+            // nicknames for RobotComponentsPriority's retroactive sweep to compare against, never
+            // whatever the loop below may have already expanded them to.
+            _optionalParameterDefaults = _variableOutputParameters.Skip(1).Select(p => (p.Name, p.NickName)).ToList();
+
+            for (int i = 0; i < _variableOutputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableOutputParameters[i]);
+            }
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults
+            => _optionalParameterDefaults;
+        private readonly IReadOnlyList<(string Name, string NickName)> _optionalParameterDefaults;
 
         /// <summary>
         /// Stores the variable output parameters in an array.
@@ -220,6 +246,16 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
                 {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, _pathGenerators[DA.Iteration].ErrorText[i]);
                     if (i == 30) { break; }
+                }
+            }
+
+            // Show remarks (e.g. the first movement not being an absolute joint movement) as a
+            // hint rather than a warning, matching RAPIDGeneratorComponent.
+            if (_pathGenerators[DA.Iteration].RemarksText.Count != 0)
+            {
+                for (int i = 0; i < _pathGenerators[DA.Iteration].RemarksText.Count; i++)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, _pathGenerators[DA.Iteration].RemarksText[i]);
                 }
             }
 

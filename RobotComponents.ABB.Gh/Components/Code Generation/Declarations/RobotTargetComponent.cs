@@ -59,7 +59,23 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference to every optional input this instance can
+            // ever show, without risking overwriting a name customized after one is shown, and
+            // why the snapshot below must be taken before that loop runs.
+            _optionalParameterDefaults = _variableInputParameters.Select(p => (p.Name, p.NickName)).ToList();
+
+            for (int i = 0; i < _variableInputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableInputParameters[i]);
+            }
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults
+            => _optionalParameterDefaults;
+        private readonly IReadOnlyList<(string Name, string NickName)> _optionalParameterDefaults;
 
         /// <summary>
         /// Stores the variable input parameters in an array.

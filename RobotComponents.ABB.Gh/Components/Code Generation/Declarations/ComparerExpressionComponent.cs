@@ -81,7 +81,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (this.Params.Input[1].SourceCount == 0)
             {
                 _expire = true;
-                HelperMethods.CreateValueList(this, new List<string>() { "<", ">", "<=", ">=", "\uFF1D", "<>" }, 1);
+                HelperMethods.CreateValueList(this, HelperMethods.ComparisonOperatorSymbols, 1);
             }
 
             if (_expire)

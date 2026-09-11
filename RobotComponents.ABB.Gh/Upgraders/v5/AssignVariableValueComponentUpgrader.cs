@@ -17,6 +17,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 // RobotComponents
 using RobotComponents.ABB.Gh.Components.CodeGeneration;
+using RobotComponents.ABB.Gh.Utils;
 
 namespace RobotComponents.ABB.Gh.Upgraders
 {
@@ -73,6 +74,7 @@ namespace RobotComponents.ABB.Gh.Upgraders
 
             if (!GH_UpgradeUtil.SwapComponents(oldComponent, newComponent, false)) { return null; }
             UpgradeHelpers.MigrateGroupMembership(oldComponent, newComponent, document);
+            HelperMethods.ApplyFullNamesPreference(newComponent);
             return newComponent;
         }
     }

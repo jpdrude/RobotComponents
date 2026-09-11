@@ -14,6 +14,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 // Rhino Libs
@@ -62,7 +63,27 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference to every optional input this instance can
+            // ever show, without risking overwriting a name customized after one is shown, and
+            // why the snapshot below must be taken before that loop runs. Indices 1 (Target), 2
+            // (Speed Data) and 4 (Zone Data) are excluded: RegisterInputParams below registers
+            // those three itself (via AddParameter), so they're already part of the component's
+            // normal default shape and already covered by GH's own Draw Full Names conversion.
+            _optionalParameterDefaults = new[] { 0, 3, 5, 6, 7 }
+                .Select(i => (_variableInputParameters[i].Name, _variableInputParameters[i].NickName)).ToList();
+
+            for (int i = 0; i < _variableInputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableInputParameters[i]);
+            }
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults
+            => _optionalParameterDefaults;
+        private readonly IReadOnlyList<(string Name, string NickName)> _optionalParameterDefaults;
 
         /// <summary>
         /// Stores the variable input parameters in an array.
