@@ -33,6 +33,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
         private Controller _controller = new Controller();
         private bool _fromMenu = true;
         private string _taskName = "-";
+        private bool _allTasks = false;
         private string _status = "-";
         private bool _succeeded = true;
         #endregion
@@ -95,7 +96,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             {
                 _fromMenu = false;
                 _succeeded = GetTaskName();
-                this.Message = _taskName;
+                this.Message = _allTasks ? $"{_taskName} (System: All)" : _taskName;
                 this.ExpirePreview(true);
             }
 
@@ -110,7 +111,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
                 }
                 else
                 {
-                    _succeeded = _controller.UploadModule(_taskName, module, out _status, out warnings);
+                    _succeeded = _controller.UploadModule(_taskName, module, out _status, out warnings, _allTasks);
                 }
             }
 
@@ -201,6 +202,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
         {
             writer.SetString("Task Name", _taskName);
             writer.SetBoolean("From Menu", _fromMenu);
+            writer.SetBoolean("All Tasks", _allTasks);
             return base.Write(writer);
         }
 
@@ -214,7 +216,13 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             _taskName = reader.GetString("Task Name");
             _fromMenu = reader.GetBoolean("From Menu");
 
-            this.Message = _taskName;
+            // Missing on a file saved before the "Upload to all tasks" option existed -- defaults
+            // to false (a single task), the new default behavior, rather than trying to preserve
+            // the old, unconditional "system modules always go to every task" behavior those
+            // files relied on only because there was no alternative at the time.
+            _allTasks = reader.ItemExists("All Tasks") && reader.GetBoolean("All Tasks");
+
+            this.Message = _allTasks ? $"{_taskName} (System: All)" : _taskName;
             this.ExpirePreview(true);
 
             return base.Read(reader);
@@ -244,18 +252,20 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             {
                 _status = "Task picked from the controller.";
                 _taskName = _controller.TaskNames[0];
+                _allTasks = false;
                 return true;
             }
 
             else if (_controller.TaskNames.Count > 1)
             {
-                PickTaskForm form = new PickTaskForm(_controller);
+                PickTaskForm form = new PickTaskForm(_controller, allowAllTasksOption: true);
                 bool result = form.ShowModal(Grasshopper.Instances.EtoDocumentEditor);
 
                 if (result)
                 {
                     _status = "Task picked from the controller.";
                     _taskName = form.TaskName;
+                    _allTasks = form.AllTasksSelected;
                     return true;
                 }
                 else

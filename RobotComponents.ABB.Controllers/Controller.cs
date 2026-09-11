@@ -1059,10 +1059,16 @@ namespace RobotComponents.ABB.Controllers
         /// Non-fatal warnings about the upload. Populated when <paramref name="module"/> is a
         /// system module (see <see cref="UploadSystemModule"/>); otherwise empty.
         /// </param>
+        /// <param name="systemModuleToAllTasks">
+        /// Only relevant when <paramref name="module"/> is a system module: if true, loads it
+        /// onto every task on the controller instead of just <paramref name="taskName"/>. Ignored
+        /// for a regular (non-system) module, which always loads onto <paramref name="taskName"/>
+        /// only.
+        /// </param>
         /// <returns>
         /// True on success, false on failure.
         /// </returns>
-        public bool UploadModule(string taskName, List<string> module, out string status, out List<string> warnings)
+        public bool UploadModule(string taskName, List<string> module, out string status, out List<string> warnings, bool systemModuleToAllTasks = false)
         {
             status = "Started the upload of the RAPID module.";
             Log(status);
@@ -1109,10 +1115,12 @@ namespace RobotComponents.ABB.Controllers
             if (module[0].Contains("SYSMODULE"))
             {
                 status = "Module is System Module. Passing on to UploadSystem Module Method.";
-                // Load into the same single task that was already picked for this upload, not
-                // every task -- see UploadSystemModule's own remarks for why that used to be the
-                // only available behavior for a system module, unconditionally, and no longer is.
-                return UploadSystemModule(module, out status, out warnings, taskName);
+                // Load into the same single task that was already picked for this upload, unless
+                // the caller explicitly asked to load onto every task instead -- see
+                // UploadSystemModule's own remarks for why "every task, unconditionally" used to
+                // be the only available behavior for a system module, and no longer is.
+                string systemModuleTask = systemModuleToAllTasks ? null : taskName;
+                return UploadSystemModule(module, out status, out warnings, systemModuleTask);
             }
 
             if (!module[module.Count - 1].Equals("ENDMODULE"))
