@@ -1059,10 +1059,16 @@ namespace RobotComponents.ABB.Controllers
         /// Non-fatal warnings about the upload. Populated when <paramref name="module"/> is a
         /// system module (see <see cref="UploadSystemModule"/>); otherwise empty.
         /// </param>
+        /// <param name="systemModuleToAllTasks">
+        /// Only relevant when <paramref name="module"/> is a system module: if true, loads it
+        /// onto every task on the controller instead of just <paramref name="taskName"/>. Ignored
+        /// for a regular (non-system) module, which always loads onto <paramref name="taskName"/>
+        /// only.
+        /// </param>
         /// <returns>
         /// True on success, false on failure.
         /// </returns>
-        public bool UploadModule(string taskName, List<string> module, out string status, out List<string> warnings)
+        public bool UploadModule(string taskName, List<string> module, out string status, out List<string> warnings, bool systemModuleToAllTasks = false)
         {
             status = "Started the upload of the RAPID module.";
             Log(status);
@@ -1109,7 +1115,12 @@ namespace RobotComponents.ABB.Controllers
             if (module[0].Contains("SYSMODULE"))
             {
                 status = "Module is System Module. Passing on to UploadSystem Module Method.";
-                return UploadSystemModule(module, out status, out warnings);
+                // Load into the same single task that was already picked for this upload, unless
+                // the caller explicitly asked to load onto every task instead -- see
+                // UploadSystemModule's own remarks for why "every task, unconditionally" used to
+                // be the only available behavior for a system module, and no longer is.
+                string systemModuleTask = systemModuleToAllTasks ? null : taskName;
+                return UploadSystemModule(module, out status, out warnings, systemModuleTask);
             }
 
             if (!module[module.Count - 1].Equals("ENDMODULE"))
@@ -1291,10 +1302,16 @@ namespace RobotComponents.ABB.Controllers
         /// Empty if none of the branches are system modules.
         /// </param>
         /// <param name="loadToTask"> If true, the module will be loaded to the task after upload. </param>
+        /// <param name="systemModulesToAllTasks">
+        /// If true, any branch of <paramref name="modules"/> that is a system module is loaded
+        /// into every available task instead of just <paramref name="taskName"/> -- see
+        /// <see cref="UploadSystemModule"/>. Regular (non-system) branches always go to
+        /// <paramref name="taskName"/> only, regardless of this flag.
+        /// </param>
         /// <returns>
         /// True on success, false on failure.
         /// </returns>
-        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status, out List<string> warnings, bool loadToTask = false)
+        public bool UploadHelperModules(string taskName, DataTree<string> modules, out string status, out List<string> warnings, bool loadToTask = false, bool systemModulesToAllTasks = false)
         {
             List<string> remotefilePaths = new List<string>();
             warnings = new List<string>();
@@ -1387,12 +1404,15 @@ namespace RobotComponents.ABB.Controllers
                     return false;
                 }
 
-                // Redirect system modules to the appropriate handler
+                // Redirect system modules to the appropriate handler. Defaults to the same single
+                // task as every other branch here; systemModulesToAllTasks opts into the previous,
+                // only-available "every task" behavior instead.
                 if (module[0].Contains("SYSMODULE"))
                 {
                     status = $"Branch {path} is a system module. Passing on to UploadSystemModule.";
                     Log(status);
-                    if (!UploadSystemModule(module, out status, out List<string> branchWarnings))
+                    string systemModuleTask = systemModulesToAllTasks ? null : taskName;
+                    if (!UploadSystemModule(module, out status, out List<string> branchWarnings, systemModuleTask))
                     {
                         return false;
                     }
@@ -1547,15 +1567,24 @@ namespace RobotComponents.ABB.Controllers
         }
 
         /// <summary>
-        /// Uploads a system module to the controller and loads it into every available task,
-        /// the same way a regular module is loaded into a single task.
+        /// Uploads a system module to the controller and loads it into the given task -- or, if
+        /// <paramref name="taskName"/> is null or empty, into every available task -- the same
+        /// way a regular module is loaded into a single task.
         /// </summary>
         /// <remarks>
         /// Previously, system modules were uploaded to HOME:/Robot Components/System Modules and
         /// registered in the controller's SYS configuration domain for automatic AllTask-shared
         /// loading. That required a warm restart on every upload and has proven unreliable in
-        /// practice. This instead loads the module file directly into every task the same way
-        /// <see cref="UploadModule"/> loads a regular module into one task -- no restart needed.
+        /// practice. This instead loads the module file directly into the target task(s) the same
+        /// way <see cref="UploadModule"/> loads a regular module into one task -- no restart needed.
+        /// <para>
+        /// Uploading to every task (rather than a single one, like a regular module) used to be
+        /// the only available behavior for a system module, unconditionally. It's now opt-in via
+        /// <paramref name="taskName"/> being left null/empty -- the default is a single task, the
+        /// one given, matching a regular module and requiring the caller to explicitly ask for
+        /// every task instead (see the "Upload to all tasks" option on <see cref="Forms.PickTaskForm"/>,
+        /// surfaced through <see cref="UploadHelperModules"/>'s systemModulesToAllTasks parameter).
+        /// </para>
         /// <para>
         /// Because the module still carries the SYSMODULE attribute, PERS and CONST data declared
         /// before its first routine still resolve to a single instance shared across every task
@@ -1576,10 +1605,14 @@ namespace RobotComponents.ABB.Controllers
         /// with a keyword other than PERS or CONST, and will therefore not actually be shared
         /// between the tasks the module is loaded into. Empty if there are none.
         /// </param>
+        /// <param name="taskName">
+        /// The single task to load the module into. Null or empty loads it into every available
+        /// task instead.
+        /// </param>
         /// <returns>
         /// True if the module was loaded into at least one task, false on failure.
         /// </returns>
-        public bool UploadSystemModule(List<string> module, out string status, out List<string> warnings)
+        public bool UploadSystemModule(List<string> module, out string status, out List<string> warnings, string taskName = null)
         {
             status = "Started the upload of a system RAPID module.";
             Log(status);
@@ -1619,6 +1652,18 @@ namespace RobotComponents.ABB.Controllers
                 status = "Could not upload the module: No tasks found on the controller.";
                 Log(status);
                 return false;
+            }
+
+            RapidDomainNS.Task singleTargetTask = null;
+
+            if (!string.IsNullOrEmpty(taskName))
+            {
+                if (TryPickTask(taskName, out singleTargetTask) == false)
+                {
+                    status = "Could not pick the task from the controller: The task name is invalid.";
+                    Log(status);
+                    return false;
+                }
             }
 
             status = "Retreiving Module name from module content.";
@@ -1729,7 +1774,11 @@ namespace RobotComponents.ABB.Controllers
             }
             #endregion
 
-            #region load module into every available task
+            #region load module into the target task(s)
+            List<RapidDomainNS.Task> targetTasks = singleTargetTask == null
+                ? _tasks
+                : new List<RapidDomainNS.Task> { singleTargetTask };
+
             List<string> loadedTasks = new List<string>();
             List<string> skippedTasks = new List<string>();
             List<string> failedTasks = new List<string>();
@@ -1760,7 +1809,7 @@ namespace RobotComponents.ABB.Controllers
 
                 try
                 {
-                    foreach (RapidDomainNS.Task task in _tasks)
+                    foreach (RapidDomainNS.Task task in targetTasks)
                     {
                         if (task.ExecutionStatus == RapidDomainNS.TaskExecutionStatus.Running)
                         {
