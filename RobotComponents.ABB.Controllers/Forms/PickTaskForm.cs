@@ -45,10 +45,11 @@ namespace RobotComponents.ABB.Controllers.Forms
         /// </summary>
         /// <param name="controller"> The controller to pick a task from. </param>
         /// <param name="allowAllTasksOption">
-        /// If true, adds an "All Tasks" entry at the top of the task list. Picking it sets
-        /// <see cref="AllTasksSelected"/>; <see cref="TaskName"/> still returns the first real
-        /// task on the controller in that case, for callers that need a concrete single task
-        /// regardless (e.g. for validation, or anything that can only ever target one task).
+        /// If true, adds an "All Tasks" entry at the bottom of the task list, after every real
+        /// task. Picking it sets <see cref="AllTasksSelected"/>; <see cref="TaskName"/> still
+        /// returns the first real task on the controller in that case, for callers that need a
+        /// concrete single task regardless (e.g. for validation, or anything that can only ever
+        /// target one task).
         /// </param>
         public PickTaskForm(Controller controller, bool allowAllTasksOption = false)
         {
@@ -63,12 +64,11 @@ namespace RobotComponents.ABB.Controllers.Forms
             _taskNames = _controller.TasksABB.ConvertAll(item => item.Name);
             _allowAllTasksOption = allowAllTasksOption;
 
-            // The combo box shows "All Tasks" (if allowed) followed by every real task name;
-            // _boxItems is index-aligned with the combo box, _taskNames stays just the real names.
-            _boxItems = _allowAllTasksOption
-                ? new List<string>(_taskNames.Count + 1) { _allTasksItem }
-                : new List<string>(_taskNames.Count);
-            _boxItems.AddRange(_taskNames);
+            // The combo box shows every real task name followed by "All Tasks" (if allowed);
+            // _boxItems is index-aligned with the combo box, _taskNames stays just the real names,
+            // so a real task's index is identical in both lists.
+            _boxItems = new List<string>(_taskNames);
+            if (_allowAllTasksOption) { _boxItems.Add(_allTasksItem); }
 
             // Controls
             Button button = new Button() { Text = "OK" };
@@ -78,9 +78,9 @@ namespace RobotComponents.ABB.Controllers.Forms
             button.Click += ButtonClick;
             _box.SelectedIndexChanged += IndexChanged;
 
-            // Select index -- the first real task by default, not "All Tasks", even when it's
-            // available: opting into every task should take a deliberate pick, not be the default.
-            _box.SelectedIndex = _allowAllTasksOption ? 1 : 0;
+            // Select the first real task by default, not "All Tasks", even when it's available:
+            // opting into every task should take a deliberate pick, not be the default.
+            _box.SelectedIndex = 0;
 
             // Labels
             Label selectLabel = new Label() { Text = "Select a task", Font = new Font(SystemFont.Bold), Height = _height };
@@ -113,7 +113,7 @@ namespace RobotComponents.ABB.Controllers.Forms
         /// </summary>
         private bool IsAllTasksIndex(int index)
         {
-            return _allowAllTasksOption && index == 0;
+            return _allowAllTasksOption && index == _taskNames.Count;
         }
 
         private void IndexChanged(object sender, EventArgs e)
@@ -126,7 +126,7 @@ namespace RobotComponents.ABB.Controllers.Forms
                 return;
             }
 
-            int taskIndex = _allowAllTasksOption ? _box.SelectedIndex - 1 : _box.SelectedIndex;
+            int taskIndex = _box.SelectedIndex;
             _labelName.Text = _controller.TasksABB[taskIndex].Name;
             _labelType.Text = _controller.TasksABB[taskIndex].Type.ToString();
             _labelEnabled.Text = _controller.TasksABB[taskIndex].Enabled.ToString();
@@ -141,9 +141,8 @@ namespace RobotComponents.ABB.Controllers.Forms
             }
             else
             {
-                int taskIndex = _allowAllTasksOption ? _box.SelectedIndex - 1 : _box.SelectedIndex;
                 _allTasksSelected = false;
-                _taskName = _taskNames[taskIndex];
+                _taskName = _taskNames[_box.SelectedIndex];
             }
 
             Close(true);
