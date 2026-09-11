@@ -3,8 +3,582 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-04 13:46 
+ Generated on: 2026-09-11 11:55 
  --- 
+ - MessageBoxComponent: generate TEST/CASE/ENDTEST instead of chained IF/ENDIF Per explicit request, with the exact RAPID syntax to match: TEST msgBoxAnswer CASE 1: <button 1 actions> CASE 2: <button 2 actions> ENDTEST Replaces the previous per-button "IF msgBoxAnswer = n THEN ... ENDIF" chain with a single TEST msgBoxAnswer / CASE n: / ENDTEST block. msgBoxAnswer only ever holds one value at a time, so this is both the more idiomatic RAPID construct for the pattern and matches conventional RAPID code for UIMessageBox/msgBoxAnswer. RAPID's TEST has no fall-through between cases (unlike a C-style switch), so no BREAK statement is needed or emitted. 
+ - TEST/CASE/ENDTEST sit at the same indentation level (matching the sample RAPID exactly); each button's actions are indented one level in, same as the bodies of the old IF blocks were. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; no test coverage exists for this component's generated code (GH_Component classes aren't unit tested in this project; verification is manual, in Grasshopper itself). 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `54462e9` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Collapse RC fix actions into one Solution-menu item, gated by guid presence Per explicit request: a whole top-level "Robot Components" menu was too much for two related actions. Collapsed FixOptionalParameterNames and FixComparisonOperatorSymbols into a single "Fix RC Parameter Names" menu item that runs both sweeps and invalidates the canvas once at the end, and moved it into GH's own Solution menu, directly under Upgrade Components, instead of a standalone top-level menu. 
+ - Found "Upgrade Components" by its WinForms Name, not its displayed Text -- confirmed via IL that GH's own designer code sets ToolStripItem.Name to the literal, hardcoded string "mnuUpgradeComponents" (GH_DocumentEditor's own mnuSolution/mnuUpgradeComponents accessor properties exist but are, like MainMenu, internal to Grasshopper.dll -- "assembly" visibility, confirmed via IL), which is far more stable to match against than localizable, GH-version-dependent display text would be. ToolStripItemCollection.Find(..., searchAllChildren: true) locates it regardless of nesting. Falls back to adding a small top-level "Robot Components" menu instead, so the feature stays reachable even if some future GH version renames/restructures that item. 
+ - The item is only enabled when the active document actually contains something it could apply to: a HashSet<Guid> of "every GH_RobotComponent type in this assembly whose OptionalParameterDefaults is non-empty" (built once via reflection, each candidate type instantiated through its required public parameterless constructor -- the same precondition GH's own component discovery already relies on) plus GH_ValueList's own guid, checked against document.Objects on the Solution menu's DropDownOpening. 
+ - Deliberately a cheap guid-presence check, not the fuller content-matching each fix performs on an object before actually changing it. 
+ - Build: 0 errors, no new warnings. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; pure GH-UI behavior with no automated coverage in this project, verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `07a5aec` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Fix Robot Components menu actions not repainting until an unrelated redraw Reported: after running "Fix Optional Parameter Names", the relabeled parameters only actually appeared on canvas after clicking into it afterward. 
+ - ExpireLayout()/ExpireSolution() (used by the sweep and the value-list relabeling respectively) only mark the affected objects' own layout/state stale for whenever they're next drawn -- neither repaints anything itself. 
+ - GH's own "Draw Full Names" menu handler follows its equivalent conversion with an explicit canvas.Invalidate() call (confirmed via IL decompilation during the original investigation); the live CentralSettings. 
+ - CanvasFullNamesChanged listener gets that for free since it runs *before* GH's own conversion and Invalidate() in that same click handler, but the two standalone "Robot Components" menu actions have nothing else to trigger a repaint afterward. 
+ - Fixed by calling Instances.ActiveCanvas.Invalidate() at the end of both menu actions (only when something actually changed, for FixComparisonOperatorSymbols). 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; pure GH-UI behavior with no automated coverage in this project, verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `3d9d31d` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Fix Multi Relay: custom renames only actually protected NickName, not Name Reported: rename an empty input by hand, then wire something into it -- the type-derived auto-rename fires anyway and clobbers the custom name. 
+ - Root cause, confirmed via IL decompilation of Grasshopper.dll: GH_ObjectEventType has no "NameAccepted" member at all -- only NickName and NickNameAccepted. A parameter's canvas-interactive rename can only ever change its NickName; Name is purely a property this component itself assigns in code and a user cannot edit it directly, ever. Both the input "is this still ours to auto-rename" check and the output "is this still ours to mirror" check compared against .Name -- a property that, by construction, never actually changes from user interaction. So neither check could ever detect a real rename: the user renames NickName, Name stays exactly as this component last set it, "stillOurs"/"lastMirrored" both stay (wrongly) true, and the next wire connect or input rename overwrites the NickName the user just set. 
+ - Fixed by comparing against NickName instead (on both the input auto-name and output mirror tracking), and, the moment a divergence is detected, resyncing Name to match NickName before freezing the slot -- keeping this component's own invariant (Name == NickName for any slot it still manages) intact, rather than leaving Name silently stuck at a stale value forever. 
+ - Updated the field-level doc comments (which described the old, incorrect Name-based mechanism) to match. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; no automated coverage exists for GH_Component classes in this project (requires a live Rhino host), verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `d20f196` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Replace native-Upgrade-Components hooks with a custom Robot Components menu Both retroactive-fix mechanisms shipped so far piggy-backed on GH's native "Upgrade Components" command by registering an IGH_UpgradeObject with UpgradeFrom == UpgradeTo (an in-place edit, no swap): first ComparisonOperatorValueListUpgrader (targeting GH_ValueList's own shared native guid), then a proposed batch of ~15 more for Draw Full Names (targeting this project's own live component guids). Decompiled GH_ComponentServer.IsUpgrader -- the check that decides what "Upgrade Components" offers -- and confirmed it's a plain "is an upgrader registered for this guid" lookup, with no per-instance "already fixed" tracking. That means either approach would have permanently flagged every instance of the affected type, in every file, as "upgradeable" forever, even ones already fixed -- for ComparisonOperatorValueList a single native, off-the-beaten-path guid; for Draw Full Names, ~15 of this project's own heavily-used live component guids. Not an acceptable trade for a cosmetic fix. 
+ - Replaced with a "Robot Components" entry in GH's own main menu bar instead, holding both fix actions as ordinary on-demand commands with none of that downside: - "Fix Optional Parameter Names" -- runs the same Draw Full Names sweep the CentralSettings.CanvasFullNamesChanged live listener already runs on toggle, but on demand, against the active document. Covers the one documented gap in the live listener: a file opened while the preference is already on/off from an earlier session, where nothing changes this session so the toggle event never fires for it. 
+ 	 - "Fix Comparison Operator Symbols" -- the same content-matched relabeling ComparisonOperatorValueListUpgrader used to do, now run on demand instead of GH offering it unprompted, forever, on every value list. 
+ - Added via Grasshopper.Instances.CanvasCreated (public static event, fires once the first canvas/editor window exists -- confirmed via IL, since PriorityLoad() itself runs before any editor window exists and Instances.DocumentEditor is not valid yet at that point). The menu is attached to Instances.DocumentEditor.MainMenuStrip -- GH_DocumentEditor's own MainMenu property returns the identical control but is internal to Grasshopper.dll (confirmed via IL: "assembly" visibility); MainMenuStrip is the standard, publicly inherited System.Windows.Forms.Form property GH assigns the same control to, with a Controls-search fallback in case a future GH version stops doing that. 
+ - The live CentralSettings.CanvasFullNamesChanged listener from the previous commit is unchanged and still fires automatically on an active toggle -- this only adds the on-demand path for everything that isn't. 
+ - Removed RobotComponents.ABB.Gh/Upgraders/v8/ComparisonOperatorValueListUpgrader.cs (and the now-empty v8 folder) entirely, superseded by the menu action above. 
+ - Build: 0 errors, no new warnings. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; this is pure GH-UI behavior with no automated coverage in this project, verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `87bc9eb` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Add Draw Full Names Tier 2: retroactive fix via GH_AssemblyPriority listener Complements the Tier 1 fix already shipped (apply the preference at the moment a dynamic parameter is constructed). Tier 1 can't help a parameter that already exists when the user toggles "Draw Full Names" -- there's no generic "a parameter was just created" event to hook, and construction-time logic only runs at construction time. This adds the missing half: a document-wide sweep that runs exactly when the preference is toggled. 
+ 	 - GH_RobotComponent gains a virtual instance property, OptionalParameterDefaults, listing the (Name, NickName) pair each dynamically-addable parameter started out with. Defaults to empty; only overridden by components that actually add parameters at runtime. 
+ - Deliberately an instance property, not static -- the listener always has a live component instance in hand while walking the document, so there's no need for (and, on .NET Framework 4.8, no language support for) a virtual static member. 
+ 	 - RobotComponentsPriority (new, GH_AssemblyPriority) subscribes to Grasshopper.CentralSettings.CanvasFullNamesChanged once at plugin load. 
+ - On toggle, it walks the active document's GH_RobotComponent instances and, for every currently-registered parameter whose (Name, NickName) still exactly matches an entry in that component's OptionalParameterDefaults, flips NickName between the short and full form -- exactly the guarantee GH's own conversion gives the parameters it can reach, extended to the ones it can't. A name the user has customized, on either side of the toggle, no longer matches its recorded default and is left alone. 
+ - Overrides were added to every component with a *finite* set of dynamic parameter defaults (~14 components): the ones built from a fixed pool array (PathGenerator, TimedPathGenerator, ForwardKinematics, InverseKinematics, RAPIDGenerator, ExternalLinearAxis, ExternalRotationalAxis, Move, RobotTarget, ExternalJointPosition -- excluding whichever pool entries are already registered by RegisterInputParams/RegisterOutputParams itself, since those are already covered by GH's native conversion) and the ones built from named constants (AssignVariableValue, RAPIDVariable, ConnectInterrupt, EmptyLine, AdditionalRoutine's Return Type/Return Value). Left at the inherited empty default: components whose dynamic parameters already keep Name and NickName identical (MultiRelay, DecomposeRobtarget, the "bit{n}" params in Set Group Input/Output), where the preference has nothing to expand either way; and components whose dynamic names are an unbounded, parameterized series (IfStatement's ELSEIF pairs, RoutineCall's/ AdditionalRoutine's "Argument N", MessageBox's per-button actions) -- there's no finite list to give for those, so they rely on Tier 1 alone. 
+ - For the pool-array components, each override reads (Name, NickName) straight off the live pool objects rather than retyping the literals a second time -- but captured into a snapshot BEFORE that same constructor also runs the Tier 1 loop, since Tier 1 mutates those same live objects' NickName in place if Draw Full Names is already on at construction time; reading them live and unguarded would report the post-Tier-1 (already expanded) NickName as if it were the original default, breaking the retroactive match. 
+ - Verified via the same GH_Document/CentralSettings IL decompilation as the Tier 1 investigation: CentralSettings.CanvasFullNamesChanged is public static (fires after the setter updates the field, before GH's own document conversion and canvas repaint in the same menu-click handler), and GH_AssemblyPriority.PriorityLoad() is GH's standard, auto-discovered plugin-load hook (same discovery mechanism as components and IGH_UpgradeObject upgraders -- no registration needed). 
+ - Known gap (documented in RobotComponentsPriority's own remarks): this only fires on an active toggle. A file opened while the preference is already on from an earlier session never fires the event, so its parameters keep whatever NickNames they were saved with. 
+ - Also verified per explicit request: every one of the 133 live (non-Obsolete) components in RobotComponents.ABB.Gh already inherits from GH_RobotComponent directly -- nothing needed changing there. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; this is pure GH-canvas display behavior with no automated coverage in this project, verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `4965d3d` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Apply Draw Full Names to dynamically-added parameters and upgraded components Root cause (verified via IL decompilation of Grasshopper.dll): "Draw Full Names" is not a live rendering switch. Clicking the canvas menu item toggles CentralSettings.CanvasFullNames and, in the same click, calls GH_Document.ConvertNickNamesToFullNames()/ConvertFullNamesToNickNames() -- a ONE-TIME pass that walks every object as of that moment, emits a bare `new SomeComponent()` reference instance per object via ComponentServer.EmitObject(guid), and copies Name into NickName (or back) for each matched parameter, skipping any whose current NickName no longer matches the reference's default (i.e. already user-customized). 
+ - Two consequences, matching exactly what was reported: 1. Parameters registered at runtime (Params.RegisterInputParam/ RegisterOutputParam calls outside RegisterInputParams/RegisterOutputParams -- every right-click "add optional parameter" and zui +/- pattern in this project) don't exist on the bare reference instance used for comparison, so the conversion's parallel attribute-tree walk (capped at Math.Min(realCount, referenceCount) - 1) never reaches them. They stay stuck on their short NickName forever, no matter how many times "Draw Full Names" gets toggled. 
+ - 2. A component swapped in via "Upgrade Components" is a freshly constructed `new NewComponent()`, built after the one-time conversion pass already ran (if ever). It starts at its own bare-default NickNames and never gets its own conversion pass. 
+ - Fix: two new HelperMethods (ApplyFullNamesPreference(IGH_Param) and an IGH_Component overload) that check CentralSettings.CanvasFullNames and, if on, set NickName = Name -- safe to call unconditionally only at the moment of construction, since there's nothing to overwrite yet. 
+ - Applied at every runtime parameter-construction site across ~20 components (folded into each component's own shared factory method where one already existed -- CreateScalarValueParam/CreateArrayValuesParam and similar -- otherwise added inline), and in each of the 7 real component-swap IGH_UpgradeObject implementations (Upgraders/v5-v7), applied to the whole freshly built replacement component right after GH_UpgradeUtil. 
+ - SwapComponents succeeds. 
+ - Left untouched, deliberately: components whose dynamically-added parameters already keep Name and NickName identical (MultiRelayComponent, DecomposeRobtargetComponent, the "bit{n}" params in Set Group Input/Output, Controller Utility and Code Generation variants) -- Draw Full Names has nothing to expand there, so adding the call would be a pure no-op. 
+ - Scope note: this is Tier 1 from the investigation -- forward-looking only. 
+ - It does not retroactively relabel optional parameters already sitting in files saved before this fix (their NickName is already baked into the archive); re-running "Upgrade Components" after this fix already handles the upgraded-component case for old files, since that reconstructs a fresh instance. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; this is pure GH-canvas display behavior with no automated coverage in this project, verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `b782f61` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Use actual RAPID comparison symbols in Comparison Operators value lists Both places that auto-create a "Comparison Operators" value list -- ComparerExpressionComponent (on first use) and the standalone ComparisonOperatorValueList dropper component -- built it by reflecting enum member names straight off ComparisonOperator via HelperMethods.CreateValueList(..., typeof(ComparisonOperator), ...), producing items literally named "LT", "GT", "LE", "GE", "EQ", "NE" instead of the actual RAPID symbols. ComparerExpressionComponent had already switched to a hardcoded symbol list for its own auto-created value list (<, >, <=, >=, <>, plus the fullwidth equals sign U+FF1D standing in for '=' -- a literal '=' can't be a GH value list item's display name, since GH_ValueListItem's own serialization uses '=' as a name/expression delimiter) -- but ComparisonOperatorValueList never got the same fix. 
+ - Factored that hardcoded list out of ComparerExpressionComponent into a single shared HelperMethods.ComparisonOperatorSymbols, in ComparisonOperator's declared order (LT=0..NE=5), and pointed both components at it. Added a matching HelperMethods.CreateValueList(List <string>, PointF) overload (mirroring the existing Type/Dictionary variants) so ComparisonOperatorValueList's standalone, drop-on-canvas path can use it too. 
+ - Also added ComparisonOperatorValueListUpgrader (Upgraders/v8) so files saved before this fix get their existing, already-placed value list relabeled via Grasshopper's own "Upgrade Components" command, per explicit request -- reloading a file does NOT fix this on its own, since the auto-create code only ever runs once (gated on the input having no source yet) and a value list's ListItems are that object's own, independently persisted state. This upgrader is unlike every other one in this project: GH_ValueList is a native Grasshopper type with one guid shared by every value list in existence, so UpgradeFrom targets that shared guid directly, and Upgrade() only actually touches a value list whose 6 items exactly match the old LT/GT/... signature (name AND expression, in order) -- a safe no-op for anything else. It edits the existing live object's item Names in place rather than swapping components (nothing to swap: same object, same wires, same selected item). See the class's own remarks for the one real caveat: GH_ComponentServer keeps upgraders in a dictionary keyed by UpgradeFrom, one per guid, so this could collide with some other plugin's own upgrader for GH_ValueList, if one ever exists. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged, no automated coverage exists for GH_Component/native-GH-type interactions in this project. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `6d444e1` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Downgrade PathGenerator/TimedPathGenerator's first-movement notice to a hint Path Generator and Timed Path Generator surfaced "The first movement is not set as an absolute joint movement." as a Warning, lumped in with genuine errors (axis limit violations, singularities, degenerate circular moves) via their shared ErrorText list/loop. RAPIDGenerator had the exact same message until it was split out into a separate RemarksText list and surfaced as a GH Remark (a "hint") in RAPIDGeneratorComponent, since it's advisory -- it doesn't affect the calculated path/generated code, just a heads-up that the robot may need to travel through a non-deterministic path to reach the first target. 
+ - Applied the same split to PathGenerator and TimedPathGenerator: added a RemarksText list (field + Clear() + property, mirroring RAPIDGenerator's shape exactly), moved the first-movement message from _errorText.Add(...) to _remarksText.Add(...) in each class's CheckFirstMovement(), and added a matching Remark-level loop in PathGeneratorComponent/TimedPathGeneratorComponent alongside their existing Warning-level ErrorText loop. Every other ErrorText message (axis limits, wrist singularities, circular-movement degenerate cases) is untouched and still surfaces as a Warning. 
+ - The optional "Errors" output list on both components (DA.SetDataList(..., ErrorText)) no longer includes this message, matching RAPIDGeneratorComponent -- which never exposed ErrorText/RemarksText as output data in the first place, only as runtime messages. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; no existing test asserts on this specific message. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `7a8908c` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Fix Multi Relay: protect custom output names, fix output misalignment on add/remove Two bugs reported after the last round of Multi Relay fixes: 1. A custom name on an input or output pair didn't stick -- specifically, outputs had NO protection at all. EnsureConsistentState() force-wrote output.Name = input.Name unconditionally on every single solve, with no way for a user-set output name to survive past the next solve. (Inputs already had correct protection via _lastAutoNames/"stillOurs" -- this only affected the output side.) Fixed with a new _lastMirroredOutputNames tracking list, symmetric to the existing input-side one: as long as an output's current Name still matches what we ourselves last mirrored onto it, it's safe to keep mirroring; the moment a user renames it directly, mirroring stops for that slot for good. Persisted via Write/Read so the protection survives reload (old files have no data to protect here, since the old code could never have let a divergent output name reach a save in the first place). 
+ - OnParameterNickNameChanged now also reacts to output-side renames immediately, instead of only input-side ones. 
+ - 2. Wires got disconnected -- or worse, silently rewired to the wrong stream -- when adding/removing an input/output pair anywhere but the end of the list. Root cause: SyncOutputCount() only compared the COUNT of Params.Output against Params.Input; it had no idea which input index actually changed. Removing input #1 (not the last) caused it to delete the LAST output instead, destroying that output's wire connections, while the output that actually corresponded to input #1 survived untouched but now misaligned with every input after it. Inserting a pair in the middle appended the new output at the END instead of alongside its input, silently shifting every later output's data over by one position (each wire stayed technically "connected", just to the wrong data). This is the exact same class of bug already fixed for the internal _lastAutoNames list in a previous PR, just never applied to the actual Params.Output list itself. 
+ - Fixed by having CreateParameter/DestroyParameter -- which already know the exact index GH is inserting/removing at, for the input side -- also create/destroy the matching OUTPUT at that same index, synchronously, right there. SyncOutputCount() is renamed EnsureOutputCountFallback() and kept only as a last-resort, no-positional-guarantee safety net for states this component can't otherwise reason about (e.g. a corrupted archive) -- under normal operation it no longer has anything to do. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged, no automated coverage exists for GH_Component classes in this project (requires a live Rhino host); verification is manual, in Grasshopper itself. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `187086c` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Merge pull request #31 from jpdrude/integration/combined-open-changes Add Decompose Robtarget component 
+  
+   **Commit:** `e007fe7` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Add Decompose Robtarget component New "Decompose Robtarget" component under Advanced RAPID Features. Takes a robtarget RAPID Variable and produces RAPID expressions that access individual members of its struct, each usable directly wherever a RAPID Expression input is accepted (e.g. wired into Assign Variable Value, or any RAPID Expression parameter). 
+ - By default outputs the position: X/Y/Z -> <variable>.trans.x/.trans.y/.trans.z. 
+ - Right-click menu toggles add further output blocks, in a fixed order regardless of click order (Position -> Rotation -> Config -> External): - Get Rotation: Q1-Q4 -> <variable>.rot.q1 .. .rot.q4 - Get Config: Cf1, Cf4, Cf6, Cfx -> <variable>.robconf.cf1/.cf4/.cf6/.cfx - Get External: EaxA-EaxF -> <variable>.extax.eax_a .. .eax_f Implementation notes: - Input is a RAPID Variable (Param_RAPIDVariable), not a RAPID Expression -- decomposition only makes sense against a named variable, since the result is itself a member-access expression built from that name. 
+ 	 - Menu-driven IGH_VariableParameterComponent (no +/- zui), same pattern as AssignVariableValueComponent: three persisted bools track which optional blocks are on; toggling one calls ApplyOutputConfiguration(), which reconciles Params.Output against the full desired list (remove what's no longer wanted, then insert whatever's missing at its correct position). 
+ - This stays correct and idempotent regardless of what combination of blocks is already enabled when another one gets toggled. 
+ 	 - New component, so no Obsolete/Upgrader pair needed (nothing to be backwards compatible with yet). 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged, since (like GetArrayAtIndexComponent) the expression-building logic lives entirely in the GH component with no separate core-library class to unit test. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `9b5417d` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Merge pull request #30 from jpdrude/integration/combined-open-changes Fix Multi Relay auto-name tracking desync on mid-list insert/remove 
+  
+   **Commit:** `9fa7197` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Fix Multi Relay desyncing its auto-name tracking on a mid-list insert/remove Multi Relay keeps a positional List<string> (_lastAutoNames), index-aligned with Params.Input, recording the auto-assigned name it last gave each input so it knows which inputs are still safe to auto-rename. EnsureConsistentState() kept that list's length in sync with Params.Input.Count by only ever appending nulls at the end when growing, and trimming from the end when shrinking. 
+ - That's only correct for a plain append/remove-the-last-one. GH's own zui lets a user insert a new input/output pair in the middle (dropping a wire on the joint between two existing pins, or the canvas's "Insert parameter" menu), and CanRemoveParameter permits removing any input, not just the last. In either case Params.Input changes at an arbitrary index, but _lastAutoNames kept being patched only at the end -- desyncing it from Params.Input by one slot from that point on. Reported symptom: inserting a new pair between two existing ones (0, 1) made the old pair 1 land at index 2 as expected, but on the next update its tracked identity effectively swapped with the new pair, looking like the insert had partially reverted. 
+ - Fixed by using the exact index IGH_VariableParameterComponent.CreateParameter/ DestroyParameter already receive: CreateParameter now inserts a matching "not yet assigned" (null) slot into _lastAutoNames at that same index (GH splices the new param into Params.Input at that index right after this call returns), and DestroyParameter removes _lastAutoNames at that exact index instead of always the last one. EnsureConsistentState()'s grow/shrink-at-the- end loops are kept as a fallback for the one case with no positional information at all (recovering _lastAutoNames' length from an archive saved in the pre-rewrite format), and their comments updated to say so. 
+ - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests). 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `0fafa6f` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Merge pull request #29 from jpdrude/integration/combined-open-changes Unify Set/Invert Digital Output outputs as Param_Action 
+  
+   **Commit:** `240d842` | **Date:** 2026-09-09 
+ 
+ --- 
+ 
+ - Unify Set/Invert Digital Output outputs as Param_Action Set Digital Output and Invert Digital Output were the last two Code Generation instruction components still publishing a dedicated output parameter type (Param_SetDigitalOutput, Param_InvertDigitalOutput) instead of the generic Param_Action every other Wait/Set/Pulse instruction component already uses, per the refactor in 9919b80e ("Refactor: unify RAPID outputs as Param_Action, obsolete old params"). 
+ - Same pattern, applied identically: - Param_SetDigitalOutput and Param_InvertDigitalOutput move into Obsolete/v1.1/ (the same folder that refactor created) with their Exposure set to hidden and Obsolete to true. Their class name, namespace, and ComponentGuid are all left completely unchanged -- only the file location and those two properties change -- so any existing .gh file's archived output-param chunk still resolves via ComponentServer.EmitObject(thatGuid) to the exact same class, restoring exactly as it always has. 
+ 	 - SetDigitalOutputComponent and InvertDigitalOutputComponent now register Param_Action instead. Their own ComponentGuid is untouched, and SolveInstance needs no change: GH_Action.CastFrom already accepts any IAction, which SetDigitalOutput/InvertDigitalOutput already implement, so the existing DA.SetData(0, new SetDigitalOutput(...)) call keeps working unchanged. 
+ - GH_ComponentParamServer.ReadAllParameterData reconstructs each output param from its own archived type GUID via EmitObject, independent of what the live component's current RegisterOutputParams() would set up -- confirmed via IL earlier this session and empirically true of the ~20 components 9919b80e already did this to (WaitDIComponent's diff from that commit, for one, touches only the RegisterOutputParams line and a using -- ComponentGuid untouched, no companion Obsolete/Upgrader pair for the component itself). Old files load unaffected; newly placed instances of either component get Param_Action. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `4b4145e` | **Date:** 2026-09-09 
+ 
+ --- 
+ 
+ - Merge pull request #28 from jpdrude/integration/combined-open-changes Add Invert Digital Output component 
+  
+   **Commit:** `f0bb184` | **Date:** 2026-09-09 
+ 
+ --- 
+ 
+ - Update Invert Digital Output icon Replaces the opposing-arrows invert glyph with a circular invert/toggle arrow, keeping the same toggle-switch glyph on the right unchanged. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `a911d6d` | **Date:** 2026-09-09 
+ 
+ --- 
+ 
+ - Add Invert Digital Output component New RAPID code-generation component, modeled on Set Digital Output: takes a digital output name and emits the RAPID InvertDO instruction, which toggles a digital output's current value instead of setting it to an explicit state. 
+ - Full stack, following the established pattern: - RobotComponents.ABB.Actions.Instructions.InvertDigitalOutput: the core IAction/IInstruction, emitting "InvertDO {name};". No delay/sync options -- InvertDO takes only the signal name, unlike SetDO. 
+ 	 - GH_InvertDigitalOutput: Goo wrapper (Action/Instruction casting, byte-array (de)serialization, matching GH_SetDigitalOutput). 
+ 	 - Param_InvertDigitalOutput: the GH parameter type carrying the instruction between components. 
+ 	 - InvertDigitalOutputComponent (Code Generation > Instructions): single "Name" text input, one output. Reuses the same name-validation warnings (character limit, leading digit, special characters) as Set Digital Output's component. 
+ 	 - New 24x24 icons (component + parameter), matching the existing digital-I/O icon language (dark toggle-switch glyph identical to Set/Pulse Digital Output's, paired with a new opposing-arrows glyph for "invert", in place of Set's single arrow and Pulse's waveform). 
+ 	 - RobotComponents.Tests/Actions/InvertDigitalOutputTests.cs: RAPID output, validity, injection-payload rejection, RAPID declaration emptiness, and Duplicate() coverage, mirroring SetDigitalOutputTests. 
+ 	 - Documentation.cs: TODO-marked wiki link entries for both the component and its parameter, following the same placeholder pattern already used for Pulse Digital Output pending real doc pages. 
+ - InvertDO's RAPID syntax ("InvertDO Signal;", no optional parameters) verified against the ABB RAPID reference; live verification via the rapid-verifier MCP server's virtual controller was inconclusive only because its default IO config has no user-writable DO signal at all -- confirmed by SetDO (an existing, shipped instruction) failing identically against the same signal names, so the failure is an environment/config gap, not a defect in this instruction's syntax. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `6352717` | **Date:** 2026-09-09 
+ 
+ --- 
+ 
+ - Merge pull request #27 from jpdrude/integration/combined-open-changes Merge open changes: Multi Relay component, Connect Interrupt name override, RAPID Generator optional robot, and more 
+  
+   **Commit:** `f20cd05` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge branch 'feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `0c57151` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix new zui-added Multi Relay inputs being named "Data" instead of "Input N" Param_GenericObject's own default constructor already sets Name/NickName to "Data"/"D" -- GH's standard default for a generic-object parameter, not an absence of a name. EnsureConsistentState() tells a genuinely new, not-yet-auto-named slot apart from an already-named one purely by checking string.IsNullOrEmpty(input.Name), so a freshly zui-added input always looked "already named" and got frozen on "Data" forever instead of ever receiving its "Input N" placeholder -- the same freeze-in-place default from the previous commit, just triggered by GH's own param default this time instead of an untracked archive entry. 
+ - CreateInputParam() now blanks Name/NickName immediately after construction, so that check actually sees an unnamed param, same as the first input RegisterInputParams sets up explicitly. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `06b09b3` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge branch 'feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `c2ffc28` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Revert untracked-slot fallback from data-type default to freeze-in-place The previous change made EnsureConsistentState() default an untracked slot's name to whatever type is currently wired into it, on the theory that "no tracked history" meant either a genuinely new input or an unrecoverable legacy-format file, and either way a freshly-derived type name was a reasonable thing to show. 
+ - That reasoning doesn't hold for an input that already carries some name: an untracked-but-named slot can also happen for entirely mundane reasons unrelated to a legacy file -- e.g. this component's tracking list still catching up after being moved through more than one serialization-format change, as one specific saved file already had by the time this was tested against it. In that situation, defaulting to the wired type silently clobbered a real, possibly user-set name the instant this branch was hit, which is a strictly worse outcome than the previous "leave it alone" default: reported as "I change the names, and these don't survive a save/load cycle" -- a regression from the one thing this whole line of fixes was actually supposed to guarantee. 
+ - Reverted to freezing an already-named slot in place (never touching input.Name here, connected wire or not) -- the same default this component used for the copy/paste bug this session. Read()'s guard against throwing on a genuinely unreadable (pre-rewrite) archive format is unrelated and stays as-is; only what EnsureConsistentState() does with an untracked slot changes back. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `0fa4bd8` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge branch 'feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `7a86251` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix Multi Relay crash loading files saved before the Write/Read rewrite Read() threw a NullReferenceException on any file saved by the earlier, InstanceGuid-keyed version of this component's serialization. That version wrote "AutoNameCount" and "AutoNameValue" under the same names the current format still uses, but never wrote "AutoNameIsNull" (the current format's per-entry null flag). GH_IO's indexed GetBoolean/ GetString look the requested item up and call straight into it with no null check, so requesting an item that was never written throws -- confirmed via IL decompilation of GH_Chunk.GetBoolean(string,int32). 
+ - Read() now checks ItemExists("AutoNameIsNull", i) per entry before trusting it, and leaves the slot unresolved (null) instead of throwing when an archive doesn't have it -- covering both a legacy-format file and any other archive this version can't make sense of. 
+ - EnsureConsistentState() already had a branch for an unresolved slot, but it defaulted to freezing the name in place (the copy/paste fix from the previous change). That default no longer fits now that "unresolved" also means "we recovered nothing usable from disk": there's no reliable history to preserve, so instead it now defaults to whatever type is currently wired into that input, falling back to the existing name (if any) or the plain "Input N" placeholder when nothing's connected. A round-tripped reload or copy/paste under the current format still populates _lastAutoNames directly from the archive and never reaches this branch, so today's actual custom-name-preservation behavior is unaffected -- this only changes what happens when there is genuinely no tracked data to preserve. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `ef0eb6d` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/GoFaController' into integration/combined-open-changes 
+  
+   **Commit:** `1bdf6c1` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/current-robot-target-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `3d76fde` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/docs/release-notes-upgrade-hint' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `1803be5` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge branch 'feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `89100a4` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix Multi Relay custom-name persistence across reload and copy/paste Replace the InstanceGuid-keyed _autoNames dictionary with a positional List<string> (_lastAutoNames), index-aligned with Params.Input, and persist it directly via Write/Read. 
+ - The guid-keyed approach broke in two different ways: - A pasted/duplicated/reloaded param gets a fresh InstanceGuid, so the previous fix (freezing via a "" sentinel keyed by that guid) worked for the guid it was written under, but the dictionary itself was never actually persisted to the archive -- only in-memory state -- so a real file reload lost all tracking outright and every restored name showed up untracked and unfrozen. 
+ 	 - Confirmed via IL decompilation of GH_ComponentParamServer. 
+ - ReadAllParameterData / GH_Param<T>.Read(): a variable-parameter component's per-param state (Name, NickName, WireDisplay, ...) is restored straight from the archive for each param, independent of this component's own bookkeeping -- so the fix belongs in what this component persists, not in more guid-tracking logic. 
+ - Tracking is now purely positional and, since input order/count is itself part of the archive and restored before VariableParameterMaintenance() runs, stays aligned with Params.Input across a save/reload the same way it already did across a zui +/-. 
+ - Write/Read persist _lastAutoNames directly (AutoNameCount + per-index AutoNameIsNull/AutoNameValue), so copy/paste -- which goes through the same IGH_DocumentObject.Write/Read mechanism as a plain save/reload -- now recovers the same tracking state, fixing both reported symptoms (names reset to type on paste, "GUID" shown as a name, and custom names lost on file reload) in one change. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `42db7ca` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/rapid-generator-optional-robot' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `b3989d8` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix optional Robot not actually applying to already-placed RAPID Generator instances The RAPIDGenerator.CreateModule movement-detection logic (including scanning additional routines' actions -- already correctly implemented and covered by 5 existing tests, re-verified while investigating this) was fine. The reported "still doesn't work without a robot" was a separate bug in the GH wrapper: RegisterInputParams sets the Robot input's Optional = true, but that only takes effect for a component placed fresh after this change. 
+ - Verified via IL decompilation of GH_ComponentParamServer.ReadAllParameterData (the read path used by variable-parameter components, which RAPIDGeneratorComponent is): each input/output param is reconstructed from its own archived type guid and then has its *own* persisted properties -- Optional included -- restored from the archive verbatim, not re-derived from a fresh RegisterInputParams call. So any instance placed or saved before this branch's change still has Optional = false archived on its Robot input specifically, and GH's own required-input check blocks SolveInstance from ever running when it's unconnected -- regardless of whether Actions has any movements at all, since that check happens before SolveInstance, and my movement-aware error only ever gets a chance to run from inside it. 
+ - Fixed by re-asserting Params.Input[0].Optional = true from VariableParameterMaintenance(), which -- per its own SDK doc comment -- fires on Open/Paste/Undo/Redo as well as after zui operations, i.e. before an already-placed instance ever gets a chance to solve. This corrects an old instance's stale archived flag the moment it loads, rather than only new ones. 
+ - Build clean (MSBuild), 663/663 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `4becf5b` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `e8a7788` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix the copy/paste name fix itself: names were still getting overwritten The previous fix (adopt an untracked-but-already-named param's existing name as the new "lastAuto" baseline) had a bug that defeated its own purpose: right after "lastAuto = input.Name;", the very next line checks "stillOurs = input.Name == lastAuto" -- which is now trivially true, since lastAuto was just set to equal input.Name. That made the copied param look like it was still on an auto-assigned name eligible for further auto-renaming, so the immediately following type-detection block (which does fire, since a copied param keeps its wire connected) overwrote the just-preserved name with the connected source's type name on that same pass. Exactly the reported symptom: names reset to the input's type. 
+ - Fixed by recording a baseline the param's real Name can never actually equal ("" -- Name is never legitimately set to that anywhere else in this component), rather than the Name itself. That makes "stillOurs" permanently false for a copied/pasted param, so its preserved name -- custom or otherwise -- is left alone from then on. There's no way to tell after the fact whether that name had been a deliberate user rename or an untouched auto-detected one on the original before the copy (the very distinction _autoNames exists to track was itself lost along with the old guid), so this freezes it either way -- the only cost is an untouched auto-detected name no longer following a later type change after a copy, which is a minor, rare tradeoff next to actually preserving renames, which was the point. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `aa178df` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `6130f30` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Preserve custom input names across copy/paste on Multi Relay Copying (or duplicating) a Multi Relay instance lost every input's custom rename, resetting them back to "Input N" placeholders. Root cause: the "has this input been manually renamed" tracking is a Dictionary<Guid, string> keyed by each input param's InstanceGuid, persisted through Write/Read -- but a copy/paste gives the copied param a fresh InstanceGuid (so it can coexist with the original) while the rest of its serialized state, including a user's rename, carries over faithfully. The dictionary lookup by the new guid then always missed, and the old "first time seeing this param" branch responded by unconditionally resetting it to a fresh placeholder, discarding the name that was actually still sitting right there on the param. 
+ - Fixed by distinguishing the two cases that land in "first time seeing this guid": if the param's Name is empty, it's genuinely brand new (zui-created or the initial one), so it gets the placeholder as before -- including the hidden-wire-display default, which only makes sense for a truly fresh input. 
+ - If it already has a name, it's a copy/paste/duplicate whose tracking just hasn't caught up yet: adopt that existing name as the new tracked baseline instead of overwriting it, which also means a wire display a user had deliberately turned back on before copying survives too (it's ordinary serialized state, just like Name). 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `1f0e115` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes 
+  
+   **Commit:** `897b50c` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Mirror an input rename onto its output immediately on Multi Relay Previously a renamed input's matching output only picked up the new name on the next unrelated solve, since nothing prompted a recompute right when the rename itself happened. 
+ - GH_ComponentParamServer exposes a ParameterNickNameChanged event, confirmed via IL decompilation to be raised specifically when a parameter rename is *accepted* (GH_ObjectEventType.NickNameAccepted) -- fired only by GH's own interactive-rename-commit and undo/redo machinery, never by code merely assigning .NickName (that setter doesn't raise it at all). Subscribed to it in the constructor; on an accepted input-side rename, immediately calls the existing EnsureConsistentState() (mirrors the name, same as any solve would) followed by ExpireSolution(true), instead of waiting for whatever the next solve happens to be triggered by. 
+ - Because the event genuinely can't be re-triggered by our own programmatic renames (verified: not raised by the property setter), there's no reentrancy risk with EnsureConsistentState()'s own input.NickName assignments. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `9e28763` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Hint at Upgrade Components in the release install instructions INSTALL.md (generated by Generate-InstallInstructions.ps1, prepended to every release's notes by Extract-Changelog.ps1) had no mention of how to move an existing .gh file's old component instances onto the current versions after updating -- the project has ~150 Obsolete/vN + IGH_UpgradeObject pairs set up specifically to make Grasshopper's own Solution -> Upgrade Components do this automatically, but nothing in the release notes ever pointed users at it. 
+ - Added an "Updating Existing Definitions" section after the install steps pointing at Solution -> Upgrade Components, and mentioning the obsolete-icon overlay GH already draws on old instances so a user can spot what's affected before running it. Used a plain "->" rather than a Unicode arrow: Windows PowerShell 5.1 misreads non-ASCII characters in .ps1 source without a BOM, which corrupted a literal "->" arrow character in local testing. 
+ - Added a matching Pester test asserting the hint is present. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `8677abb` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `b9f4c57` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Fix Multi Relay's hidden wire display and harden the minimum-1 seeding; update icon Wire display: GH's own +/- zui insert handler overwrites whatever WireDisplay CreateParameter() sets on a freshly-inserted param with its own "implied" style, right after calling it (verified via IL decompilation of GH_ComponentAttributes' insert-click handler) -- so setting it only inside CreateInputParam() was silently clobbered for every input added via the zui. 
+ - Re-asserted it from EnsureConsistentState(), which runs (via VariableParameterMaintenance()) right after that clobber, so it's the last word; only for a param not seen before, so a user who deliberately turns display back on for one input later keeps it. 
+ - Minimum 1 input/output: the structural fix (RegisterInputParams/ RegisterOutputParams seeding one pair, CanRemoveParameter refusing to remove the last one) was already correct, but the seeded pair had no Name/NickName set until EnsureConsistentState() backfilled it on the first solve. Set "Input 1" directly at registration time instead, removing any dependency on solve timing for the initial pair's identity. 
+ - Also pushed the updated MultiRelay_Icon.png. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `0e2f69a` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/connect-interrupt-name-override' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `8dcdddf` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Collapse Connect Interrupt's v7/v8 upgrade chain into a single hop The v8 obsolete snapshot (ConnectInterruptComponent_OBSOLETE3, freezing guid FB7FCD2B) and its upgrader existed purely to protect an intermediate shape between the Persistent Data change and the Interrupt Variable Name override -- but that guid never made it to main; it only ever existed transiently across this session's own unmerged branches. No saved .gh file could ever reference it, so freezing it was unnecessary churn. 
+ - Deleted v8 entirely. ConnectInterruptComponentUpgrader2 (v7) now upgrades directly from the shape actually shipped on main (guid F77FEF07, unchanged -- verified it still matches main's live component byte-for-byte on the parts that matter) straight to the current live component (guid 774F2525, carrying both changes together). No code changes needed inside Upgrade() itself: it already migrated the 4 original inputs/3 outputs by index, which is exactly right for a direct jump too -- just updated UpgradeTo and the doc comments. 
+ - v7's obsolete snapshot already had its Signal Type dropdown pinned to a hardcoded list (done when Persistent Data was added), so nothing needed there. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `7b510e5` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `632fcc5` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Always keep at least 1 input/output on Multi Relais; rename to Multi Relay - RegisterInputParams/RegisterOutputParams now seed one pair up front instead of starting empty, and CanRemoveParameter refuses to remove the last remaining input, so the component can never be reduced to 0/0. 
+ 	 - Renamed MultiRelaisComponent -> MultiRelayComponent throughout (class, file, display Name, icon file + resx/Designer.cs entries): "Relais" is the German/French spelling, "Relay" is the correct English word. Component was never merged/shipped, so this needed no GUID change or Obsolete/vN handling -- same ComponentGuid, purely a naming fix. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `98533fb` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/connect-interrupt-name-override' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `4d0a2a6` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add optional interrupt variable name override to Connect Interrupt The generated intnum variable is always named "int_" + TRAP Routine Name, so connecting more than one interrupt to the same TRAP routine (fully legal in RAPID -- multiple distinct intnum variables can each CONNECT to the same trap) produced two colliding VAR intnum declarations for the same name -- a compile error on the controller. 
+ - Right-click "Override Interrupt Variable Name" adds an optional text input that, when supplied, is used verbatim as the intnum name instead of the derived default; unconnected/off, behavior is unchanged. The override is validated with the same HelperMethods.IsValidRapidIdentifier check used elsewhere in this project (Controller module/task names), warning rather than silently emitting broken RAPID if it isn't a legal identifier. 
+ - Went with an explicit override rather than having RAPIDGenerator auto-detect and rename colliding declarations: the three related lines (VAR intnum, the CONNECT, and the ISignalXX/IPers call) are only linked in ConnectInterrupt's own SolveInstance, not in any structure RAPIDGenerator understands, so coordinated auto-renaming across them would mean fragile text-pattern rewriting or a much larger refactor into a real structured Interrupt action; auto-picked suffixes would also be liable to shift between recomputes depending on solve order, which is exactly the kind of instability you don't want in RAPID variable names you're deploying to a controller. An explicit, user-controlled name matches how every other named RAPID declaration in this project already works. 
+ - This turns the component into a (menu-driven only, no +/- zui) variable parameter component to add the optional input without disturbing the 4 fixed ones, which is itself a parameter-restore-mechanism change for an already-shipped component, so it needs the project's Obsolete/vN + IGH_UpgradeObject treatment a third time for this component: - RobotComponents.ABB.Gh/Obsolete/v8/ConnectInterruptComponent_OBSOLETE3.cs: frozen pre-change snapshot of the v7 shape, same guid, hidden + Obsolete = true. 
+ - Also pinned its Signal Type dropdown to a hardcoded name list rather than reflecting off the live SignalType enum, per the shared-enum-drift check documented in CLAUDE.md -- doing it now rather than needing to fix it later. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v8/ConnectInterruptComponentUpgrader3.cs: wires all 4 existing inputs and all 3 outputs across by index (wire-only migration throughout); the new 5th input has nothing to migrate onto it and simply starts off. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `cc1633d` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/multi-relais-component' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `e92eb83` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/docs/claude-md-enum-drift-check' into integration/combined-open-changes 
+  
+   **Commit:** `1dfe382` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/fix/connect-interrupt-obsolete-valuelist-drift' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `0649aa7` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/rapid-generator-optional-robot' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `026863f` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/connect-interrupt-persistent-data' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `c190967` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge remote-tracking branch 'origin/feature/numentrybox-rapid-expression-initvalue' into integration/combined-open-changes # Conflicts: # CHANGELOG.md 
+  
+   **Commit:** `c73a0bb` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add Multi Relais component New GH component (Utility > Multi Relais, nickname MR): a generic pass-through utility with variable inputs, added/removed via the native +/- zui (same mechanism as Merge/Entwine), where each input gets a matching output that simply relays its tree through unchanged. Purely a canvas tidy-up tool for collapsing a bundle of otherwise-crossing wires through one component; it never touches the data itself. 
+ 	 - Each new input defaults to a placeholder name ("Input N") and hidden wire display (declutters the inbound wires this component exists to tidy up; users can still turn display back on per-wire, nothing re-hides it). 
+ 	 - The first time something is wired into an input that still has its placeholder (or a previously auto-detected) name, it's renamed to that source's type name (IGH_Param.TypeName, e.g. "Number", "Brep"); reconnecting a different-typed source later updates it again the same way. 
+ 	 - The moment a user renames an input by hand, it's excluded from further auto-renaming for good (tracked via a persisted Guid->name dictionary recording what name was last auto-assigned; a mismatch means the user changed it). The matching output always mirrors whatever the input's current name is, auto-detected or manual. 
+ 	 - Outputs are added/removed by the component itself (SyncOutputCount, from VariableParameterMaintenance) to stay 1:1 with the inputs; the +/- zui only applies directly to the input side. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `35ffebf` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Document the shared-enum-drift check for Obsolete/vN snapshots Add a required checklist item to the Obsolete/vN pattern write-up: an _OBSOLETE snapshot that builds a dropdown via CreateValueList(this, typeof(SomeEnum), index) references the live enum directly, not a frozen copy. If that enum later gains a member, every snapshot reflecting off it silently starts offering an option its own frozen switch has no case for -- no crash, just silently incomplete/wrong generated code. Document checking both directions (extending an enum; freezing a new snapshot that reflects off one) so this gets caught as a matter of course. 
+ - Found and fixed after the fact for SignalType gaining PersistentData (both the v5 and v7 obsolete Connect Interrupt snapshots had drifted); this documents it so it happens automatically going forward instead of needing to be asked for. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `8f2fe0b` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Freeze the v7 obsolete Connect Interrupt's Signal Type dropdown too Same issue as the v5 snapshot, introduced in this same branch: reflecting off the live SignalType enum (typeof(SignalType)) for the auto-generated dropdown means this component's own Persistent Data addition leaks into this frozen component's dropdown as well, even though its switch statement is (correctly) still frozen at cases 0-5. Replaced with the hardcoded 6-name list the enum had before this branch's change, matching the same fix just applied to the v5 snapshot on fix/connect-interrupt-obsolete-valuelist-drift. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `4996dc1` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Freeze the obsolete Connect Interrupt's Signal Type dropdown ConnectInterruptComponent_OBSOLETE (v5) builds its Signal Type value list by reflecting off the live SignalType enum (typeof(SignalType)). Today's Persistent Data addition to that enum (PersistentData = 6) leaked straight into this frozen component's dropdown too, since it shares the enum -- but its own switch statement is (correctly, per the freeze rule) still frozen at cases 0-5. Picking the new option on an old, obsolete instance would silently emit incomplete RAPID code (missing the third instruction line) with no warning. 
+ - Replaced the typeof(SignalType) reflection with the hardcoded 6-name list the enum had at freeze time, so the dropdown can no longer drift out from under this component's own switch statement regardless of what the live enum grows into later. Same fix needed (and applied separately) in ConnectInterruptComponent_OBSOLETE2 (v7), on the yet-unmerged feature/connect-interrupt-persistent-data branch that introduced the enum member in the first place. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `95cda73` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Make Robot optional on the RAPID Generator; error only if movements need one Robot is now an optional input on RAPID Generator and on RAPIDGenerator's constructors (a null robot is fine, e.g. for a declaration-only module). 
+ - CreateModule scans the actions -- including inside ActionGroups and additional routines -- for a Movement instruction before doing anything else; if it finds one and no Robot was provided, it throws InvalidOperationException with a clear message instead of the NullReferenceException that would otherwise come from dereferencing an absent robot's tool/kinematics deep inside code generation. Movement instructions genuinely cannot be resolved to RAPID code (tool/workobject declarations, robtargets, ...) without a Robot, so this is a hard failure, not a toggleable warning like axis-limit enforcement. 
+ 	 - RAPIDGenerator: constructors now do robot?.Duplicate() instead of robot.Duplicate(); added ContainsMovement(actions) (recursing into ActionGroups, matching CheckFirstMovement's own ungrouping) and the robot-required check in CreateModule; guarded the two _robot.Tool declaration call sites. 
+ 	 - RAPIDGeneratorComponent: Robot input now Optional; SolveInstance no longer short-circuits when it's unconnected; CreateModule's call is wrapped in a try/catch that surfaces the exception as a GH runtime Error. 
+ 	 - 5 new RAPIDGeneratorTests: no robot + no movement succeeds, no robot + top-level movement throws, no robot + movement inside an ActionGroup throws, no robot + movement inside an additional routine throws, and a previously-set Robot cleared back to null behaves the same as never having had one. 
+ - No GH component parameter shape changed (Robot stays the same Param_Robot, same index -- Optional is a per-parameter flag restored from each saved component instance's own archived state on load, not a shape change), so this doesn't need the Obsolete/vN treatment. 
+ - Build clean (MSBuild), 663/663 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `fb890ea` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Add Persistent Data signal type to Connect Interrupt Signal Type gains a "Persistent Data" entry (SignalType.PersistentData), which connects the interrupt via RAPID's IPers instead of an ISignalXX instruction: CONNECT pers1int WITH iroutine1; IPers counter, pers1int; - Signal Name now accepts either plain text (for the existing DI/DO/AI/AO/GI/GO modes) or a RAPID Variable (for the PERS variable to monitor in Persistent Data mode), resolved via HelperMethods.ResolveRAPIDValueExpression -- the same handling used everywhere else a value can be either a literal or a RAPID declaration/variable/expression. 
+ 	 - Signal Value has no equivalent in IPers (it takes no triggering value), so it's now flagged with a runtime warning when connected in Persistent Data mode instead of being silently ignored. 
+ - Signal Name's input param type change (Param_String -> Param_GenericObject) is a breaking serialization change for an already-shipped component, so this follows the project's Obsolete/vN + IGH_UpgradeObject pattern a second time for this component (the first was v5, when the Enable/Disable Interrupts outputs were added): - RobotComponents.ABB.Gh/Obsolete/v7/ConnectInterruptComponent_OBSOLETE2.cs: frozen pre-change snapshot of the v5 shape, same guid, hidden + Obsolete = true. 
+ 	 - Live component: new guid. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v7/ConnectInterruptComponentUpgrader2.cs: wires every input/output across by index (wire-only migration throughout). 
+ - This is a second upgrade hop after the v5 upgrader -- an instance saved with the original shipped guid needs "Upgrade Components" run twice to reach the current live shape. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `ea2d94b` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Accept RAPID Variables/Expressions for Numeric Entry Box's Initial Value The Initial Value input only took a literal double, unlike the RAPID-expression handling used elsewhere for numeric inputs (Offs' X/Y/Z, Get Array At Index's Index): changed it from Param_Number to Param_RAPIDExpression, resolved via HelperMethods.CheckRAPIDExpression like those. The range-vs-initial-value sanity-check warning still fires for a literal numeric value, and is skipped (rather than throwing) when Initial Value is a variable/expression that can't be range-checked at solve time. 
+ - This changes an already-shipped component's input param type, so it needs the project's Obsolete/vN + IGH_UpgradeObject treatment: - RobotComponents.ABB.Gh/Obsolete/v6/NumEntryBoxComponent_OBSOLETE.cs: frozen pre-change snapshot, original GUID, hidden + Obsolete = true. 
+ 	 - Live component: new GUID. 
+ 	 - RobotComponents.ABB.Gh/Upgraders/v6/NumEntryBoxComponentUpgrader.cs: wires every input/output across by index (wire-only migration throughout, per the established convention -- see UpgradeHelpers), so GH's own "Upgrade Components" can swap old instances for the live one automatically. 
+ - Build clean (MSBuild), 658/658 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `5afa661` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Load system modules into every task directly instead of via AllTask config + restart The previous UploadSystemModule wrote the module to HOME:/Robot Components/System Modules, registered it in the controller's SYS configuration domain for automatic AllTask-shared loading, and warm-restarted the controller on every upload. That restart-on-every-upload has proven unreliable and is disruptive during iteration. 
+ - UploadSystemModule now uploads the module the same way UploadModule uploads a regular module (write to the regular temp directory, PutDirectory, then LoadModuleFromFile) and loops that load step over every task on the controller, skipping (not aborting on) any task that's currently running. No restart, no SYS config edits, no HOME: placement. 
+ - The module still carries the SYSMODULE attribute, so PERS/CONST data declared before its first routine still resolves to a single shared instance across every task that loads it -- that part of RAPID's behavior is tied to the SYSMODULE attribute itself, not to how the module got loaded. VAR data declared there does NOT get this treatment: each task gets its own independent copy, which silently defeats the point of putting it there since it reads as shared (declared once, before any routine). 
+ 	 - HelperMethods.FindNonSharedModuleData(module): scans a module's shared-data section (MODULE header up to its first PROC/FUNC/TRAP) and returns the declarations that use a keyword other than PERS or CONST. TASK PERS is deliberately excluded (it's per-task by design, not accidentally unshared). 
+ - 7 new regression tests in HelperMethodTests.cs. 
+ 	 - UploadModule/UploadHelperModules/UploadSystemModule gain an `out List<string> warnings` parameter carrying any such findings; UploadProgramComponent and UploadHelperModulesComponent now surface each as a GH runtime warning even when the upload itself succeeds. 
+ 	 - UploadSystemModule dropped its now-unused taskName/shared parameters (every system module now always loads into every task) and the dead _localSystemDirectory/_remoteSystemDirectory fields + ConfigurationDomain using it depended on. 
+ 	 - Updated the 2 existing ControllerGrantTests call sites for the new signatures. 
+ - Build clean (MSBuild), 665/665 tests passing. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `6c520dc` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge pull request #26 from jpdrude/fix/current-robot-target-icon Update Current Robot Target icon 
+  
+   **Commit:** `077f67f` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Update Current Robot Target icon Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `3338dbd` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Update Current Robot Target icon Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> 
+  
+   **Commit:** `ed0ade8` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
+ - Merge pull request #25 from jpdrude/feature/current-robot-target-component Add Current Robot Target component wrapping RAPID's CRobT 
+  
+   **Commit:** `738fe8c` | **Date:** 2026-09-04 
+ 
+ --- 
+ 
  - Add Current Robot Target component wrapping RAPID's CRobT New GH component (Advanced RAPID Features > Current Robot Target, nickname CRobT) that wraps CRobT([\TaskRef]|[\TaskName] [\Tool] [\WObj]) into a RAPID expression, returning the robot's current TCP position as a robtarget. 
  	 - Two optional generic inputs, Tool and Work Object, each resolved via HelperMethods.ResolveRAPIDValueExpression (accepts a Robot Tool/Work Object declaration, a RAPID Variable, a RAPID Expression, or plain text). Leaving either unconnected omits its \Tool / \WObj switch; with neither connected the output is plain CRobT(). 
  	 - Built directly via RAPIDExpression.FromString rather than FromFunctionCall, since CRobT's optional switch arguments are space-separated (\Tool:=t1 \WObj:=w1), not comma-separated like a regular RAPID function call. 
@@ -600,6 +1174,12 @@
  - Add link to ko-fi 
   
    **Commit:** `8f84f16` | **Date:** 2026-03-16 
+ 
+ --- 
+ 
+ - Adds current ABB PC SDK assembly. 
+  
+   **Commit:** `84297ee` | **Date:** 2026-03-09 
  
  --- 
  
