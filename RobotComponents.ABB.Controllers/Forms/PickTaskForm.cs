@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later
 // This file is part of Robot Components
 // Project: https://github.com/RobotComponents/RobotComponents
 //
@@ -28,14 +28,15 @@ namespace RobotComponents.ABB.Controllers.Forms
         private string _taskName = "-";
         private bool _allTasksSelected = false;
         private readonly List<string> _taskNames;
+        private readonly List<string> _boxItems;
         private readonly Label _labelName = new Label() { Text = "-", TextAlignment = TextAlignment.Right, Height = _height };
         private readonly Label _labelType = new Label() { Text = "-", TextAlignment = TextAlignment.Right, Height = _height };
         private readonly Label _labelEnabled = new Label() { Text = "-", TextAlignment = TextAlignment.Right, Height = _height };
         private readonly ComboBox _box = new ComboBox() { Height = _height };
-        private readonly CheckBox _allTasksCheckBox = new CheckBox() { Text = "Upload to all tasks", Checked = false };
         private readonly bool _allowAllTasksOption;
 
         private const int _height = 21;
+        private const string _allTasksItem = "All Tasks";
         #endregion
 
         #region constructors
@@ -44,10 +45,10 @@ namespace RobotComponents.ABB.Controllers.Forms
         /// </summary>
         /// <param name="controller"> The controller to pick a task from. </param>
         /// <param name="allowAllTasksOption">
-        /// If true, adds an "Upload to all tasks" checkbox. The task picked in the dropdown is
-        /// still required either way (it's still used for anything that can only ever target one
-        /// task); the checkbox only affects what a caller that specifically supports it -- e.g.
-        /// UploadHelperModulesComponent, for its system-module branches -- does with that on top.
+        /// If true, adds an "All Tasks" entry at the top of the task list. Picking it sets
+        /// <see cref="AllTasksSelected"/>; <see cref="TaskName"/> still returns the first real
+        /// task on the controller in that case, for callers that need a concrete single task
+        /// regardless (e.g. for validation, or anything that can only ever target one task).
         /// </param>
         public PickTaskForm(Controller controller, bool allowAllTasksOption = false)
         {
@@ -62,16 +63,24 @@ namespace RobotComponents.ABB.Controllers.Forms
             _taskNames = _controller.TasksABB.ConvertAll(item => item.Name);
             _allowAllTasksOption = allowAllTasksOption;
 
+            // The combo box shows "All Tasks" (if allowed) followed by every real task name;
+            // _boxItems is index-aligned with the combo box, _taskNames stays just the real names.
+            _boxItems = _allowAllTasksOption
+                ? new List<string>(_taskNames.Count + 1) { _allTasksItem }
+                : new List<string>(_taskNames.Count);
+            _boxItems.AddRange(_taskNames);
+
             // Controls
             Button button = new Button() { Text = "OK" };
-            _box = new ComboBox() { DataStore = _taskNames, Height = _height };
+            _box = new ComboBox() { DataStore = _boxItems, Height = _height };
 
             // Assign events
             button.Click += ButtonClick;
             _box.SelectedIndexChanged += IndexChanged;
 
-            // Select index
-            _box.SelectedIndex = 0;
+            // Select index -- the first real task by default, not "All Tasks", even when it's
+            // available: opting into every task should take a deliberate pick, not be the default.
+            _box.SelectedIndex = _allowAllTasksOption ? 1 : 0;
 
             // Labels
             Label selectLabel = new Label() { Text = "Select a task", Font = new Font(SystemFont.Bold), Height = _height };
@@ -87,20 +96,8 @@ namespace RobotComponents.ABB.Controllers.Forms
             layout.AddSeparateRow(new Label() { Text = "Type", Height = _height }, _labelType);
             layout.AddSeparateRow(new Label() { Text = "Enabled", Height = _height }, _labelEnabled);
             layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-
-            if (_allowAllTasksOption)
-            {
-                layout.AddSeparateRow(_allTasksCheckBox);
-                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-            }
-            else
-            {
-                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-            }
-
+            layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+            layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
             layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
             layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
             layout.AddSeparateRow(button);
@@ -110,24 +107,56 @@ namespace RobotComponents.ABB.Controllers.Forms
         #endregion
 
         #region methods
+        /// <summary>
+        /// True while the combo box's current selection is the "All Tasks" entry (only ever
+        /// possible when this form was constructed with allowAllTasksOption true).
+        /// </summary>
+        private bool IsAllTasksIndex(int index)
+        {
+            return _allowAllTasksOption && index == 0;
+        }
+
         private void IndexChanged(object sender, EventArgs e)
         {
-            _labelName.Text = _controller.TasksABB[_box.SelectedIndex].Name;
-            _labelType.Text = _controller.TasksABB[_box.SelectedIndex].Type.ToString();
-            _labelEnabled.Text = _controller.TasksABB[_box.SelectedIndex].Enabled.ToString();
+            if (IsAllTasksIndex(_box.SelectedIndex))
+            {
+                _labelName.Text = _allTasksItem;
+                _labelType.Text = "-";
+                _labelEnabled.Text = "-";
+                return;
+            }
+
+            int taskIndex = _allowAllTasksOption ? _box.SelectedIndex - 1 : _box.SelectedIndex;
+            _labelName.Text = _controller.TasksABB[taskIndex].Name;
+            _labelType.Text = _controller.TasksABB[taskIndex].Type.ToString();
+            _labelEnabled.Text = _controller.TasksABB[taskIndex].Enabled.ToString();
         }
 
         private void ButtonClick(object sender, EventArgs e)
         {
-            _taskName = _taskNames[_box.SelectedIndex];
-            _allTasksSelected = _allowAllTasksOption && _allTasksCheckBox.Checked == true;
+            if (IsAllTasksIndex(_box.SelectedIndex))
+            {
+                _allTasksSelected = true;
+                _taskName = _taskNames.Count > 0 ? _taskNames[0] : "-";
+            }
+            else
+            {
+                int taskIndex = _allowAllTasksOption ? _box.SelectedIndex - 1 : _box.SelectedIndex;
+                _allTasksSelected = false;
+                _taskName = _taskNames[taskIndex];
+            }
+
             Close(true);
         }
         #endregion
 
         #region properties
         /// <summary>
-        /// Gets the picked task name.
+        /// Gets the picked task name. When "All Tasks" was picked, this is the first real task on
+        /// the controller -- callers that need a single concrete task regardless (e.g. for
+        /// validation, or anything that can only ever target one task) can still use it as-is;
+        /// callers that support uploading to every task should check <see cref="AllTasksSelected"/>
+        /// first instead.
         /// </summary>
         public string TaskName
         {
@@ -135,8 +164,8 @@ namespace RobotComponents.ABB.Controllers.Forms
         }
 
         /// <summary>
-        /// Gets whether the "Upload to all tasks" checkbox was checked. Always false when this
-        /// form was constructed with allowAllTasksOption left false.
+        /// Gets whether the "All Tasks" entry was picked. Always false when this form was
+        /// constructed with allowAllTasksOption left false.
         /// </summary>
         public bool AllTasksSelected
         {
