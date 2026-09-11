@@ -138,6 +138,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 Params.Input[i].Name = $"Argument Value {i - staticInputCount + 1}";
                 Params.Input[i].NickName = $"Val{i - staticInputCount + 1}";
+                HelperMethods.ApplyFullNamesPreference(Params.Input[i]);
             }
         }
 

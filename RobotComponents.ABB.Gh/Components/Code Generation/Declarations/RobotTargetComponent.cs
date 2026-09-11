@@ -59,6 +59,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference to every optional input this instance can
+            // ever show, without risking overwriting a name customized after one is shown.
+            for (int i = 0; i < _variableInputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableInputParameters[i]);
+            }
         }
 
         /// <summary>

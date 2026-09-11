@@ -81,6 +81,20 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // _variableOutputParameters (field initializer, already populated by this point) holds
+            // every optional output this component can ever show, constructed fresh right here for
+            // this instance -- exactly the "nothing to protect yet" moment ApplyFullNamesPreference
+            // is meant for. Only index 0 ("Path") goes through RegisterOutputParams normally and so
+            // is already covered by GH's own Draw Full Names conversion; the rest (1-14) are added
+            // later via the right-click menu, at which point they're just re-registered as-is (see
+            // AddOutputParameter) with no further Name/NickName changes -- so this is also the only
+            // safe point to apply the preference without risking overwriting a name the user
+            // customized after showing one of them.
+            for (int i = 0; i < _variableOutputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableOutputParameters[i]);
+            }
         }
 
         /// <summary>

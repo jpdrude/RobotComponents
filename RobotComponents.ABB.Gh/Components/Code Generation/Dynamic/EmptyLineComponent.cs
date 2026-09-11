@@ -148,14 +148,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             if (_typeInputParam)
             {
-                Params.RegisterInputParam(new Param_Integer
+                Param_Integer typeInputParam = new Param_Integer
                 {
                     Name        = _typeParamName,
                     NickName    = "T",
                     Description = "Type of the empty line. Use 0 for adding it as an instruction, 1 for adding it as a declaration.",
                     Access      = GH_ParamAccess.item,
                     Optional    = true
-                });
+                };
+
+                HelperMethods.ApplyFullNamesPreference(typeInputParam);
+                Params.RegisterInputParam(typeInputParam);
             }
             else
             {

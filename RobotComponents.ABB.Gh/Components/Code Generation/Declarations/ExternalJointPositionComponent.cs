@@ -50,6 +50,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference -- but only to the truly optional slots
+            // (indices 2-5, "C".."F"). Indices 0/1 ("A"/"B") are never registered as-is; their
+            // Name/NickName are only read as templates for a fresh pManager-created param in
+            // RegisterInputParams, which already goes through the normal, already-covered path.
+            for (int i = 2; i < externalAxisParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(externalAxisParameters[i]);
+            }
         }
 
         /// <summary>

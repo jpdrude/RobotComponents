@@ -499,6 +499,56 @@ namespace RobotComponents.ABB.Gh.Utils
         {
             return CreateValueList(CreateValueList(names), location);
         }
+
+        /// <summary>
+        /// If GH's "Draw Full Names" canvas preference is currently on, sets the given parameter's
+        /// NickName to its Name. Meant to be called right after constructing a parameter at
+        /// runtime -- i.e. anywhere a component registers a new IGH_Param outside of its own
+        /// RegisterInputParams/RegisterOutputParams (a menu/zui-added optional parameter, or a
+        /// fresh component built by an IGH_UpgradeObject.Upgrade()).
+        /// </summary>
+        /// <remarks>
+        /// "Draw Full Names" is not a live rendering switch -- toggling it calls
+        /// GH_Document.ConvertNickNamesToFullNames()/ConvertFullNamesToNickNames() once, which
+        /// walks every object's parameters as of that moment and copies Name into NickName (or
+        /// back). A parameter that gets added later never goes through that pass and is
+        /// permanently stuck showing its short NickName, even while the preference stays on --
+        /// this reproduces that same one-time copy for a parameter that didn't exist yet, at the
+        /// one point (construction) where doing so unconditionally can never overwrite a name the
+        /// user customized by hand, since there's nothing to customize yet.
+        /// </remarks>
+        /// <param name="param"> The freshly constructed parameter. </param>
+        public static void ApplyFullNamesPreference(IGH_Param param)
+        {
+            if (CentralSettings.CanvasFullNames)
+            {
+                param.NickName = param.Name;
+            }
+        }
+
+        /// <summary>
+        /// Applies <see cref="ApplyFullNamesPreference(IGH_Param)"/> to every current input and
+        /// output parameter of the given component. Meant to be called once, right after building
+        /// a brand new component instance from an IGH_UpgradeObject.Upgrade() -- every one of its
+        /// parameters is freshly constructed (via its own RegisterInputParams/RegisterOutputParams
+        /// and, where applicable, whatever ConfigureForUpgrade(...) hook put it into the right
+        /// optional-parameter mode before wire migration), so there's nothing to protect against
+        /// overwriting there either.
+        /// </summary>
+        /// <param name="component"> The freshly constructed replacement component. </param>
+        public static void ApplyFullNamesPreference(IGH_Component component)
+        {
+            if (!CentralSettings.CanvasFullNames) { return; }
+
+            for (int i = 0; i < component.Params.Input.Count; i++)
+            {
+                component.Params.Input[i].NickName = component.Params.Input[i].Name;
+            }
+            for (int i = 0; i < component.Params.Output.Count; i++)
+            {
+                component.Params.Output[i].NickName = component.Params.Output[i].Name;
+            }
+        }
         #endregion
 
         #region properties

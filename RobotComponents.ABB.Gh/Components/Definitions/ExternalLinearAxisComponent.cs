@@ -25,6 +25,7 @@ using GH_IO.Serialization;
 using Rhino.Geometry;
 // RobotComponents Libs
 using RobotComponents.ABB.Gh.Parameters.Definitions;
+using RobotComponents.ABB.Gh.Utils;
 using RobotComponents.ABB.Definitions;
 
 namespace RobotComponents.ABB.Gh.Components.Definitions
@@ -50,6 +51,14 @@ namespace RobotComponents.ABB.Gh.Components.Definitions
         {
             // Create the component label with a message
             Message = "EXTENDABLE";
+
+            // See PathGeneratorComponent's constructor for why this is the one safe point to
+            // apply the Draw Full Names preference to every optional input this instance can
+            // ever show, without risking overwriting a name customized after one is shown.
+            for (int i = 0; i < _variableInputParameters.Length; i++)
+            {
+                HelperMethods.ApplyFullNamesPreference(_variableInputParameters[i]);
+            }
         }
 
         /// <summary>

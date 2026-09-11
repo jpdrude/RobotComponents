@@ -201,13 +201,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             int varCount = Params.Input.Count - 1 - _fixedInputCount;
             int pairNum  = varCount / 2 + 1;
 
-            return new Param_RAPIDExpression
+            Param_RAPIDExpression conditionParam = new Param_RAPIDExpression
             {
                 Name        = $"ELSEIF {pairNum} Condition",
                 NickName    = $"EC{pairNum}",
                 Description = $"Condition for ELSEIF branch {pairNum} as a RAPID expression.",
                 Access      = GH_ParamAccess.item
             };
+
+            HelperMethods.ApplyFullNamesPreference(conditionParam);
+            return conditionParam;
         }
 
         /// <summary>
@@ -277,14 +280,17 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                         var doc = OnPingDocument();
                         doc?.ScheduleSolution(5, d =>
                         {
-                            Params.RegisterInputParam(new Param_Action
+                            Param_Action elseIfActionsParam = new Param_Action
                             {
                                 Name        = $"ELSEIF {pairNum} Actions",
                                 NickName    = $"EA{pairNum}",
                                 Description = $"Actions to execute when ELSEIF {pairNum} condition is true.",
                                 Access      = GH_ParamAccess.list,
                                 Optional    = true
-                            }, insertAt);
+                            };
+
+                            HelperMethods.ApplyFullNamesPreference(elseIfActionsParam);
+                            Params.RegisterInputParam(elseIfActionsParam, insertAt);
                             Params.OnParametersChanged();
                             RenumberElseIfs();
                         });
@@ -313,9 +319,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 Params.Input[condIdx].Name    = $"ELSEIF {i + 1} Condition";
                 Params.Input[condIdx].NickName = $"EC{i + 1}";
+                HelperMethods.ApplyFullNamesPreference(Params.Input[condIdx]);
 
                 Params.Input[actIdx].Name    = $"ELSEIF {i + 1} Actions";
                 Params.Input[actIdx].NickName = $"EA{i + 1}";
+                HelperMethods.ApplyFullNamesPreference(Params.Input[actIdx]);
             }
         }
         #endregion

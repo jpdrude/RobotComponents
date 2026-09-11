@@ -241,7 +241,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
             if (_interruptNameInputParam)
             {
-                Params.RegisterInputParam(new Param_String
+                Param_String interruptNameParam = new Param_String
                 {
                     Name        = _interruptNameParamName,
                     NickName    = "IVN",
@@ -251,7 +251,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                                   "a distinct name.",
                     Access      = GH_ParamAccess.item,
                     Optional    = true
-                });
+                };
+
+                HelperMethods.ApplyFullNamesPreference(interruptNameParam);
+                Params.RegisterInputParam(interruptNameParam);
             }
             else
             {

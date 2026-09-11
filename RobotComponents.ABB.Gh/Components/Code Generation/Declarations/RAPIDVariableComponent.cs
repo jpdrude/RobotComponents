@@ -317,13 +317,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     Params.UnregisterInputParameter(valueParam, true);
 
                 // Add "Array Size" at the end of fixed params
-                Params.RegisterInputParam(new Param_Integer
+                Param_Integer arraySizeParam = new Param_Integer
                 {
                     Name        = _arraySizeName,
                     NickName    = "AS",
                     Description = "Number of elements in the array.",
                     Access      = GH_ParamAccess.item
-                }, _fixedParamCount);
+                };
+
+                HelperMethods.ApplyFullNamesPreference(arraySizeParam);
+                Params.RegisterInputParam(arraySizeParam, _fixedParamCount);
 
                 // Add "Values" after Array Size
                 Params.RegisterInputParam(CreateArrayValuesParam(), _fixedParamCount + 1);
@@ -350,7 +353,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private static Param_GenericObject CreateScalarValueParam()
         {
-            return new Param_GenericObject
+            Param_GenericObject param = new Param_GenericObject
             {
                 Name        = _valueName,
                 NickName    = "V",
@@ -361,6 +364,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 Access      = GH_ParamAccess.item,
                 Optional    = true
             };
+
+            HelperMethods.ApplyFullNamesPreference(param);
+            return param;
         }
 
         /// <summary>
@@ -369,7 +375,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         private static Param_GenericObject CreateArrayValuesParam()
         {
-            return new Param_GenericObject
+            Param_GenericObject param = new Param_GenericObject
             {
                 Name        = _valuesName,
                 NickName    = "V",
@@ -380,6 +386,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 Access      = GH_ParamAccess.list,
                 Optional    = true
             };
+
+            HelperMethods.ApplyFullNamesPreference(param);
+            return param;
         }
         #endregion
 

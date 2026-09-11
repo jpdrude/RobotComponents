@@ -139,6 +139,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 Params.Input[i].Name = $"Actions {_buttonNames[i - _staticInputCount]}";
                 Params.Input[i].NickName = $"btn_{i - _staticInputCount + 1}";
+                HelperMethods.ApplyFullNamesPreference(Params.Input[i]);
             }
         }
 
