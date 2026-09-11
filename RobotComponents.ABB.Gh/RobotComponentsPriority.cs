@@ -91,10 +91,19 @@ namespace RobotComponents.ABB.Gh
         /// </summary>
         private static void FixOptionalParameterNames()
         {
-            GH_Document document = Instances.ActiveCanvas?.Document;
+            GH_Canvas canvas = Instances.ActiveCanvas;
+            GH_Document document = canvas?.Document;
             if (document == null) { return; }
 
             SweepDrawFullNames(document, CentralSettings.CanvasFullNames);
+
+            // ExpireLayout() (inside SweepDrawFullNames) only marks each changed component's own
+            // layout stale for whenever it next gets drawn -- it doesn't itself repaint anything.
+            // GH's own "Draw Full Names" menu handler follows its equivalent conversion with
+            // exactly this same canvas.Invalidate() call (confirmed via IL decompilation); nothing
+            // else does that for a standalone menu action like this one, which is why the change
+            // used to only become visible after some unrelated canvas interaction forced a repaint.
+            canvas.Invalidate();
         }
 
         /// <summary>
@@ -110,10 +119,12 @@ namespace RobotComponents.ABB.Gh
         /// </summary>
         private static void FixComparisonOperatorSymbols()
         {
-            GH_Document document = Instances.ActiveCanvas?.Document;
+            GH_Canvas canvas = Instances.ActiveCanvas;
+            GH_Document document = canvas?.Document;
             if (document == null) { return; }
 
             string[] oldNames = { "LT", "GT", "LE", "GE", "EQ", "NE" };
+            bool changed = false;
 
             foreach (GH_ValueList valueList in document.Objects.OfType<GH_ValueList>())
             {
@@ -137,7 +148,13 @@ namespace RobotComponents.ABB.Gh
                 }
 
                 valueList.ExpireSolution(true);
+                changed = true;
             }
+
+            // See the matching comment in FixOptionalParameterNames above -- ExpireSolution()
+            // alone doesn't repaint the canvas, so without this the relabeled value list stayed
+            // invisible until some unrelated canvas interaction forced a redraw.
+            if (changed) { canvas.Invalidate(); }
         }
         #endregion
 
