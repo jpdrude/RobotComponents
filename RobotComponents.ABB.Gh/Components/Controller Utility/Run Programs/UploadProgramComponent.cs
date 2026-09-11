@@ -96,7 +96,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             {
                 _fromMenu = false;
                 _succeeded = GetTaskName();
-                this.Message = _allTasks ? $"{_taskName} (System: All)" : _taskName;
+                this.Message = _allTasks ? "All Tasks" : _taskName;
                 this.ExpirePreview(true);
             }
 
@@ -222,7 +222,7 @@ namespace RobotComponents.ABB.Gh.Components.ControllerUtility
             // files relied on only because there was no alternative at the time.
             _allTasks = reader.ItemExists("All Tasks") && reader.GetBoolean("All Tasks");
 
-            this.Message = _allTasks ? $"{_taskName} (System: All)" : _taskName;
+            this.Message = _allTasks ? "All Tasks" : _taskName;
             this.ExpirePreview(true);
 
             return base.Read(reader);
