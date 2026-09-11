@@ -91,11 +91,23 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             // AddOutputParameter) with no further Name/NickName changes -- so this is also the only
             // safe point to apply the preference without risking overwriting a name the user
             // customized after showing one of them.
+            //
+            // Snapshot the true, unmutated defaults into _optionalParameterDefaults BEFORE that
+            // loop runs -- OptionalParameterDefaults must always report the real original short
+            // nicknames for RobotComponentsPriority's retroactive sweep to compare against, never
+            // whatever the loop below may have already expanded them to.
+            _optionalParameterDefaults = _variableOutputParameters.Skip(1).Select(p => (p.Name, p.NickName)).ToList();
+
             for (int i = 0; i < _variableOutputParameters.Length; i++)
             {
                 HelperMethods.ApplyFullNamesPreference(_variableOutputParameters[i]);
             }
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults
+            => _optionalParameterDefaults;
+        private readonly IReadOnlyList<(string Name, string NickName)> _optionalParameterDefaults;
 
         /// <summary>
         /// Stores the variable output parameters in an array.

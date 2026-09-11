@@ -58,6 +58,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
         }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Only Return Type/Return Value are listed -- the "Argument N" inputs are an unbounded,
+        /// parameterized series (see VariableParameterMaintenance below), not a fixed set of
+        /// defaults, so there's no finite list to give here for them.
+        /// </remarks>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
+        {
+            (ReturnTypeParamName, "RT"),
+            (ReturnValueOutputName, "RV"),
+        };
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>

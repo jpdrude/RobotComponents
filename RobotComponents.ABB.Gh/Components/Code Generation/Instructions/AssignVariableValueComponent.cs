@@ -59,6 +59,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             Message = "EXTENDABLE";
         }
 
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
+        {
+            (_scalarValueName, "Val"),
+            (_arrayValuesName, "Val"),
+            (_indexParamName, "I"),
+        };
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>

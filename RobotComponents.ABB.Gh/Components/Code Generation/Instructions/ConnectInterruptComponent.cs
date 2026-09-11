@@ -61,6 +61,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         {
         }
 
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
+        {
+            (_interruptNameParamName, "IVN"),
+        };
+
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>

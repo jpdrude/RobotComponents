@@ -12,6 +12,7 @@
 
 // System Libs
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 // Grasshopper Libs
@@ -48,6 +49,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             "Right-click to add a Type input to choose instruction vs. declaration.")
         {
         }
+
+        /// <inheritdoc/>
+        public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
+        {
+            (_typeParamName, "T"),
+        };
 
         /// <summary>
         /// Registers all the input parameters for this component.
