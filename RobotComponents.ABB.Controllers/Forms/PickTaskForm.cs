@@ -26,11 +26,14 @@ namespace RobotComponents.ABB.Controllers.Forms
         #region fields
         private readonly Controller _controller = new Controller();
         private string _taskName = "-";
+        private bool _allTasksSelected = false;
         private readonly List<string> _taskNames;
         private readonly Label _labelName = new Label() { Text = "-", TextAlignment = TextAlignment.Right, Height = _height };
         private readonly Label _labelType = new Label() { Text = "-", TextAlignment = TextAlignment.Right, Height = _height };
         private readonly Label _labelEnabled = new Label() { Text = "-", TextAlignment = TextAlignment.Right, Height = _height };
         private readonly ComboBox _box = new ComboBox() { Height = _height };
+        private readonly CheckBox _allTasksCheckBox = new CheckBox() { Text = "Upload to all tasks", Checked = false };
+        private readonly bool _allowAllTasksOption;
 
         private const int _height = 21;
         #endregion
@@ -40,7 +43,13 @@ namespace RobotComponents.ABB.Controllers.Forms
         /// Constructs the form.
         /// </summary>
         /// <param name="controller"> The controller to pick a task from. </param>
-        public PickTaskForm(Controller controller)
+        /// <param name="allowAllTasksOption">
+        /// If true, adds an "Upload to all tasks" checkbox. The task picked in the dropdown is
+        /// still required either way (it's still used for anything that can only ever target one
+        /// task); the checkbox only affects what a caller that specifically supports it -- e.g.
+        /// UploadHelperModulesComponent, for its system-module branches -- does with that on top.
+        /// </param>
+        public PickTaskForm(Controller controller, bool allowAllTasksOption = false)
         {
             // Main layout
             Title = "Controller task";
@@ -51,6 +60,7 @@ namespace RobotComponents.ABB.Controllers.Forms
             // Task names
             _controller = controller;
             _taskNames = _controller.TasksABB.ConvertAll(item => item.Name);
+            _allowAllTasksOption = allowAllTasksOption;
 
             // Controls
             Button button = new Button() { Text = "OK" };
@@ -77,8 +87,20 @@ namespace RobotComponents.ABB.Controllers.Forms
             layout.AddSeparateRow(new Label() { Text = "Type", Height = _height }, _labelType);
             layout.AddSeparateRow(new Label() { Text = "Enabled", Height = _height }, _labelEnabled);
             layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-            layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
-            layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+
+            if (_allowAllTasksOption)
+            {
+                layout.AddSeparateRow(_allTasksCheckBox);
+                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+            }
+            else
+            {
+                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+                layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
+            }
+
             layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
             layout.AddSeparateRow(new Label() { Text = " ", Height = _height });
             layout.AddSeparateRow(button);
@@ -98,6 +120,7 @@ namespace RobotComponents.ABB.Controllers.Forms
         private void ButtonClick(object sender, EventArgs e)
         {
             _taskName = _taskNames[_box.SelectedIndex];
+            _allTasksSelected = _allowAllTasksOption && _allTasksCheckBox.Checked == true;
             Close(true);
         }
         #endregion
@@ -109,6 +132,15 @@ namespace RobotComponents.ABB.Controllers.Forms
         public string TaskName
         {
             get { return _taskName; }
+        }
+
+        /// <summary>
+        /// Gets whether the "Upload to all tasks" checkbox was checked. Always false when this
+        /// form was constructed with allowAllTasksOption left false.
+        /// </summary>
+        public bool AllTasksSelected
+        {
+            get { return _allTasksSelected; }
         }
         #endregion
     }
