@@ -37,11 +37,15 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         // root cause of two earlier attempts at this each failing a different way), the
         // Name/NickName we ourselves last assigned it -- either the "Input N" placeholder given
         // at creation, or a type name detected from what got wired into it. As long as the
-        // param's current Name still matches this, it's still "ours" to auto-rename; the moment a
-        // user renames it to anything else, it falls out of sync here and we leave it alone from
-        // then on. A null entry means "not yet assigned" (a genuinely new slot); "" is used as a
-        // baseline the param's real Name can never equal, for a slot that's been permanently
-        // excluded from auto-renaming (see EnsureConsistentState()).
+        // param's current NickName still matches this, it's still "ours" to auto-rename; the
+        // moment a user renames it to anything else, it falls out of sync here and we leave it
+        // alone from then on. Checked against NickName, not Name: a user can only ever rename a
+        // parameter's NickName from the canvas -- there is no "NameAccepted" GH_ObjectEventType at
+        // all (confirmed via IL decompilation of Grasshopper.dll), so Name is purely a property
+        // this component itself sets in code, never user-editable, and comparing it alone could
+        // never actually detect a real rename. A null entry means "not yet assigned" (a genuinely
+        // new slot); "" is used as a baseline the param's real NickName can never equal, for a
+        // slot that's been permanently excluded from auto-renaming (see EnsureConsistentState()).
         //
         // Persisted directly via Write/Read (see #region serialization below), the same one
         // mechanism GH itself uses for both a plain save/reload *and* copy/paste/duplicate -- so
@@ -49,10 +53,10 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
         // guid-remapping case to reason about at all.
         private readonly List<string> _lastAutoNames = new List<string>();
 
-        // Same idea as _lastAutoNames above, but for the OUTPUT side of each pair: the Name we
+        // Same idea as _lastAutoNames above, but for the OUTPUT side of each pair: the NickName we
         // ourselves last mirrored onto output i from its matching input. As long as the output's
-        // current Name still matches this, it's still ours to keep mirroring; the moment a user
-        // renames an output directly, it falls out of sync here and -- exactly like a custom
+        // current NickName still matches this, it's still ours to keep mirroring; the moment a
+        // user renames an output directly, it falls out of sync here and -- exactly like a custom
         // input rename -- is left alone forever after. Without this, EnsureConsistentState()
         // used to force output.Name = input.Name unconditionally on every solve, with no way for
         // a user-set output name to ever survive past the next solve.
@@ -254,6 +258,24 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                     _lastAutoNames[i] = lastAuto;
                 }
 
+                // A user can only ever rename a parameter's NickName from the canvas -- there is
+                // no "NameAccepted" GH_ObjectEventType at all (confirmed via IL decompilation of
+                // Grasshopper.dll: GH_ObjectEventType only has NickName/NickNameAccepted), so Name
+                // is purely a property this component itself sets in code and a user genuinely
+                // cannot edit interactively. Comparing input.Name alone therefore can never detect
+                // a real rename -- it stays exactly as this component last set it regardless of
+                // what the user does on canvas. Checking NickName here is what actually catches
+                // it: the moment it diverges from what we last assigned, resync Name to match (so
+                // this component's own invariant -- Name and NickName always equal for a slot it's
+                // still managing -- holds again) and freeze this slot for good, the same one-way
+                // freeze already used for every other "no longer ours" case.
+                if (lastAuto.Length > 0 && input.NickName != lastAuto)
+                {
+                    input.Name = input.NickName;
+                    lastAuto = "";
+                    _lastAutoNames[i] = lastAuto;
+                }
+
                 bool stillOurs = lastAuto.Length > 0 && input.Name == lastAuto;
 
                 if (stillOurs && input.SourceCount > 0)
@@ -272,13 +294,15 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                 // been custom-renamed by the user. _lastMirroredOutputNames[i] is the Name we
                 // ourselves last wrote to output i; a null entry means this slot has never been
                 // mirrored yet (a genuinely fresh pair), which is just as safe to mirror as a
-                // match. The moment output.Name diverges from that, it's a custom rename -- stop
-                // touching this output's Name/NickName for good, the same one-way freeze already
-                // used for a custom input rename above.
+                // match. The moment output.NickName diverges from that, it's a custom rename --
+                // stop touching this output's Name/NickName for good, the same one-way freeze
+                // already used for a custom input rename above. Checked against NickName, not
+                // Name, for the same reason as the input side above: a user can only ever rename
+                // NickName from the canvas, so comparing Name alone would never actually catch it.
                 IGH_Param output = Params.Output[i];
                 string lastMirrored = _lastMirroredOutputNames[i];
 
-                if (lastMirrored == null || output.Name == lastMirrored)
+                if (lastMirrored == null || output.NickName == lastMirrored)
                 {
                     if (output.Name != input.Name || output.NickName != input.NickName)
                     {
@@ -287,7 +311,8 @@ namespace RobotComponents.ABB.Gh.Components.Utilities
                         output.Attributes?.ExpireLayout();
                     }
 
-                    _lastMirroredOutputNames[i] = input.Name;
+                    // Stored as NickName, matching what this slot is compared against above.
+                    _lastMirroredOutputNames[i] = input.NickName;
                 }
             }
 
