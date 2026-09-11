@@ -224,20 +224,28 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             msgBoxCode.Add(new CodeLine("LOCAL VAR btnRes msgBoxAnswer;", CodeType.Declaration));
             msgBoxCode.Add(new CodeLine($"msgBoxAnswer := UIMessageBox(\\Header:=\"{header}\" \\MsgArray:=[{msgArray}] \\BtnArray:=[{btnArray}]);"));
 
+            // TEST/CASE/ENDTEST instead of a chain of IF msgBoxAnswer = n THEN ... ENDIF blocks --
+            // msgBoxAnswer only ever holds one value at a time, so a TEST expression (RAPID's
+            // equivalent of a switch/case, no fall-through and no BREAK needed between cases) is
+            // both the more idiomatic RAPID construct here and matches what actual RAPID code for
+            // this exact UIMessageBox/msgBoxAnswer pattern conventionally looks like.
+            msgBoxCode.Add(new CodeLine("TEST msgBoxAnswer", CodeType.Instruction));
+
             int answerCounter = 1;
             foreach (List<IAction> btnCode in btnActions)
             {
-                msgBoxCode.Add(new CodeLine($"IF msgBoxAnswer = {answerCounter} THEN", CodeType.Instruction));
+                msgBoxCode.Add(new CodeLine($"CASE {answerCounter}:", CodeType.Instruction));
                 foreach (IAction action in btnCode)
                 {
                     IAction dup = action.DuplicateAction();
                     dup.IndentationLevel = action.IndentationLevel + 1;
                     msgBoxCode.Add(dup);
                 }
-                msgBoxCode.Add(new CodeLine("ENDIF", CodeType.Instruction));
 
                 ++answerCounter;
             }
+
+            msgBoxCode.Add(new CodeLine("ENDTEST", CodeType.Instruction));
 
             //Set Output
             DA.SetDataList(0, msgBoxCode);
