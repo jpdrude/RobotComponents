@@ -11,30 +11,137 @@
 // For license details, see the LICENSE file in the project root.
 
 // System Libs
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 // Grasshopper Libs
 using Grasshopper;
+using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Special;
 // RobotComponents Libs
 using RobotComponents.ABB.Gh.Components;
 
 namespace RobotComponents.ABB.Gh
 {
     /// <summary>
-    /// Runs once when the plugin loads, to wire up session-wide event subscriptions that don't
-    /// belong to any single component. GH auto-discovers a GH_AssemblyPriority the same way it
-    /// discovers components -- no registration needed, just a public parameterless constructor.
+    /// Runs once when the plugin loads, to wire up session-wide event subscriptions and a custom
+    /// "Robot Components" menu that don't belong to any single component. GH auto-discovers a
+    /// GH_AssemblyPriority the same way it discovers components -- no registration needed, just a
+    /// public parameterless constructor.
     /// </summary>
     public class RobotComponentsPriority : GH_AssemblyPriority
     {
+        private bool _menuAdded = false;
+
         /// <inheritdoc/>
         public override GH_LoadingInstruction PriorityLoad()
         {
             CentralSettings.CanvasFullNamesChanged += OnCanvasFullNamesChanged;
+            Instances.CanvasCreated += OnCanvasCreated;
             return GH_LoadingInstruction.Proceed;
         }
 
+        #region menu
+        /// <summary>
+        /// Adds a "Robot Components" entry to GH's own main menu bar the first time a canvas is
+        /// created (Instances.DocumentEditor / its MainMenu aren't valid any earlier than this --
+        /// PriorityLoad() itself runs before any editor window exists). Guarded by _menuAdded since
+        /// CanvasCreated could in principle fire more than once in a session.
+        /// </summary>
+        /// <remarks>
+        /// This exists instead of hooking GH's native "Upgrade Components" command. That command's
+        /// applicability check (GH_ComponentServer.IsUpgrader) is a plain "is there an upgrader
+        /// registered for this guid" lookup -- no per-instance "already fixed" tracking -- so
+        /// registering one against any of this project's own, heavily-used live component guids
+        /// would flag every instance of that component, in every file, as "upgradeable" forever,
+        /// even ones already fixed. An ordinary menu action the user runs on demand has none of
+        /// that permanent-nag downside, and is fully under this project's own naming/behavior.
+        /// </remarks>
+        private void OnCanvasCreated(GH_Canvas canvas)
+        {
+            if (_menuAdded) { return; }
+
+            // GH_DocumentEditor.MainMenu exists but is internal to Grasshopper.dll; GH_DocumentEditor
+            // is an ordinary System.Windows.Forms.Form though, and the standard, publicly inherited
+            // Form.MainMenuStrip property points at the exact same control once a form has one, so
+            // it's used here instead. Falls back to searching Controls directly, in case some future
+            // GH version stops assigning MainMenuStrip for whatever reason.
+            Form editor = Instances.DocumentEditor;
+            if (editor == null) { return; }
+
+            MenuStrip mainMenu = editor.MainMenuStrip
+                ?? editor.Controls.OfType<MenuStrip>().FirstOrDefault();
+            if (mainMenu == null) { return; }
+
+            ToolStripMenuItem root = new ToolStripMenuItem("Robot Components");
+            root.DropDownItems.Add("Fix Optional Parameter Names", null, (s, e) => FixOptionalParameterNames());
+            root.DropDownItems.Add("Fix Comparison Operator Symbols", null, (s, e) => FixComparisonOperatorSymbols());
+            mainMenu.Items.Add(root);
+
+            _menuAdded = true;
+        }
+
+        /// <summary>
+        /// Menu action: runs the same Draw Full Names sweep as OnCanvasFullNamesChanged below, on
+        /// demand, against the currently active document -- for a file that already has optional
+        /// parameters showing the wrong form (opened while the preference was already at its
+        /// current value from an earlier session, so the toggle event never fired for them).
+        /// </summary>
+        private static void FixOptionalParameterNames()
+        {
+            GH_Document document = Instances.ActiveCanvas?.Document;
+            if (document == null) { return; }
+
+            SweepDrawFullNames(document, CentralSettings.CanvasFullNames);
+        }
+
+        /// <summary>
+        /// Menu action: relabels every native Grasshopper Value List in the active document whose
+        /// items still exactly match the old, pre-fix "Comparison Operators" shape (enum member
+        /// names LT/GT/LE/GE/EQ/NE, with expressions "0".."5") to the actual RAPID comparison
+        /// symbols instead -- see HelperMethods.ComparisonOperatorSymbols. Formerly implemented as
+        /// an IGH_UpgradeObject hooked to GH_ValueList's own (shared, native) guid; moved here for
+        /// the same reason as FixOptionalParameterNames -- that guid is shared by every value list
+        /// in every file from any plugin, so GH's own "Upgrade Components" would have flagged every
+        /// value list, everywhere, forever, as a candidate, even ones already fixed or entirely
+        /// unrelated to this project.
+        /// </summary>
+        private static void FixComparisonOperatorSymbols()
+        {
+            GH_Document document = Instances.ActiveCanvas?.Document;
+            if (document == null) { return; }
+
+            string[] oldNames = { "LT", "GT", "LE", "GE", "EQ", "NE" };
+
+            foreach (GH_ValueList valueList in document.Objects.OfType<GH_ValueList>())
+            {
+                List<GH_ValueListItem> items = valueList.ListItems;
+                if (items.Count != oldNames.Length) { continue; }
+
+                bool matches = true;
+                for (int i = 0; i < items.Count; i++)
+                {
+                    if (items[i].Name != oldNames[i] || items[i].Expression != i.ToString())
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (!matches) { continue; }
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    items[i].Name = Utils.HelperMethods.ComparisonOperatorSymbols[i];
+                }
+
+                valueList.ExpireSolution(true);
+            }
+        }
+        #endregion
+
+        #region draw full names
         /// <summary>
         /// Retroactively applies GH's "Draw Full Names" canvas preference to every already-placed
         /// parameter this project itself knows a default (Name, NickName) pair for -- the ones
@@ -57,9 +164,9 @@ namespace RobotComponents.ABB.Gh
         /// the parameters it does reach.
         /// </para>
         /// <para>
-        /// Known gap: this only fires when the preference is actively toggled. A file opened while
-        /// "Draw Full Names" is already on from an earlier session (nothing changes this session,
-        /// so nothing fires) keeps whatever NickNames it was saved with.
+        /// Doesn't cover a file opened while "Draw Full Names" is already on from an earlier
+        /// session (nothing changes this session, so nothing fires here) -- see
+        /// FixOptionalParameterNames above, the on-demand menu action for exactly that case.
         /// </para>
         /// </remarks>
         private static void OnCanvasFullNamesChanged()
@@ -67,8 +174,15 @@ namespace RobotComponents.ABB.Gh
             GH_Document document = Instances.ActiveCanvas?.Document;
             if (document == null) { return; }
 
-            bool full = CentralSettings.CanvasFullNames;
+            SweepDrawFullNames(document, CentralSettings.CanvasFullNames);
+        }
 
+        /// <summary>
+        /// The actual document-wide sweep shared by the live toggle handler above and the
+        /// on-demand menu action.
+        /// </summary>
+        private static void SweepDrawFullNames(GH_Document document, bool full)
+        {
             foreach (GH_RobotComponent component in document.Objects.OfType<GH_RobotComponent>())
             {
                 IReadOnlyList<(string Name, string NickName)> defaults = component.OptionalParameterDefaults;
@@ -116,5 +230,6 @@ namespace RobotComponents.ABB.Gh
 
             return changed;
         }
+        #endregion
     }
 }
