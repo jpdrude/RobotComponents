@@ -3,8 +3,14 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-10-11 16:32 
+ Generated on: 2026-10-11 16:56 
  --- 
+ - Merge pull request #36 from jpdrude/integration/combined-open-changes Offset Target: external axis values and simulation 
+  
+   **Commit:** `86f2683` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
  - Offset Target: keep the source Robot Target as an object The Offset Target component froze its Robot Target input into RAPID text. An unnamed target was written inline with external axis values 9E9, because those values are only calculated by the RAPID Generator for a Move to a Robot Target. For a robot on a track, Offs() then kept 9E9 (Offs keeps the external axis values of its target). 
  	 - New OffsetTarget : ITarget, holding the source target (a Robot Target or a nested Offset Target) and X/Y/Z as RAPID expressions. 
  - Its RAPID text is the same as before: Offs(<name or inline>, X, Y, Z). 
