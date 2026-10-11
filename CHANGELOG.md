@@ -3,8 +3,125 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-09-11 11:55 
+ Generated on: 2026-10-11 16:32 
  --- 
+ - Offset Target: keep the source Robot Target as an object The Offset Target component froze its Robot Target input into RAPID text. An unnamed target was written inline with external axis values 9E9, because those values are only calculated by the RAPID Generator for a Move to a Robot Target. For a robot on a track, Offs() then kept 9E9 (Offs keeps the external axis values of its target). 
+ 	 - New OffsetTarget : ITarget, holding the source target (a Robot Target or a nested Offset Target) and X/Y/Z as RAPID expressions. 
+ - Its RAPID text is the same as before: Offs(<name or inline>, X, Y, Z). 
+ 	 - RAPIDExpression carries it as an optional Target (serialized as an optional entry; older data loads unchanged). Offset Target sets it for Robot Target and Offset Target inputs only; RAPID Variables and plain expressions are emitted as text exactly as before. 
+ 	 - GH_Target casts such an expression to the OffsetTarget instead of a text-only ReferenceTarget. 
+ 	 - RAPID Generator (Movement.ConvertTarget): a named source target gets the external axis values for its own position and is declared like a direct Move would declare it. An unnamed (inline) source gets the values for the offset position, or for its own position if the offsets are not numbers. A MoveAbsJ with numeric offsets becomes an inline joint target. 
+ 	 - Simulation (IK, Path Generator, Timed Path Generator) uses Movement.GetSimulationMovement(InverseKinematics), which applies the same external axis rule, so it matches the generated RAPID. 
+ 	 - Replaces the ResolvedTarget approach from the previous commit; ReferenceTarget is back to its original form. 
+ - No parameter shapes or ComponentGuids change. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `bb8b83f` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Simulate Offset Target moves in Path Generators and Inverse Kinematics A Move whose target comes from the Offset Target component gets a ReferenceTarget holding only the text "Offs(...)", so Path Generator, Timed Path Generator and Inverse Kinematics silently skipped it (or returned an all-zero pose). 
+ 	 - RAPIDExpression and ReferenceTarget can now carry an optional ResolvedTarget: the Robot Target the expression evaluates to, if known at design time. It is used only for simulation and never emitted to RAPID. It is serialized as an optional entry, so data saved before this change still loads. 
+ 	 - Offset Target computes that target when the input is a Robot Target (or a robtarget RAPID Variable with a value, or another offset target) and X/Y/Z are numbers. The offset is applied in the work object coordinate system, as RAPID's Offs() does; the component and X/Y/Z descriptions said "along the target's own axes", which was wrong, and are corrected. Otherwise it adds a remark that the result can't be simulated. 
+ 	 - GH_Target casts from a RAPID Expression pass the resolved target on. 
+ 	 - New Movement.GetSimulationMovement() swaps in the resolved Robot Target. PathGenerator, TimedPathGenerator, InverseKinematics and the IK component's closest-solution check use it. Reference targets with no known value now give a warning instead of being skipped silently. 
+ - No parameter shapes or ComponentGuids change. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `899529f` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Merge pull request #35 from jpdrude/integration/combined-open-changes Rename Decompose Robtarget component to Get Robtarget Members 
+  
+   **Commit:** `7d10116` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Rename Decompose Robtarget component to Get Robtarget Members Display name "Decompose Robtarget" (DecRT) -> "Get Robtarget Members" (GetRTMembers), to make clear it gives access to the members of a robtarget RAPID Variable and to avoid confusion with Deconstruct Robot Target. Class, source file and icon resource renamed to match; descriptions reworded. 
+ - ComponentGuid is unchanged, so existing .gh files keep loading this component (instances keep the nickname they were saved with). No Obsolete/Upgrader snapshot needed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `2005634` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Merge pull request #34 from jpdrude/integration/combined-open-changes System module task-targeting: single task by default, All Tasks as an explicit choice 
+  
+   **Commit:** `8f7a353` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Merge fix/all-tasks-position-and-label into integration/combined-open-changes Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `91b597b` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - PickTaskForm: move "All Tasks" to the bottom of the list, simplify component label - "All Tasks" now sits after every real task in the Select a task combo box instead of before them, per feedback that it should not lead the list. Real tasks keep their natural index, since the appended entry no longer shifts anything. 
+ 	 - The component Message shown on canvas when All Tasks is picked is now just "All Tasks" instead of "<first task> (System: All)", which read as if only the first task and only system modules were affected. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `cd37913` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Merge fix/upload-program-all-tasks-option into integration/combined-open-changes Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `6c46b81` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Upload Program: offer "All Tasks" for system modules too UploadHelperModulesComponent already had the "All Tasks" entry in its Pick Task form, but UploadProgramComponent (the "Upload Program" component, used to upload a single module -- including a raw system module -- directly) still called PickTaskForm without allowAllTasksOption, so no "All Tasks" entry ever showed up there. 
+ - Controller.UploadModule gains an optional systemModuleToAllTasks parameter (ignored for a regular, non-system module, mirroring how UploadHelperModules already treats it), and its SYSMODULE redirect to UploadSystemModule passes null as the target task when set, matching the same all-tasks contract UploadHelperModules already uses. 
+ - UploadProgramComponent now constructs its PickTaskForm with allowAllTasksOption: true, tracks AllTasksSelected in a new _allTasks field (serialized the same way as UploadHelperModulesComponent, old files defaulting to false), and passes it through to UploadModule. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `fb3a46e` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Merge fix/pick-task-form-all-tasks-list-entry into integration/combined-open-changes Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `8888b6a` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - PickTaskForm: make "All Tasks" an entry in the task list, not a checkbox Replaces the separate "Upload to all tasks" checkbox with an "All Tasks" entry prepended to the Select a task combo box itself, per explicit feedback that the checkbox design did not match what was asked for. 
+ - Picking "All Tasks" sets the new AllTasksSelected property; TaskName still falls back to the first real task in that case for callers that need one concrete task regardless (the upfront validation gate, and any non-system module branches in a mixed upload). The combo box defaults to the first real task, not All Tasks, so opting into every task stays a deliberate pick. 
+ - UploadHelperModulesComponent already called the form through this exact API shape (allowAllTasksOption / TaskName / AllTasksSelected), so no call-site changes were needed there. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `6d21dec` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - System modules upload to the selected task by default, not all tasks Reported: system modules were unconditionally loaded into every task on upload, with no way to target just the one selected task. 
+ - Root cause: Controller.UploadSystemModule() had no taskName parameter at all -- it always iterated every task on the controller. Both of its callers (UploadModule's SYSMODULE redirect, used by UploadProgramComponent, and UploadHelperModules' per-branch SYSMODULE redirect, used by UploadHelperModulesComponent) silently dropped the taskName the user had already picked for the rest of the upload. 
+ - Changed the default back to a single task, matching a regular module: - UploadSystemModule(module, out status, out warnings, taskName = null) -- taskName null/empty keeps the old "every task" behavior; a real task name restricts loading to just that one task. 
+ 	 - UploadModule's redirect now passes its own taskName through unconditionally -- system modules uploaded via UploadProgramComponent now always go to the single picked task, with no "all tasks" option there (that component targets one task's main program; "all tasks" was never meaningful for it). 
+ 	 - UploadHelperModules gained a systemModulesToAllTasks parameter (default false); only its own SYSMODULE-branch redirect is affected -- regular (non-system) branches in the same batch still always go to the one taskName, regardless of this flag. 
+ - Added the requested UI entry for choosing "all tasks" back, on UploadHelperModulesComponent specifically (the component whose whole purpose is system/helper modules): PickTaskForm gained an optional "Upload to all tasks" checkbox (allowAllTasksOption, off by default -- so UploadProgramComponent's picker is completely unchanged), surfaced as AllTasksSelected. A checkbox rather than a value list entry replacing the task dropdown: the underlying methods still always need one concretely picked task regardless (used for the upfront validity check and any non-system branches in the same batch), so "all tasks" reads more correctly as an additional toggle on top of that pick than as an alternative to picking one. 
+ - A file saved before this option existed has no "All Tasks" archive entry; Read() defaults that to false (a single task) rather than trying to preserve the old, unconditional "always every task" behavior those files only had because there was no alternative at the time -- consistent with the requested default actually changing back. 
+ - Build: 0 errors, no new warnings. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; the existing UploadSystemModule_EmptyController_ReturnsFalse test still compiles and passes unmodified against the new optional taskName parameter. 
+ - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
+  
+   **Commit:** `2656e6c` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Update version number 
+  
+   **Commit:** `ecfd22c` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
+ - Merge pull request #33 from jpdrude/integration/combined-open-changes Downgrade PathGenerator/TimedPathGenerator first-movement notice to a hint 
+  
+   **Commit:** `7e429dd` | **Date:** 2026-09-11 
+ 
+ --- 
+ 
  - MessageBoxComponent: generate TEST/CASE/ENDTEST instead of chained IF/ENDIF Per explicit request, with the exact RAPID syntax to match: TEST msgBoxAnswer CASE 1: <button 1 actions> CASE 2: <button 2 actions> ENDTEST Replaces the previous per-button "IF msgBoxAnswer = n THEN ... ENDIF" chain with a single TEST msgBoxAnswer / CASE n: / ENDTEST block. msgBoxAnswer only ever holds one value at a time, so this is both the more idiomatic RAPID construct for the pattern and matches conventional RAPID code for UIMessageBox/msgBoxAnswer. RAPID's TEST has no fall-through between cases (unlike a C-style switch), so no BREAK statement is needed or emitted. 
  - TEST/CASE/ENDTEST sit at the same indentation level (matching the sample RAPID exactly); each button's actions are indented one level in, same as the bodies of the old IF blocks were. 
  - Build: 0 errors. Tests: 679/679 passed (RobotComponents.Tests) -- unchanged; no test coverage exists for this component's generated code (GH_Component classes aren't unit tested in this project; verification is manual, in Grasshopper itself). 
@@ -111,6 +228,12 @@
  - Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com> Claude-Session: https://claude.ai/code/session_01NrcWFvZFd6RGcSK3ZhKTFh 
   
    **Commit:** `7a8908c` | **Date:** 2026-09-10 
+ 
+ --- 
+ 
+ - Merge pull request #32 from jpdrude/integration/combined-open-changes Fix Multi Relay: protect custom output names, fix output misalignment on add/remove 
+  
+   **Commit:** `4a971b7` | **Date:** 2026-09-10 
  
  --- 
  
