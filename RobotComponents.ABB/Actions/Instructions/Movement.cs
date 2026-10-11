@@ -24,6 +24,7 @@ using Rhino.Geometry;
 using RobotComponents.ABB.Definitions;
 using RobotComponents.ABB.Enumerations;
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Kinematics;
 
 namespace RobotComponents.ABB.Actions.Instructions
 {
@@ -542,25 +543,58 @@ namespace RobotComponents.ABB.Actions.Instructions
         /// Returns the movement the kinematics should simulate for this movement.
         /// </summary>
         /// <remarks>
-        /// If the target is a Reference Target whose value is known at design time (e.g. the output of the
-        /// Offset Target component), this returns a duplicate (without meshes) with that resolved Robot Target
-        /// as its target, named after the reference expression. Otherwise this movement itself is returned.
-        /// The RAPID code is always generated from the original movement.
+        /// If the target is an Offset Target with numeric offsets, this returns a duplicate (without meshes) with the
+        /// offset Robot Target as its target, named after the Offs(...) call. Its external axis values match the ones
+        /// the RAPID Generator writes: a named source target keeps the values calculated for its own position (Offs()
+        /// keeps them), an unnamed source target gets them calculated for the offset position, like a direct move.
+        /// Otherwise this movement itself is returned. The RAPID code is always generated from the original movement.
         /// </remarks>
+        /// <param name="inverseKinematics"> The inverse kinematics of the robot, used to calculate external axis values. </param>
         /// <returns> The movement to use for inverse kinematics and path generation. </returns>
-        public Movement GetSimulationMovement()
+        public Movement GetSimulationMovement(InverseKinematics inverseKinematics)
         {
-            if (_target is ReferenceTarget referenceTarget && referenceTarget.ResolvedTarget != null)
+            if (_target is OffsetTarget offsetTarget)
             {
-                RobotTarget resolved = referenceTarget.ResolvedTarget;
+                RobotTarget offset = offsetTarget.GetOffsetRobotTarget();
+
+                if (offset == null)
+                {
+                    return this;
+                }
+
+                offset.Name = offsetTarget.Name;
+
+                if (offsetTarget.SourceRobotTarget.Name != "")
+                {
+                    offset.ExternalJointPosition = CalculateExternalJointPosition(offsetTarget.SourceRobotTarget, inverseKinematics);
+                }
 
                 Movement movement = DuplicateWithoutMesh();
-                movement.Target = new RobotTarget(referenceTarget.Name, resolved.Plane, resolved.ConfigurationData.Duplicate(), resolved.ExternalJointPosition.Duplicate());
+                movement.Target = offset;
 
                 return movement;
             }
 
             return this;
+        }
+
+        /// <summary>
+        /// Calculates the external axis values of a Robot Target for this movement's work object.
+        /// </summary>
+        /// <param name="target"> The Robot Target. </param>
+        /// <param name="inverseKinematics"> The inverse kinematics of the robot. </param>
+        /// <returns> The External Joint Position, keeping the name of the target's External Joint Position. </returns>
+        private ExternalJointPosition CalculateExternalJointPosition(RobotTarget target, InverseKinematics inverseKinematics)
+        {
+            Movement movement = DuplicateWithoutMesh();
+            movement.Target = target;
+
+            inverseKinematics.CalculateExternalJointPosition(movement);
+
+            ExternalJointPosition result = inverseKinematics.ExternalJointPosition.Duplicate();
+            result.Name = target.ExternalJointPosition.Name;
+
+            return result;
         }
 
         /// <summary>
@@ -615,6 +649,60 @@ namespace RobotComponents.ABB.Actions.Instructions
             else if (_convertedTarget is JointTarget jointTarget)
             {
                 RAPIDGenerator.ErrorText.AddRange(jointTarget.CheckAxisLimits(RAPIDGenerator.Robot));
+            }
+
+            // Offset target
+            else if (_convertedTarget is OffsetTarget offsetTarget)
+            {
+                ConvertOffsetTarget(offsetTarget, RAPIDGenerator);
+            }
+        }
+
+        /// <summary>
+        /// Converts an Offset Target for the RAPID generator.
+        /// </summary>
+        /// <remarks>
+        /// Sets the external axis values of the source Robot Target, which RAPID's Offs() keeps:
+        /// a named source target gets the values for its own position, exactly as a direct move to it would, since
+        /// its declaration is shared with every other use of it. An unnamed (inline) source target gets the values
+        /// for the offset position, like a direct move to that position, or for its own position if the offsets
+        /// are not numbers. For a MoveAbsJ with numeric offsets the offset target is converted to a joint target.
+        /// </remarks>
+        /// <param name="offsetTarget"> The duplicated Offset Target to convert. </param>
+        /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
+        private void ConvertOffsetTarget(OffsetTarget offsetTarget, RAPIDGenerator RAPIDGenerator)
+        {
+            InverseKinematics inverseKinematics = RAPIDGenerator.Robot.InverseKinematics;
+            RobotTarget source = offsetTarget.SourceRobotTarget;
+            RobotTarget offset = offsetTarget.GetOffsetRobotTarget();
+
+            // Convert the offset target to a joint target
+            if (_movementType == MovementType.MoveAbsJ)
+            {
+                if (offset == null)
+                {
+                    RAPIDGenerator.ErrorText.Add($"Movement {offsetTarget.Name}\\{_workObject.Name}: A MoveAbsJ to an Offset Target needs numeric X, Y and Z offsets.");
+                    return;
+                }
+
+                // Calculate the axis values from the offset target
+                inverseKinematics.Calculate(this);
+                RAPIDGenerator.ErrorText.AddRange(new List<string>(inverseKinematics.ErrorText));
+
+                // Create an inline joint target from the axis values
+                JointTarget convertedJointTarget = new JointTarget("", inverseKinematics.RobotJointPosition.Duplicate(), inverseKinematics.ExternalJointPosition.Duplicate());
+                convertedJointTarget.ExternalJointPosition.Name = source.ExternalJointPosition.Name;
+                _convertedTarget = convertedJointTarget;
+
+                // Check axis limits on the converted joint target
+                RAPIDGenerator.ErrorText.AddRange(convertedJointTarget.CheckAxisLimits(RAPIDGenerator.Robot));
+            }
+
+            // Calculate the external joint position of the source target
+            else
+            {
+                RobotTarget reference = source.Name != "" || offset == null ? source : offset;
+                source.ExternalJointPosition = CalculateExternalJointPosition(reference, inverseKinematics);
             }
         }
 

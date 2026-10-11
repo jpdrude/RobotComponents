@@ -196,12 +196,13 @@ namespace RobotComponents.ABB.Kinematics
         /// <param name="movement"> The movement to calculate the solution for. </param>
         public void Calculate(Movement movement)
         {
+            // An Offset Target with numeric offsets is solved as the offset Robot Target
+            Movement simulationMovement = movement.GetSimulationMovement(this);
+
             ClearCurrentSolutions();
+            SetMovement(simulationMovement);
 
-            // A Reference Target with a design-time value (e.g. from Offset Target) is solved as that Robot Target
-            SetMovement(movement.GetSimulationMovement());
-
-            if (_movement.Target is ReferenceTarget)
+            if (_movement.Target is ReferenceTarget || _movement.Target is OffsetTarget)
             {
                 _errorText.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: The target is a RAPID expression whose value is unknown in Grasshopper. No inverse kinematics solution can be calculated.");
             }

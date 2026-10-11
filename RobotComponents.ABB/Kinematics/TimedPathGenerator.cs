@@ -203,8 +203,8 @@ namespace RobotComponents.ABB.Kinematics
 
                 else if (ungrouped[i] is Movement rawMovement)
                 {
-                    // A Reference Target with a design-time value (e.g. from Offset Target) is simulated as that Robot Target
-                    Movement movement = rawMovement.GetSimulationMovement();
+                    // An Offset Target with numeric offsets is simulated as the offset Robot Target
+                    Movement movement = rawMovement.GetSimulationMovement(_robot.InverseKinematics);
 
                     int planesBefore = _planes.Count;
 
@@ -238,7 +238,7 @@ namespace RobotComponents.ABB.Kinematics
                         counter++;
                     }
 
-                    else if (movement.Target is ReferenceTarget)
+                    else if (movement.Target is ReferenceTarget || movement.Target is OffsetTarget)
                     {
                         _errorText.Add($"Movement {movement.Target.Name}\\{movement.WorkObject.Name}: The target is a RAPID expression whose value is unknown in Grasshopper. This movement is not simulated.");
                     }
