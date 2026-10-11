@@ -25,12 +25,12 @@ using RobotComponents.ABB.Gh.Parameters.Definitions;
 namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 {
     /// <summary>
-    /// RobotComponents Decompose Robtarget component.
+    /// RobotComponents Get Robtarget Members component.
     /// Takes a robtarget RAPID Variable and produces RAPID expressions that access individual
     /// members of its struct (position, and optionally rotation/configuration/external axes),
     /// each usable directly wherever a RAPID Expression input is accepted.
     /// </summary>
-    public class DecomposeRobtargetComponent : GH_RobotComponent, IGH_VariableParameterComponent
+    public class GetRobtargetMembersComponent : GH_RobotComponent, IGH_VariableParameterComponent
     {
         #region fields
         // Which optional output blocks are currently switched on via the right-click menu. The
@@ -99,8 +99,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// <summary>
         /// Each implementation of GH_Component must provide a public constructor without any arguments.
         /// </summary>
-        public DecomposeRobtargetComponent() : base("Decompose Robtarget", "DecRT", "Advanced RAPID Features",
-            "Decomposes a robtarget RAPID Variable into RAPID expressions that access its struct members, " +
+        public GetRobtargetMembersComponent() : base("Get Robtarget Members", "GetRTMembers", "Advanced RAPID Features",
+            "Gets the members of a robtarget RAPID Variable as RAPID expressions, " +
             "usable wherever a RAPID Expression input is accepted. Outputs the position (X/Y/Z) by default. " +
             "Right-click to also add the rotation (quaternion), configuration data, or external axis values.")
         {
@@ -113,7 +113,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddParameter(new Param_RAPIDVariable(), "Variable", "V",
-                "Robtarget RAPID Variable to decompose into RAPID expressions.",
+                "Robtarget RAPID Variable whose members are output as RAPID expressions.",
                 GH_ParamAccess.item);
         }
 
@@ -323,7 +323,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.DecomposeRobtarget_Icon; }
+            get { return Properties.Resources.GetRobtargetMembers_Icon; }
         }
 
         /// <summary>
