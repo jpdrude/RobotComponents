@@ -105,7 +105,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         protected override System.Drawing.Bitmap Icon
         {
-            get { return Properties.Resources.CodeLine_Icon; }
+            get { return Properties.Resources.Return_Icon; }
         }
 
         /// <summary>
