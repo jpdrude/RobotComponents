@@ -187,7 +187,7 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             _inverseKinematics[DA.Iteration].Calculate(movement);
 
             // Closest Robot Joint Position
-            if (closestRobotJointPosition == true && reset == false && movement.Target is RobotTarget && movement.MovementType != MovementType.MoveAbsJ)
+            if (closestRobotJointPosition == true && reset == false && movement.GetSimulationMovement().Target is RobotTarget && movement.MovementType != MovementType.MoveAbsJ)
             {
                 _inverseKinematics[DA.Iteration].CalculateClosestRobotJointPosition(_previousRobotJointPositions[DA.Iteration]);
             }

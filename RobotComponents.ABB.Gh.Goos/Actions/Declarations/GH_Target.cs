@@ -332,7 +332,7 @@ namespace RobotComponents.ABB.Gh.Goos.Actions.Declarations
             if (source is GH_RAPIDExpression rapidExpressionGoo)
             {
                 if (rapidExpressionGoo.Value == null || string.IsNullOrEmpty(rapidExpressionGoo.Value.Expression)) { return false; }
-                Value = new ReferenceTarget(rapidExpressionGoo.Value.Expression);
+                Value = new ReferenceTarget(rapidExpressionGoo.Value.Expression, rapidExpressionGoo.Value.ResolvedTarget);
                 return true;
             }
 
@@ -340,7 +340,7 @@ namespace RobotComponents.ABB.Gh.Goos.Actions.Declarations
             if (source is RAPIDExpression rapidExpression)
             {
                 if (string.IsNullOrEmpty(rapidExpression.Expression)) { return false; }
-                Value = new ReferenceTarget(rapidExpression.Expression);
+                Value = new ReferenceTarget(rapidExpression.Expression, rapidExpression.ResolvedTarget);
                 return true;
             }
 

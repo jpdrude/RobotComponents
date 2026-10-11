@@ -12,9 +12,13 @@
 
 // System Libs
 using System;
+using System.Globalization;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
+using Grasshopper.Kernel.Types;
+// Rhino Libs
+using Rhino.Geometry;
 // RobotComponents
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Gh.Goos.Definitions;
@@ -27,6 +31,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
     /// RobotComponents Offs Expression Component.
     /// Wraps the RAPID built-in Offs(Target, X, Y, Z) function into a RAPIDExpression,
     /// so it can be wired into a Move Target, Assign Variable Value, or any other value input.
+    /// When the offset target's value is known at design time (a Robot Target offset by numbers),
+    /// the expression also carries the offset Robot Target, so Inverse Kinematics and the Path
+    /// Generators can simulate movements towards it.
     /// </summary>
     public class OffsComponent : GH_RobotComponent
     {
@@ -35,7 +42,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public OffsComponent() : base("Offset Target", "Offs", "Advanced RAPID Features",
             "Wraps the RAPID built-in Offs(Target, X, Y, Z) function into a RAPID expression, offsetting " +
-            "a Robot Target along its own X, Y and Z axes. The result can be wired into any RAPID Expression input.")
+            "a Robot Target in the X, Y and Z directions of its work object coordinate system. The result can be " +
+            "wired into any RAPID Expression input. If the target is a Robot Target and the offsets are numbers, " +
+            "a Move using the result can also be simulated with Inverse Kinematics and the Path Generators.")
         {
         }
 
@@ -52,19 +61,19 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             var xParam = new Param_RAPIDExpression();
             xParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0.0)), new GH_Path(0));
             pManager.AddParameter(xParam, "X", "X",
-                "Offset along the target's X axis, in mm. Accepts a number, RAPID variable, or RAPID expression.",
+                "Offset in the X direction of the work object coordinate system, in mm. Accepts a number, RAPID variable, or RAPID expression.",
                 GH_ParamAccess.item);
 
             var yParam = new Param_RAPIDExpression();
             yParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0.0)), new GH_Path(0));
             pManager.AddParameter(yParam, "Y", "Y",
-                "Offset along the target's Y axis, in mm. Accepts a number, RAPID variable, or RAPID expression.",
+                "Offset in the Y direction of the work object coordinate system, in mm. Accepts a number, RAPID variable, or RAPID expression.",
                 GH_ParamAccess.item);
 
             var zParam = new Param_RAPIDExpression();
             zParam.PersistentData.Append(new GH_RAPIDExpression(RAPIDExpression.FromLiteral(0.0)), new GH_Path(0));
             pManager.AddParameter(zParam, "Z", "Z",
-                "Offset along the target's Z axis, in mm. Accepts a number, RAPID variable, or RAPID expression.",
+                "Offset in the Z direction of the work object coordinate system, in mm. Accepts a number, RAPID variable, or RAPID expression.",
                 GH_ParamAccess.item);
         }
 
@@ -114,7 +123,78 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 RAPIDExpression.FromString(z)
             });
 
+            // Attach the design-time value for simulation (Inverse Kinematics, Path Generators), if it is known
+            RobotTarget resolvedTarget = ResolveOffsetTarget(rawTarget, x, y, z);
+
+            if (resolvedTarget != null)
+            {
+                expression = expression.WithResolvedTarget(resolvedTarget);
+            }
+            else
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "The offset target can't be simulated: its value is " +
+                    "only known when the target is a Robot Target (or a robtarget variable with a value) and X, Y and Z are numbers.");
+            }
+
             DA.SetData(0, new GH_RAPIDExpression(expression));
+        }
+
+        /// <summary>
+        /// Calculates the Robot Target that Offs(target, x, y, z) evaluates to, if it can be known at design time.
+        /// </summary>
+        /// <remarks>
+        /// RAPID's Offs() adds the offset in the work object coordinate system, which is the coordinate system
+        /// the Robot Target plane is defined in. The orientation, configuration and external axis values are kept.
+        /// </remarks>
+        /// <param name="rawTarget"> The raw Target input. </param>
+        /// <param name="x"> The X offset expression. </param>
+        /// <param name="y"> The Y offset expression. </param>
+        /// <param name="z"> The Z offset expression. </param>
+        /// <returns> The offset Robot Target, or null if the target value or one of the offsets is unknown. </returns>
+        private static RobotTarget ResolveOffsetTarget(object rawTarget, string x, string y, string z)
+        {
+            if (!double.TryParse(x, NumberStyles.Float, CultureInfo.InvariantCulture, out double dx)) { return null; }
+            if (!double.TryParse(y, NumberStyles.Float, CultureInfo.InvariantCulture, out double dy)) { return null; }
+            if (!double.TryParse(z, NumberStyles.Float, CultureInfo.InvariantCulture, out double dz)) { return null; }
+
+            RobotTarget source = GetDesignTimeRobotTarget(rawTarget);
+
+            if (source == null || source.Plane == Plane.Unset) { return null; }
+
+            Plane plane = new Plane(source.Plane);
+            plane.Origin += new Vector3d(dx, dy, dz);
+
+            return new RobotTarget(source.Name, plane, source.ConfigurationData.Duplicate(), source.ExternalJointPosition.Duplicate());
+        }
+
+        /// <summary>
+        /// Gets the Robot Target value of the Target input, if it is known at design time.
+        /// </summary>
+        /// <param name="rawTarget"> The raw Target input. </param>
+        /// <returns> The Robot Target value, or null if it is unknown. </returns>
+        private static RobotTarget GetDesignTimeRobotTarget(object rawTarget)
+        {
+            object value = rawTarget is IGH_Goo goo ? goo.ScriptVariable() : rawTarget;
+
+            switch (value)
+            {
+                case RobotTarget robotTarget:
+                    return robotTarget;
+                case ReferenceTarget referenceTarget:
+                    return referenceTarget.ResolvedTarget;
+                case RAPIDExpression rapidExpression:
+                    return rapidExpression.ResolvedTarget;
+                case RAPIDVariable rapidVariable:
+                    if (string.Equals(rapidVariable.Type, "robtarget", StringComparison.OrdinalIgnoreCase) &&
+                        !string.IsNullOrWhiteSpace(rapidVariable.Value) &&
+                        RobotTarget.TryParse(rapidVariable.Value, out RobotTarget parsed))
+                    {
+                        return parsed;
+                    }
+                    return null;
+                default:
+                    return null;
+            }
         }
 
         #region properties

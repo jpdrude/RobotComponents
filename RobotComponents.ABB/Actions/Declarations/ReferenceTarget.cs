@@ -33,6 +33,7 @@ namespace RobotComponents.ABB.Actions.Declarations
         private string _expression;
         private VariableType _variableType = VariableType.VAR;
         private ExternalJointPosition _externalJointPosition = new ExternalJointPosition();
+        private RobotTarget _resolvedTarget;
         #endregion
 
         #region (de)serialization
@@ -46,6 +47,16 @@ namespace RobotComponents.ABB.Actions.Declarations
             _expression = (string)info.GetValue("Expression", typeof(string));
             _variableType = (VariableType)info.GetValue("Variable Type", typeof(VariableType));
             _externalJointPosition = (ExternalJointPosition)info.GetValue("External Joint Position", typeof(ExternalJointPosition));
+
+            // Optional: absent in targets serialized before the resolved target was introduced.
+            foreach (SerializationEntry entry in info)
+            {
+                if (entry.Name == "Resolved Target")
+                {
+                    _resolvedTarget = entry.Value as RobotTarget;
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -60,6 +71,11 @@ namespace RobotComponents.ABB.Actions.Declarations
             info.AddValue("Expression", _expression, typeof(string));
             info.AddValue("Variable Type", _variableType, typeof(VariableType));
             info.AddValue("External Joint Position", _externalJointPosition, typeof(ExternalJointPosition));
+
+            if (_resolvedTarget != null)
+            {
+                info.AddValue("Resolved Target", _resolvedTarget, typeof(RobotTarget));
+            }
         }
         #endregion
 
@@ -74,6 +90,16 @@ namespace RobotComponents.ABB.Actions.Declarations
         }
 
         /// <summary>
+        /// Initializes a new instance of the Reference Target class whose value is known at design time.
+        /// </summary>
+        /// <param name="expression"> The RAPID expression that resolves to a robtarget. </param>
+        /// <param name="resolvedTarget"> The Robot Target the expression evaluates to, used for simulation only. </param>
+        public ReferenceTarget(string expression, RobotTarget resolvedTarget) : this(expression)
+        {
+            _resolvedTarget = resolvedTarget?.Duplicate();
+        }
+
+        /// <summary>
         /// Initializes a new instance of the Reference Target class by duplicating an existing instance.
         /// </summary>
         /// <param name="target"> The Reference Target instance to duplicate. </param>
@@ -82,6 +108,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             _expression = target._expression;
             _variableType = target._variableType;
             _externalJointPosition = target._externalJointPosition.Duplicate();
+            _resolvedTarget = target._resolvedTarget?.Duplicate();
         }
 
         /// <summary>
@@ -198,6 +225,20 @@ namespace RobotComponents.ABB.Actions.Declarations
         {
             get { return _externalJointPosition; }
             set { _externalJointPosition = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the Robot Target the expression evaluates to, if it is known at design time.
+        /// </summary>
+        /// <remarks>
+        /// Set for expressions such as an Offs(...) call on a concrete Robot Target with numeric offsets.
+        /// Only used by the kinematics (Inverse Kinematics, Path Generators) to simulate the movement;
+        /// the expression itself is still what is emitted into RAPID code. Null if unknown.
+        /// </remarks>
+        public RobotTarget ResolvedTarget
+        {
+            get { return _resolvedTarget; }
+            set { _resolvedTarget = value; }
         }
         #endregion
     }

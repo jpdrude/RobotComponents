@@ -539,6 +539,31 @@ namespace RobotComponents.ABB.Actions.Instructions
         }
 
         /// <summary>
+        /// Returns the movement the kinematics should simulate for this movement.
+        /// </summary>
+        /// <remarks>
+        /// If the target is a Reference Target whose value is known at design time (e.g. the output of the
+        /// Offset Target component), this returns a duplicate (without meshes) with that resolved Robot Target
+        /// as its target, named after the reference expression. Otherwise this movement itself is returned.
+        /// The RAPID code is always generated from the original movement.
+        /// </remarks>
+        /// <returns> The movement to use for inverse kinematics and path generation. </returns>
+        public Movement GetSimulationMovement()
+        {
+            if (_target is ReferenceTarget referenceTarget && referenceTarget.ResolvedTarget != null)
+            {
+                RobotTarget resolved = referenceTarget.ResolvedTarget;
+
+                Movement movement = DuplicateWithoutMesh();
+                movement.Target = new RobotTarget(referenceTarget.Name, resolved.Plane, resolved.ConfigurationData.Duplicate(), resolved.ExternalJointPosition.Duplicate());
+
+                return movement;
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Converts the target for the RAPID generator.
         /// </summary>
         /// <param name="RAPIDGenerator"> The RAPID Generator. </param>
