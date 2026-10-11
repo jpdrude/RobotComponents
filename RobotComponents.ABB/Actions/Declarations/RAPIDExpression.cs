@@ -32,6 +32,7 @@ namespace RobotComponents.ABB.Actions.Declarations
         #region fields
         private readonly string _expression;
         private readonly RAPIDDataType _dataType;
+        private readonly ITarget _target;
         #endregion
 
         #region (de)serialization
@@ -42,6 +43,16 @@ namespace RobotComponents.ABB.Actions.Declarations
         {
             _expression = (string)info.GetValue("Expression", typeof(string));
             _dataType = (RAPIDDataType)info.GetValue("DataType", typeof(RAPIDDataType));
+
+            // Optional: absent in expressions serialized before the target was introduced.
+            foreach (SerializationEntry entry in info)
+            {
+                if (entry.Name == "Target")
+                {
+                    _target = entry.Value as ITarget;
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -53,6 +64,11 @@ namespace RobotComponents.ABB.Actions.Declarations
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Expression", _expression, typeof(string));
             info.AddValue("DataType", _dataType, typeof(RAPIDDataType));
+
+            if (_target != null)
+            {
+                info.AddValue("Target", _target, typeof(ITarget));
+            }
         }
         #endregion
 
@@ -69,9 +85,28 @@ namespace RobotComponents.ABB.Actions.Declarations
         }
 
         /// <summary>
+        /// Initializes a new RAPIDExpression that represents a target, e.g. an Offs(...) call on a Robot Target.
+        /// </summary>
+        /// <param name="expression"> The RAPID expression string, emitted verbatim where the expression is used as a value. </param>
+        /// <param name="dataType"> Advisory RAPID data type hint. </param>
+        /// <param name="target"> The target the expression represents. </param>
+        public RAPIDExpression(string expression, RAPIDDataType dataType, ITarget target)
+            : this(expression, dataType)
+        {
+            _target = target?.DuplicateTarget();
+        }
+
+        /// <summary>
         /// Returns an exact duplicate of this RAPIDExpression.
         /// </summary>
-        public RAPIDExpression Duplicate() => new RAPIDExpression(_expression, _dataType);
+        public RAPIDExpression Duplicate() => new RAPIDExpression(_expression, _dataType, _target);
+
+        /// <summary>
+        /// Returns a copy of this RAPIDExpression that represents the given target.
+        /// </summary>
+        /// <param name="target"> The target the expression represents, or null. </param>
+        public RAPIDExpression WithTarget(ITarget target)
+            => new RAPIDExpression(_expression, _dataType, target);
 
         // ── Factory methods ────────────────────────────────────────────────────
 
@@ -146,6 +181,14 @@ namespace RobotComponents.ABB.Actions.Declarations
 
         /// <summary>Gets the advisory RAPID data type hint.</summary>
         public RAPIDDataType DataType => _dataType;
+
+        /// <summary>
+        /// Gets the target this expression represents, if any (e.g. an <see cref="OffsetTarget"/> for an
+        /// Offs(...) call on a Robot Target); otherwise null.
+        /// When the expression is used as the target of a movement, this target is used instead of the plain
+        /// expression text, so the RAPID Generator and the kinematics can work with the actual target data.
+        /// </summary>
+        public ITarget Target => _target;
         #endregion
     }
 }

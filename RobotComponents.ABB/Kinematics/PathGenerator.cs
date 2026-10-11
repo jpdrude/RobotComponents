@@ -193,8 +193,11 @@ namespace RobotComponents.ABB.Kinematics
                     _programTime += waitTime.Duration;
                 }
 
-                else if (ungrouped[i] is Movement movement)
+                else if (ungrouped[i] is Movement rawMovement)
                 {
+                    // An Offset Target with numeric offsets is simulated as the offset Robot Target
+                    Movement movement = rawMovement.GetSimulationMovement(_robot.InverseKinematics);
+
                     if (movement.Target is RobotTarget && movement.MovementType == MovementType.MoveAbsJ)
                     {
                         JointMovementFromRobotTarget(movement);
@@ -223,6 +226,11 @@ namespace RobotComponents.ABB.Kinematics
                     {
                         CircularMovementFromRobotTarget(movement);
                         counter++;
+                    }
+
+                    else if (movement.Target is ReferenceTarget || movement.Target is OffsetTarget)
+                    {
+                        _errorText.Add($"Movement {movement.Target.Name}\\{movement.WorkObject.Name}: The target is a RAPID expression whose value is unknown in Grasshopper. This movement is not simulated.");
                     }
                 }
             }

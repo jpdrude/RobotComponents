@@ -328,19 +328,19 @@ namespace RobotComponents.ABB.Gh.Goos.Actions.Declarations
                 return true;
             }
 
-            //Cast from RAPID Expression Goo: Reference Target by expression
+            //Cast from RAPID Expression Goo: the target it represents (e.g. Offset Target), otherwise Reference Target by expression
             if (source is GH_RAPIDExpression rapidExpressionGoo)
             {
                 if (rapidExpressionGoo.Value == null || string.IsNullOrEmpty(rapidExpressionGoo.Value.Expression)) { return false; }
-                Value = new ReferenceTarget(rapidExpressionGoo.Value.Expression);
+                Value = rapidExpressionGoo.Value.Target?.DuplicateTarget() ?? new ReferenceTarget(rapidExpressionGoo.Value.Expression);
                 return true;
             }
 
-            //Cast from RAPID Expression: Reference Target by expression
+            //Cast from RAPID Expression: the target it represents (e.g. Offset Target), otherwise Reference Target by expression
             if (source is RAPIDExpression rapidExpression)
             {
                 if (string.IsNullOrEmpty(rapidExpression.Expression)) { return false; }
-                Value = new ReferenceTarget(rapidExpression.Expression);
+                Value = rapidExpression.Target?.DuplicateTarget() ?? new ReferenceTarget(rapidExpression.Expression);
                 return true;
             }
 

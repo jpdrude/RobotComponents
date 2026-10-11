@@ -196,8 +196,17 @@ namespace RobotComponents.ABB.Kinematics
         /// <param name="movement"> The movement to calculate the solution for. </param>
         public void Calculate(Movement movement)
         {
+            // An Offset Target with numeric offsets is solved as the offset Robot Target
+            Movement simulationMovement = movement.GetSimulationMovement(this);
+
             ClearCurrentSolutions();
-            SetMovement(movement);
+            SetMovement(simulationMovement);
+
+            if (_movement.Target is ReferenceTarget || _movement.Target is OffsetTarget)
+            {
+                _errorText.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: The target is a RAPID expression whose value is unknown in Grasshopper. No inverse kinematics solution can be calculated.");
+            }
+
             CalculateRobotJointPosition();
             CalculateExternalJointPosition();
             CheckInternalAxisLimits();
