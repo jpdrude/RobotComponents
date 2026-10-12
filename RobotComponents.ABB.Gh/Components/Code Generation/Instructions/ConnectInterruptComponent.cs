@@ -79,7 +79,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 GH_ParamAccess.item);
             pManager.AddNumberParameter("Signal Value", "SV",
                 "Value of the signal that triggers the interrupt when the signal changes to this value. " +
-                "Not used in Persistent Data mode: the RAPID IPers instruction has no triggering value.",
+                "If not connected, the interrupt fires on every change of the signal. " +
+                "Not used for group signals (GI, GO) and in Persistent Data mode: the RAPID ISignalGI, " +
+                "ISignalGO and IPers instructions have no triggering value and always fire on every change.",
                 GH_ParamAccess.item);
             pManager.AddIntegerParameter("Signal Type", "ST", "Type of Signal to be monitored (DI, DO, AI, AO, GI, GO, or Persistent Data)", GH_ParamAccess.item);
 
@@ -140,7 +142,6 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!DA.GetData(0, ref trapRoutineName)) return;
             if (!DA.GetData(1, ref rawSignalName)) return;
             bool hasSignalValue = DA.GetData(2, ref signalValue);
-            if (!hasSignalValue) signalValue = 1;
             if (!DA.GetData(3, ref signalTypeInt)) signalTypeInt = 1;
 
             // Resolves to the signal name (plain text) or, in Persistent Data mode, the declared
@@ -154,6 +155,19 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     "Signal Value is connected but is not used in Persistent Data mode: the RAPID IPers " +
                     "instruction has no triggering value. Disconnect it to remove this warning.");
             }
+
+            if (((SignalType)signalTypeInt == SignalType.GroupInput || (SignalType)signalTypeInt == SignalType.GroupOutput) && hasSignalValue)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Signal Value is connected but is not used for group signals: the RAPID ISignalGI and " +
+                    "ISignalGO instructions have no triggering value and fire on every change of the signal. " +
+                    "Disconnect it to remove this warning.");
+            }
+
+            // Without a Signal Value the interrupt fires on every change of the signal:
+            // trigger value 2 (both edges) for digital signals, condition AIO_ALWAYS for analog signals.
+            string digitalTrigger = hasSignalValue ? ((int)signalValue).ToString() : "2";
+            string analogTrigger = hasSignalValue ? signalValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : "AIO_ALWAYS, 0, 0, 0";
 
             // Optional override for the generated intnum variable name. Needed to connect more
             // than one interrupt to the same TRAP routine: the default int_<TrapRoutineName>
@@ -194,22 +208,23 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             switch (signalTypeInt)
             {
                 case 0:
-                    codeLines.Add(new CodeLine("ISignalDI " + signalName + ", " + (int)signalValue + ", " + interruptName + ";", CodeType.Instruction));
+                    codeLines.Add(new CodeLine("ISignalDI " + signalName + ", " + digitalTrigger + ", " + interruptName + ";", CodeType.Instruction));
                     break;
                 case 1:
-                    codeLines.Add(new CodeLine("ISignalDO " + signalName + ", " + (int)signalValue + ", " + interruptName + ";", CodeType.Instruction));
+                    codeLines.Add(new CodeLine("ISignalDO " + signalName + ", " + digitalTrigger + ", " + interruptName + ";", CodeType.Instruction));
                     break;
                 case 2:
-                    codeLines.Add(new CodeLine("ISignalAI " + signalName + ", " + signalValue + ", " + interruptName + ";", CodeType.Instruction));
+                    codeLines.Add(new CodeLine("ISignalAI " + signalName + ", " + analogTrigger + ", " + interruptName + ";", CodeType.Instruction));
                     break;
                 case 3:
-                    codeLines.Add(new CodeLine("ISignalAO " + signalName + ", " + signalValue + ", " + interruptName + ";", CodeType.Instruction));
+                    codeLines.Add(new CodeLine("ISignalAO " + signalName + ", " + analogTrigger + ", " + interruptName + ";", CodeType.Instruction));
                     break;
                 case 4:
-                    codeLines.Add(new CodeLine("ISignalGI " + signalName + ", " + (int)signalValue + ", " + interruptName + ";", CodeType.Instruction));
+                    // Group signals: ISignalGI/ISignalGO take no triggering value and fire on every change.
+                    codeLines.Add(new CodeLine("ISignalGI " + signalName + ", " + interruptName + ";", CodeType.Instruction));
                     break;
                 case 5:
-                    codeLines.Add(new CodeLine("ISignalGO " + signalName + ", " + (int)signalValue + ", " + interruptName + ";", CodeType.Instruction));
+                    codeLines.Add(new CodeLine("ISignalGO " + signalName + ", " + interruptName + ";", CodeType.Instruction));
                     break;
                 case 6:
                     // Persistent data: IPers takes the PERS name and the interrupt variable, no
