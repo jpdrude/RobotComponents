@@ -3,8 +3,54 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-10-11 17:59 
+ Generated on: 2026-10-12 10:30 
  --- 
+ - Merge pull request #38 from jpdrude/feature/connect-interrupt-any-change Connect Interrupt: fire on any signal change when no Signal Value is set 
+  
+   **Commit:** `0232e42` | **Date:** 2026-10-12 
+ 
+ --- 
+ 
+ - Connect Interrupt: fire on any signal change when no Signal Value is set Without a Signal Value the interrupt now fires on every change of the signal: ISignalDI/DO use trigger value 2 (both edges), ISignalAI/AO use AIO_ALWAYS. 
+ - ISignalGI/GO never take a triggering value in RAPID, so they are now always emitted as ISignalGI sig, int; (the previous output with a value did not load), with a warning when a Signal Value is connected. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `06452f3` | **Date:** 2026-10-12 
+ 
+ --- 
+ 
+ - Push version number 
+  
+   **Commit:** `e555eac` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Merge pull request #37 from jpdrude/feature/return-component Add Return component for RAPID functions 
+  
+   **Commit:** `aeb51dd` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Draw Return component icon Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `60b53de` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Add placeholder icon for Return component Transparent 24x24 Return_Icon.png registered as a resource, to be drawn. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `2a6bad5` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
+ - Add Return component for RAPID functions Emits RETURN <value>; from a RAPID Variable or RAPID Expression input, or a plain RETURN; when no value is connected. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `3390934` | **Date:** 2026-10-11 
+ 
+ --- 
+ 
  - Push version number 
   
    **Commit:** `ee4adb8` | **Date:** 2026-10-11 
