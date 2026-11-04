@@ -13,4 +13,4 @@ Complete small projects that combine the chapters of Part A. Each comes with a d
 | [Following a curve](follow-curve.md) | dividing a curve into targets, MoveL with zones | ✅ |
 | [A robot on a linear track](linear-track.md) | external axes, automatic track positions | ✅ |
 | Two robots with Multi Move | tasks, synchronised moves | planned |
-| GoFa workflow | the CRB 15000 solver, singularities | planned |
+| [Working with a GoFa](gofa.md) | the CRB 15000 solver, singularity warnings | ✅ |
