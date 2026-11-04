@@ -16,6 +16,10 @@ Not published on the wiki site.
 | 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
+| 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | open |
+| 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | open |
+| 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
+| 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
 
 ---
 
@@ -128,3 +132,57 @@ deadline". A second `start_controller` was ready after 13 s. (RapidMCPServer pro
 Material for MkDocs 9.x reaches end of life on **2027-05-05** (build prints a notice).
 Its successor, Zensical, reads the existing `mkdocs.yml`. The custom hook
 `tools/docs/rc_links.py` will need checking during the move.
+
+---
+
+## 8 🔴 Program order follows data-tree branches, not wire order, once loops/IFs are nested
+
+**Found:** 2026-11-04, row-loop tutorial (`docs/examples/part-b/row-loop.gh`).
+
+**What happens:** Move / RAPID Variable output on branch `{0}`; For Loop and IF Statement
+output on `{0;0}`; a For Loop fed with another For Loop outputs `{0;0;0}`. The RAPID Generator's
+*Actions* must be flattened to get one module (see #4), and Grasshopper then orders the
+merged data **by branch path first, wire order second**. Wiring
+`[declaration, MoveAbsJ, MoveJ, outer FOR, IF]` produced `… MoveJ, IF, FOR j (FOR i …)`: the
+IF moved before the loop. That's silently the wrong program.
+
+The flat example (one loop + one IF) only comes out right by coincidence: both are `{0;0}`
+and keep their wire order.
+
+**Workaround (verified):** flatten the *outputs* of For Loop / While Loop / IF Statement (or every
+action source) instead of the generator's input; everything is then on `{0}` and wire order holds.
+
+**Fix ideas:** have flow-control components output their action list on the same path as
+their input branch (no extra level), or have the RAPID Generator ignore branch structure for
+ordering (e.g. treat all *Actions* as one list in wire order unless multi-module is intended).
+
+---
+
+## 9 🟠 RAPID Variable *Variable* output into *Actions* crashes the RAPID Generator
+
+**Found:** 2026-11-04. RAPID Variable → *Variable* (type RAPID Variable) wired into RAPID
+Generator → *Actions*: messages "Data conversion failed from RAPID Variable to Action" and
+**"Solution exception: Object reference not set to an instance of an object."**, no module.
+The correct wire is *Variable Declaration* (Code Line). Easy mistake, since *Variable* is the
+first output.
+
+**Fix ideas:** skip null actions in the generator with a clear warning ("RAPID Variable: wire its
+*Variable Declaration* output into Actions"), or let `GH_Action` cast a RAPIDVariable to its declaration.
+
+---
+
+## 10 🟡 For Loop auto counter is always `i`
+
+**Found:** 2026-11-04. Two For Loops without a *Counter*, one inside the other, generate
+`FOR i … DO FOR i … DO`. It loads (verified), but the inner `i` hides the outer one, so the
+outer counter can't be used inside the inner loop, which is the usual reason for nesting.
+
+**Fix ideas:** pick the first free name (`i`, `j`, `k`, …) when nesting is detected, or warn.
+Also: `VAR num i;` is declared in the routine, but RAPID declares FOR counters implicitly; harmless.
+
+---
+
+## 11 ⚪ Typo in generated comment
+
+`! User definied code lines` in every module with user declarations (also "definied" in
+`Routine.cs` / `RoutineArgument.cs` doc comments).
