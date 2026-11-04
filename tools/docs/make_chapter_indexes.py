@@ -66,6 +66,8 @@ EXTRA = {
 
 def main() -> None:
     reg = yaml.safe_load((DOCS / "data" / "registry.yml").read_text(encoding="utf-8"))
+    ex_file = DOCS / "data" / "exercises.yml"
+    exercises = yaml.safe_load(ex_file.read_text(encoding="utf-8")) if ex_file.exists() else {}
     pages: dict[str, list[str]] = {}
     for name, entry in reg["components"].items():
         pages.setdefault(entry["page"], []).append(name)
@@ -86,6 +88,15 @@ def main() -> None:
                  "| Components | Status |", "|---|---|", *[r[1] for r in rows], ""]
         for extra in EXTRA.get(chapter, []):
             lines += [extra, ""]
+        tasks = exercises.get(chapter, [])
+        if tasks:
+            lines += ["## Chapter exercises", "", "★ basic · ★★ combine · ★★★ open", ""]
+            for n, ex in enumerate(tasks, 1):
+                lines += [f"{n}. {'★' * ex['level']} {ex['task']}", ""]
+            lines += ['??? success "Solutions"']
+            for n, ex in enumerate(tasks, 1):
+                lines += [f"    {n}. {ex['solution']}"]
+            lines += [""]
         (DOCS / chapter).mkdir(parents=True, exist_ok=True)
         (DOCS / chapter / "index.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"{len(CHAPTERS)} chapter pages, {written} written component pages")

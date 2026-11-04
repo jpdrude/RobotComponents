@@ -15,3 +15,15 @@ Pages marked *reference tables only* already show the component's description an
 | [[Robot Tool]] | ✅ written |
 | [[Robot]] | ✅ written |
 | [[Work Object]] | ✅ written |
+
+## Chapter exercises
+
+★ basic · ★★ combine · ★★★ open
+
+1. ★ Give the [first program](../../getting-started/index.md) a pen: a [[Robot Tool]] whose tip is 120 mm along the flange's Z axis. Which parts of the RAPID change?
+
+2. ★★ In the [[Work Object]] example, move the table 100 mm further in X. Which numbers in the RAPID change?
+
+??? success "Solutions"
+    1. Every Move line now says `pen` instead of `tool0`, and (with right-click → *Add Tool Data* on the [[RAPID Generator]]) a `PERS tooldata pen := [TRUE, [[0, 0, 120], …]` declaration appears. The targets stay the same: they describe where the **pen tip** goes, so the flange now stops 120 mm higher.
+    2. Only the user frame inside `wobjdata table` (`[[450, -150, 150], …]`). The four robtargets stay `[0, 0, 0]`, `[100, 0, 0]`, … because they are relative to the table, which is the point of a work object.
