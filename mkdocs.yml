@@ -1,0 +1,75 @@
+site_name: Robot Components Learning Wiki
+site_description: Tutorials and reference for Robot Components (ABB) in Grasshopper, including the advanced RAPID features of the jpdrude fork.
+site_url: https://jpdrude.github.io/RobotComponents/
+repo_url: https://github.com/jpdrude/RobotComponents
+repo_name: jpdrude/RobotComponents
+edit_uri: edit/main/docs/
+copyright: Wiki text and examples are GPL-3.0 like the code. ABB and RAPID are trademarks of ABB; ABB manuals are linked, never copied.
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep orange
+      accent: blue grey
+      toggle: { icon: material/weather-night, name: Dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep orange
+      accent: blue grey
+      toggle: { icon: material/weather-sunny, name: Light mode }
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc: { permalink: true }
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight: { anchor_linenums: true }
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed: { alternate_style: true }
+  - pymdownx.tasklist: { custom_checkbox: true }
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.snippets:
+      base_path: [docs/includes]
+      auto_append: [abb-links.md]
+      check_paths: true
+
+exclude_docs: |
+  /includes/
+  /data/
+
+hooks:
+  - tools/docs/rc_links.py
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started/index.md
+  - "Part A: Essentials":
+      - part-a/index.md
+      - "A3 Motion":
+          - part-a/a3-motion/index.md
+          - Move: part-a/a3-motion/move.md
+  - "Part B: Advanced RAPID":
+      - part-b/index.md
+  - Reference:
+      - ABB manuals: reference/abb-manuals.md
+      - Page template: reference/page-template.md

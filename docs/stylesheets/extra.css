@@ -1,0 +1,47 @@
+/* "Fork addition" badge for components that only exist in jpdrude/RobotComponents */
+.rc-badge {
+  display: inline-block;
+  padding: 0.1em 0.55em;
+  border-radius: 0.8em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+  background: var(--md-accent-fg-color--transparent);
+  color: var(--md-default-fg-color);
+  border: 1px solid var(--md-accent-fg-color);
+}
+.rc-badge--fork { border-color: var(--md-primary-fg-color); }
+.rc-badge--verified { border-color: #2e7d32; }
+
+/* Grasshopper toolbar icons (24x24 originals) */
+.rc-icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: -6px;
+  margin-right: 0.15em;
+  border-radius: 3px;
+}
+.rc-icon--title {
+  width: 48px;
+  height: 48px;
+  vertical-align: middle;
+  image-rendering: pixelated;
+  margin-right: 0.3em;
+}
+/* Icons are drawn for a light canvas: give them a light chip in dark mode */
+[data-md-color-scheme="slate"] .rc-icon {
+  background: #e8e8e8;
+  padding: 2px;
+  box-sizing: content-box;
+}
+
+/* Icon + name links from [[...]] shortcodes: never break between icon and name */
+.rc-ref { white-space: nowrap; }
+
+/* "Components used" strip above an example */
+.rc-used { display: flex; flex-wrap: wrap; gap: 0.4em 1.1em; margin: 0.6em 0 1em; font-size: 0.75rem; }
+.rc-used span { white-space: nowrap; }
+
+/* Canvas screenshots are wide: let them scroll inside the content column on phones */
+.rc-canvas { overflow-x: auto; }
+.rc-canvas img { max-width: none; width: 100%; min-width: 640px; }

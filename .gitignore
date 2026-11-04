@@ -263,3 +263,6 @@ __pycache__/
 
 # Rhinoceros
 *.3dmbak
+
+# MkDocs build output
+/site/

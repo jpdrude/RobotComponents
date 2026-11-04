@@ -1,0 +1,526 @@
+# Generated from assets/icons/manifest.json; edit page targets here.
+# components: Robot Components components ([[Name]])
+# types: parameter/data types ([[type:Name]])
+# grasshopper: native Grasshopper components ([[gh:Name]])
+
+components:
+  "Acceleration Set":
+    icon: assets/icons/rc/acceleration-set.png
+    page: part-a/a3-motion/acceleration-and-velocity.md
+  "Assign Variable Value":
+    icon: assets/icons/rc/assign-variable-value.png
+    page: part-b/b2-data/assign-variable-value.md
+  "Check Actions":
+    icon: assets/icons/rc/check-actions.png
+    page: part-a/a5-simulation/check-actions.md
+  "Check Variable Names":
+    icon: assets/icons/rc/check-variable-names.png
+    page: part-a/a5-simulation/check-variable-names.md
+  "Circle Path Mode":
+    icon: assets/icons/rc/circle-path-mode.png
+    page: part-a/a3-motion/circle-path-mode.md
+  "Circle Path Modes":
+    icon: assets/icons/rc/circle-path-modes.png
+    page: part-a/a3-motion/circle-path-mode.md
+  "Code":
+    icon: assets/icons/rc/code.png
+    page: part-b/b7-raw-code/code.md
+  "Code Types":
+    icon: assets/icons/rc/code-types.png
+    page: part-b/b7-raw-code/code.md
+  "Comment":
+    icon: assets/icons/rc/comment.png
+    page: part-b/b7-raw-code/comment.md
+  "Comparison Expression":
+    icon: assets/icons/rc/comparison-expression.png
+    page: part-b/b2-data/comparison-expression.md
+  "Comparison Operators":
+    icon: assets/icons/rc/comparison-operators.png
+    page: part-b/b2-data/comparison-expression.md
+  "Configuration Data":
+    icon: assets/icons/rc/configuration-data.png
+    page: part-a/a2-targets/configuration-data.md
+  "Connect Interrupt":
+    icon: assets/icons/rc/connect-interrupt.png
+    page: part-b/b6-interrupts/connect-interrupt.md
+  "Current Robot Target":
+    icon: assets/icons/rc/current-robot-target.png
+    page: part-b/b4-target-arithmetic/current-robot-target.md
+  "Deconstruct Configuration Data":
+    icon: assets/icons/rc/deconstruct-configuration-data.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct External Joint Position":
+    icon: assets/icons/rc/deconstruct-external-joint-position.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct External Linear Axis":
+    icon: assets/icons/rc/deconstruct-external-linear-axis.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct External Rotational Axis":
+    icon: assets/icons/rc/deconstruct-external-rotational-axis.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Group Signal":
+    icon: assets/icons/rc/deconstruct-group-signal.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Joint Target":
+    icon: assets/icons/rc/deconstruct-joint-target.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Load Data":
+    icon: assets/icons/rc/deconstruct-load-data.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Move":
+    icon: assets/icons/rc/deconstruct-move.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Path Acceleration Limitation":
+    icon: assets/icons/rc/deconstruct-path-acceleration-limitation.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Robot":
+    icon: assets/icons/rc/deconstruct-robot.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Robot Joint Position":
+    icon: assets/icons/rc/deconstruct-robot-joint-position.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Robot Kinematic Parameters":
+    icon: assets/icons/rc/deconstruct-robot-kinematic-parameters.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Robot Target":
+    icon: assets/icons/rc/deconstruct-robot-target.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Robot Tool":
+    icon: assets/icons/rc/deconstruct-robot-tool.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Speed Data":
+    icon: assets/icons/rc/deconstruct-speed-data.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Work Object":
+    icon: assets/icons/rc/deconstruct-work-object.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Deconstruct Zone Data":
+    icon: assets/icons/rc/deconstruct-zone-data.png
+    page: part-a/a8-utilities/deconstruct.md
+  "Empty Line":
+    icon: assets/icons/rc/empty-line.png
+    page: part-b/b7-raw-code/empty-line.md
+  "External Joint Position":
+    icon: assets/icons/rc/external-joint-position.png
+    page: part-a/a2-targets/external-joint-position.md
+  "External Linear Axis":
+    icon: assets/icons/rc/external-linear-axis.png
+    page: part-a/a1-cell-setup/external-linear-axis.md
+  "External Rotational Axis":
+    icon: assets/icons/rc/external-rotational-axis.png
+    page: part-a/a1-cell-setup/external-rotational-axis.md
+  "Flip Plane X":
+    icon: assets/icons/rc/flip-plane-x.png
+    page: part-a/a2-targets/flip-plane.md
+  "Flip Plane Y":
+    icon: assets/icons/rc/flip-plane-y.png
+    page: part-a/a2-targets/flip-plane.md
+  "For Loop":
+    icon: assets/icons/rc/for-loop.png
+    page: part-b/b3-flow-control/for-loop.md
+  "Forward Kinematics":
+    icon: assets/icons/rc/forward-kinematics.png
+    page: part-a/a5-simulation/forward-kinematics.md
+  "Get Analog Input (Controller)":
+    icon: assets/icons/rc/get-analog-input.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Get Analog Output (Controller)":
+    icon: assets/icons/rc/get-analog-output.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Get Array At Index":
+    icon: assets/icons/rc/get-array-at-index.png
+    page: part-b/b2-data/get-array-at-index.md
+  "Get Axis Planes from Robot Kinematics Parameters":
+    icon: assets/icons/rc/get-axis-planes-from-robot-kinematics-parameters.png
+    page: part-a/a1-cell-setup/robot-kinematic-parameters.md
+  "Get Controller":
+    icon: assets/icons/rc/get-controller.png
+    page: part-a/a6-generate-and-run/get-controller.md
+  "Get Digital Input (Controller)":
+    icon: assets/icons/rc/get-digital-input.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Get Digital Output (Controller)":
+    icon: assets/icons/rc/get-digital-output.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Get External Axis Planes":
+    icon: assets/icons/rc/get-external-axis-planes.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get External Joint Positions":
+    icon: assets/icons/rc/get-external-joint-positions.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get Group Input (Controller)":
+    icon: assets/icons/rc/get-group-input.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Get Group Output (Controller)":
+    icon: assets/icons/rc/get-group-output.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Get Joint Targets":
+    icon: assets/icons/rc/get-joint-targets.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get Log":
+    icon: assets/icons/rc/get-log.png
+    page: part-a/a6-generate-and-run/get-controller.md
+  "Get Object Manager":
+    icon: assets/icons/rc/get-object-manager.png
+    page: part-a/a8-utilities/object-manager.md
+  "Get Robot Base Frames":
+    icon: assets/icons/rc/get-robot-base-frames.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get Robot Joint Positions":
+    icon: assets/icons/rc/get-robot-joint-positions.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get Robot Targets":
+    icon: assets/icons/rc/get-robot-targets.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get Robot Tool Planes":
+    icon: assets/icons/rc/get-robot-tool-planes.png
+    page: part-a/a6-generate-and-run/controller-poses.md
+  "Get Robtarget Members":
+    icon: assets/icons/rc/get-robtarget-members.png
+    page: part-b/b4-target-arithmetic/get-robtarget-members.md
+  "Get Task Names":
+    icon: assets/icons/rc/get-task-names.png
+    page: part-a/a6-generate-and-run/upload-and-run.md
+  "Group Actions":
+    icon: assets/icons/rc/group-actions.png
+    page: part-a/a8-utilities/group-actions.md
+  "IF Statement":
+    icon: assets/icons/rc/if-statement.png
+    page: part-b/b3-flow-control/if-statement.md
+  "Inequality Symbols":
+    icon: assets/icons/rc/inequality-symbols.png
+    page: part-b/b2-data/comparison-expression.md
+  "Info":
+    icon: assets/icons/rc/info.png
+    page: part-a/a8-utilities/info.md
+  "Inverse Kinematics":
+    icon: assets/icons/rc/inverse-kinematics.png
+    page: part-a/a5-simulation/inverse-kinematics.md
+  "Invert Digital Output":
+    icon: assets/icons/rc/invert-digital-output.png
+    page: part-a/a4-io-and-timing/set-outputs.md
+  "Joint Configuration Control":
+    icon: assets/icons/rc/joint-configuration-control.png
+    page: part-a/a3-motion/configuration-control.md
+  "Joint Target":
+    icon: assets/icons/rc/joint-target.png
+    page: part-a/a2-targets/joint-target.md
+  "Linear Configuration Control":
+    icon: assets/icons/rc/linear-configuration-control.png
+    page: part-a/a3-motion/configuration-control.md
+  "Load Data":
+    icon: assets/icons/rc/load-data.png
+    page: part-a/a1-cell-setup/load-data.md
+  "Load Module":
+    icon: assets/icons/rc/load-module.png
+    page: part-b/b1-routines/load-module.md
+  "Message Box":
+    icon: assets/icons/rc/message-box.png
+    page: part-b/b5-operator-interaction/message-box.md
+  "Move":
+    icon: assets/icons/rc/move.png
+    page: part-a/a3-motion/move.md
+  "Movement Types":
+    icon: assets/icons/rc/movement-types.png
+    page: part-a/a3-motion/move.md
+  "Multi Relay":
+    icon: assets/icons/rc/multi-relay.png
+    page: part-a/a8-utilities/multi-relay.md
+  "Numeric Entry Box":
+    icon: assets/icons/rc/numeric-entry-box.png
+    page: part-b/b5-operator-interaction/numeric-entry-box.md
+  "Offset Target":
+    icon: assets/icons/rc/offset-target.png
+    page: part-b/b4-target-arithmetic/offset-target.md
+  "Override Robot Tool":
+    icon: assets/icons/rc/override-robot-tool.png
+    page: part-a/a3-motion/override-robot-tool.md
+  "Path Acceleration Limitation":
+    icon: assets/icons/rc/path-acceleration-limitation.png
+    page: part-a/a3-motion/acceleration-and-velocity.md
+  "Path Generator":
+    icon: assets/icons/rc/path-generator.png
+    page: part-a/a5-simulation/path-generator.md
+  "Plane Visualizer":
+    icon: assets/icons/rc/plane-visualizer.png
+    page: part-a/a2-targets/plane-visualizer.md
+  "Plane to Quaternion":
+    icon: assets/icons/rc/plane-to-quaternion.png
+    page: part-a/a2-targets/plane-and-quaternion.md
+  "Predefined Scopes":
+    icon: assets/icons/rc/predefined-scopes.png
+    page: part-b/b1-routines/routine.md
+  "Predefined Speed Data":
+    icon: assets/icons/rc/predefined-speed-data.png
+    page: part-a/a3-motion/speed-data.md
+  "Predefined Zone Data":
+    icon: assets/icons/rc/predefined-zone-data.png
+    page: part-a/a3-motion/zone-data.md
+  "Pulse Digital Output":
+    icon: assets/icons/rc/pulse-digital-output.png
+    page: part-a/a4-io-and-timing/set-outputs.md
+  "Quaternion to Plane":
+    icon: assets/icons/rc/quaternion-to-plane.png
+    page: part-a/a2-targets/plane-and-quaternion.md
+  "RAPID Generator":
+    icon: assets/icons/rc/rapid-generator.png
+    page: part-a/a6-generate-and-run/rapid-generator.md
+  "RAPID Variable":
+    icon: assets/icons/rc/rapid-variable.png
+    page: part-b/b2-data/rapid-variable.md
+  "Read Configuration Domain":
+    icon: assets/icons/rc/read-configuration-domain.png
+    page: part-a/a6-generate-and-run/read-domains.md
+  "Read Rapid Domain":
+    icon: assets/icons/rc/read-rapid-domain.png
+    page: part-a/a6-generate-and-run/read-domains.md
+  "Return":
+    icon: assets/icons/rc/return.png
+    page: part-b/b1-routines/return.md
+  "Robot":
+    icon: assets/icons/rc/robot.png
+    page: part-a/a1-cell-setup/robot.md
+  "Robot Joint Position":
+    icon: assets/icons/rc/robot-joint-position.png
+    page: part-a/a2-targets/robot-joint-position.md
+  "Robot Kinematic Parameters":
+    icon: assets/icons/rc/robot-kinematic-parameters.png
+    page: part-a/a1-cell-setup/robot-kinematic-parameters.md
+  "Robot Preset":
+    icon: assets/icons/rc/robot-preset.png
+    page: part-a/a1-cell-setup/robot-preset.md
+  "Robot Target":
+    icon: assets/icons/rc/robot-target.png
+    page: part-a/a2-targets/robot-target.md
+  "Robot Tool":
+    icon: assets/icons/rc/robot-tool.png
+    page: part-a/a1-cell-setup/robot-tool.md
+  "Robot Tool Calibration":
+    icon: assets/icons/rc/robot-tool-calibration.png
+    page: part-a/a1-cell-setup/robot-tool-calibration.md
+  "Routine":
+    icon: assets/icons/rc/routine.png
+    page: part-b/b1-routines/routine.md
+  "Routine Argument":
+    icon: assets/icons/rc/routine-argument.png
+    page: part-b/b1-routines/routine-argument.md
+  "Routine Call":
+    icon: assets/icons/rc/routine-call.png
+    page: part-b/b1-routines/routine-call.md
+  "Routine Types":
+    icon: assets/icons/rc/routine-types.png
+    page: part-b/b1-routines/routine.md
+  "Run Program":
+    icon: assets/icons/rc/run-program.png
+    page: part-a/a6-generate-and-run/upload-and-run.md
+  "Set Analog Input (Controller)":
+    icon: assets/icons/rc/set-analog-input.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Set Analog Output":
+    icon: assets/icons/rc/code-generation-set-analog-output.png
+    page: part-a/a4-io-and-timing/set-outputs.md
+  "Set Analog Output (Controller)":
+    icon: assets/icons/rc/controller-utility-set-analog-output.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Set Digital Input (Controller)":
+    icon: assets/icons/rc/set-digital-input.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Set Digital Output":
+    icon: assets/icons/rc/code-generation-set-digital-output.png
+    page: part-a/a4-io-and-timing/set-outputs.md
+  "Set Digital Output (Controller)":
+    icon: assets/icons/rc/controller-utility-set-digital-output.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Set Group Input (Controller)":
+    icon: assets/icons/rc/set-group-input.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Set Group Output":
+    icon: assets/icons/rc/code-generation-set-group-output.png
+    page: part-a/a4-io-and-timing/set-outputs.md
+  "Set Group Output (Controller)":
+    icon: assets/icons/rc/controller-utility-set-group-output.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+  "Signal Types":
+    icon: assets/icons/rc/signal-types.png
+    page: part-b/b6-interrupts/connect-interrupt.md
+  "Speed Data":
+    icon: assets/icons/rc/speed-data.png
+    page: part-a/a3-motion/speed-data.md
+  "Sync Move Off":
+    icon: assets/icons/rc/sync-move-off.png
+    page: part-a/a7-multi-move/sync-move.md
+  "Sync Move On":
+    icon: assets/icons/rc/sync-move-on.png
+    page: part-a/a7-multi-move/sync-move.md
+  "Task List":
+    icon: assets/icons/rc/task-list.png
+    page: part-a/a7-multi-move/task-list.md
+  "Timed Path Generator":
+    icon: assets/icons/rc/timed-path-generator.png
+    page: part-a/a5-simulation/timed-path-generator.md
+  "Ungroup Actions":
+    icon: assets/icons/rc/ungroup-actions.png
+    page: part-a/a8-utilities/group-actions.md
+  "Upload Helper Modules":
+    icon: assets/icons/rc/upload-helper-modules.png
+    page: part-a/a6-generate-and-run/upload-and-run.md
+  "Upload Program":
+    icon: assets/icons/rc/upload-program.png
+    page: part-a/a6-generate-and-run/upload-and-run.md
+  "Velocity Set":
+    icon: assets/icons/rc/velocity-set.png
+    page: part-a/a3-motion/acceleration-and-velocity.md
+  "Wait Sync Task":
+    icon: assets/icons/rc/wait-sync-task.png
+    page: part-a/a7-multi-move/wait-sync-task.md
+  "Wait Time":
+    icon: assets/icons/rc/wait-time.png
+    page: part-a/a4-io-and-timing/wait-time.md
+  "Wait for Analog Input":
+    icon: assets/icons/rc/wait-for-analog-input.png
+    page: part-a/a4-io-and-timing/wait-for-signals.md
+  "Wait for Analog Output":
+    icon: assets/icons/rc/wait-for-analog-output.png
+    page: part-a/a4-io-and-timing/wait-for-signals.md
+  "Wait for Digital Input":
+    icon: assets/icons/rc/wait-for-digital-input.png
+    page: part-a/a4-io-and-timing/wait-for-signals.md
+  "Wait for Digital Output":
+    icon: assets/icons/rc/wait-for-digital-output.png
+    page: part-a/a4-io-and-timing/wait-for-signals.md
+  "Wait for Group Input":
+    icon: assets/icons/rc/wait-for-group-input.png
+    page: part-a/a4-io-and-timing/wait-for-signals.md
+  "Wait for Group Output":
+    icon: assets/icons/rc/wait-for-group-output.png
+    page: part-a/a4-io-and-timing/wait-for-signals.md
+  "Wait for Robot":
+    icon: assets/icons/rc/wait-for-robot.png
+    page: part-a/a4-io-and-timing/wait-for-robot.md
+  "While Loop":
+    icon: assets/icons/rc/while-loop.png
+    page: part-b/b3-flow-control/while-loop.md
+  "Work Object":
+    icon: assets/icons/rc/work-object.png
+    page: part-a/a1-cell-setup/work-object.md
+  "Zone Data":
+    icon: assets/icons/rc/zone-data.png
+    page: part-a/a3-motion/zone-data.md
+
+types:
+  "Action":
+    icon: assets/icons/rc/param-action.png
+    page: getting-started/index.md
+  "Action Group":
+    icon: assets/icons/rc/param-action-group.png
+    page: part-a/a8-utilities/group-actions.md
+  "Code Line":
+    icon: assets/icons/rc/param-code-line.png
+    page: part-b/b7-raw-code/code.md
+  "Comment":
+    icon: assets/icons/rc/param-comment.png
+    page: part-b/b7-raw-code/comment.md
+  "Configuration Data":
+    icon: assets/icons/rc/param-configuration-data.png
+    page: part-a/a2-targets/configuration-data.md
+  "External Axis":
+    icon: assets/icons/rc/param-external-axis.png
+    page: part-a/a1-cell-setup/index.md
+  "External Joint Position":
+    icon: assets/icons/rc/param-external-joint-position.png
+    page: part-a/a2-targets/external-joint-position.md
+  "External Linear Axis":
+    icon: assets/icons/rc/param-external-linear-axis.png
+    page: part-a/a1-cell-setup/external-linear-axis.md
+  "External Rotational Axis":
+    icon: assets/icons/rc/param-external-rotational-axis.png
+    page: part-a/a1-cell-setup/external-rotational-axis.md
+  "Joint Target":
+    icon: assets/icons/rc/param-joint-target.png
+    page: part-a/a2-targets/joint-target.md
+  "Load Data":
+    icon: assets/icons/rc/param-load-data.png
+    page: part-a/a1-cell-setup/load-data.md
+  "Mechanical Unit":
+    icon: assets/icons/rc/param-mechanical-unit.png
+    page: part-a/a1-cell-setup/index.md
+  "Movement":
+    icon: assets/icons/rc/param-movement.png
+    page: part-a/a3-motion/move.md
+  "Path Acceleration Limitation":
+    icon: assets/icons/rc/param-path-acceleration-limitation.png
+    page: part-a/a3-motion/acceleration-and-velocity.md
+  "RAPID Expression":
+    icon: assets/icons/rc/param-rapid-expression.png
+    page: part-b/b2-data/rapid-expression.md
+  "RAPID Variable":
+    icon: assets/icons/rc/param-rapid-variable.png
+    page: part-b/b2-data/rapid-variable.md
+  "Robot":
+    icon: assets/icons/rc/param-robot.png
+    page: part-a/a1-cell-setup/robot.md
+  "Robot Joint Position":
+    icon: assets/icons/rc/param-robot-joint-position.png
+    page: part-a/a2-targets/robot-joint-position.md
+  "Robot Kinematic Parameters":
+    icon: assets/icons/rc/param-robot-kinematic-parameters.png
+    page: part-a/a1-cell-setup/robot-kinematic-parameters.md
+  "Robot Target":
+    icon: assets/icons/rc/param-robot-target.png
+    page: part-a/a2-targets/robot-target.md
+  "Robot Tool":
+    icon: assets/icons/rc/param-robot-tool.png
+    page: part-a/a1-cell-setup/robot-tool.md
+  "Routine":
+    icon: assets/icons/rc/param-routine.png
+    page: part-b/b1-routines/routine.md
+  "Routine Argument":
+    icon: assets/icons/rc/param-routine-argument.png
+    page: part-b/b1-routines/routine-argument.md
+  "Speed Data":
+    icon: assets/icons/rc/param-speed-data.png
+    page: part-a/a3-motion/speed-data.md
+  "Target":
+    icon: assets/icons/rc/param-target.png
+    page: part-a/a2-targets/index.md
+  "Task List":
+    icon: assets/icons/rc/param-task-list.png
+    page: part-a/a7-multi-move/task-list.md
+  "Work Object":
+    icon: assets/icons/rc/param-work-object.png
+    page: part-a/a1-cell-setup/work-object.md
+  "Zone Data":
+    icon: assets/icons/rc/param-zone-data.png
+    page: part-a/a3-motion/zone-data.md
+
+grasshopper:
+  "Construct Plane":
+    icon: assets/icons/gh/construct-plane.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/constructPlane.html
+  "Construct Point":
+    icon: assets/icons/gh/construct-point.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/constructPoint.html
+  "Discontinuity":
+    icon: assets/icons/gh/discontinuity.png
+    url: https://grasshopperdocs.com/components/grasshoppercurve/discontinuity.html
+  "Number Slider":
+    icon: assets/icons/gh/number-slider.png
+    url: https://grasshopperdocs.com/components/grasshopperparams/numberSlider.html
+  "Panel":
+    icon: assets/icons/gh/panel.png
+    url: https://grasshopperdocs.com/components/grasshopperparams/panel.html
+  "Rectangle":
+    icon: assets/icons/gh/rectangle.png
+    url: https://grasshopperdocs.com/components/grasshoppercurve/rectangle.html
+  "Unit X":
+    icon: assets/icons/gh/unit-x.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/unitX.html
+  "Unit Y":
+    icon: assets/icons/gh/unit-y.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/unitY.html
+  "Value List":
+    icon: assets/icons/gh/value-list.png
+    url: https://grasshopperdocs.com/components/grasshopperparams/valueList.html
+  "XY Plane":
+    icon: assets/icons/gh/xy-plane.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/xYPlane.html

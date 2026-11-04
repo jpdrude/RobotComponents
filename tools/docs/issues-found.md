@@ -1,0 +1,130 @@
+# Issues found while building the wiki
+
+Running list of problems found in Robot Components (and the docs tooling) while building
+and verifying wiki examples. Each entry has evidence and a repro so it can be fixed later.
+Not published on the wiki site.
+
+**Severity:** 🔴 bug, wrong or unusable output · 🟠 bug, cosmetic/UI · 🟡 usability ·
+⚪ tooling/info
+
+| # | Sev | Area | Title | Status |
+|---|---|---|---|---|
+| 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | open |
+| 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | open |
+| 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | open |
+| 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | open |
+| 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
+| 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
+| 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
+
+---
+
+## 1 🔴 Joint Target with a named Robot Joint Position produces RAPID that does not load
+
+**Found:** 2026-11-04, Move page example. **Also in upstream** (`JointTarget.ToRAPID()` is identical in `upstream/main`).
+
+**What happens:** Robot Joint Position (name `home_rj`) → Joint Target (name `home`) → Move (MoveAbsJ) generates
+
+```
+VAR jointtarget home := [home_rj, [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];
+VAR robjoint home_rj := [0, 0, 0, 0, 30, 0];
+```
+
+The controller rejects the module: load error 40322, syntax/semantic error at the `home_rj`
+reference (line 8, col 30). Swapping the declaration order does not help. A `VAR`
+initializer must be a constant expression, so it cannot reference another `VAR`.
+
+The Robot Joint Position *Name* input is required, so **every** Joint Target built from a
+Robot Joint Position hits this.
+
+**Repro:** `docs/examples/part-a/move-square.gh`: wire a Joint Target between Robot Joint
+Position and the lower Move. Check the output with the rapid-verifier (`verify_syntax`) or load it on any controller.
+
+**Workaround (documented on the Move page):** wire the Robot Joint Position straight into
+Move → *Target*; it is then written inline: `MoveAbsJ [home_rj, [9E9, …]], …` loads and
+runs (checked: ok, 6.2 s).
+
+**Fix ideas:** in `JointTarget.ToRAPID()` (`RobotComponents.ABB/Actions/Declarations/JointTarget.cs:353`),
+write the robjoint/extjoint *values* inline when the jointtarget itself is declared, instead of their names;
+or declare referenced robjoint/extjoint as `CONST`.
+
+**To check with the same fix:** a named External Joint Position inside a Joint Target, and
+a Robot Target with a named Configuration Data (same pattern may apply).
+
+---
+
+## 2 🟠 "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs
+
+**Found:** 2026-11-04. Move declares `OptionalParameterDefaults`, so the Tier 2 listener
+(`RobotComponentsPriority.OnCanvasFullNamesChanged`, commit 4965d3dd) should flip them.
+
+**What happens:** after switching *Draw Full Names* on, Move's *Target*, *Speed Data* and
+*Zone Data* inputs keep their nicknames `TA`, `SD`, `ZD`.
+
+**Evidence:**
+- The user toggled *Draw Full Names* on from the Grasshopper menu with two Moves on the
+  canvas. Afterwards `TA/SD/ZD` were still short (seen in the canvas screenshot).
+- Controlled repro by script: `CentralSettings.CanvasFullNames = false` → add a new Move
+  (`TY,TA,SD,ZD`) → `CentralSettings.CanvasFullNames = true` → still `TY,TA,SD,ZD`.
+  (`TY` is expected here: it is a fixed parameter that GH's own menu conversion handles, and
+  setting the property doesn't run that.)
+
+**Repro by hand (to confirm):** Draw Full Names off → place Move → Draw Full Names on →
+check the *Target* input label.
+
+**Fix ideas:** check that `CanvasFullNamesChanged` actually fires on toggle and that
+`SweepDrawFullNames` reaches IGH_VariableParameterComponent params (Move registers them via
+`Params.RegisterInputParam` at runtime). Compare with a component where the sweep does work.
+
+---
+
+## 3 🟡 Move *Type* silently defaults to MoveAbsJ when unconnected
+
+**Found:** 2026-11-04. `MoveComponent.SolveInstance`: `if (!DA.GetData(0, ref movementType)) { movementType = 0; }`.
+
+With nothing on *Type*, every movement is `MoveAbsJ`. The only hint is the warning *"An
+Absolute Joint Movement instruction is combined with a Robot Target"*, and only if the
+target is a Robot Target. Beginners expect MoveL/MoveJ. Upstream behavior.
+
+**Ideas:** a remark when *Type* is unconnected, or an explicit default shown in the
+component message.
+
+---
+
+## 4 🟡 Actions on several branches silently produce several modules
+
+**Found:** 2026-11-04. Discontinuity outputs `{0;0}`; a Move with one target outputs `{0}`.
+Wiring both into the RAPID Generator gives **two** `MODULE MainModule` texts on the *Module*
+output, with no message. Users see one long panel and may upload the wrong module.
+Upstream behavior (one module per branch may be intended).
+
+**Ideas:** a remark when *Actions* has more than one branch ("N modules generated, one per
+branch; flatten Actions for a single module").
+
+---
+
+## 5 🟡 Robot Preset opens a modal dialog on first solve
+
+**Found:** 2026-11-04 while scripting. `RobotPresetComponent.SolveInstance` calls
+`GetRobotPreset()` (a modal form) when the preset is `EMPTY`. Adding the component from code
+(or any headless context) freezes Rhino until someone clicks. Worked around by setting the
+private `_robotPreset` field via reflection before adding.
+
+**Ideas:** only show the form from the canvas/UI path (e.g. on placement via the toolbar),
+or expose a settable preset property for scripting.
+
+---
+
+## 6 ⚪ rapid-verifier: first cold boot hung
+
+**Found:** 2026-11-04. `start_controller` on `IRB1200_5_90_NoTool`: status stayed
+`starting`, then `failed` with C0040402 "Controller boot exceeded the 210000 ms hard
+deadline". A second `start_controller` was ready after 13 s. (RapidMCPServer project.)
+
+---
+
+## 7 ⚪ Material for MkDocs end of life
+
+Material for MkDocs 9.x reaches end of life on **2027-05-05** (build prints a notice).
+Its successor, Zensical, reads the existing `mkdocs.yml`. The custom hook
+`tools/docs/rc_links.py` will need checking during the move.
