@@ -84,8 +84,13 @@ nav:
           - Wait Time: part-a/a4-io-and-timing/wait-time.md
       - "A5 Simulation":
           - Path Generator: part-a/a5-simulation/path-generator.md
+          - Timed Path Generator: part-a/a5-simulation/timed-path-generator.md
+          - Check Actions: part-a/a5-simulation/check-actions.md
       - "A6 Generate and run":
           - RAPID Generator: part-a/a6-generate-and-run/rapid-generator.md
+          - Upload and run: part-a/a6-generate-and-run/upload-and-run.md
+      - "A8 Utilities":
+          - Multi Relay: part-a/a8-utilities/multi-relay.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
