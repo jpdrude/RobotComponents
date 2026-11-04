@@ -183,4 +183,5 @@ nav:
       - "B9 Pitfalls and limits": part-b/b9-pitfalls.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md
+      - Grasshopper data types: reference/grasshopper-types.md
       - Page template: reference/page-template.md

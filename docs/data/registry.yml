@@ -408,6 +408,18 @@ components:
     page: part-a/a3-motion/zone-data.md
 
 types:
+  "Controller":
+    icon: assets/icons/rc/param-controller.png
+    page: part-a/a6-generate-and-run/get-controller.md
+    guid: d5e34cf5-9406-435f-a764-fb6f9e5fb1a4
+  "Signal":
+    icon: assets/icons/rc/param-signal.png
+    page: part-a/a6-generate-and-run/controller-signals.md
+    guid: 5b36165a-0fbc-48b4-931c-6070e7c589a4
+  "Set Digital Output":
+    icon: assets/icons/rc/param-set-digital-output.png
+    page: part-a/a4-io-and-timing/set-outputs.md
+    guid: cd8b7373-c142-434b-876d-aca1f0162cdc
   "Action":
     icon: assets/icons/rc/param-action.png
     page: getting-started/index.md
@@ -524,3 +536,50 @@ grasshopper:
   "XY Plane":
     icon: assets/icons/gh/xy-plane.png
     url: https://grasshopperdocs.com/components/grasshoppervector/xYPlane.html
+
+# ghtypes: native Grasshopper data types ([[ghtype:Name]]), explained on reference/grasshopper-types.md
+ghtypes:
+  "Text":
+    icon: assets/icons/gh/param-text.png
+    page: reference/grasshopper-types.md#text
+    guid: 3ede854e-c753-40eb-84cb-b48008f14fd4
+  "Number":
+    icon: assets/icons/gh/param-number.png
+    page: reference/grasshopper-types.md#number
+    guid: 3e8ca6be-fda8-4aaf-b5c0-3c54c8bb7312
+  "Integer":
+    icon: assets/icons/gh/param-integer.png
+    page: reference/grasshopper-types.md#integer
+    guid: 2e3ab970-8545-46bb-836c-1c11e5610bce
+  "Boolean":
+    icon: assets/icons/gh/param-boolean.png
+    page: reference/grasshopper-types.md#boolean
+    guid: cb95db89-6165-43b6-9c41-5702bc5bf137
+  "Plane":
+    icon: assets/icons/gh/param-plane.png
+    page: reference/grasshopper-types.md#plane
+    guid: 4f8984c4-7c7a-4d69-b0a2-183cbb330d20
+  "Point":
+    icon: assets/icons/gh/param-point.png
+    page: reference/grasshopper-types.md#point
+    guid: fbac3e32-f100-4292-8692-77240a42fd1a
+  "Vector":
+    icon: assets/icons/gh/param-vector.png
+    page: reference/grasshopper-types.md#vector
+    guid: 16ef3e75-e315-4899-b531-d3166b42dac9
+  "Curve":
+    icon: assets/icons/gh/param-curve.png
+    page: reference/grasshopper-types.md#curve
+    guid: d5967b9f-e8ee-436b-a8ad-29fdcecf32d5
+  "Mesh":
+    icon: assets/icons/gh/param-mesh.png
+    page: reference/grasshopper-types.md#mesh
+    guid: 1e936df3-0eea-4246-8549-514cb8862b7a
+  "Domain":
+    icon: assets/icons/gh/param-domain.png
+    page: reference/grasshopper-types.md#domain
+    guid: 15b7afe5-d0d0-43e1-b894-34fcfe3be384
+  "Generic Data":
+    icon: assets/icons/gh/param-generic-data.png
+    page: reference/grasshopper-types.md#generic-data
+    guid: 8ec86459-bf01-4409-baee-174d0d2b13d0

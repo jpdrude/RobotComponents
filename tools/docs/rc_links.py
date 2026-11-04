@@ -5,6 +5,7 @@ Write in any page:
     [[Move]]                    component  -> component icon + link to its page
     [[type:Robot Target]]       data type  -> parameter icon + link to the page that defines it
     [[gh:Rectangle]]            native Grasshopper component -> icon + link to grasshopperdocs.com
+    [[ghtype:Number]]           native Grasshopper data type -> icon + link to reference/grasshopper-types.md
     [[Move|two Moves]]          any of the above with a custom label
     [[Move\|two Moves]]         same, inside a Markdown table cell
     [[io:Move]]                 inputs/outputs tables from docs/data/io.json (extracted from
@@ -28,7 +29,7 @@ from mkdocs.structure.files import File
 log = logging.getLogger("mkdocs.hooks.rc_links")
 
 # Label separator is "|", or "\|" inside Markdown tables.
-SHORTCODE = re.compile(r"\[\[(?:(type|gh):)?([^\]|\\]+?)(?:\\?\|([^\]]+))?\]\]")
+SHORTCODE = re.compile(r"\[\[(?:(type|ghtype|gh):)?([^\]|\\]+?)(?:\\?\|([^\]]+))?\]\]")
 CODE = re.compile(r"(^[ \t]*```.*?^[ \t]*```|`[^`\n]+`)", re.DOTALL | re.MULTILINE)
 
 IO = re.compile(r"\[\[io:([^\]]+)\]\]")
@@ -54,7 +55,11 @@ def on_config(config):
     _type_by_guid.clear()
     for entry in json.loads((docs / "assets" / "icons" / "manifest.json").read_text(encoding="utf-8")):
         if entry["subcategory"] == "Parameters" and entry["name"] in _registry["types"]:
-            _type_by_guid[entry["guid"]] = entry["name"]
+            _type_by_guid[entry["guid"]] = f"type:{entry['name']}"
+    for section, prefix in (("types", "type:"), ("ghtypes", "ghtype:")):
+        for name, entry in _registry.get(section, {}).items():
+            if entry.get("guid"):
+                _type_by_guid[entry["guid"]] = f"{prefix}{name}"
     return config
 
 
@@ -63,8 +68,8 @@ def _cell(text: str) -> str:
 
 
 def _type_cell(p: dict) -> str:
-    name = _type_by_guid.get(p["typeGuid"])
-    shown = f"[[type:{name}]]" if name else _cell(p["type"])
+    code = _type_by_guid.get(p["typeGuid"])
+    shown = f"[[{code}]]" if code else _cell(p["type"])
     return f"list of {shown}" if p["access"] == "list" else (f"tree of {shown}" if p["access"] == "tree" else shown)
 
 
@@ -131,7 +136,7 @@ def on_files(files, config):
 
 
 def _lookup(kind: str | None, name: str):
-    section = {"type": "types", "gh": "grasshopper", None: "components"}[kind]
+    section = {"type": "types", "ghtype": "ghtypes", "gh": "grasshopper", None: "components"}[kind]
     return _registry[section].get(name)
 
 
@@ -151,7 +156,11 @@ def _replace(match, page_src: str) -> str:
         return match.group(0)
     base = posixpath.dirname(page_src) or "."
     icon = posixpath.relpath(entry["icon"], base)
-    target = entry["url"] if kind == "gh" else posixpath.relpath(entry["page"], base)
+    if kind == "gh":
+        target = entry["url"]
+    else:
+        page, _, anchor = entry["page"].partition("#")
+        target = posixpath.relpath(page, base) + (f"#{anchor}" if anchor else "")
     return f"[![]({icon}){{ .rc-icon }} {label or name}]({target}){{ .rc-ref }}"
 
 

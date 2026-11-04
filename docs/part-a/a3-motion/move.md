@@ -16,17 +16,17 @@ movements, in order, *is* your robot program. The [[RAPID Generator]] turns it i
 
 | Input | Nick | Type | Default | Meaning |
 |---|---|---|---|---|
-| Type | TY | Integer | `0` (MoveAbsJ) | `0` MoveAbsJ · `1` MoveL · `2` MoveJ · `3` MoveC. Use [[Movement Types]]. |
+| Type | TY | [[ghtype:Integer]] | `0` (MoveAbsJ) | `0` MoveAbsJ · `1` MoveL · `2` MoveJ · `3` MoveC. Use [[Movement Types]]. |
 | Target | TA | [[type:Target]] | joint target `[0,0,0,0,0,0]` | Where to go: a [[type:Robot Target]], a [[type:Joint Target]] or a [[type:Robot Joint Position]]. |
-| Speed Data | SD | [[type:Speed Data]] or number | `v5` | How fast. A number picks the nearest predefined speed (`200` → `v200`). |
-| Zone Data | ZD | [[type:Zone Data]] or number | `z0` | How close the robot must get before moving on. `-1` means `fine` (stop exactly on the point). |
+| Speed Data | SD | [[type:Speed Data]] or [[ghtype:Number\|number]] | `v5` | How fast. A number picks the nearest predefined speed (`200` → `v200`). |
+| Zone Data | ZD | [[type:Zone Data]] or [[ghtype:Number\|number]] | `z0` | How close the robot must get before moving on. `-1` means `fine` (stop exactly on the point). |
 
 Right-click the component to add optional inputs:
 
 | Menu item | Adds input | Type | Effect |
 |---|---|---|---|
 | Set Circular Point | Circular Point (CP) | [[type:Robot Target]] | Via-point for **MoveC** (circular arcs). |
-| Set Movement Time | Time (TI) | Number | Total time in seconds; overrides the speed. |
+| Set Movement Time | Time (TI) | [[ghtype:Number]] | Total time in seconds; overrides the speed. |
 | Override Robot Tool | Robot Tool (RT) | [[type:Robot Tool]] | Use another tool for this move only. |
 | Override Work Object | Work Object (WO) | [[type:Work Object]] | Use another work object for this move only. |
 | Set Digital Output | Digital Output (DO) | from [[Set Digital Output]] | Switch a signal at the target, which turns MoveL/MoveJ into MoveLDO/MoveJDO. |
