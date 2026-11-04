@@ -66,10 +66,12 @@ nav:
   - "Part A: Essentials":
       - part-a/index.md
       - "A1 Cell setup":
+          - part-a/a1-cell-setup/index.md
           - Robot Preset: part-a/a1-cell-setup/robot-preset.md
           - Robot Tool: part-a/a1-cell-setup/robot-tool.md
           - Work Object: part-a/a1-cell-setup/work-object.md
       - "A2 Targets":
+          - part-a/a2-targets/index.md
           - Robot Target: part-a/a2-targets/robot-target.md
           - Robot Joint Position: part-a/a2-targets/robot-joint-position.md
           - Joint Target: part-a/a2-targets/joint-target.md
@@ -79,46 +81,62 @@ nav:
           - Speed Data: part-a/a3-motion/speed-data.md
           - Zone Data: part-a/a3-motion/zone-data.md
       - "A4 I/O and timing":
+          - part-a/a4-io-and-timing/index.md
           - Set outputs: part-a/a4-io-and-timing/set-outputs.md
           - Wait for signals: part-a/a4-io-and-timing/wait-for-signals.md
           - Wait Time: part-a/a4-io-and-timing/wait-time.md
       - "A5 Simulation":
+          - part-a/a5-simulation/index.md
           - Path Generator: part-a/a5-simulation/path-generator.md
           - Timed Path Generator: part-a/a5-simulation/timed-path-generator.md
           - Check Actions: part-a/a5-simulation/check-actions.md
       - "A6 Generate and run":
+          - part-a/a6-generate-and-run/index.md
           - RAPID Generator: part-a/a6-generate-and-run/rapid-generator.md
           - Upload and run: part-a/a6-generate-and-run/upload-and-run.md
+      - "A7 Multi Move":
+          - part-a/a7-multi-move/index.md
       - "A8 Utilities":
+          - part-a/a8-utilities/index.md
           - Multi Relay: part-a/a8-utilities/multi-relay.md
+      - "A9 Tutorials":
+          - part-a/a9-tutorials/index.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
       - "B1 Routines":
+          - part-b/b1-routines/index.md
           - Routine: part-b/b1-routines/routine.md
           - Routine Argument: part-b/b1-routines/routine-argument.md
           - Routine Call: part-b/b1-routines/routine-call.md
           - Return: part-b/b1-routines/return.md
       - "B2 Data and expressions":
+          - part-b/b2-data/index.md
           - RAPID Variable: part-b/b2-data/rapid-variable.md
           - Assign Variable Value: part-b/b2-data/assign-variable-value.md
           - Comparison Expression: part-b/b2-data/comparison-expression.md
       - "B3 Flow control":
+          - part-b/b3-flow-control/index.md
           - For Loop: part-b/b3-flow-control/for-loop.md
           - While Loop: part-b/b3-flow-control/while-loop.md
           - IF Statement: part-b/b3-flow-control/if-statement.md
       - "B4 Target arithmetic":
+          - part-b/b4-target-arithmetic/index.md
           - Offset Target: part-b/b4-target-arithmetic/offset-target.md
           - Current Robot Target: part-b/b4-target-arithmetic/current-robot-target.md
           - Get Robtarget Members: part-b/b4-target-arithmetic/get-robtarget-members.md
       - "B5 Operator interaction":
+          - part-b/b5-operator-interaction/index.md
           - Message Box: part-b/b5-operator-interaction/message-box.md
           - Numeric Entry Box: part-b/b5-operator-interaction/numeric-entry-box.md
       - "B6 Interrupts":
+          - part-b/b6-interrupts/index.md
           - Connect Interrupt: part-b/b6-interrupts/connect-interrupt.md
       - "B7 Raw code":
+          - part-b/b7-raw-code/index.md
           - Code: part-b/b7-raw-code/code.md
       - "B8 Tutorials":
+          - part-b/b8-tutorials/index.md
           - "A row of points with a loop": part-b/b8-tutorials/row-loop.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md
