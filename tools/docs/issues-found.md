@@ -24,6 +24,8 @@ Not published on the wiki site.
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | open |
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | open |
+| 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
+| 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
 
 ---
 
@@ -281,3 +283,35 @@ and dangerous mistake: the simulation and the real robot disagree.
 **Fix ideas:** when a Move has a Work Object and its Robot Target has no Reference Plane, either
 convert using the work object's plane automatically, or warn ("target is in world coordinates
 but used with work object X").
+
+---
+
+## 16 🟡 For Loop *Counter* output can't feed the loop's own body
+
+**Found:** 2026-11-04, array example (`docs/examples/part-b/array-offsets.gh`). For Loop *Counter*
+→ Get Array At Index *Index* → Offset Target → Move → back into the same For Loop's *Actions*:
+Grasshopper reports *"Recursive data stream found, this component depends on itself"*, and
+nothing is generated. The body of a loop is an **input** of the loop, so the loop's outputs can
+never feed it. Reading the counter inside the body is the main reason to have it, so the
+*Counter* output is only usable *after* the loop.
+
+**Workaround (documented):** create the counter as a RAPID Variable (`num`, Level Routine) and
+wire it into both the loop's *Counter* input and the body components, or type the counter
+name (`i`) into a panel.
+
+**Fix ideas:** document that the *Counter* output is for use after the loop, or drop it. The
+auto-created `i` could be exposed differently (e.g. a separate "Loop Counter" component that
+only outputs the name).
+
+---
+
+## 17 🟠 Move: misleading exception when the Target is missing
+
+**Found:** 2026-11-04 (same session, twice). When the *Target* input fails to collect data (upstream
+error, recursive stream, or not yet solved), Move falls back to a default joint target and then
+throws *"Solution exception: Invalid Move instruction: A Joint Target cannot be combined with a
+MoveL, MoveJ or MoveC instruction."*. The real problem (no target) isn't mentioned, and the
+resulting null in the RAPID Generator gives a second *"Object reference not set…"* exception.
+
+**Fix ideas:** if *Target* has no data, add an error "Target input has no data" and return early
+(no output) instead of falling back to a joint target. Make the generator skip nulls with a warning (see #9).

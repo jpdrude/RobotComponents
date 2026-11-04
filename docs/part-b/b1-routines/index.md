@@ -6,8 +6,8 @@ Pages marked *reference tables only* already show the component's description an
 
 | Components | Status |
 |---|---|
+| [[Load Module]] | ✅ written |
 | [[Return]] | ✅ written |
 | [[Routine Argument]] | ✅ written |
 | [[Routine Call]] | ✅ written |
 | [[Predefined Scopes]] · [[Routine]] · [[Routine Types]] | ✅ written |
-| [[Load Module]] | reference tables only |

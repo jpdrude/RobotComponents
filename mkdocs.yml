@@ -110,11 +110,13 @@ nav:
           - Routine Argument: part-b/b1-routines/routine-argument.md
           - Routine Call: part-b/b1-routines/routine-call.md
           - Return: part-b/b1-routines/return.md
+          - Load Module: part-b/b1-routines/load-module.md
       - "B2 Data and expressions":
           - part-b/b2-data/index.md
           - RAPID Variable: part-b/b2-data/rapid-variable.md
           - Assign Variable Value: part-b/b2-data/assign-variable-value.md
           - Comparison Expression: part-b/b2-data/comparison-expression.md
+          - Get Array At Index: part-b/b2-data/get-array-at-index.md
       - "B3 Flow control":
           - part-b/b3-flow-control/index.md
           - For Loop: part-b/b3-flow-control/for-loop.md
@@ -135,9 +137,12 @@ nav:
       - "B7 Raw code":
           - part-b/b7-raw-code/index.md
           - Code: part-b/b7-raw-code/code.md
+          - Comment: part-b/b7-raw-code/comment.md
+          - Empty Line: part-b/b7-raw-code/empty-line.md
       - "B8 Tutorials":
           - part-b/b8-tutorials/index.md
           - "A row of points with a loop": part-b/b8-tutorials/row-loop.md
+          - "Looping over an array": part-b/b8-tutorials/array-offsets.md
       - "B9 Pitfalls and limits": part-b/b9-pitfalls.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md

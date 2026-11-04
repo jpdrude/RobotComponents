@@ -7,5 +7,5 @@ Pages marked *reference tables only* already show the component's description an
 | Components | Status |
 |---|---|
 | [[Code]] · [[Code Types]] | ✅ written |
-| [[Comment]] | reference tables only |
-| [[Empty Line]] | reference tables only |
+| [[Comment]] | ✅ written |
+| [[Empty Line]] | ✅ written |

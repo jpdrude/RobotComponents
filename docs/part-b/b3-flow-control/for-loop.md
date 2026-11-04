@@ -17,7 +17,7 @@ example in an [[Offset Target]] (`i * 100`) to move a little further each time.
 
 *Counter* is optional. Leave it empty and the loop counts with `i`. To use another
 name, wire a [[RAPID Variable]]'s *Variable* output (type `num`, Level `Routine`). The
-*Counter* output passes the counter on, so other components can use it.
+*Counter* output passes the counter on for components **after** the loop (not inside it; see Gotchas).
 
 ## In RAPID
 
@@ -50,6 +50,13 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
     Two For Loops without a *Counter*, one inside the other, both count with `i`
     (`FOR i … FOR i …`). It loads, but the inner `i` hides the outer one. Give the outer loop a
     [[RAPID Variable]] counter (e.g. `j`).
+
+!!! warning "The *Counter* output can't be used inside the same loop"
+    The loop's actions are an *input* of the loop, so wiring its *Counter* output into them makes
+    the loop depend on itself (*"Recursive data stream found"*). To use the counter inside the
+    body, create it as a [[RAPID Variable]] and wire that into both the *Counter* input and the
+    body, or type its name (`i`) into a [[gh:Panel]] as in the
+    [row tutorial](../b8-tutorials/row-loop.md). See [looping over an array](../b8-tutorials/array-offsets.md).
 
 !!! warning "Flatten the loop's output"
     The loop puts its output one data-tree level deeper than a [[Move]]. If the
