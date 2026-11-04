@@ -18,8 +18,8 @@ program: count up, set a flag, store a position. It is an instruction, so its
 
 *Value* takes anything RAPID can evaluate: a number (`0`), text in quotes (`"done"`),
 `TRUE`/`FALSE`, another variable, or an expression typed into a [[gh:Panel]]
-(`count + 1`, `i * 100`). Right-click → array assignment mode writes one element of an
-array variable.
+(`count + 1`, `i * 100`). For an array variable, right-click → **Assign at Index** writes one
+element (`ys{2} := 75;`), and **Assign Array Values** the whole array at once.
 
 ## In RAPID
 
@@ -39,8 +39,10 @@ loop (`count := count + 1;`) and one inside the IF (`count := 0;`).
 - [ ] Make the counter count in steps of 10.
 - [ ] Assigning to a `CONST` is not allowed. Change the tutorial's counter Keyword to `CONST` and check what the controller says. *(You need a controller or RobotStudio for this one.)*
 
-??? success "Solution to 1"
-    *Value* = `count + 10`.
+??? success "Solutions"
+    1. *Value* = `count + 10`.
+    2. The module doesn't load: the controller reports a syntax/semantic error at the
+       `count := count + 1;` line (checked on a Virtual Controller). A `CONST` can only be read.
 
 ## Gotchas
 

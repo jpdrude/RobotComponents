@@ -88,12 +88,28 @@ first MoveAbsJ, because the controller was already standing in that home pose.
 !!! info "System module or Load Module?"
     A **system module** is loaded once and stays, so its routines are always known: the program
     can call `visit` directly. [[Load Module]] loads modules **while the program runs**. Routines
-    in such a module don't exist yet when the program itself is loaded, so calling them directly
-    fails. Use a system module for libraries.
+    in such a module don't exist yet when the program itself is loaded, so a direct call stops
+    the program from loading. Call them late-bound instead: give the [[Routine Call]] the
+    *Module Name* (`%"PickLib:visit"% 150;`). For a library you always need, a system module is
+    simpler.
 
 ## Try it
 
 - [ ] Add a second library routine `retract` that moves 200 mm up from the current position. *(Hint: [[Current Robot Target]] and [[Offset Target]].)*
+
+??? success "Solution"
+    A second [[Routine]] (`PROC`, Name `retract`, no arguments) whose *Actions* is one [[Move]]
+    ([[abb:MoveL]], `fine`) to an [[Offset Target]] with *Target* = the *Expression* output of
+    [[Current Robot Target]] and *Z* `200`. Wire it into the library generator's
+    *Additional Routines* too, and call it from the program with a [[Routine Call]] (`retract`):
+
+    ```
+    PROC retract()
+        MoveL Offs(CRobT(), 0, 0, 200), v200, fine, tool0\WObj:=wobj0;
+    ENDPROC
+    ```
+
+    Checked on a Virtual Controller: `visit 150;` then `retract;` runs with no warnings.
 
 ## See also
 

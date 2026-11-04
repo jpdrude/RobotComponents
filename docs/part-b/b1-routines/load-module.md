@@ -35,7 +35,9 @@ WAITLOAD loadHelpers;                                                           
 - The modules are expected in `HOME:/Robot Components/Additional Modules/` on the controller.
 
 Routines in a loaded module are called with [[Routine Call]]. Their names are only known
-once the module is loaded. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
+once the module is loaded, so a normal call to them stops the main module from loading.
+Give the [[Routine Call]] the *Module Name*: it then writes a late-bound call
+(`%"Helpers:greet"% 5;`) that is only resolved when it runs, after the `LOAD`. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
 ([[abb:Load]], [[abb:UnLoad]], [[abb:StartLoad]], [[abb:WaitLoad]]).
 
 ## See also

@@ -30,6 +30,7 @@ Not published on the wiki site.
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | open |
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
+| 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | open |
 
 ---
 
@@ -395,3 +396,18 @@ the zip, copy to `%appdata%\Grasshopper\Libraries`. The wiki's Getting Started n
 release notes.
 
 **Fix:** update the README's *Installation* section to match `INSTALL.md` (or link to it).
+
+---
+
+## 22 🔴 Connect Interrupt: analog signal with a Signal Value doesn't load
+
+**Found:** 2026-11-04 (wiki review). With *Signal Type* analog input/output and a *Signal Value*,
+`ConnectInterruptComponent` writes `ISignalAI aiPressure, 2.5, int_p;` (`analogTrigger` is just
+the value, line ~170). `ISignalAI`/`ISignalAO` need *Condition, HighValue, LowValue, DeltaValue*:
+the Virtual Controller rejects the module with a syntax/semantic error at that line (RobotWare
+6.10). Without a value the component writes `AIO_ALWAYS, 0, 0, 0`, which loads, and so does
+`ISignalAI aiPressure, AIO_ABOVE_HIGH, 2.5, 0, 0, int_p;` (both checked).
+
+**Fix ideas:** write `AIO_ABOVE_HIGH, <value>, 0, 0` for a single value, or add a condition input
+(above high / below low / between / outside) with high and low values, like `WaitAI`'s
+*Inequality*. Remember the obsolete-snapshot pattern if inputs change.

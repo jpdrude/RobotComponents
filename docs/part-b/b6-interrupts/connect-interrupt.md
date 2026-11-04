@@ -62,7 +62,7 @@ interrupt needs the real signal.
 | Signal Type | With *Signal Value* | Without *Signal Value* (fires on every change) |
 |---|---|---|
 | Digital input / output | `ISignalDI sig, 1, int;` | trigger value `2` = both edges |
-| Analog input / output | triggers at that value | condition `AIO_ALWAYS` |
+| Analog input / output | *(doesn't load yet, see Gotchas)* | `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
 | Group input / output | *(not possible; warning)* | `ISignalGI sig, int;` |
 | Persistent Data | *(not used; warning)* | `IPers myPers, int;` |
 
@@ -72,6 +72,15 @@ ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
 ([[abb:CONNECT]], [[abb:ISignalDI]], [[abb:ISignalAI]], [[abb:ISignalGI]], [[abb:IPers]], [[abb:IEnable]], [[abb:IDisable]]).
 
 ## Gotchas
+
+!!! bug "Known issue: analog interrupts with a *Signal Value* don't load"
+    With an analog signal and a *Signal Value*, the component writes
+    `ISignalAI aiPressure, 2.5, int_p;`. `ISignalAI` needs a condition and limits, so the
+    controller rejects the module (checked on a Virtual Controller). **Until it's fixed**,
+    leave *Signal Value* empty (fires on every change), or skip Connect Interrupt and write
+    the three lines with [[Code]] components: the declaration `VAR intnum int_p;` (*Type* `1`),
+    then `CONNECT int_p WITH pTrap;` and `ISignalAI aiPressure, AIO_ABOVE_HIGH, 2.5, 0, 0, int_p;`
+    (fires when the value rises above 2.5; checked: loads).
 
 !!! warning "Flatten the outputs"
     *Connect Code* (like [[Code]], loops and IF) outputs on a deeper data-tree branch than a

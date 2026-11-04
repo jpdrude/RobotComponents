@@ -110,7 +110,12 @@ def _render_io(match, page_src: str) -> str:
         parts += ["**Outputs**", "", _io_table(fixed_out, "Output"), ""]
     if menu_out:
         parts += ["**Extra outputs** (right-click the component to add them)", "", _io_table(menu_out, "Output"), ""]
-    return "\n".join(parts)
+    # Inside an admonition or list the shortcode is indented: indent every following line the
+    # same way, or the tables fall out of the block and render as raw text.
+    text = match.string
+    indent = text[text.rfind("\n", 0, match.start()) + 1:match.start()]
+    indent = indent if indent.strip() == "" else ""
+    return "\n".join(parts).replace("\n", "\n" + indent)
 
 
 def on_files(files, config):

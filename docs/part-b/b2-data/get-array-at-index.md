@@ -24,7 +24,9 @@ MoveL Offs(base, 0, ys{k}, 0), v200, fine, tool0\WObj:=wobj0;
 ```
 
 `ys{k}` is element number `k`. RAPID arrays are **1-based**: `ys{1}` is the first element
-(`0`), `ys{4}` the last (`300`). `ys{0}` or `ys{5}` stop the program with an error. ABB's
+(`0`), `ys{4}` the last (`300`). `ys{0}` or `ys{5}` stop the program with error 40204,
+*"Array index 5 for dimension number 1 out of bounds (1-4)"* (checked on a Virtual
+Controller). ABB's
 reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Arrays|arrays]], [[abb-kernel:Declaring array variables|declaring array variables]]).
 
 Full example: [Tutorial: looping over an array](../b8-tutorials/array-offsets.md).
