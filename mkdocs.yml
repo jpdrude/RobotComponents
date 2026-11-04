@@ -67,6 +67,8 @@ nav:
       - part-a/index.md
       - "A1 Cell setup":
           - Robot Preset: part-a/a1-cell-setup/robot-preset.md
+          - Robot Tool: part-a/a1-cell-setup/robot-tool.md
+          - Work Object: part-a/a1-cell-setup/work-object.md
       - "A2 Targets":
           - Robot Target: part-a/a2-targets/robot-target.md
           - Robot Joint Position: part-a/a2-targets/robot-joint-position.md

@@ -23,6 +23,7 @@ Not published on the wiki site.
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | open |
+| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | open |
 
 ---
 
@@ -254,3 +255,29 @@ every button's *Actions* input. Then `CASE 1:` (empty) / `CASE 2: again := FALSE
 
 **Fix:** add an empty list for unwired buttons (keep the index), or emit `CASE {i - _staticInputCount + 1}`
 from the parameter index. Empty buttons can then be omitted from the TEST entirely.
+
+---
+
+## 15 🔴 Work Object on a Move doesn't convert the target coordinates
+
+**Found:** 2026-11-04, tool & work object example (`docs/examples/part-a/pen-on-table.gh`).
+Work Object `table` (plane at (350, −150, 150), rotated 30°), square drawn **in that plane**,
+Robot Targets from those planes, Move with *Override Work Object* = `table`. Generated:
+
+```
+PERS wobjdata table := [..., [[350, -150, 150], [0.966, 0, 0, 0.259]]];
+VAR robtarget p_0 := [[350, -150, 150], ...];          ! world coordinates
+MoveL p_0, v100, fine, pen\WObj:=table;                ! ...interpreted in the table frame
+```
+
+On the controller `p_0` is then measured **from the table origin**, so the point lands at
+at (728, -105, 300) world instead of (350, −150, 150): the table offset and rotation are applied a second time. Nothing warns. Only when the Robot Target gets
+*Reference Plane* = the work object's plane are the coordinates written relative to it
+(`[[0, 0, 0], ...]`, `[[100, 0, 0], ...]`), which is correct and verified on the VC.
+
+Probably upstream behaviour (Reference Plane is the intended mechanism), but it's a very easy
+and dangerous mistake: the simulation and the real robot disagree.
+
+**Fix ideas:** when a Move has a Work Object and its Robot Target has no Reference Plane, either
+convert using the work object's plane automatically, or warn ("target is in world coordinates
+but used with work object X").
