@@ -7,7 +7,7 @@ behind the component, and every RAPID snippet is checked on an ABB Virtual Contr
 
 | Chapter | Components and types | RAPID behind it |
 |---|---|---|
-| B0 RAPID primer | — | Modules, routines, data types (`num`, `bool`, `string`, `robtarget`, `jointtarget`), `VAR`/`PERS`/`CONST`, scope; reading a generated module line by line |
+| [B0 RAPID primer](b0-rapid-primer.md) | — | Modules, routines, data types (`num`, `bool`, `string`, `robtarget`, `jointtarget`), `VAR`/`PERS`/`CONST`, scope; reading a generated module line by line |
 | B1 Routines | [[Routine]] · [[Routine Argument]] · [[Routine Call]] · [[Return]] · [[Load Module]] · [[Routine Types]] · [[Predefined Scopes]]; [[RAPID Generator]] inputs for additional routines, scope and error handling | `PROC`, `FUNC`, `TRAP`, arguments, `RETURN`, `Load` |
 | B2 Data and expressions | [[RAPID Variable]] · [[Assign Variable Value]] · [[Get Array At Index]] · [[Comparison Expression]] · [[Comparison Operators]] · [[Inequality Symbols]] · the [[type:RAPID Expression]] type | declarations, `:=`, arrays, expressions and operators |
 | B3 Flow control | [[IF Statement]] · [[While Loop]] · [[For Loop]] | `IF`/`ELSEIF`/`ELSE`, `WHILE`, `FOR` |

@@ -70,6 +70,7 @@ nav:
           - Move: part-a/a3-motion/move.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
+      - "B0 RAPID primer": part-b/b0-rapid-primer.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md
       - Page template: reference/page-template.md
