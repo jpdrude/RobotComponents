@@ -65,6 +65,7 @@ namespace RobotComponents.ABB.Actions
         private readonly List<string> _programDeclarationsCustom = new List<string>();
         private readonly List<string> _programDeclarationsMultiMove = new List<string>();
         private readonly List<string> _programInstructions = new List<string>();
+        private readonly List<string> _programDeclarationsRoutineLocal = new List<string>();
 
         // The RAPID module
         private readonly List<string> _module = new List<string>();
@@ -209,6 +210,7 @@ namespace RobotComponents.ABB.Actions
             _programDeclarationsCustom.Clear();
             _programDeclarationsMultiMove.Clear();
             _programInstructions.Clear();
+            _programDeclarationsRoutineLocal.Clear();
 
             _configurationDatas.Clear();
             _speedDatas.Clear();
@@ -553,6 +555,7 @@ namespace RobotComponents.ABB.Actions
             if (_programInstructions.Count != 0)
             {
                 _module.Add("   " + $"{_scope} PROC {_procedureName}()");
+                _module.AddRange(GetRoutineLocalDeclarations());
                 _module.AddRange(_programInstructions);
                 _module.AddRange(GetErrorHandlerCodeLines(_errorHandling));
                 _module.Add("    " + "ENDPROC");
@@ -611,6 +614,7 @@ namespace RobotComponents.ABB.Actions
                     }
 
 
+                    _module.AddRange(routineGenerator.GetRoutineLocalDeclarations());
                     _module.AddRange(routineGenerator._programInstructions);
 
                     _module.Add("    " + $"END{routine.Type.ToString()}");
@@ -623,6 +627,26 @@ namespace RobotComponents.ABB.Actions
             #endregion
 
             return _module;
+        }
+
+        /// <summary>
+        /// Returns the routine-local declarations of this generator (without duplicates, in order of first use),
+        /// followed by an empty line when there are any.
+        /// </summary>
+        private List<string> GetRoutineLocalDeclarations()
+        {
+            List<string> lines = new List<string>();
+
+            foreach (string decl in _programDeclarationsRoutineLocal)
+            {
+                if (!lines.Contains(decl))
+                    lines.Add(decl);
+            }
+
+            if (lines.Count != 0)
+                lines.Add("    ");
+
+            return lines;
         }
 
         /// <summary>
@@ -1165,6 +1189,14 @@ namespace RobotComponents.ABB.Actions
         public List<string> ProgramDeclarationsWorkObjectData
         {
             get { return _programDeclarationsWorkObjectData; }
+        }
+
+        /// <summary>
+        /// Gets the declarations that are written inside the routine that uses them (directly below the routine header).
+        /// </summary>
+        public List<string> ProgramDeclarationsRoutineLocal
+        {
+            get { return _programDeclarationsRoutineLocal; }
         }
 
         /// <summary>
