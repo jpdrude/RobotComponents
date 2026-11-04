@@ -76,6 +76,10 @@ nav:
           - Move: part-a/a3-motion/move.md
           - Speed Data: part-a/a3-motion/speed-data.md
           - Zone Data: part-a/a3-motion/zone-data.md
+      - "A4 I/O and timing":
+          - Set outputs: part-a/a4-io-and-timing/set-outputs.md
+          - Wait for signals: part-a/a4-io-and-timing/wait-for-signals.md
+          - Wait Time: part-a/a4-io-and-timing/wait-time.md
       - "A5 Simulation":
           - Path Generator: part-a/a5-simulation/path-generator.md
       - "A6 Generate and run":
