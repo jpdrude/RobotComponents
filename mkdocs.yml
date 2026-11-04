@@ -76,6 +76,9 @@ nav:
           - Robot Joint Position: part-a/a2-targets/robot-joint-position.md
           - Joint Target: part-a/a2-targets/joint-target.md
           - Configuration Data: part-a/a2-targets/configuration-data.md
+          - Flip Plane X and Y: part-a/a2-targets/flip-plane.md
+          - Plane and quaternion: part-a/a2-targets/plane-and-quaternion.md
+          - Plane Visualizer: part-a/a2-targets/plane-visualizer.md
       - "A3 Motion":
           - part-a/a3-motion/index.md
           - Move: part-a/a3-motion/move.md
@@ -96,6 +99,7 @@ nav:
           - Path Generator: part-a/a5-simulation/path-generator.md
           - Timed Path Generator: part-a/a5-simulation/timed-path-generator.md
           - Check Actions: part-a/a5-simulation/check-actions.md
+          - Check Variable Names: part-a/a5-simulation/check-variable-names.md
       - "A6 Generate and run":
           - part-a/a6-generate-and-run/index.md
           - RAPID Generator: part-a/a6-generate-and-run/rapid-generator.md
@@ -105,6 +109,9 @@ nav:
       - "A8 Utilities":
           - part-a/a8-utilities/index.md
           - Multi Relay: part-a/a8-utilities/multi-relay.md
+          - Group and Ungroup Actions: part-a/a8-utilities/group-actions.md
+          - Get Object Manager: part-a/a8-utilities/object-manager.md
+          - Info: part-a/a8-utilities/info.md
       - "A9 Tutorials":
           - part-a/a9-tutorials/index.md
   - "Part B: Advanced RAPID":

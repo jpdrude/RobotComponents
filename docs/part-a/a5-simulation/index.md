@@ -7,8 +7,8 @@ Pages marked *reference tables only* already show the component's description an
 | Components | Status |
 |---|---|
 | [[Check Actions]] | ✅ written |
+| [[Check Variable Names]] | ✅ written |
 | [[Path Generator]] | ✅ written |
 | [[Timed Path Generator]] | ✅ written |
-| [[Check Variable Names]] | reference tables only |
 | [[Forward Kinematics]] | reference tables only |
 | [[Inverse Kinematics]] | reference tables only |

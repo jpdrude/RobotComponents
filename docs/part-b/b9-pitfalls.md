@@ -32,7 +32,8 @@ The controller rejects the module, usually with load error 40322 and a line numb
 | A list of values on a [[Routine Argument]] declares the routine twice. | Leave *Value* empty; make the calls with [[Routine Call]]. | [[Routine]] |
 | A [[type:Robot Target]] as routine argument value becomes `Robot Target (name)`. | Pass numbers; build the target inside the routine with [[Offset Target]]. | [[Routine]] |
 | Signal names the controller doesn't know. | Copy the exact names from the controller's I/O configuration. | [Set outputs](../part-a/a4-io-and-timing/set-outputs.md) |
-| Names that aren't valid RAPID identifiers. | Letters, digits and `_`, starting with a letter, at most 32 characters, no RAPID keywords. [[Check Variable Names]] helps. | [Primer](b0-rapid-primer.md) |
+| Names that aren't valid RAPID identifiers. | Letters, digits and `_`, starting with a letter, at most 32 characters, no RAPID keywords. | [Primer](b0-rapid-primer.md) |
+| The same name used twice (two targets both called `p`). | [[Check Variable Names]] (on by default) warns *"The variable name … is already in use"*. | [[Check Variable Names]] |
 
 ## Things that fail in Grasshopper
 

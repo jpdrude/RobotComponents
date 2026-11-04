@@ -6,8 +6,8 @@ Pages marked *reference tables only* already show the component's description an
 
 | Components | Status |
 |---|---|
+| [[Group Actions]] · [[Ungroup Actions]] | ✅ written |
+| [[Info]] | ✅ written |
 | [[Multi Relay]] | ✅ written |
+| [[Get Object Manager]] | ✅ written |
 | [[Deconstruct Configuration Data]] · [[Deconstruct External Joint Position]] · [[Deconstruct External Linear Axis]] · [[Deconstruct External Rotational Axis]] · [[Deconstruct Group Signal]] · [[Deconstruct Joint Target]] · [[Deconstruct Load Data]] · [[Deconstruct Move]] · [[Deconstruct Path Acceleration Limitation]] · [[Deconstruct Robot]] · [[Deconstruct Robot Joint Position]] · [[Deconstruct Robot Kinematic Parameters]] · [[Deconstruct Robot Target]] · [[Deconstruct Robot Tool]] · [[Deconstruct Speed Data]] · [[Deconstruct Work Object]] · [[Deconstruct Zone Data]] | reference tables only |
-| [[Group Actions]] · [[Ungroup Actions]] | reference tables only |
-| [[Info]] | reference tables only |
-| [[Get Object Manager]] | reference tables only |
