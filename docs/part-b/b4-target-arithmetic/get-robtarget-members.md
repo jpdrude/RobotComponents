@@ -10,8 +10,8 @@ description: Read single numbers out of a robtarget variable (position, orientat
 <span class="rc-badge rc-badge--verified">RAPID checked on IRB 1200 · RobotWare 6.10</span>
 
 **Get Robtarget Members** reads the parts of a `robtarget` [[RAPID Variable]] as separate
-values: by default its X, Y and Z position. Right-click to also output the rotation
-(quaternion), the configuration data and the external axes. Each output is a
+values: by default its X, Y and Z position. Right-click → *Get Rotation*, *Get Config* or
+*Get External* to also output the quaternion, the configuration data and the external axes. Each output is a
 [[type:RAPID Expression]], so it works anywhere an expression is accepted: in a
 [[Comparison Expression]], an [[Offset Target]], an [[Assign Variable Value]] or a [[Return]].
 
@@ -22,9 +22,9 @@ values: by default its X, Y and Z position. Right-click to also output the rotat
 | Output | Writes | Means |
 |---|---|---|
 | X / Y / Z | `now.trans.x` … | position in mm |
-| rotation (right-click) | `now.rot.q1` … `q4` | orientation quaternion |
-| configuration (right-click) | `now.robconf.cf1` … | axis configuration |
-| external axes (right-click) | `now.extax.eax_a` … | external axis values |
+| right-click › *Get Rotation* | `now.rot.q1` … `q4` | orientation quaternion |
+| right-click › *Get Config* | `now.robconf.cf1` … | axis configuration |
+| right-click › *Get External* | `now.extax.eax_a` … | external axis values |
 
 The dot reads a *component* of a record: `now.trans` is the position part of `now`,
 `now.trans.z` its Z value. ABB's reference:

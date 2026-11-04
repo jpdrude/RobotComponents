@@ -148,6 +148,8 @@ merged data **by branch path first, wire order second**. Wiring
 `[declaration, MoveAbsJ, MoveJ, outer FOR, IF]` produced `… MoveJ, IF, FOR j (FOR i …)`: the
 IF moved before the loop. That's silently the wrong program.
 
+Also affected (found 2026-11-04, interrupt example): **Code** and **Connect Interrupt** output on `{0;0}`, so a Wait Time wired *after* Connect Interrupt was generated *before* `CONNECT`.
+
 The flat example (one loop + one IF) only comes out right by coincidence: both are `{0;0}`
 and keep their wire order.
 
