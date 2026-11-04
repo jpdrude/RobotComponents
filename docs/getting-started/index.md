@@ -12,16 +12,37 @@ pose and then to a point you choose, checked in Grasshopper and ready to upload.
 
 ## Install
 
-1. **Rhino 7 or 8:** open the **Package Manager** (`_PackageManager`) and install
-   *Robot Components*. Or download a release from
-   [jpdrude/RobotComponents › Releases](https://github.com/jpdrude/RobotComponents/releases),
-   copy the files into Grasshopper's *File › Special Folders › Components Folder*, and
-   **unblock** each file (right-click › Properties › Unblock).
-2. Restart Rhino. A new **Robot Components ABB** tab appears in Grasshopper.
-3. **Only if you want to talk to a real or virtual controller** (upload, run, read
-   signals): install [RobotStudio](https://new.abb.com/products/robotics/robotstudio) or the
-   ABB Robot Communication Runtime. This only works on Windows. Everything else (building,
-   simulating, generating code) needs nothing extra.
+This wiki documents the **jpdrude/RobotComponents** fork, which works with **Rhino 8 only**.
+It is installed from GitHub, not from Rhino's Package Manager.
+
+1. **Remove old installations.** If you installed Robot Components through the Package
+   Manager, uninstall it: in Rhino run `PackageManager`, find *Robot Components* on the
+   *Installed* tab and uninstall it. Two versions side by side would conflict.
+2. **Download** the latest `RobotComponents-v….zip` from
+   [jpdrude/RobotComponents › Releases](https://github.com/jpdrude/RobotComponents/releases).
+3. **Unblock the zip** before extracting it: right-click › *Properties* › tick **Unblock** ›
+   *OK*. Otherwise Windows blocks the files and Grasshopper can't load them.
+4. **Extract** the zip.
+5. **Copy** all extracted files into `%appdata%\Grasshopper\Libraries` (paste that path into
+   the File Explorer address bar).
+6. **Restart** Rhino and Grasshopper. A new **Robot Components ABB** tab appears.
+
+**Optional extras**
+
+- `RobotComponentsEDEK.gha` (also on the release page) adds the robot and track presets of the
+  EDEK lab at Uni Kassel. Install it the same way. It comes from the
+  [RobotComponents-EDEK-Presets](https://github.com/EDEK-UniKassel/RobotComponents-EDEK-Presets)
+  repository.
+- **Only if you want to talk to a real or virtual controller** (upload, run, read signals):
+  install [RobotStudio](https://new.abb.com/products/robotics/robotstudio) or the ABB Robot
+  Communication Runtime. This only works on Windows. Everything else (building, simulating,
+  generating code) needs nothing extra.
+
+!!! info "Opening files made with an older version"
+    When a component has changed between versions, older `.gh` files still open, with the old
+    component marked as obsolete. To swap all of them for the current versions, with wires
+    reconnected, use Grasshopper's **Solution › Upgrade Components**. Each release's notes on
+    the [Releases page](https://github.com/jpdrude/RobotComponents/releases) list what changed.
 
 !!! tip "Units: always millimetres"
     Robot Components works in **millimetres**, whatever the units of your Rhino file.
