@@ -131,6 +131,7 @@ nav:
           - Deconstruct components: part-a/a8-utilities/deconstruct.md
       - "A9 Tutorials":
           - part-a/a9-tutorials/index.md
+          - "Pick and place": part-a/a9-tutorials/pick-and-place.md
           - "Following a curve": part-a/a9-tutorials/follow-curve.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
