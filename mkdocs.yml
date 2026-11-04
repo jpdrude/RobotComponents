@@ -65,9 +65,17 @@ nav:
   - Getting started: getting-started/index.md
   - "Part A: Essentials":
       - part-a/index.md
+      - "A1 Cell setup":
+          - Robot Preset: part-a/a1-cell-setup/robot-preset.md
+      - "A2 Targets":
+          - Robot Target: part-a/a2-targets/robot-target.md
+          - Robot Joint Position: part-a/a2-targets/robot-joint-position.md
+          - Joint Target: part-a/a2-targets/joint-target.md
       - "A3 Motion":
           - part-a/a3-motion/index.md
           - Move: part-a/a3-motion/move.md
+          - Speed Data: part-a/a3-motion/speed-data.md
+          - Zone Data: part-a/a3-motion/zone-data.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
