@@ -75,16 +75,22 @@ nav:
           - Robot Target: part-a/a2-targets/robot-target.md
           - Robot Joint Position: part-a/a2-targets/robot-joint-position.md
           - Joint Target: part-a/a2-targets/joint-target.md
+          - Configuration Data: part-a/a2-targets/configuration-data.md
       - "A3 Motion":
           - part-a/a3-motion/index.md
           - Move: part-a/a3-motion/move.md
           - Speed Data: part-a/a3-motion/speed-data.md
           - Zone Data: part-a/a3-motion/zone-data.md
+          - Circle Path Mode: part-a/a3-motion/circle-path-mode.md
+          - Configuration control: part-a/a3-motion/configuration-control.md
+          - Acceleration and velocity: part-a/a3-motion/acceleration-and-velocity.md
+          - Override Robot Tool: part-a/a3-motion/override-robot-tool.md
       - "A4 I/O and timing":
           - part-a/a4-io-and-timing/index.md
           - Set outputs: part-a/a4-io-and-timing/set-outputs.md
           - Wait for signals: part-a/a4-io-and-timing/wait-for-signals.md
           - Wait Time: part-a/a4-io-and-timing/wait-time.md
+          - Wait for Robot: part-a/a4-io-and-timing/wait-for-robot.md
       - "A5 Simulation":
           - part-a/a5-simulation/index.md
           - Path Generator: part-a/a5-simulation/path-generator.md

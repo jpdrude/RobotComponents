@@ -26,6 +26,8 @@ Not published on the wiki site.
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | open |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
+| 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | open |
+| 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | open |
 
 ---
 
@@ -315,3 +317,47 @@ resulting null in the RAPID Generator gives a second *"Object reference not set�
 
 **Fix ideas:** if *Target* has no data, add an error "Target input has no data" and return early
 (no output) instead of falling back to a joint target. Make the generator skip nulls with a warning (see #9).
+
+---
+
+## 18 🔴 Path Acceleration Limitation writes an instruction that doesn't exist
+
+**Found:** 2026-11-04. Acceleration limit TRUE / 2 m/s², deceleration FALSE generates
+
+```
+PathAccelerationLimitation TRUE\AccMax:=2, FALSE;
+```
+
+The controller rejects it: load error 40322, syntax/semantic error at that line. The RAPID
+instruction is **`PathAccLim`**: `PathAccLim TRUE \AccMax:=2, FALSE;` loads (verified).
+Source: `RobotComponents.ABB/Actions/Instructions/PathAccelerationLimitation.cs:104`,
+`return $"PathAccelerationLimitation {acceleration}, {deceleration};";`. **Upstream has the same line**
+(`upstream/main`, line 180).
+
+**Workaround (documented):** a Code component with the `PathAccLim` line.
+**Fix:** emit `PathAccLim`. Check whether the Deconstruct/serialization keeps working (the class name can stay).
+
+---
+
+## 19 🔴 Configuration Data clamps negative quadrants to 0
+
+**Found:** 2026-11-04. Introduced in the fork by `bbe4c31b` (2025-11-05, "implements constructing
+configuration data from quadrant data inputs"). `ConfigurationDataComponent.SolveInstance`:
+
+```
+cf1 = cf1 < 0 ? 0 : cf1;   (same for cf4, cf6)
+```
+
+and `-1` doubles as "not provided". Results (CFX unconnected):
+`(1, 0, -1)` → `[1, 0, 0, 4]`, `(-1, 0, 1)` → `[0, 0, 1, 1]`, `(0, -1, 0)` → `[0, 0, 0, 0]`.
+In RAPID, quadrant numbers are commonly negative (axis 1 at −45° is `cf1 = -1`). With this
+component a target on the robot's −Y side can't get its correct configuration, and with
+`ConfL\On` the move fails or the robot picks another configuration. Upstream passes all four
+values through unchanged.
+
+Also to check: the CFX "bitmask" built from `cf > 0` flags matches the GoFa/CRB 15000
+convention it was written for, but not ABB's cfx definition for other robot families.
+
+**Fix ideas:** use a nullable/optional input or a separate sentinel (e.g. leave the input empty)
+for "not provided" instead of `< 0`; never clamp provided values; only compute CFX when the
+robot is a CRB 15000 (or document which robots it's for).

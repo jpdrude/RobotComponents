@@ -6,10 +6,10 @@ Pages marked *reference tables only* already show the component's description an
 
 | Components | Status |
 |---|---|
+| [[Acceleration Set]] · [[Path Acceleration Limitation]] · [[Velocity Set]] | ✅ written |
+| [[Circle Path Mode]] · [[Circle Path Modes]] | ✅ written |
+| [[Joint Configuration Control]] · [[Linear Configuration Control]] | ✅ written |
 | [[Move]] · [[Movement Types]] | ✅ written |
+| [[Override Robot Tool]] | ✅ written |
 | [[Predefined Speed Data]] · [[Speed Data]] | ✅ written |
 | [[Predefined Zone Data]] · [[Zone Data]] | ✅ written |
-| [[Acceleration Set]] · [[Path Acceleration Limitation]] · [[Velocity Set]] | reference tables only |
-| [[Circle Path Mode]] · [[Circle Path Modes]] | reference tables only |
-| [[Joint Configuration Control]] · [[Linear Configuration Control]] | reference tables only |
-| [[Override Robot Tool]] | reference tables only |

@@ -7,6 +7,6 @@ Pages marked *reference tables only* already show the component's description an
 | Components | Status |
 |---|---|
 | [[Invert Digital Output]] · [[Pulse Digital Output]] · [[Set Analog Output]] · [[Set Digital Output]] · [[Set Group Output]] | ✅ written |
+| [[Wait for Robot]] | ✅ written |
 | [[Wait for Analog Input]] · [[Wait for Analog Output]] · [[Wait for Digital Input]] · [[Wait for Digital Output]] · [[Wait for Group Input]] · [[Wait for Group Output]] | ✅ written |
 | [[Wait Time]] | ✅ written |
-| [[Wait for Robot]] | reference tables only |
