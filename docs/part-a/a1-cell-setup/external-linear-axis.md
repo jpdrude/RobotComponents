@@ -17,6 +17,9 @@ where the track should be; see [[External Joint Position]].
 Right-click → *Axis Logic Number* sets which external axis (`eax_a` … `eax_f`) this is on
 the controller; *Moves Robot* says whether the axis carries the robot (a track) or the part.
 
+**In RAPID**, the axis is a mechanical unit on the controller ([[abb:mecunit]]), and its
+position is the `eax_…` value of the [[abb:extjoint]] inside every robtarget and jointtarget.
+
 ## See also
 
 [[External Rotational Axis]] · [[External Joint Position]] · [[Robot Preset]] · [[Deconstruct External Linear Axis]]

@@ -29,7 +29,7 @@ When placed, it creates a [[Comparison Operators]] drop-down with the six RAPID 
 | `=` | equal | `mode = 2` |
 | `<>` | not equal | `answer <> 1` |
 
-The result has the RAPID type `bool`. To combine conditions, type the expression into a
+The result has the RAPID type [[abb:bool]]. To combine conditions, type the expression into a
 [[gh:Panel]] instead and wire it straight into the condition input:
 `count >= 100 AND NOT finished`. ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Expressions|expressions]], [[abb-kernel:Conditional expressions|conditional expressions]]).
 

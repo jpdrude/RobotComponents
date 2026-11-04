@@ -42,11 +42,11 @@ ENDPROC
 warnings, cycle time **5.1 s**. (Other declarations and header comments not shown.)
 
 1. [[RAPID Variable]], right-click → **Set Array Size**. It gets *Array Size* `4` and a
-   *Values* list (a [[gh:Panel]] with `0`, `50`, `150`, `300`), Type `num`, Name `ys`.
+   *Values* list (a [[gh:Panel]] with `0`, `50`, `150`, `300`), Type [[abb:num]], Name `ys`.
 2. A second [[RAPID Variable]] `k` (Type `num`, Level `Routine`, Scope `LOCAL`) is the
    counter. It goes into the [[For Loop]]'s *Counter* **and** into [[Get Array At Index]]'s
    *Index*. *From* `1`, *To* `4`: RAPID arrays start at **1**.
-3. [[Get Array At Index]] gives `ys{k}`, used as *Y* of an [[Offset Target]]; a `MoveL`
+3. [[Get Array At Index]] gives `ys{k}`, used as *Y* of an [[Offset Target]]; a [[abb:MoveL]]
    goes there.
 
 !!! warning "Use a counter variable, not the loop's *Counter* output"

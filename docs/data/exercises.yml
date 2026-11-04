@@ -14,7 +14,7 @@ part-a/a2-targets:
     task: "In the first program, replace [[Flip Plane X]] by [[Flip Plane Y]]. Does the tool still point down? What changes in the robtarget?"
     solution: "Yes, the Z axis still points down. Only the orientation changes: Flip Plane Y turns the plane 180° about its X axis instead of its Y axis, so the quaternion (second block of the robtarget) is different and the wrist is turned by 180° around the tool axis."
   - level: 2
-    task: "Use [[Inverse Kinematics]] to turn the first program's target into joint angles, and use those as the start pose of a `MoveAbsJ`."
+    task: "Use [[Inverse Kinematics]] to turn the first program's target into joint angles, and use those as the start pose of a [[abb:MoveAbsJ]]."
     solution: "Wire the IK's *Robot Joint Position* output into a [[Move]] with type `MoveAbsJ`. For the target (400, 0, 400) the joint angles are `[0, 14.63, 41.4, 0, 33.97, 0]`; see [[Inverse Kinematics]]."
 
 part-a/a3-motion:
@@ -31,12 +31,12 @@ part-a/a4-io-and-timing:
     solution: "Give the first [[Wait Time]] (after `SetDO doGripper, 1;`) a *Duration* of `1`, and keep the second one at `0.5`."
   - level: 2
     task: "Close the gripper **exactly** when the robot arrives at `pick`, without a separate Set Digital Output line."
-    solution: "Right-click the Move to `pick` → *Set Digital Output*, and wire a [[Set Digital Output]] (`doGripper`, `1`) into it. The Move becomes a `MoveLDO`, which switches the output at the target."
+    solution: "Right-click the Move to `pick` → *Set Digital Output*, and wire a [[Set Digital Output]] (`doGripper`, `1`) into it. The Move becomes a [[abb:MoveLDO]], which switches the output at the target."
 
 part-a/a5-simulation:
   - level: 1
     task: "Add a [[Path Generator]] to the [pick and place](../a9-tutorials/pick-and-place.md) definition and scrub the slider. Where does the robot move fastest?"
-    solution: "On the two `MoveJ` moves across (`v200`, joint interpolation). The `MoveL` moves near the parts run at `v50`."
+    solution: "On the two [[abb:MoveJ]] moves across (`v200`, joint interpolation). The [[abb:MoveL]] moves near the parts run at `v50`."
   - level: 2
     task: "Compare the *Program Time* of the [[Path Generator]] and the [[Timed Path Generator]] for the [[Move]] square with the 6.2 s measured on the Virtual Controller."
     solution: "Both are estimates from path length and programmed speed (the Path Generator gave 5.8 s). The controller is slower because it accelerates, decelerates and rounds corners. Use the estimates to compare variants, not as exact cycle times."
@@ -52,7 +52,7 @@ part-b/b1-routines:
 part-b/b2-data:
   - level: 1
     task: "Declare a `PERS num cycles := 0;` and count program runs with it."
-    solution: "[[RAPID Variable]] with Keyword `PERS`, Type `num`, Name `cycles`, Value `0`; its *Variable Declaration* into *Actions*. An [[Assign Variable Value]] `cycles + 1` once in `main` (not inside a loop)."
+    solution: "[[RAPID Variable]] with Keyword `PERS`, Type [[abb:num]], Name `cycles`, Value `0`; its *Variable Declaration* into *Actions*. An [[Assign Variable Value]] `cycles + 1` once in `main` (not inside a loop)."
   - level: 2
     task: "Reset the counter from the [row tutorial](../b8-tutorials/row-loop.md) at 50 instead of 100, using `=` instead of `>=`. Why is `>=` the safer choice?"
     solution: "Operator `=`, B `50`. `>=` also resets if the counter ever jumps past the limit (e.g. after the limit was changed), while `=` would then never reset."
@@ -63,4 +63,4 @@ part-b/b3-flow-control:
     solution: "*From* `3`, *To* `0`. RAPID's FOR counts down by itself when *From* > *To* (checked on the Virtual Controller)."
   - level: 2
     task: "Repeat the row until the operator says stop, instead of a fixed number of times."
-    solution: "Wrap the row in a [[While Loop]] with a `bool` condition and end it from a [[Message Box]], as in the [operator loop](../b5-operator-interaction/message-box.md). Remember to wire something into **every** button."
+    solution: "Wrap the row in a [[While Loop]] with a [[abb:bool]] condition and end it from a [[Message Box]], as in the [operator loop](../b5-operator-interaction/message-box.md). Remember to wire something into **every** button."

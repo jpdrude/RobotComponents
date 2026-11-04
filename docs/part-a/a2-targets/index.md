@@ -1,6 +1,6 @@
 # A2 Targets
 
-Where the robot should go: positions and orientations from planes, joint angles, external axis positions and the axis configuration the robot should use.
+Where the robot should go: positions and orientations from planes, joint angles, external axis positions and the axis configuration the robot should use. In RAPID these are [[abb:robtarget]] and [[abb:jointtarget]], with [[abb:confdata]] and [[abb:extjoint]] inside.
 
 Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
 
@@ -21,7 +21,7 @@ Pages marked *reference tables only* already show the component's description an
 
 1. ★ In the first program, replace [[Flip Plane X]] by [[Flip Plane Y]]. Does the tool still point down? What changes in the robtarget?
 
-2. ★★ Use [[Inverse Kinematics]] to turn the first program's target into joint angles, and use those as the start pose of a `MoveAbsJ`.
+2. ★★ Use [[Inverse Kinematics]] to turn the first program's target into joint angles, and use those as the start pose of a [[abb:MoveAbsJ]].
 
 ??? success "Solutions"
     1. Yes, the Z axis still points down. Only the orientation changes: Flip Plane Y turns the plane 180° about its X axis instead of its Y axis, so the quaternion (second block of the robtarget) is different and the wrist is turned by 180° around the tool axis.

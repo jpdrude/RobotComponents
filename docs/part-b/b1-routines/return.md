@@ -26,7 +26,7 @@ FUNC num currentZ()
 ENDFUNC
 ```
 
-A `FUNC` must reach a `RETURN` with a value of its declared type (`num` here). The
+A `FUNC` must reach a `RETURN` with a value of its declared type ([[abb:num]] here). The
 caller then uses the call like a value: `z := currentZ();`. ABB's reference:
 [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:RETURN]]).
 

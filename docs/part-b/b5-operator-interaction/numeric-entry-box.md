@@ -10,7 +10,7 @@ description: Ask the operator for a number on the FlexPendant and store it in a 
 <span class="rc-badge rc-badge--verified">RAPID syntax checked on IRB 1200 · RobotWare 6.10</span>
 
 **Numeric Entry Box** shows a number pad on the FlexPendant and stores what the operator
-types in a `num` [[RAPID Variable]]: a height, a count, an offset. *Range* limits what they
+types in a [[abb:num]] [[RAPID Variable]]: a height, a count, an offset. *Range* limits what they
 can enter; *As Integer* allows whole numbers only.
 
 [[io:Numeric Entry Box]]

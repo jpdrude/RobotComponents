@@ -38,7 +38,7 @@ and writes it into the target.
 2. **The robot.** [[Robot Preset]] *IRB4600-40/2.55*, with the track on its *External Axis* input.
 3. **Targets.** Three points at X = 1000, 4000, 7000 (Y 1200, Z 600) → [[gh:XY Plane]] →
    [[Flip Plane X]] → [[Robot Target]] `t`.
-4. **Moves.** `MoveJ` to the first target, then `MoveL` through all three.
+4. **Moves.** [[abb:MoveJ]] to the first target, then [[abb:MoveL]] through all three.
 
 ## The result
 

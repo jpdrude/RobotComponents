@@ -17,6 +17,9 @@ in [[Robot Preset]], or a customised one. For ABB's catalogue robots, use the pr
 - **Meshes**: one mesh per link, base first, in the robot's home pose (all joints at 0).
 - **Axis Limits**: six intervals in degrees, from the robot's datasheet.
 
+**In RAPID**, the robot is the mechanical unit `ROB_1` of its task ([[abb:mecunit]]); its six
+joint angles are a [[abb:robjoint]] inside every [[abb:jointtarget]].
+
 ## See also
 
 [[Robot Preset]] · [[Robot Kinematic Parameters]] · [[Deconstruct Robot]]

@@ -16,7 +16,7 @@ a known number of times, a [[For Loop]] is simpler.
 
 [[io:While Loop]]
 
-*Condition* takes a [[Comparison Expression]], a `bool` [[RAPID Variable]], or an
+*Condition* takes a [[Comparison Expression]], a [[abb:bool]] [[RAPID Variable]], or an
 expression typed into a [[gh:Panel]] (`count < 10 AND NOT stop`).
 
 ## In RAPID

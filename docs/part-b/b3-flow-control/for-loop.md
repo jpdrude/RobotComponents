@@ -16,7 +16,7 @@ example in an [[Offset Target]] (`i * 100`) to move a little further each time.
 [[io:For Loop]]
 
 *Counter* is optional. Leave it empty and the loop counts with `i`. To use another
-name, wire a [[RAPID Variable]]'s *Variable* output (type `num`, Level `Routine`). The
+name, wire a [[RAPID Variable]]'s *Variable* output (type [[abb:num]], Level `Routine`). The
 *Counter* output passes the counter on for components **after** the loop (not inside it; see Gotchas).
 
 ## In RAPID

@@ -61,7 +61,7 @@ ENDPROC
 warnings, cycle time **6.5 s**. (Declarations and header comments not shown.)
 
 1. [[Routine]]: Type `PROC`, Name `visit`, one argument from a [[Routine Argument]]
-   (Type `num`, Name `y`, **no Value**). That writes `PROC visit(num y)`.
+   (Type [[abb:num]], Name `y`, **no Value**). That writes `PROC visit(num y)`.
 2. The body: three [[Move]]s to [[Offset Target]]s of `base`, whose *Y* is the argument's
    **Variable** output. Inside the routine, `y` is whatever the caller passed.
 3. A [[Routine Call]] (Type `0` = PROC, Routine Name `visit`, Argument Value 1 = a

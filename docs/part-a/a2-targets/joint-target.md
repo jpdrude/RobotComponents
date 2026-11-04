@@ -9,7 +9,7 @@ description: Combine robot joint angles and external axis positions into one joi
 
 **Joint Target** combines a [[type:Robot Joint Position]] (the six robot joints) and an
 [[type:External Joint Position]] (tracks, turntables) into one named `jointtarget` for a
-`MoveAbsJ`.
+[[abb:MoveAbsJ]].
 
 [[io:Joint Target]]
 

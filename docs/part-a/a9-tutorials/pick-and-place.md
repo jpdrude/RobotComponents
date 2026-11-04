@@ -49,12 +49,12 @@ MoveL place_above, v50, fine, tool0\WObj:=wobj0;    ! (4) straight up, end on fi
 ```
 
 **Checked on a Virtual Controller** (IRB 1200-5/0.9, RobotWare 6.10). The full module loads
-with `doGripper` declared as a placeholder. The movements, with the two `SetDO` lines left
+with `doGripper` declared as a placeholder. The movements, with the two [[abb:SetDO]] lines left
 out because the demo controller has no gripper signal, run with no warnings in **13.7 s**. On
 your robot, use the real name of the gripper output.
 
-1. **`MoveJ` to the point above**: in free space the path doesn't matter, so take the fastest one.
-2. **`MoveL` down at `v50` with `fine`**: straight and slow near the part, and stop *exactly*
+1. **[[abb:MoveJ]] to the point above**: in free space the path doesn't matter, so take the fastest one.
+2. **[[abb:MoveL]] down at `v50` with `fine`**: straight and slow near the part, and stop *exactly*
    on it before gripping.
 3. **[[Set Digital Output]] + [[Wait Time]]**: switch the gripper, then wait until it has
    actually closed or opened.

@@ -8,7 +8,8 @@ Write in any page:
     [[ghtype:Number]]           native Grasshopper data type -> icon + link to reference/grasshopper-types.md
     [[Move|two Moves]]          any of the above with a custom label
     [[Move\|two Moves]]         same, inside a Markdown table cell
-    [[abb:MoveL]]               link to that page of ABB's RAPID manual (PDF, #page=N, new tab);
+    [[abb:MoveL]]               link to that page of ABB's RAPID manual (PDF, #page=N, new tab,
+                                followed by the page number: "MoveL p. 462");
                                 [[abb-kernel:Data declarations]], [[abb-overview:...]] for the other manuals
     [[io:Move]]                 inputs/outputs tables from docs/data/io.json (extracted from
                                 the live components, incl. right-click extra parameters)
@@ -183,7 +184,9 @@ def _render_abb(match, page_src: str) -> str:
     text = label or (f"`{name}`" if manual == "ifd" else name)
     tip = f"{entry['title']} ({entry['document']}), page {page_no}"
     # "pdf" = the PDF itself; ABB's Download.aspx redirect drops the #page jump in browsers
-    return f'[{text}]({entry.get("pdf") or entry["url"]}#page={page_no} "{tip}"){{ .rc-abb }}'
+    # The page number is also shown: many PDF viewers ignore #page=N and open the cover.
+    link = f'[{text}]({entry.get("pdf") or entry["url"]}#page={page_no} "{tip}"){{ .rc-abb }}'
+    return f'{link}<span class="rc-abb-page">&nbsp;p.&nbsp;{page_no}</span>'
 
 
 # Every link to an ABB manual (page links and the whole-manual [abb-ifd] references) opens in a

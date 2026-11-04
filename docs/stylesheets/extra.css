@@ -45,3 +45,6 @@
 /* Canvas screenshots are wide: let them scroll inside the content column on phones */
 .rc-canvas { overflow-x: auto; }
 .rc-canvas img { max-width: none; width: 100%; min-width: 640px; }
+
+/* Page number after links to ABB's manuals ([[abb:...]]): many PDF viewers ignore #page=N */
+.rc-abb-page { color: var(--md-default-fg-color--light); font-size: 0.85em; white-space: nowrap; }

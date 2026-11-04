@@ -113,8 +113,8 @@ Build it step by step:
    [[Flip Plane X]] turns it over. [[Robot Target]] (name `target`) turns that plane into a
    [[type:Robot Target]].
 4. **Two movements.** Two [[Move]] components:
-    - the first goes to `home` with type `MoveAbsJ` (straight to joint angles),
-    - the second goes to `target` with type `MoveJ` (fastest way there).
+    - the first goes to `home` with type [[abb:MoveAbsJ]] (straight to joint angles),
+    - the second goes to `target` with type [[abb:MoveJ]] (fastest way there).
 
     Type, speed and zone come from [[Movement Types]], [[Predefined Speed Data]] and
     [[Predefined Zone Data]]. Each one turns into a drop-down list when you place it. The
@@ -161,7 +161,7 @@ To run the program on a controller (a real robot, or a virtual one in RobotStudi
 
 - [ ] **Rename.** Change the target name from `target` to `pick`. Which two lines of RAPID change?
 - [ ] **Move the target.** Drag the X slider. Watch the target frame move in Rhino and the coordinates change in the code.
-- [ ] **Add a second target.** Add another [[Robot Target]] and [[Move]] (type `MoveL`) after the first. Where do you wire it so the robot goes there *last*?
+- [ ] **Add a second target.** Add another [[Robot Target]] and [[Move]] (type [[abb:MoveL]]) after the first. Where do you wire it so the robot goes there *last*?
 
 ??? success "Solutions"
     1. The declaration `VAR robtarget pick := …` and the instruction `MoveJ pick, …`.

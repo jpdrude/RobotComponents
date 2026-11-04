@@ -115,7 +115,7 @@ PERS num partCount := 0;
 - `:=` **assigns** a new value. (`=` alone *compares*: `IF a = 5 THEN`.)
 - `Offs(pick, 0, 0, approach)` is a **function call**: it returns a new robtarget,
   `approach` mm above `pick`, without changing `pick`. See [[Offset Target]].
-- Comparisons: `=`, `<>`, `<`, `>`, `<=`, `>=`; logic: `AND`, `OR`, `NOT`. See
+- Comparisons: `=`, `<>`, `<`, `>`, `<=`, `>=`; logic: [[abb:AND]], [[abb:OR]], [[abb:NOT]]. See
   [[Comparison Expression]].
 
 ??? example "Complete module (checked on a Virtual Controller)"

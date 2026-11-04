@@ -21,4 +21,4 @@ Pages marked *reference tables only* already show the component's description an
 
 ??? success "Solutions"
     1. Give the first [[Wait Time]] (after `SetDO doGripper, 1;`) a *Duration* of `1`, and keep the second one at `0.5`.
-    2. Right-click the Move to `pick` → *Set Digital Output*, and wire a [[Set Digital Output]] (`doGripper`, `1`) into it. The Move becomes a `MoveLDO`, which switches the output at the target.
+    2. Right-click the Move to `pick` → *Set Digital Output*, and wire a [[Set Digital Output]] (`doGripper`, `1`) into it. The Move becomes a [[abb:MoveLDO]], which switches the output at the target.

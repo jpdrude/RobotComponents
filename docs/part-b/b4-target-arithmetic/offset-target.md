@@ -38,7 +38,7 @@ expression (`i * 100`), the position only exists on the controller and can't be 
 
 ## Try it
 
-- [ ] Add an approach move: before the `MoveL` to each row point, `MoveJ` to a point 100 mm above it.
+- [ ] Add an approach move: before the [[abb:MoveL]] to each row point, [[abb:MoveJ]] to a point 100 mm above it.
 
 ??? success "Solution"
     A second Offset Target with *Target* `base`, *Y* `i * 100`, *Z* `100`, into a [[Move]]

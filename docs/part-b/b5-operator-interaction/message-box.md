@@ -63,7 +63,7 @@ loads without errors. It wasn't simulated because the dialogs wait for a person 
 button. (Generated lines are shown wrapped here.)
 
 1. Message Box declares the variable that receives the answer (`btnRes`, the button number).
-2. [[While Loop]] with the condition `again`, a [[RAPID Variable]] of type `bool`.
+2. [[While Loop]] with the condition `again`, a [[RAPID Variable]] of type [[abb:bool]].
 3. [[Numeric Entry Box]] asks for a height and stores it in `h`. A [[Move]] goes to
    [[Offset Target]] `Offs(base, 0, 0, h)`.
 4. Message Box with buttons `Yes` and `No`. *Actions No* gets an [[Assign Variable Value]]

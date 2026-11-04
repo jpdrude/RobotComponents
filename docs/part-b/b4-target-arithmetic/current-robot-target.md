@@ -61,7 +61,7 @@ ENDFUNC
 **Checked on a Virtual Controller** (IRB 1200-5/0.9, RobotWare 6.10): runs with no
 warnings, cycle time **3.4 s**. (Other declarations and header comments not shown.)
 
-1. [[Routine]] with Type `FUNC`, Name `currentZ`, and *Return Type* `num` (the input
+1. [[Routine]] with Type `FUNC`, Name `currentZ`, and *Return Type* [[abb:num]] (the input
    appears when you choose `FUNC`). Its **Routine** output goes into the [[RAPID Generator]]'s
    *Additional Routines*.
 2. [[RAPID Variable]] `now`: Type `robtarget`, Level `Routine`, Scope `LOCAL`. Its
@@ -70,7 +70,7 @@ warnings, cycle time **3.4 s**. (Other declarations and header comments not show
    [[Get Robtarget Members]] on `now` gives `now.trans.z`, which [[Return]] sends back.
 4. In `main`: a module-level [[RAPID Variable]] `z`, and [[Assign Variable Value]] with the
    FUNC's **Return Value** output (the call `currentZ()`) as *Value*.
-5. [[Comparison Expression]] `z >= 299` and an [[IF Statement]] with a `MoveL` to
+5. [[Comparison Expression]] `z >= 299` and an [[IF Statement]] with a [[abb:MoveL]] to
    [[Offset Target]] (`target`, Z `-50`). The IF's output is flattened.
 
 ## In RAPID

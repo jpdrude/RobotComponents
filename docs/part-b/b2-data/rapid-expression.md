@@ -27,6 +27,9 @@ input.
 | [[Get Robtarget Members]] | `now.trans.z` |
 | [[Routine Call]] / [[Routine]] (FUNC) | a function call: `currentZ()` |
 
+ABB's rules for expressions (operators, priorities, which types fit together):
+[[abb-kernel:Expressions]] in the RAPID kernel manual.
+
 ## Where expressions are accepted
 
 Inputs of type RAPID Expression take any of the above: the conditions of [[IF Statement]]

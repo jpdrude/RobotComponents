@@ -16,7 +16,7 @@ controller picks the configuration nearest to where the robot is. That's conveni
 the arm may flip unexpectedly.
 
 These components switch the check for **all following** movements:
-[[Joint Configuration Control]] for `MoveJ`, [[Linear Configuration Control]] for `MoveL`.
+[[Joint Configuration Control]] for [[abb:MoveJ]], [[Linear Configuration Control]] for [[abb:MoveL]].
 
 ### Joint Configuration Control
 [[io:Joint Configuration Control]]

@@ -39,8 +39,8 @@ With ABB's **MultiMove**, one controller drives several robots, each with its ow
 2. **One [[Task List]]** `allTasks` with `T_ROB1` and `T_ROB2`, shared by everything below.
 3. **Shared sync components:** [[Wait Sync Task]] (`ready`, *In Position* `True`),
    [[Sync Move On]] (`together`) and [[Sync Move Off]] (`apart`).
-4. **One [[RAPID Generator]] per robot.** *Actions* in order: home `MoveAbsJ`, Wait Sync
-   Task, Sync Move On, the robot's `MoveL` to its two targets, Sync Move Off.
+4. **One [[RAPID Generator]] per robot.** *Actions* in order: home [[abb:MoveAbsJ]], Wait Sync
+   Task, Sync Move On, the robot's [[abb:MoveL]] to its two targets, Sync Move Off.
 
 ## The generated programs
 
@@ -55,10 +55,10 @@ SyncMoveOff apart;                              SyncMoveOff apart;
 ```
 
 (Shortened: `\WObj:=wobj0` and the declarations are left out.) Both modules also declare
-`PERS tasks allTasks{2} := [["T_ROB1"], ["T_ROB2"]];` and the three `syncident`s.
+`PERS tasks allTasks{2} := [["T_ROB1"], ["T_ROB2"]];` and the three [[abb:syncident]] declarations.
 
-- `WaitSyncTask`: each robot waits here until the other one has arrived too.
-- Between `SyncMoveOn` and `SyncMoveOff`, Moves with the same `\ID` start and end
+- [[abb:WaitSyncTask]]: each robot waits here until the other one has arrived too.
+- Between [[abb:SyncMoveOn]] and [[abb:SyncMoveOff]], Moves with the same `\ID` start and end
   **together**. The [[RAPID Generator]] numbers them for you (10, 20, …), so both tasks need the
   same number of Moves in that section.
 

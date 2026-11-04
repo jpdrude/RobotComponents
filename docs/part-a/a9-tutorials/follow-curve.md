@@ -9,7 +9,7 @@ description: Divide any Rhino curve into targets and let the robot trace it with
 
 Drawing, gluing, cutting, dispensing: many robot jobs mean **tracing a curve**. The recipe is
 always the same. Divide the curve into points, turn each point into a target, and connect
-them with `MoveL`. Here the curve is a circle; swap it for any curve from Rhino.
+them with [[abb:MoveL]]. Here the curve is a circle; swap it for any curve from Rhino.
 
 [:material-download: follow-curve.gh](../../examples/part-a/follow-curve.gh){ .md-button download="follow-curve.gh" }
 
@@ -43,7 +43,7 @@ Plus Grasshopper: [[gh:Construct Point]] · *Circle* · *Divide Curve* · *List 
 3. **Targets.** Each point → [[gh:XY Plane]] → [[Flip Plane X]] (tool down) →
    [[Robot Target]] named `c`, which gives `c_0` … `c_23`.
 4. **Approach.** *List Item* with index `0` picks the first target. A [[Move]] goes there
-   with `MoveJ` and `fine`: get to the start quickly, then stop.
+   with [[abb:MoveJ]] and `fine`: get to the start quickly, then stop.
 5. **Trace.** One [[Move]] with **all** targets, `MoveL`, `v100`, zone **`z1`**: the robot
    blends through the points without stopping, so the motion is smooth.
 6. **Close and stop.** A last `MoveL` back to the first target with `fine`, which closes the

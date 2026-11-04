@@ -16,10 +16,12 @@ DOCS = Path(__file__).resolve().parents[2] / "docs"
 CHAPTERS = {
     "part-a/a1-cell-setup": ("A1 Cell setup",
         "Everything that describes the physical cell: the robot, the tool on its flange, the work "
-        "objects you program against, payloads and external axes."),
+        "objects you program against, payloads and external axes. On the controller, the robot and "
+        "every external axis is a mechanical unit ([[abb:mecunit]])."),
     "part-a/a2-targets": ("A2 Targets",
         "Where the robot should go: positions and orientations from planes, joint angles, "
-        "external axis positions and the axis configuration the robot should use."),
+        "external axis positions and the axis configuration the robot should use. In RAPID these "
+        "are [[abb:robtarget]] and [[abb:jointtarget]], with [[abb:confdata]] and [[abb:extjoint]] inside."),
     "part-a/a3-motion": ("A3 Motion",
         "How the robot moves between targets: movement type, speed, zone, and the settings "
         "that shape the path."),

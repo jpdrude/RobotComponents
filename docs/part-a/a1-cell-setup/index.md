@@ -1,6 +1,6 @@
 # A1 Cell setup
 
-Everything that describes the physical cell: the robot, the tool on its flange, the work objects you program against, payloads and external axes.
+Everything that describes the physical cell: the robot, the tool on its flange, the work objects you program against, payloads and external axes. On the controller, the robot and every external axis is a mechanical unit ([[abb:mecunit]]).
 
 Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
 

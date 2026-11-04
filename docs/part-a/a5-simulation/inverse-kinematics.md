@@ -50,7 +50,7 @@ elbow and shoulder **singularities**: poses where the robot loses a degree of fr
 moves badly.
 
 !!! info "Check the whole path, not just targets"
-    IK checks one pose. A `MoveL` between two reachable targets can still pass through a
+    IK checks one pose. A [[abb:MoveL]] between two reachable targets can still pass through a
     singularity or out of reach. Check the whole program with the [[Path Generator]] or
     [[Check Actions]].
 

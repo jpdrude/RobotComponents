@@ -55,7 +55,7 @@ warnings, cycle time **10.5 s**.
    This writes the coordinates **relative to the table**: `[0, 0, 0]`, `[100, 0, 0]`, ….
 4. **The move:** [[Move]] with right-click → **Override Work Object** = `table`.
 5. **The tool:** a [[Robot Tool]] `pen` whose tip is 120 mm along the flange's Z axis, wired
-   into the [[Robot Preset]]. The [[RAPID Generator]] writes `tooldata` and `wobjdata` with
+   into the [[Robot Preset]]. The [[RAPID Generator]] writes [[abb:tooldata]] and `wobjdata` with
    *Add Tool Data* / *Add Work Object Data* (right-click).
 
 ## In RAPID

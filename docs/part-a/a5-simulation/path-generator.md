@@ -35,7 +35,7 @@ but an estimate. The controller's acceleration and corner zones decide the real 
 | It shows | It doesn't check |
 |---|---|
 | whether every target is reachable, and joint-limit problems | **collisions** with your cell, fixtures or the robot itself |
-| how `MoveJ` and `MoveL` paths differ | the exact path inside corner zones |
+| how [[abb:MoveJ]] and [[abb:MoveL]] paths differ | the exact path inside corner zones |
 | roughly how long the program takes | anything that is only known on the controller: [Part B](../../part-b/index.md) variables, `Offs(…, i * 100, …)`, operator input |
 
 !!! tip "Hide the Robot Preset preview"

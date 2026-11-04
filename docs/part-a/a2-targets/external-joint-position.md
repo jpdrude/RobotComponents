@@ -22,7 +22,7 @@ A track at 1200 mm, nothing else:
 [1200, 9E9, 9E9, 9E9, 9E9, 9E9]
 ```
 
-This is the last part of every `robtarget` and `jointtarget` (`extax`). ABB's reference:
+This is the last part of every [[abb:robtarget]] and [[abb:jointtarget]] (`extax`). ABB's reference:
 [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:extjoint]]).
 
 !!! warning "Real external axes need real values"

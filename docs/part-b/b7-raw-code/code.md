@@ -22,6 +22,9 @@ VAR signaldi diPartSensor;
 Instructions (*Type* `0`) go where you wire them in *Actions*, e.g. `TPWrite "Cycle done";`
 to show a message on the FlexPendant.
 
+ABB's reference: [[abb-kernel:Statements]] and [[abb-kernel:Data declarations]] in the
+RAPID kernel manual, and each instruction in [RAPID Instructions, Functions and Data types][abb-ifd].
+
 ## Gotchas
 
 !!! warning "Robot Components does not check your RAPID"

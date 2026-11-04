@@ -76,7 +76,7 @@ ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
 !!! tip "Switch at the point, not before"
     The output switches when the program reaches the line. With a zone on the Move before it
     (`z10`), the robot may still be moving. Use `fine` on the Move before gripping, or the
-    *Set Digital Output* input of [[Move]] (`MoveLDO`) to switch exactly at the target.
+    *Set Digital Output* input of [[Move]] ([[abb:MoveLDO]]) to switch exactly at the target.
 
 !!! info "Component vs. controller utility"
     These components write **program lines**. To switch a signal **right now** from

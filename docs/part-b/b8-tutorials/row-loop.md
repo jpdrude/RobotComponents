@@ -10,7 +10,7 @@ description: Use a FOR loop, Offs, a persistent counter and an IF to visit a row
 
 In Part A, four points meant four targets and four movements. Here the **controller**
 computes the points: one target, one [[Move]] inside a [[For Loop]], and the loop counter
-shifts the target with `Offs`. A persistent counter remembers how many points were visited
+shifts the target with [[abb:Offs]]. A persistent counter remembers how many points were visited
 across runs, and an [[IF Statement]] resets it at 100.
 
 Read the [B0 RAPID primer](../b0-rapid-primer.md) first if `VAR`, `PERS` and `:=` are new to you.
@@ -65,17 +65,17 @@ warnings, cycle time **5.1 s**. (Header comments removed.)
 
 ## Step by step
 
-1. **A persistent counter.** [[RAPID Variable]] with *Keyword* `PERS`, *Type* `num`, *Name*
+1. **A persistent counter.** [[RAPID Variable]] with *Keyword* `PERS`, *Type* [[abb:num]], *Name*
    `count`, *Value* `0`. When you place it, it creates its own *Level*, *Scope* and
    *Keyword* drop-downs. Its **Variable Declaration** output goes into the
    [[RAPID Generator]]'s *Actions*, which writes line (1).
 2. **The base point.** [[gh:Construct Point]] → [[gh:XY Plane]] → [[Flip Plane X]] →
-   [[Robot Target]] named `base`. A [[Move]] with `MoveJ` goes there first.
+   [[Robot Target]] named `base`. A [[Move]] with [[abb:MoveJ]] goes there first.
 3. **The loop.** [[For Loop]] with *From* `0` and *To* `3`. *Counter* is left empty, so the
    component declares `VAR num i` for you (2) and runs the body four times: `i` = 0, 1, 2, 3.
 4. **The moving target.** [[Offset Target]] takes `base` and offsets it by
    *Y* = `i * 100`, a RAPID expression typed into a [[gh:Panel]]. The controller evaluates it
-   on every pass, giving Y offsets 0, 100, 200 and 300 mm (4). A [[Move]] with `MoveL`
+   on every pass, giving Y offsets 0, 100, 200 and 300 mm (4). A [[Move]] with [[abb:MoveL]]
    goes there.
 5. **Counting.** [[Assign Variable Value]] with the counter's *Variable* output and *Value*
    `count + 1` writes (5). Both the Move and the assignment go into the loop's *Actions*,

@@ -11,7 +11,7 @@ description: Like the Path Generator, but every step along the path lasts the sa
 **Timed Path Generator** does what the [[Path Generator]] does, with one difference: it
 splits every movement into steps of **equal time** (*Time Interval*, in seconds), using the
 path length and the programmed TCP speed. Each step of the animation slider then
-represents the same amount of time: a slow `MoveL` gets many steps, a fast `MoveJ` few. That
+represents the same amount of time: a slow [[abb:MoveL]] gets many steps, a fast [[abb:MoveJ]] few. That
 makes animations play at a realistic pace, and lets you ask "where is the robot after 3
 seconds?".
 

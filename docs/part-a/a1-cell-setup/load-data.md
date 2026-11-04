@@ -15,7 +15,7 @@ the robot. **Load Data** describes a load; wire it into a [[Robot Tool]] (the to
 
 ## In RAPID
 
-The load becomes part of the `tooldata`. The [[Robot Tool]] example has the minimal load:
+The load becomes part of the [[abb:tooldata]]. The [[Robot Tool]] example has the minimal load:
 
 ```
 PERS tooldata pen := [TRUE, [[0, 0, 120], [1, 0, 0, 0]], [0.001, [0, 0, 0.001], [1, 0, 0, 0], 0, 0, 0]];

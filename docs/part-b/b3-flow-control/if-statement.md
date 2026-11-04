@@ -45,7 +45,7 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
 
 ## Try it
 
-- [ ] Add an ELSE branch that sets a `bool` variable `full` to `FALSE`, and set it to `TRUE` in the IF branch.
+- [ ] Add an ELSE branch that sets a [[abb:bool]] variable `full` to `FALSE`, and set it to `TRUE` in the IF branch.
 
 ??? success "Solution"
     A [[RAPID Variable]] `full` (type `bool`). Two [[Assign Variable Value]]s: `TRUE` into
@@ -60,4 +60,4 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
 
 ## See also
 
-[[Comparison Expression]] · [[While Loop]] · [[Message Box]] (operator choices with `TEST`/`CASE`)
+[[Comparison Expression]] · [[While Loop]] · [[Message Box]] (operator choices with [[abb:TEST]]/`CASE`)

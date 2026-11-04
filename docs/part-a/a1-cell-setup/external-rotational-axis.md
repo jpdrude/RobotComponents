@@ -16,6 +16,9 @@ turntable angle with [[External Joint Position]].
 
 Right-click → *Axis Logic Number* and *Moves Robot*: as for [[External Linear Axis]].
 
+**In RAPID**, the axis is a mechanical unit on the controller ([[abb:mecunit]]), and its
+angle in degrees is the `eax_…` value of the [[abb:extjoint]] inside every robtarget and jointtarget.
+
 ## See also
 
 [[External Linear Axis]] · [[External Joint Position]] · [[Work Object]] · [[Deconstruct External Rotational Axis]]

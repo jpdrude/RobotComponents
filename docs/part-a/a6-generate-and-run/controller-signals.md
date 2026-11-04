@@ -28,6 +28,9 @@ Useful for testing a gripper, a lamp or a sensor while setting up a cell.
 The other components work the same way for their signal type. [[Deconstruct Group Signal]]
 splits a group signal into its bits.
 
+**In RAPID**, signals are data of the types `signaldi`, `signaldo`, `signalai`, `signalao`,
+`signalgi` and `signalgo`; ABB describes them together as [[abb:signalxx]].
+
 !!! warning "Program lines vs. live switching"
     To switch a signal **inside a robot program**, use the Code Generation components on
     [Set outputs](../a4-io-and-timing/set-outputs.md). These live components switch immediately,

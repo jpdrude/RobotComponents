@@ -28,7 +28,7 @@ All on the right-click menu:
 | Specify Error Handling | `0` none, `1` pause on error, `2` skip errors. |
 | Add Superordinate Main Method | The contents of a superordinate `main`, for when this generator's routine is called from another routine. |
 | Add Additional Routines | Your own `PROC`/`FUNC`/`TRAP` from [[Routine]]; see [Part B](../../part-b/index.md). |
-| Add Load / Tool / Work Object Data | Writes the `loaddata`, `tooldata`, `wobjdata` declarations into the module. |
+| Add Load / Tool / Work Object Data | Writes the [[abb:loaddata]], [[abb:tooldata]], [[abb:wobjdata]] declarations into the module. |
 | Enforce Axis Limits | On by default: if a target breaks a joint limit, **no code is generated**. Turn it off to get code plus warnings. |
 | Output Load / Tool / Work Object Data | Outputs those declarations separately. |
 | Save RAPID module to file | Writes the module to a `.mod` file. |
