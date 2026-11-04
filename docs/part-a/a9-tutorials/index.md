@@ -11,6 +11,6 @@ Complete small projects that combine the chapters of Part A. Each comes with a d
 | [A gripper sequence](../a4-io-and-timing/set-outputs.md#example-a-gripper-sequence) | waiting for inputs, switching outputs | ✅ |
 | [Pick and place](pick-and-place.md) | approach/retract, MoveJ vs MoveL, gripper I/O | ✅ |
 | [Following a curve](follow-curve.md) | dividing a curve into targets, MoveL with zones | ✅ |
-| A robot on a linear track | external axes, external joint positions | planned |
+| [A robot on a linear track](linear-track.md) | external axes, automatic track positions | ✅ |
 | Two robots with Multi Move | tasks, synchronised moves | planned |
 | GoFa workflow | the CRB 15000 solver, singularities | planned |

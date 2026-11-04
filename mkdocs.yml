@@ -133,6 +133,7 @@ nav:
           - part-a/a9-tutorials/index.md
           - "Pick and place": part-a/a9-tutorials/pick-and-place.md
           - "Following a curve": part-a/a9-tutorials/follow-curve.md
+          - "A robot on a linear track": part-a/a9-tutorials/linear-track.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
