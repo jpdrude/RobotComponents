@@ -96,6 +96,8 @@ nav:
           - Wait for Robot: part-a/a4-io-and-timing/wait-for-robot.md
       - "A5 Simulation":
           - part-a/a5-simulation/index.md
+          - Inverse Kinematics: part-a/a5-simulation/inverse-kinematics.md
+          - Forward Kinematics: part-a/a5-simulation/forward-kinematics.md
           - Path Generator: part-a/a5-simulation/path-generator.md
           - Timed Path Generator: part-a/a5-simulation/timed-path-generator.md
           - Check Actions: part-a/a5-simulation/check-actions.md
