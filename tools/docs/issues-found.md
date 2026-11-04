@@ -20,6 +20,8 @@ Not published on the wiki site.
 | 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | open |
 | 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
+| 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
+| 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
 
 ---
 
@@ -186,3 +188,39 @@ Also: `VAR num i;` is declared in the routine, but RAPID declares FOR counters i
 
 `! User definied code lines` in every module with user declarations (also "definied" in
 `Routine.cs` / `RoutineArgument.cs` doc comments).
+
+---
+
+## 12 🔴 Robot Target as Routine Argument *Value* becomes display text
+
+**Found:** 2026-11-04 building the Routine page example.
+`RoutineArgumentComponent.SolveInstance` (`RobotComponents.ABB.Gh/.../Declarations/RoutineArgumentComponent.cs`, around
+`value = valueObject.ToString();`) turns the value into text with `ToString()`. For a Robot
+Target goo that is `Robot Target (pickA_0)`, so the routine call becomes
+`visit Robot Target (pickA_0);`, which is not RAPID. The target is also never declared, because
+nothing registers it with the generator (a Move would).
+
+**Repro:** Routine Argument (Type `robtarget`, Name `p`, Value ← Robot Target named `pickA`) on a
+Routine; wire the Routine's *Routine Call* into the RAPID Generator.
+
+**Fix ideas:** resolve the value the way RAPID Variable's *Value* does (declared name, or
+inline RAPID value if unnamed) and make sure named declarations reach the generator.
+**Workaround used in the wiki:** pass numbers (or text) and build targets inside the routine
+with Offset Target.
+
+---
+
+## 13 🔴 A list on Routine Argument *Value* duplicates the routine
+
+**Found:** 2026-11-04. Routine Argument *Value* = two numbers (`-150`, `150`). The Routine's
+*Routine Call* output correctly gives `visit -150;` and `visit 150;`, but the argument's
+*Variable* output now has two items too. Everything in the body that uses it runs twice
+(every Move appears twice), and **`PROC visit(num y)` is declared twice**. Verified: a module with
+two identical `PROC visit` declarations fails to load (40322).
+
+**Workaround used in the wiki:** leave *Value* empty on the Routine Argument (it only defines
+the parameter) and make the calls with a separate **Routine Call** component whose
+*Argument Value* gets the list.
+
+**Fix ideas:** make *Variable* a single item independent of *Value* (it is the parameter, not
+the call), or document that *Value* is only for a single self-call.

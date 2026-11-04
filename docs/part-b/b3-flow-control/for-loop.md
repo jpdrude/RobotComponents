@@ -41,7 +41,8 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
 
 ??? success "Solution"
     *From* `3`, *To* `0`. RAPID's FOR counts down automatically when *From* > *To*, so the
-    row is visited in reverse.
+    row is visited in reverse. (Checked on the Virtual Controller: `FOR i FROM 3 TO 0`
+    runs four times and ends with `i` = 0.)
 
 ## Gotchas
 
