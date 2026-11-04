@@ -29,6 +29,14 @@ Names and link targets live in `docs/data/registry.yml`. An unknown name fails t
 build. Pages that aren't written yet are generated as "planned" stubs, so links always work.
 The hook is `tools/docs/rc_links.py`. The page's own title icon is the only hand-written image.
 
+## After adding a page
+
+1. Add it to `nav` in `mkdocs.yml` under its chapter.
+2. Run `python tools/docs/make_chapter_indexes.py` (needs PyYAML, which MkDocs installs). This
+   rewrites every chapter landing page from `docs/data/registry.yml`, marking pages that exist as
+   *written*.
+3. `mkdocs build --strict` must pass.
+
 ## How examples are produced
 
 1. The definition is built in Grasshopper (scripted through the Rhino MCP server, or by hand).

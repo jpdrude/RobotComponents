@@ -138,6 +138,7 @@ nav:
       - "B8 Tutorials":
           - part-b/b8-tutorials/index.md
           - "A row of points with a loop": part-b/b8-tutorials/row-loop.md
+      - "B9 Pitfalls and limits": part-b/b9-pitfalls.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md
       - Page template: reference/page-template.md

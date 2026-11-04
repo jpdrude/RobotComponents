@@ -1,0 +1,67 @@
+---
+title: "B9 Pitfalls and limits"
+description: Every trap found while building this wiki, in one checklist, with the fix for each.
+---
+
+# B9 Pitfalls and limits
+
+Everything on this page was found while building and checking the examples in this wiki,
+and each item links to the page that explains it. Read it once before you run Part B code on
+a robot.
+
+## Programs that are silently wrong
+
+These produce code that loads and runs, but **does the wrong thing**, with no warning in
+Grasshopper.
+
+| Trap | Fix | Details |
+|---|---|---|
+| **Program order follows data-tree branches, not wires.** Loops, IFs, [[Code]], [[Connect Interrupt]] and [[Message Box]] output one branch level deeper than a [[Move]]. With the generator's *Actions* flattened, actions get sorted by branch level first. | Flatten the **outputs** of those components instead of the generator input. | [Row tutorial](b8-tutorials/row-loop.md#step-by-step) |
+| **Message Box: the wrong button runs the actions** when a button has nothing wired to it. | Wire something into every button's *Actions*, e.g. an [[Empty Line]]. | [[Message Box]] |
+| **Work Object on a Move doesn't convert targets.** World coordinates get offset by the work object a second time. | Give the [[Robot Target]] the work object's plane as *Reference Plane*. | [[Work Object]] |
+| **Nested loops share the counter `i`.** | Give the outer [[For Loop]] its own [[RAPID Variable]] counter. | [[For Loop]] |
+| **Move *Type* unconnected = MoveAbsJ.** | Always connect [[Movement Types]]. | [[Move]] |
+
+## Programs that don't load
+
+The controller rejects the module, usually with load error 40322 and a line number.
+
+| Trap | Fix | Details |
+|---|---|---|
+| A `VAR` declaration whose value refers to another `VAR`: [[Joint Target]] with a [[Robot Joint Position]] does this. | Wire the Robot Joint Position straight into the [[Move]]. | [[Joint Target]] |
+| A list of values on a [[Routine Argument]] declares the routine twice. | Leave *Value* empty; make the calls with [[Routine Call]]. | [[Routine]] |
+| A [[type:Robot Target]] as routine argument value becomes `Robot Target (name)`. | Pass numbers; build the target inside the routine with [[Offset Target]]. | [[Routine]] |
+| Signal names the controller doesn't know. | Copy the exact names from the controller's I/O configuration. | [Set outputs](../part-a/a4-io-and-timing/set-outputs.md) |
+| Names that aren't valid RAPID identifiers. | Letters, digits and `_`, starting with a letter, at most 32 characters, no RAPID keywords. [[Check Variable Names]] helps. | [Primer](b0-rapid-primer.md) |
+
+## Things that fail in Grasshopper
+
+| Trap | Fix | Details |
+|---|---|---|
+| Several `MODULE MainModule` texts instead of one. | Flatten (see above). | [[RAPID Generator]] |
+| *"Data conversion failed from RAPID Variable to Action"* and a solution exception. | Wire *Variable Declaration*, not *Variable*, into *Actions*. | [[RAPID Variable]] |
+| *"Routine variables cannot be global. Scope set to LOCAL."* | Level `Routine` data is always local. Set Scope `LOCAL`. | [[RAPID Variable]] |
+
+## What the simulation can't know
+
+[[Path Generator]], [[Timed Path Generator]], [[Inverse Kinematics]] and [[Check Actions]]
+compute everything in Grasshopper. They **can't** evaluate what only exists on the
+controller:
+
+- variables and expressions (`Offs(base, 0, i * 100, 0)`, `CRobT()`, values from
+  [[Numeric Entry Box]]),
+- which branch an [[IF Statement]] or [[Message Box]] takes, or how often a [[While Loop]] runs,
+- what a TRAP routine does when an interrupt fires,
+- **collisions** with anything, even in Part A.
+
+Test such programs in RobotStudio or on a Virtual Controller, then on the real robot at reduced speed.
+
+## Opening older files
+
+When a component's inputs or outputs change between versions, older `.gh` files keep the old,
+hidden version so they still open. To switch to the current one, use Grasshopper's
+*Solution → Upgrade Components*. It replaces the old instances and reconnects the wires.
+
+## See also
+
+[B0 RAPID primer](b0-rapid-primer.md) · [B8 Tutorials](b8-tutorials/index.md)
