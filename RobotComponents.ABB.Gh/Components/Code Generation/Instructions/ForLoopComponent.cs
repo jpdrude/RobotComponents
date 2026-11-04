@@ -32,7 +32,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
     /// RobotComponents For Loop Component.
     /// Generates a RAPID FOR...ENDFOR loop from an optional counter variable,
     /// a From value, a To value, and a list of body actions.
-    /// When no counter variable is provided a local VAR num i is used automatically.
+    /// When no counter variable is provided a VAR num i is used automatically and declared
+    /// once at the beginning of the routine that contains the loop.
     /// From and To accept integers, doubles, RAPIDExpression strings, or RAPIDVariable references.
     /// </summary>
     public class ForLoopComponent : GH_RobotComponent
@@ -129,6 +130,12 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             // Build output code lines
             List<IAction> loopCode = new List<IAction>();
+
+            // The auto-created counter is declared at the top of the routine the loop ends up in.
+            // The generator writes identical routine-local declarations only once per routine.
+            if (autoCreated)
+                loopCode.Add(new CodeLine(counter.ToRAPID(), CodeType.Declaration) { IsRoutineLocal = true });
+
             loopCode.Add(new CodeLine($"FOR {counter.Name} FROM {fromStr} TO {toStr} DO", CodeType.Instruction));
             foreach (IAction action in bodyActions)
             {

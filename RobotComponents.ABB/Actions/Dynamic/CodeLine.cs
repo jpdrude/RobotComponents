@@ -35,6 +35,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
         private CodeType _type;
         private List<string> _warnings = new List<string>();
         private int _indentationLevel = 0;
+        private bool _isRoutineLocal = false;
         #endregion
 
         #region (de)serialization
@@ -51,6 +52,10 @@ namespace RobotComponents.ABB.Actions.Dynamic
             _code = result.Code;
             _warnings = result.Warnings;
             _type = (CodeType)info.GetValue("Code Type", typeof(CodeType));
+
+            // Added later: older archives do not contain this entry
+            try { _isRoutineLocal = (bool)info.GetValue("Routine Local", typeof(bool)); }
+            catch (SerializationException) { _isRoutineLocal = false; }
         }
 
         /// <summary>
@@ -64,6 +69,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
             info.AddValue("Version", VersionNumbering.Version, typeof(Version));
             info.AddValue("Code", _code, typeof(string));
             info.AddValue("Code Type", _type, typeof(CodeType));
+            info.AddValue("Routine Local", _isRoutineLocal, typeof(bool));
         }
         #endregion
 
@@ -110,6 +116,7 @@ namespace RobotComponents.ABB.Actions.Dynamic
             _type = codeLine.Type;
             _warnings = new List<string>(codeLine.Warnings);
             _indentationLevel = codeLine._indentationLevel;
+            _isRoutineLocal = codeLine._isRoutineLocal;
         }
 
         /// <summary>
@@ -208,7 +215,11 @@ namespace RobotComponents.ABB.Actions.Dynamic
             }
 
             string extra = new string(' ', _indentationLevel * 4);
-            if (_type == CodeType.Declaration)
+            if (_type == CodeType.Declaration && _isRoutineLocal)
+            {
+                RAPIDGenerator.ProgramDeclarationsRoutineLocal.Add("        " + _code);
+            }
+            else if (_type == CodeType.Declaration)
             {
                 RAPIDGenerator.ProgramDeclarationCustomCodeLines.Add("    " + _code);
             }
@@ -249,6 +260,17 @@ namespace RobotComponents.ABB.Actions.Dynamic
                 _code = result.Code;
                 _warnings = result.Warnings;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets whether this declaration is written inside the routine that uses it
+        /// (directly below the routine header) instead of at module level.
+        /// Only has an effect for code lines of type Declaration. Duplicates within a routine are written once.
+        /// </summary>
+        public bool IsRoutineLocal
+        {
+            get { return _isRoutineLocal; }
+            set { _isRoutineLocal = value; }
         }
 
         /// <summary>
