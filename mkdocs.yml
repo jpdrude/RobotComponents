@@ -178,6 +178,7 @@ nav:
           - part-b/b8-tutorials/index.md
           - "A row of points with a loop": part-b/b8-tutorials/row-loop.md
           - "Looping over an array": part-b/b8-tutorials/array-offsets.md
+          - "A routine library": part-b/b8-tutorials/routine-library.md
       - "B9 Pitfalls and limits": part-b/b9-pitfalls.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md

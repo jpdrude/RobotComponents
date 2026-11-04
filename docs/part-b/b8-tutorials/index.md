@@ -11,4 +11,4 @@ a downloadable `.gh` file and RAPID checked on a Virtual Controller.
 | [An operator-driven loop](../b5-operator-interaction/message-box.md#example-an-operator-driven-loop) | WHILE, number entry, button dialogs | ✅ |
 | [Count sensor hits](../b6-interrupts/connect-interrupt.md#example-count-sensor-hits) | TRAP routines, interrupts | ✅ |
 | [Looping over an array](array-offsets.md) | arrays, [[Get Array At Index]], a counter variable | ✅ |
-| A parametric routine library | several routines in a system module, Load Module | planned |
+| [A routine library](routine-library.md) | routines in a system module, called from any program | ✅ |
