@@ -61,6 +61,8 @@ ENDMODULE
 | `VAR` | A variable. Gets its declared value again when the module is loaded or the program pointer is reset to `main` (*PP to Main*). | Counters within one run, flags, intermediate results |
 | `PERS` | Persistent. Changes are **kept**: written back into the module and remembered between runs. | Part counters, calibrated positions |
 
+ABB's reference: [[abb-kernel:Variable declarations|variable]], [[abb-kernel:Persistent declarations|persistent]] and [[abb-kernel:Constant declarations|constant]] declarations.
+
 !!! warning "Initial values must be constants"
     The value after `:=` in a declaration must be a **literal or a `CONST`**, never another
     `VAR`. `VAR jointtarget j := [home, …];` (where `home` is a `VAR`) is rejected
@@ -81,15 +83,15 @@ Data declared *inside* a routine exists only while that routine runs. Pick the s
 
 | Type | Holds | Example |
 |---|---|---|
-| `num` | a number (integer or decimal) | `42`, `3.5` |
-| `bool` | `TRUE` or `FALSE` | `TRUE` |
-| `string` | text, up to 80 characters | `"hello"` |
-| `robjoint` | the 6 robot joint angles, degrees | `[0, 0, 0, 0, 30, 0]` |
-| `jointtarget` | robot joints + external axes | `[[0,0,0,0,30,0], [9E9,9E9,9E9,9E9,9E9,9E9]]` |
-| `robtarget` | a TCP position: **trans**lation (mm), **rot**ation (quaternion), **robconf** (axis configuration), **extax** (external axes) | `[[400,0,400], [0,0,1,0], [0,0,0,0], [9E9,…]]` |
-| `speeddata` | TCP mm/s, orientation °/s, external linear mm/s, external rotational °/s | `v200` = `[200, 500, 5000, 1000]` |
-| `zonedata` | how close to pass a point; `fine` = stop exactly | `z10`, `fine` |
-| `tooldata` / `wobjdata` / `loaddata` | tool, work object, payload | `tool0`, `wobj0`, `load0` |
+| [[abb:num]] | a number (integer or decimal) | `42`, `3.5` |
+| [[abb:bool]] | `TRUE` or `FALSE` | `TRUE` |
+| [[abb:string]] | text, up to 80 characters | `"hello"` |
+| [[abb:robjoint]] | the 6 robot joint angles, degrees | `[0, 0, 0, 0, 30, 0]` |
+| [[abb:jointtarget]] | robot joints + external axes | `[[0,0,0,0,30,0], [9E9,9E9,9E9,9E9,9E9,9E9]]` |
+| [[abb:robtarget]] | a TCP position: **trans**lation (mm), **rot**ation (quaternion), **robconf** (axis configuration), **extax** (external axes) | `[[400,0,400], [0,0,1,0], [0,0,0,0], [9E9,…]]` |
+| [[abb:speeddata]] | TCP mm/s, orientation °/s, external linear mm/s, external rotational °/s | `v200` = `[200, 500, 5000, 1000]` |
+| [[abb:zonedata]] | how close to pass a point; `fine` = stop exactly | `z10`, `fine` |
+| [[abb:tooldata]] / [[abb:wobjdata]] / [[abb:loaddata]] | tool, work object, payload | `tool0`, `wobj0`, `load0` |
 
 `9E9` (9 × 10⁹) means *"not used"*, e.g. for external axes the robot doesn't have.
 

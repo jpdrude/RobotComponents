@@ -24,7 +24,7 @@ in `PROC visit(num y)`. Wire **Argument** into one of the Routine's **+** inputs
 | `INOUT` | `PROC visit(INOUT num y)` | the caller's variable itself; changes are visible to the caller |
 | `PERS` | `PROC visit(PERS num y)` | a persistent passed by reference |
 
-ABB's reference: [RAPID kernel][abb-kernel] (routine parameters).
+ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Parameter declarations|parameter declarations]]).
 
 Full example: [[Routine]].
 

@@ -26,6 +26,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r docs/requirements.txt
+      # The wiki links pages of ABB's RAPID manuals (PDF #page=N). Fails if a manual moved or ABB
+      # published a new revision; then run `python tools/docs/abb_pages.py` locally and commit
+      # the updated docs/data/abb-pages.yml.
+      - name: Check ABB manual links and page numbers
+        run: python tools/docs/abb_pages.py --check
       - run: mkdocs build --strict
         env:
           NO_MKDOCS_2_WARNING: "1"

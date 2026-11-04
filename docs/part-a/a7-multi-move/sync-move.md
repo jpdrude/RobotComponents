@@ -33,7 +33,7 @@ Inside a synchronised section every task must have the **same number** of move i
 and each needs an identity (`\ID`) to match them up across tasks. The [[RAPID Generator]]
 numbers the Moves between Sync Move On and Off for you (`MoveL p\ID:=…, v200, fine, tool0;`: the identity follows the target).
 You only have to keep the count equal in every task. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`SyncMoveOn`, `SyncMoveOff`), and
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:SyncMoveOn]], [[abb:SyncMoveOff]]), and
 ABB's MultiMove application manual.
 
 !!! bug "Known issue: error badge on the components"

@@ -25,7 +25,7 @@ VAR robjoint home := [0, 0, 0, 0, 30, 0];
 MoveAbsJ [home, [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]], v200, z10, tool0\WObj:=wobj0;
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`robjoint`, `MoveAbsJ`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:robjoint]], [[abb:MoveAbsJ]]).
 
 !!! tip "Don't start straight"
     Joint 5 at `0` lines up joints 4 and 6, a wrist **singularity** where the robot can't

@@ -19,7 +19,7 @@ description: Combine robot joint angles and external axis positions into one joi
 VAR jointtarget home := [[0, 0, 0, 0, 30, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`jointtarget`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:jointtarget]]).
 
 ## Gotchas
 

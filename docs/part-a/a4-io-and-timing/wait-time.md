@@ -24,7 +24,7 @@ WaitTime 0.5;            ! wait 0.5 s
 WaitTime \InPos, 0.5;    ! wait until the robot stands still, then 0.5 s
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`WaitTime`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:WaitTime]]).
 
 Example: the gripper sequence on [Set outputs](set-outputs.md).
 

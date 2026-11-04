@@ -24,6 +24,7 @@ which renders as icon + name + link:
 | `[[type:Robot Target]]` | a data type (what flows through a wire) | parameter icon, links to the page that creates it |
 | `[[gh:Rectangle]]` | a native Grasshopper component | Grasshopper icon, links to grasshopperdocs.com |
 | `[[ghtype:Number]]` | a native Grasshopper data type (Text, Number, Integer, Boolean, Plane, …) | parameter icon, links to [Grasshopper data types](grasshopper-types.md) |
+| `[[abb:MoveL]]` | an instruction, function or data type in ABB's manual | `MoveL`, linking to its page in the PDF (see [ABB manuals](abb-manuals.md)) |
 | `[[Move|two Moves]]` | any of these with a custom label | (inside a table cell, write `\|` instead of `|`) |
 
 Names and link targets live in `docs/data/registry.yml`. An unknown name fails the strict

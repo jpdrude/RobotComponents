@@ -29,7 +29,7 @@ base, or a [[Work Object]]'s plane.
 | World XY flipped with [[Flip Plane X]] (tool pointing down) | `[0, 0, 1, 0]` |
 
 Both appear in this wiki's generated code: `[1, 0, 0, 0]` in `tooldata`/`wobjdata`, and
-`[0, 0, 1, 0]` in the robtargets. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`orient`).
+`[0, 0, 1, 0]` in the robtargets. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:orient]]).
 
 ## See also
 

@@ -29,7 +29,7 @@ ENDWHILE
 
 Something inside the loop must eventually make the condition false (here: the operator
 pressing *No* sets `again := FALSE`). Otherwise the program never leaves the loop. ABB's
-reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`WHILE`).
+reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:WHILE]]).
 
 Full example: [[Message Box]] (operator-driven loop).
 

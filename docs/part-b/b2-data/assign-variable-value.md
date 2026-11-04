@@ -29,7 +29,7 @@ count := count + 1;
 
 `:=` means *"becomes"*. The right side is calculated first, then stored, so
 `count := count + 1` adds one. (`=` alone is a comparison, see [[Comparison Expression]].)
-ABB's reference: [RAPID kernel][abb-kernel] (assignment statement).
+ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Assignment statement|assignment statement]]).
 
 In the [row tutorial](../b8-tutorials/row-loop.md) two assignments are used: one inside the
 loop (`count := count + 1;`) and one inside the IF (`count := 0;`).

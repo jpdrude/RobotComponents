@@ -27,7 +27,7 @@ liquid payload, a first test run, a glue nozzle that needs smooth motion.
 ### Path Acceleration Limitation
 [[io:Path Acceleration Limitation]]
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`AccSet`, `VelSet`, `PathAccLim`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:AccSet]], [[abb:VelSet]], [[abb:PathAccLim]]).
 
 ## Gotchas
 

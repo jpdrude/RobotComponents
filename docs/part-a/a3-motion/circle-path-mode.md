@@ -27,7 +27,7 @@ place it in *Actions* before them. Pick the mode from the [[Circle Path Modes]] 
 CirPathMode \ObjectFrame;
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`CirPathMode`, `MoveC`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:CirPathMode]], [[abb:MoveC]]).
 
 ## See also
 

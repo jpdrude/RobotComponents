@@ -23,7 +23,7 @@ WaitSyncTask \InPos, sync1, allTasks;
 
 `\InPos` (*In Position* = `True`) also waits until all robots stand still. Put the same
 Wait Sync Task (same *Sync ID*, same [[Task List]]) into every task's program at the matching
-point. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`WaitSyncTask`, `syncident`).
+point. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:WaitSyncTask]], [[abb:syncident]]).
 
 !!! bug "Known issue: error badge on the component"
     The component shows *"After Solution exception: Object reference not set…"* on every

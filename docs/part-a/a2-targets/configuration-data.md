@@ -26,7 +26,7 @@ VAR robtarget p := [[400, -150, 300], [0, 0, 1, 0], [-1, 0, -1, 0], [9E9, ...]];
 - **cfx**: which of the (up to 8) solutions for the arm is meant. Its exact meaning depends on
   the robot family.
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`confdata`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:confdata]]).
 
 Finding the right values by hand is tedious. [[Inverse Kinematics]] gives you the robot joint
 positions for a target together with their configuration data, and the [[Path Generator]]

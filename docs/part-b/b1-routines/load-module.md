@@ -36,7 +36,7 @@ WAITLOAD loadHelpers;                                                           
 
 Routines in a loaded module are called with [[Routine Call]]. Their names are only known
 once the module is loaded. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
-(`Load`, `UnLoad`, `StartLoad`, `WaitLoad`).
+([[abb:Load]], [[abb:UnLoad]], [[abb:StartLoad]], [[abb:WaitLoad]]).
 
 ## See also
 

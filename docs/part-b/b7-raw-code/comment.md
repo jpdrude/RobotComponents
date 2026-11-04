@@ -21,7 +21,7 @@ part", "glue path 2 of 4". *Type* `0` places it among the instructions (where yo
 MoveJ Offs(pick, 0, 0, 100), v200, z10, tool0\WObj:=wobj0;
 ```
 
-Everything after `!` on a line is a comment. ABB's reference: [RAPID kernel][abb-kernel] (comments).
+Everything after `!` on a line is a comment. ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Comments|comments]]).
 
 ## See also
 

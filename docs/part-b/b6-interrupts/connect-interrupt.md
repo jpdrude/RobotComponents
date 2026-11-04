@@ -69,7 +69,7 @@ interrupt needs the real signal.
 *Enable Interrupts* and *Disable Interrupts* give `IEnable;` and `IDisable;` lines. While
 disabled, interrupts are queued, not lost, and run when you enable again.
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
-(`CONNECT`, `ISignalDI`, `ISignalAI`, `ISignalGI`, `IPers`, `IEnable`, `IDisable`).
+([[abb:CONNECT]], [[abb:ISignalDI]], [[abb:ISignalAI]], [[abb:ISignalGI]], [[abb:IPers]], [[abb:IEnable]], [[abb:IDisable]]).
 
 ## Gotchas
 

@@ -31,7 +31,7 @@ ENDFOR
 The body runs for `i` = 0, 1, 2, 3, so four times. RAPID's `FOR` also has an optional
 `STEP`, which this component does not set. Use a multiplier inside the body
 (`i * 50`) or a [[While Loop]] for other step sizes. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`FOR`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:FOR]]).
 
 Full example: [row tutorial](../b8-tutorials/row-loop.md).
 

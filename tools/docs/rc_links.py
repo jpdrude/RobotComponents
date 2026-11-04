@@ -8,6 +8,8 @@ Write in any page:
     [[ghtype:Number]]           native Grasshopper data type -> icon + link to reference/grasshopper-types.md
     [[Move|two Moves]]          any of the above with a custom label
     [[Move\|two Moves]]         same, inside a Markdown table cell
+    [[abb:MoveL]]               link to that page of ABB's RAPID manual (PDF, #page=N);
+                                [[abb-kernel:Data declarations]], [[abb-overview:...]] for the other manuals
     [[io:Move]]                 inputs/outputs tables from docs/data/io.json (extracted from
                                 the live components, incl. right-click extra parameters)
 
@@ -33,10 +35,13 @@ SHORTCODE = re.compile(r"\[\[(?:(type|ghtype|gh):)?([^\]|\\]+?)(?:\\?\|([^\]]+))
 CODE = re.compile(r"(^[ \t]*```.*?^[ \t]*```|`[^`\n]+`)", re.DOTALL | re.MULTILINE)
 
 IO = re.compile(r"\[\[io:([^\]]+)\]\]")
+# [[abb:MoveL]] (instructions manual), [[abb-kernel:Data declarations]], [[abb-overview:...]]
+ABB = re.compile(r"\[\[abb(?:-(kernel|overview))?:([^\]|\\]+?)(?:\\?\|([^\]]+))?\]\]")
 
 _registry: dict = {}
 _io: dict = {}
 _type_by_guid: dict = {}
+_abb: dict = {}
 
 
 def _chapter_title(page: str) -> str:
@@ -52,6 +57,10 @@ def on_config(config):
     docs = Path(config["docs_dir"])
     _io.clear()
     _io.update(json.loads((docs / "data" / "io.json").read_text(encoding="utf-8")))
+    _abb.clear()
+    abb_file = docs / "data" / "abb-pages.yml"
+    if abb_file.exists():
+        _abb.update(yaml.safe_load(abb_file.read_text(encoding="utf-8")))
     _type_by_guid.clear()
     for entry in json.loads((docs / "assets" / "icons" / "manifest.json").read_text(encoding="utf-8")):
         if entry["subcategory"] == "Parameters" and entry["name"] in _registry["types"]:
@@ -164,10 +173,23 @@ def _replace(match, page_src: str) -> str:
     return f"[![]({icon}){{ .rc-icon }} {label or name}]({target}){{ .rc-ref }}"
 
 
+def _render_abb(match, page_src: str) -> str:
+    manual, name, label = match.group(1) or "ifd", match.group(2).strip(), match.group(3)
+    entry = _abb.get(manual, {})
+    page_no = entry.get("pages", {}).get(name)
+    if page_no is None:
+        log.warning("Unknown ABB reference [[abb%s:%s]] in %s", f"-{manual}" if manual != "ifd" else "", name, page_src)
+        return match.group(0)
+    text = label or (f"`{name}`" if manual == "ifd" else name)
+    tip = f"{entry['title']} ({entry['document']}), page {page_no}"
+    return f'[{text}]({entry["url"]}#page={page_no} "{tip}"){{ .rc-abb }}'
+
+
 def on_page_markdown(markdown, page, config, files):
     src = page.file.src_uri
     parts = CODE.split(markdown)
     for i in range(0, len(parts), 2):  # even indices are outside code
         parts[i] = IO.sub(lambda m: _render_io(m, src), parts[i])
+        parts[i] = ABB.sub(lambda m: _render_abb(m, src), parts[i])
         parts[i] = SHORTCODE.sub(lambda m: _replace(m, src), parts[i])
     return "".join(parts)

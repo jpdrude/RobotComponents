@@ -65,7 +65,7 @@ real program the Moves go between these lines.
 [[io:Set Group Output]]
 
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
-(`SetDO`, `PulseDO`, `InvertDO`, `SetAO`, `SetGO`).
+([[abb:SetDO]], [[abb:PulseDO]], [[abb:InvertDO]], [[abb:SetAO]], [[abb:SetGO]]).
 
 ## Gotchas
 

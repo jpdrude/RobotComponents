@@ -32,7 +32,7 @@ VAR robtarget target := [[400, 0, 400], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, 9E9, 9
 Position (mm) · orientation (quaternion) · configuration · external axes. The declaration
 is written automatically when a [[Move]] uses the target. You don't wire the Robot Target into
 the [[RAPID Generator]] yourself. See the [primer](../../part-b/b0-rapid-primer.md#the-data-types-youll-meet)
-and ABB's [RAPID Instructions, Functions and Data types][abb-ifd] (`robtarget`).
+and ABB's [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:robtarget]]).
 
 Examples: [Getting started](../../getting-started/index.md) (one target) and [[Move]] (four from a list).
 

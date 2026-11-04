@@ -28,7 +28,7 @@ values: by default its X, Y and Z position. Right-click → *Get Rotation*, *Get
 
 The dot reads a *component* of a record: `now.trans` is the position part of `now`,
 `now.trans.z` its Z value. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`robtarget`, `pos`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:robtarget]], [[abb:pos]]).
 
 Full example: [[Current Robot Target]] (returns `now.trans.z` from a function).
 

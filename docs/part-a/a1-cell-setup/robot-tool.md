@@ -33,7 +33,7 @@ MoveL p_0, v100, fine, pen\WObj:=table;
 ```
 
 `TRUE` (the robot holds the tool) · TCP position and orientation · load (mass in kg, centre
-of gravity, …). ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`tooldata`).
+of gravity, …). ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:tooldata]]).
 
 Full example: [[Work Object]] (a pen drawing on a rotated table).
 

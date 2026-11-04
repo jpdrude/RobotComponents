@@ -39,7 +39,7 @@ ENDIF
 ```
 
 Only the first branch whose condition is true runs. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`IF`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:IF]]).
 
 Full example: [row tutorial](../b8-tutorials/row-loop.md).
 

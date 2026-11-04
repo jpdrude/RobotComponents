@@ -266,3 +266,8 @@ __pycache__/
 
 # MkDocs build output
 /site/
+
+# ABB manuals: copyrighted, link only, never commit (tools/docs/abb_pages.py downloads them to a temp folder)
+3HAC*.pdf
+*RAPID*manual*.pdf
+tools/docs/.manuals/

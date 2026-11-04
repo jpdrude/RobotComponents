@@ -30,7 +30,7 @@ MoveL p_2, v200, z10, tool0\WObj:=wobj0;     ! round the corner within 10 mm
 MoveL p_3, v200, fine, tool0\WObj:=wobj0;    ! stop exactly here
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`zonedata`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:zonedata]]).
 
 ## Gotchas
 

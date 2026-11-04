@@ -63,7 +63,7 @@ warnings, cycle time **10.5 s**.
 `wobjdata` holds two frames: the **user frame** (here the table, `[[350, -150, 150], …]`)
 and an **object frame** inside it (here none, `[[0, 0, 0], [1, 0, 0, 0]]`). Targets used
 with `\WObj:=table` are measured from that frame. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`wobjdata`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:wobjdata]]).
 
 ## Gotchas
 

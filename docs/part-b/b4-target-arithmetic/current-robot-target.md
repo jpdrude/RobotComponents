@@ -78,7 +78,7 @@ warnings, cycle time **3.4 s**. (Other declarations and header comments not show
 `CRobT()` returns a `robtarget`. A robtarget has four parts: `trans` (position), `rot`
 (orientation), `robconf` (axis configuration) and `extax` (external axes). Write
 `now.trans.z` to read one number. See the [primer](../b0-rapid-primer.md#the-data-types-youll-meet).
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`CRobT`, `robtarget`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:CRobT]], [[abb:robtarget]]).
 
 !!! info "Why `>= 299` and not `= 300`?"
     A measured position is never exact; the robot may report 299.99. Compare measured

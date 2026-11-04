@@ -26,7 +26,7 @@ MoveL Offs(base, 0, i * 100, 0), v200, fine, tool0\WObj:=wobj0;
 `base` unchanged. The offsets are along the X, Y and Z axes of the **work object** the
 target is defined in (here `wobj0`, the robot base), not the tool. A typical use is an
 approach point above a target: `Offs(pick, 0, 0, 100)`.
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`Offs`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:Offs]]).
 
 Full example: [row tutorial](../b8-tutorials/row-loop.md).
 

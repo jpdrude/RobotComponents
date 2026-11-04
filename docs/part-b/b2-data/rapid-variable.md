@@ -39,7 +39,7 @@ Right-click → **Set Array Size** turns it into an array (see [[Get Array At In
 
 The RAPID types (`num`, `bool`, `string`, `robtarget`, …) are explained in the
 [B0 RAPID primer](../b0-rapid-primer.md#the-data-types-youll-meet). ABB's reference:
-[RAPID kernel][abb-kernel] (data declarations).
+[RAPID kernel][abb-kernel] ([[abb-kernel:Data declarations|data declarations]], [[abb-kernel:Persistent declarations|persistent declarations]]).
 
 From the [row tutorial](../b8-tutorials/row-loop.md), Keyword `PERS`, Type `num`, Name `count`, Value `0`:
 

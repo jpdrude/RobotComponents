@@ -31,7 +31,7 @@ When placed, it creates a [[Comparison Operators]] drop-down with the six RAPID 
 
 The result has the RAPID type `bool`. To combine conditions, type the expression into a
 [[gh:Panel]] instead and wire it straight into the condition input:
-`count >= 100 AND NOT finished`. ABB's reference: [RAPID kernel][abb-kernel] (expressions).
+`count >= 100 AND NOT finished`. ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Expressions|expressions]], [[abb-kernel:Conditional expressions|conditional expressions]]).
 
 From the [row tutorial](../b8-tutorials/row-loop.md): A = the `count` variable,
 Operator `>=`, B = `100` gives

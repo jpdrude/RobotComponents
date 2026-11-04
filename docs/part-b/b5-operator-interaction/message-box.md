@@ -73,7 +73,7 @@ button. (Generated lines are shown wrapped here.)
 
 `UIMessageBox` shows the dialog and returns the number of the pressed button, starting at
 1. `TEST … CASE … ENDTEST` runs the block that matches the number. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`UIMessageBox`, `TEST`, `btnres`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:UIMessageBox]], [[abb:TEST]], [[abb:btnres]]).
 
 ## Gotchas
 

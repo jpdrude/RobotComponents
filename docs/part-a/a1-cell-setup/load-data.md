@@ -22,7 +22,7 @@ PERS tooldata pen := [TRUE, [[0, 0, 120], [1, 0, 0, 0]], [0.001, [0, 0, 0.001], 
                                                            ^ mass  ^ centre of gravity          ^ inertia
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`loaddata`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:loaddata]]).
 
 !!! warning "Wrong load data is a real problem"
     Too little mass makes the robot move too aggressively and can trigger collision detection

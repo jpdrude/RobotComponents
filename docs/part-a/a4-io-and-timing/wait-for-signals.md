@@ -36,7 +36,7 @@ Example: the gripper sequence on [Set outputs](set-outputs.md) starts with
 [[io:Wait for Group Input]]
 
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
-(`WaitDI`, `WaitAI`, `WaitGI`, `WaitDO`, `WaitAO`, `WaitGO`).
+([[abb:WaitDI]], [[abb:WaitAI]], [[abb:WaitGI]], [[abb:WaitDO]], [[abb:WaitAO]], [[abb:WaitGO]]).
 
 !!! warning "Waiting forever"
     Without a time limit, the program waits as long as it takes. If the signal never comes,

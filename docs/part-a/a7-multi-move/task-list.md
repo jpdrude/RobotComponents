@@ -21,7 +21,7 @@ PERS tasks allTasks{2} := [["T_ROB1"], ["T_ROB2"]];
 
 The declaration appears under *"Declarations for multi move programming"* in each module that
 uses it. Use the **same Task List** (same name, same tasks) in every task's program. ABB's
-reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`tasks`).
+reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:tasks]]).
 
 Used by: [[Wait Sync Task]] · [[Sync Move On]].
 

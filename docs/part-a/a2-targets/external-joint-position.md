@@ -23,7 +23,7 @@ A track at 1200 mm, nothing else:
 ```
 
 This is the last part of every `robtarget` and `jointtarget` (`extax`). ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`extjoint`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:extjoint]]).
 
 !!! warning "Real external axes need real values"
     On a controller with external axes, a target with `9E9` for an axis that exists is an

@@ -23,7 +23,7 @@ h := UINumEntry(\Header:="Height" \Message:="Height above base in mm?" \InitValu
 
 *Range* `0 To 300` becomes `\MinValue` and `\MaxValue`. Wiring the variable itself into
 *Initial Value* (as here) shows the last entered value as the default. ABB's reference:
-[RAPID Instructions, Functions and Data types][abb-ifd] (`UINumEntry`).
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:UINumEntry]]).
 
 Full example: [[Message Box]] (operator-driven loop).
 

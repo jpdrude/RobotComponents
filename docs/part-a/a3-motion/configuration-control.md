@@ -31,7 +31,7 @@ ConfL\On;      ! Linear Configuration Control, Is Active = True
 ConfJ\Off;     ! Joint Configuration Control, Is Active = False
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`ConfJ`, `ConfL`, `confdata`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:ConfJ]], [[abb:ConfL]], [[abb:confdata]]).
 
 !!! warning "Leave it on"
     Switching configuration control **off** hides problems instead of fixing them: the robot may

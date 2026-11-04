@@ -33,7 +33,7 @@ VAR speeddata slow := [50, 30, 200, 15];          ! custom
 
 The four numbers: tool (TCP) mm/s, tool reorientation °/s, linear external axes mm/s,
 rotating external axes °/s. The robot moves at the slowest that still respects all four.
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`speeddata`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:speeddata]]).
 
 ## Try it
 

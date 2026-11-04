@@ -28,7 +28,7 @@ visit 150;
 x := area(10, 20);   ! a FUNC call: inside an expression, with brackets
 ```
 
-ABB's reference: [RAPID kernel][abb-kernel] (procedure calls, function calls).
+ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Procedure call|procedure calls]], [[abb-kernel:Function calls|function calls]]).
 
 Full example: [[Routine]].
 

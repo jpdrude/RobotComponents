@@ -79,8 +79,8 @@ The target `base` is declared automatically because a Move in the routine uses i
 | `FUNC` | a function: computes and returns a value with `RETURN` | `x := area(10, 20);` (inside an expression) |
 | `TRAP` | an interrupt routine, no arguments | never called directly; [[Connect Interrupt]] links it to a signal |
 
-ABB's reference: [RAPID kernel][abb-kernel] (routines) and
-[RAPID Instructions, Functions and Data types][abb-ifd] (`RETURN`, `CONNECT`).
+ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Routine declarations|routine declarations]], [[abb-kernel:Trap declarations|trap declarations]]) and
+[RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:RETURN]], [[abb:CONNECT]]).
 
 ## Try it
 

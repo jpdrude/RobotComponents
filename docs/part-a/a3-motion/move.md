@@ -117,8 +117,8 @@ What happens, from left to right:
 ## In RAPID
 
 You don't need RAPID to use Move. If you want to look up what the generated instructions
-do on the controller, ABB documents `MoveAbsJ`, `MoveL`, `MoveJ`, `MoveC`, `MoveLDO`,
-`MoveJDO`, and the data types `speeddata`, `zonedata`, `robtarget` and `jointtarget` in the
+do on the controller, ABB documents [[abb:MoveAbsJ]], [[abb:MoveL]], [[abb:MoveJ]], [[abb:MoveC]], [[abb:MoveLDO]],
+[[abb:MoveJDO]], and the data types [[abb:speeddata]], [[abb:zonedata]], [[abb:robtarget]] and [[abb:jointtarget]] in the
 [RAPID Instructions, Functions and Data types][abb-ifd] manual (3HAC050917-001).
 
 ## Gotchas

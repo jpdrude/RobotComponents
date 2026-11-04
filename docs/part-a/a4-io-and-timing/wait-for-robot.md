@@ -24,7 +24,7 @@ WaitRob \InPos;        ! Zero Speed = False: wait until in position
 WaitRob \ZeroSpeed;    ! Zero Speed = True: wait until standing still
 ```
 
-ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] (`WaitRob`).
+ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:WaitRob]]).
 
 ## See also
 
