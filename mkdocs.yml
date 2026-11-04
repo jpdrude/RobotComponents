@@ -71,6 +71,32 @@ nav:
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
+      - "B1 Routines":
+          - Routine: part-b/b1-routines/routine.md
+          - Routine Argument: part-b/b1-routines/routine-argument.md
+          - Routine Call: part-b/b1-routines/routine-call.md
+          - Return: part-b/b1-routines/return.md
+      - "B2 Data and expressions":
+          - RAPID Variable: part-b/b2-data/rapid-variable.md
+          - Assign Variable Value: part-b/b2-data/assign-variable-value.md
+          - Comparison Expression: part-b/b2-data/comparison-expression.md
+      - "B3 Flow control":
+          - For Loop: part-b/b3-flow-control/for-loop.md
+          - While Loop: part-b/b3-flow-control/while-loop.md
+          - IF Statement: part-b/b3-flow-control/if-statement.md
+      - "B4 Target arithmetic":
+          - Offset Target: part-b/b4-target-arithmetic/offset-target.md
+          - Current Robot Target: part-b/b4-target-arithmetic/current-robot-target.md
+          - Get Robtarget Members: part-b/b4-target-arithmetic/get-robtarget-members.md
+      - "B5 Operator interaction":
+          - Message Box: part-b/b5-operator-interaction/message-box.md
+          - Numeric Entry Box: part-b/b5-operator-interaction/numeric-entry-box.md
+      - "B6 Interrupts":
+          - Connect Interrupt: part-b/b6-interrupts/connect-interrupt.md
+      - "B7 Raw code":
+          - Code: part-b/b7-raw-code/code.md
+      - "B8 Tutorials":
+          - "A row of points with a loop": part-b/b8-tutorials/row-loop.md
   - Reference:
       - ABB manuals: reference/abb-manuals.md
       - Page template: reference/page-template.md

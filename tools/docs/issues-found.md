@@ -22,6 +22,7 @@ Not published on the wiki site.
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
+| 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | open |
 
 ---
 
@@ -226,3 +227,30 @@ the parameter) and make the calls with a separate **Routine Call** component who
 
 **Fix ideas:** make *Variable* a single item independent of *Value* (it is the parameter, not
 the call), or document that *Value* is only for a single self-call.
+
+---
+
+## 14 🔴 Message Box: `CASE` numbers shift when a button has no actions
+
+**Found:** 2026-11-04, operator-loop example (`docs/examples/part-b/operator-loop.gh`).
+Buttons `Yes`, `No`; only *Actions No* wired (`again := FALSE`). Generated:
+
+```
+msgBoxAnswer := UIMessageBox(... \BtnArray:=["Yes", "No"]);
+TEST msgBoxAnswer
+CASE 1:
+    again := FALSE;     ! runs when the operator presses YES
+ENDTEST
+```
+
+`UIMessageBox` returns 1 for the first button, 2 for the second. The *No* actions belong in
+`CASE 2`. Cause: `MessageBoxComponent.SolveInstance` only adds a button's action list when
+`DA.GetDataList(i, list)` succeeds, and `answerCounter` counts the collected lists, not the
+button positions. Silent wrong behaviour on the robot.
+
+**Workaround (documented on the Message Box page):** wire something (e.g. an Empty Line) into
+every button's *Actions* input. Then `CASE 1:` (empty) / `CASE 2: again := FALSE;` is generated
+(syntax checked on the VC).
+
+**Fix:** add an empty list for unwired buttons (keep the index), or emit `CASE {i - _staticInputCount + 1}`
+from the parameter index. Empty buttons can then be omitted from the TEST entirely.
