@@ -3,6 +3,7 @@ ifd:
   document: 3HAC050917-001
   title: Technical reference manual - RAPID Instructions, Functions and Data types
   url: https://search.abb.com/library/Download.aspx?DocumentID=3HAC050917-001&LanguageCode=en&DocumentPartId=&Action=Launch
+  pdf: https://library.e.abb.com/public/c74d669abbda47debfa11262540152d6/3HAC050917%20TRM%20RAPID%20RW%206-en.pdf
   revision: AC
   page_count: 1848
   pages:
@@ -712,6 +713,7 @@ overview:
   document: 3HAC050947-001
   title: Technical reference manual - RAPID overview
   url: https://search.abb.com/library/Download.aspx?DocumentID=3HAC050947-001&LanguageCode=en&DocumentPartId=&Action=Launch
+  pdf: https://library.e.abb.com/public/4b22867e301345528bfa6c0b50633795/3HAC050947%20TRM%20RAPID%20Overview%20RW%206-en.pdf
   revision: Y
   page_count: 174
   pages:
@@ -977,6 +979,7 @@ kernel:
   document: 3HAC050946-001
   title: Technical reference manual - RAPID kernel
   url: https://search.abb.com/library/Download.aspx?DocumentID=3HAC050946-001&LanguageCode=en&DocumentPartId=&Action=Launch
+  pdf: https://library.e.abb.com/public/c2f5be6d8f0a47819674789441dd4e8c/3HAC050946%20TRM%20RAPID%20Kernel%20RW%206-en.pdf
   revision: L
   page_count: 154
   pages:

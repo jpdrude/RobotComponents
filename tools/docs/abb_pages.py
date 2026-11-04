@@ -32,14 +32,26 @@ MANUALS = {
 NUMBER = re.compile(r"^\d+(\.\d+)*\s+")
 
 
-def download(doc_id: str, folder: Path) -> Path:
+def download(doc_id: str, folder: Path) -> tuple[Path, str]:
+    """Download a manual; returns the file and the PDF's own address.
+
+    ABB's Download.aspx link redirects (302) to a signed address of the PDF. Browsers lose the
+    #page=N jump on that redirect and open the cover page, so page links point to the PDF
+    itself: the redirect target without the expiring ?x-sign=... part (it works unsigned).
+    That address changes with every revision, which --check then reports.
+    """
     target = folder / f"{doc_id}.pdf"
     req = urllib.request.Request(URL.format(id=doc_id), headers={"User-Agent": "Mozilla/5.0 (RobotComponents wiki link check)"})
     with urllib.request.urlopen(req, timeout=300) as resp:
         if resp.status != 200 or "pdf" not in resp.headers.get("Content-Type", ""):
             raise RuntimeError(f"{doc_id}: HTTP {resp.status}, {resp.headers.get('Content-Type')}")
         target.write_bytes(resp.read())
-    return target
+        pdf_url = resp.geturl().split("?")[0]
+    check = urllib.request.Request(pdf_url, headers={"User-Agent": "Mozilla/5.0 (RobotComponents wiki link check)", "Range": "bytes=0-99"})
+    with urllib.request.urlopen(check, timeout=60) as resp:
+        if "pdf" not in resp.headers.get("Content-Type", ""):
+            raise RuntimeError(f"{doc_id}: {pdf_url} does not serve the PDF without signature ({resp.headers.get('Content-Type')})")
+    return target, pdf_url
 
 
 def index(pdf: Path, numbered_only: bool) -> dict:
@@ -71,9 +83,10 @@ def build() -> dict:
     out = {}
     with tempfile.TemporaryDirectory() as tmp:
         for key, (doc_id, title) in MANUALS.items():
-            pdf = download(doc_id, Path(tmp))
+            pdf, pdf_url = download(doc_id, Path(tmp))
             info = index(pdf, numbered_only=(key == "ifd"))
-            out[key] = {"document": doc_id, "title": title, "url": URL.format(id=doc_id), **info}
+            # url: stable link to the whole manual; pdf: the PDF itself, used for #page=N links
+            out[key] = {"document": doc_id, "title": title, "url": URL.format(id=doc_id), "pdf": pdf_url, **info}
             print(f"{key}: {doc_id} revision {info['revision']}, {info['page_count']} pages, {len(info['pages'])} entries")
     return out
 
@@ -92,6 +105,8 @@ def main() -> int:
     problems = []
     for key, now in fresh.items():
         old = committed.get(key, {})
+        if old.get("pdf") != now["pdf"]:
+            problems.append(f"{key}: PDF address changed {old.get('pdf')} -> {now['pdf']}")
         if old.get("revision") != now["revision"] or old.get("page_count") != now["page_count"]:
             problems.append(f"{key}: revision {old.get('revision')} -> {now['revision']}, pages {old.get('page_count')} -> {now['page_count']}")
         moved = [n for n, p in old.get("pages", {}).items() if now["pages"].get(n) != p]

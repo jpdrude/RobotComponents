@@ -8,7 +8,7 @@ Write in any page:
     [[ghtype:Number]]           native Grasshopper data type -> icon + link to reference/grasshopper-types.md
     [[Move|two Moves]]          any of the above with a custom label
     [[Move\|two Moves]]         same, inside a Markdown table cell
-    [[abb:MoveL]]               link to that page of ABB's RAPID manual (PDF, #page=N);
+    [[abb:MoveL]]               link to that page of ABB's RAPID manual (PDF, #page=N, new tab);
                                 [[abb-kernel:Data declarations]], [[abb-overview:...]] for the other manuals
     [[io:Move]]                 inputs/outputs tables from docs/data/io.json (extracted from
                                 the live components, incl. right-click extra parameters)
@@ -182,7 +182,21 @@ def _render_abb(match, page_src: str) -> str:
         return match.group(0)
     text = label or (f"`{name}`" if manual == "ifd" else name)
     tip = f"{entry['title']} ({entry['document']}), page {page_no}"
-    return f'[{text}]({entry["url"]}#page={page_no} "{tip}"){{ .rc-abb }}'
+    # "pdf" = the PDF itself; ABB's Download.aspx redirect drops the #page jump in browsers
+    return f'[{text}]({entry.get("pdf") or entry["url"]}#page={page_no} "{tip}"){{ .rc-abb }}'
+
+
+# Every link to an ABB manual (page links and the whole-manual [abb-ifd] references) opens in a
+# new tab, so readers keep their place in the wiki while the PDF loads.
+ABB_LINK = re.compile(r'<a (?=[^>]*href="https://(?:search|library\.e)\.abb\.com/)([^>]*)>')
+
+
+def on_page_content(html, page, config, files):
+    def add_target(m):
+        attrs = m.group(1)
+        return m.group(0) if "target=" in attrs else f'<a {attrs} target="_blank" rel="noopener">'
+
+    return ABB_LINK.sub(add_target, html)
 
 
 def on_page_markdown(markdown, page, config, files):
