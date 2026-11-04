@@ -28,6 +28,7 @@ Not published on the wiki site.
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | open |
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | open |
+| 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
 
 ---
 
@@ -361,3 +362,22 @@ convention it was written for, but not ABB's cfx definition for other robot fami
 **Fix ideas:** use a nullable/optional input or a separate sentinel (e.g. leave the input empty)
 for "not provided" instead of `< 0`; never clamp provided values; only compute CFX when the
 robot is a CRB 15000 (or document which robots it's for).
+
+---
+
+## 20 🟠 Multi Move components throw after every solve
+
+**Found:** 2026-11-04. Sync Move On, Sync Move Off and Wait Sync Task each show
+*"After Solution exception: Object reference not set to an instance of an object."*. Their RAPID
+output is still correct (`SyncMoveOn sync2, allTasks;` etc.).
+
+**Cause (verified in source):** the fork's refactor `9919b80e` ("unify RAPID outputs as
+Param_Action") changed their output to `Param_Action`, but `AfterSolveInstance` still does
+`_tree = this.Params.Output[0].VolatileData as GH_Structure<GH_SyncMoveOn>;` (resp.
+`GH_SyncMoveOff`, `GH_WaitSyncTask`). The cast returns null, so `_tree.Branches` throws. As a
+side effect the duplicate-name check for sync IDs (`UpdateVariableNames` /
+`ObjectManager.CheckVariableNames`) never runs. Upstream still uses the typed params, so it's
+fork-only. A grep over all `Param_Action` components found only these three.
+
+**Fix:** cast to `GH_Structure<GH_Action>` and read the sync ID from
+`(item.Value as SyncMoveOn)?.SyncID` (etc.), like the other refactored components do.

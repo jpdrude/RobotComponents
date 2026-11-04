@@ -7,10 +7,10 @@ Pages marked *reference tables only* already show the component's description an
 | Components | Status |
 |---|---|
 | [[Configuration Data]] | ✅ written |
+| [[External Joint Position]] | ✅ written |
 | [[Flip Plane X]] · [[Flip Plane Y]] | ✅ written |
 | [[Joint Target]] | ✅ written |
 | [[Plane to Quaternion]] · [[Quaternion to Plane]] | ✅ written |
 | [[Plane Visualizer]] | ✅ written |
 | [[Robot Joint Position]] | ✅ written |
 | [[Robot Target]] | ✅ written |
-| [[External Joint Position]] | reference tables only |

@@ -6,6 +6,6 @@ Pages marked *reference tables only* already show the component's description an
 
 | Components | Status |
 |---|---|
-| [[Sync Move Off]] · [[Sync Move On]] | reference tables only |
-| [[Task List]] | reference tables only |
-| [[Wait Sync Task]] | reference tables only |
+| [[Sync Move Off]] · [[Sync Move On]] | ✅ written |
+| [[Task List]] | ✅ written |
+| [[Wait Sync Task]] | ✅ written |

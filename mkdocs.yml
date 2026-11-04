@@ -68,13 +68,20 @@ nav:
       - "A1 Cell setup":
           - part-a/a1-cell-setup/index.md
           - Robot Preset: part-a/a1-cell-setup/robot-preset.md
+          - Robot: part-a/a1-cell-setup/robot.md
+          - Robot Kinematic Parameters: part-a/a1-cell-setup/robot-kinematic-parameters.md
           - Robot Tool: part-a/a1-cell-setup/robot-tool.md
           - Work Object: part-a/a1-cell-setup/work-object.md
+          - Load Data: part-a/a1-cell-setup/load-data.md
+          - Robot Tool Calibration: part-a/a1-cell-setup/robot-tool-calibration.md
+          - External Linear Axis: part-a/a1-cell-setup/external-linear-axis.md
+          - External Rotational Axis: part-a/a1-cell-setup/external-rotational-axis.md
       - "A2 Targets":
           - part-a/a2-targets/index.md
           - Robot Target: part-a/a2-targets/robot-target.md
           - Robot Joint Position: part-a/a2-targets/robot-joint-position.md
           - Joint Target: part-a/a2-targets/joint-target.md
+          - External Joint Position: part-a/a2-targets/external-joint-position.md
           - Configuration Data: part-a/a2-targets/configuration-data.md
           - Flip Plane X and Y: part-a/a2-targets/flip-plane.md
           - Plane and quaternion: part-a/a2-targets/plane-and-quaternion.md
@@ -106,14 +113,22 @@ nav:
           - part-a/a6-generate-and-run/index.md
           - RAPID Generator: part-a/a6-generate-and-run/rapid-generator.md
           - Upload and run: part-a/a6-generate-and-run/upload-and-run.md
+          - Get Controller and Get Log: part-a/a6-generate-and-run/get-controller.md
+          - Controller signals: part-a/a6-generate-and-run/controller-signals.md
+          - Controller poses: part-a/a6-generate-and-run/controller-poses.md
+          - Read domains: part-a/a6-generate-and-run/read-domains.md
       - "A7 Multi Move":
           - part-a/a7-multi-move/index.md
+          - Task List: part-a/a7-multi-move/task-list.md
+          - Wait Sync Task: part-a/a7-multi-move/wait-sync-task.md
+          - Sync Move On and Off: part-a/a7-multi-move/sync-move.md
       - "A8 Utilities":
           - part-a/a8-utilities/index.md
           - Multi Relay: part-a/a8-utilities/multi-relay.md
           - Group and Ungroup Actions: part-a/a8-utilities/group-actions.md
           - Get Object Manager: part-a/a8-utilities/object-manager.md
           - Info: part-a/a8-utilities/info.md
+          - Deconstruct components: part-a/a8-utilities/deconstruct.md
       - "A9 Tutorials":
           - part-a/a9-tutorials/index.md
   - "Part B: Advanced RAPID":
@@ -128,6 +143,7 @@ nav:
           - Load Module: part-b/b1-routines/load-module.md
       - "B2 Data and expressions":
           - part-b/b2-data/index.md
+          - RAPID Expression: part-b/b2-data/rapid-expression.md
           - RAPID Variable: part-b/b2-data/rapid-variable.md
           - Assign Variable Value: part-b/b2-data/assign-variable-value.md
           - Comparison Expression: part-b/b2-data/comparison-expression.md

@@ -6,12 +6,12 @@ Pages marked *reference tables only* already show the component's description an
 
 | Components | Status |
 |---|---|
+| [[External Linear Axis]] | ✅ written |
+| [[External Rotational Axis]] | ✅ written |
+| [[Load Data]] | ✅ written |
+| [[Get Axis Planes from Robot Kinematics Parameters]] · [[Robot Kinematic Parameters]] | ✅ written |
 | [[Robot Preset]] | ✅ written |
+| [[Robot Tool Calibration]] | ✅ written |
 | [[Robot Tool]] | ✅ written |
+| [[Robot]] | ✅ written |
 | [[Work Object]] | ✅ written |
-| [[External Linear Axis]] | reference tables only |
-| [[External Rotational Axis]] | reference tables only |
-| [[Load Data]] | reference tables only |
-| [[Get Axis Planes from Robot Kinematics Parameters]] · [[Robot Kinematic Parameters]] | reference tables only |
-| [[Robot Tool Calibration]] | reference tables only |
-| [[Robot]] | reference tables only |
