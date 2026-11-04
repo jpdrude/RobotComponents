@@ -135,6 +135,7 @@ nav:
           - "Following a curve": part-a/a9-tutorials/follow-curve.md
           - "A robot on a linear track": part-a/a9-tutorials/linear-track.md
           - "Working with a GoFa": part-a/a9-tutorials/gofa.md
+          - "Two robots with Multi Move": part-a/a9-tutorials/multi-move.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
