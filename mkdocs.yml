@@ -76,6 +76,10 @@ nav:
           - Move: part-a/a3-motion/move.md
           - Speed Data: part-a/a3-motion/speed-data.md
           - Zone Data: part-a/a3-motion/zone-data.md
+      - "A5 Simulation":
+          - Path Generator: part-a/a5-simulation/path-generator.md
+      - "A6 Generate and run":
+          - RAPID Generator: part-a/a6-generate-and-run/rapid-generator.md
   - "Part B: Advanced RAPID":
       - part-b/index.md
       - "B0 RAPID primer": part-b/b0-rapid-primer.md
