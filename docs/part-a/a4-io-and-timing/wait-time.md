@@ -31,8 +31,9 @@ Example: the gripper sequence on [Set outputs](set-outputs.md).
 ## Gotchas
 
 !!! warning "Duration is the *second* input"
-    The first input is *In Position*. A number wired there by mistake becomes `\InPos`
-    (it was `True`), and the duration stays at its default.
+    The first input is *In Position*. A number wired there by mistake is read as `True`
+    (any number except `0`), so the program waits `\InPos`, and *Duration* stays at its
+    default of 1 s.
 
 ## See also
 

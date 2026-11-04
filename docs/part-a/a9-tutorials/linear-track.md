@@ -79,4 +79,4 @@ RobotWare 6.16): runs with no warnings, cycle time **16.9 s**.
 
 ??? success "Solution"
     Only `t_1` (X 4000). `t_0` and `t_2` are 3 m away along X, which is out of reach from a track
-    position of 4000 (about 3.2 m from the robot base). Check it with [[Check Actions]] or the [[Path Generator]].
+    position of 4000 (about 3.3 m from the robot base). Check it with [[Check Actions]] or the [[Path Generator]].

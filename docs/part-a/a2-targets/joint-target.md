@@ -15,9 +15,14 @@ description: Combine robot joint angles and external axis positions into one joi
 
 ## In RAPID
 
+A `jointtarget` is the six robot joints plus the six external axes:
+
 ```
 VAR jointtarget home := [[0, 0, 0, 0, 30, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];
 ```
+
+Robot Components currently writes the robot joints by name instead of these numbers, which
+the controller rejects; see Gotchas.
 
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:jointtarget]]).
 

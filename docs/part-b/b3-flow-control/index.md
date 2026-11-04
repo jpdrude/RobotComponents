@@ -2,13 +2,11 @@
 
 Decisions and repetition on the controller: IF, WHILE and FOR.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[For Loop]] | ✅ written |
-| [[IF Statement]] | ✅ written |
-| [[While Loop]] | ✅ written |
+| [[For Loop]] | Repeat a set of actions a fixed number of times with a counter (FOR … ENDFOR). |
+| [[While Loop]] | Repeat actions as long as a condition is true (WHILE … ENDWHILE). |
+| [[IF Statement]] | Run actions only when a condition is true, with optional ELSEIF and ELSE branches. |
 
 Tutorial: [a row of points with a loop](../b8-tutorials/row-loop.md).
 

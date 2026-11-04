@@ -1,6 +1,6 @@
 ---
 title: "Tutorial: pick and place"
-description: Approach, grip, lift, move, place, release: the classic robot task with targets, zones and a gripper output.
+description: "Approach, grip, lift, move, place, release: the classic robot task with targets, zones and a gripper output."
 ---
 
 # Tutorial: pick and place

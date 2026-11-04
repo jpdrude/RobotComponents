@@ -35,6 +35,15 @@ Example: the gripper sequence on [Set outputs](set-outputs.md) starts with
 ### Wait for Group Input
 [[io:Wait for Group Input]]
 
+### Wait for Digital Output
+[[io:Wait for Digital Output]]
+
+### Wait for Analog Output
+[[io:Wait for Analog Output]]
+
+### Wait for Group Output
+[[io:Wait for Group Output]]
+
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
 ([[abb:WaitDI]], [[abb:WaitAI]], [[abb:WaitGI]], [[abb:WaitDO]], [[abb:WaitAO]], [[abb:WaitGO]]).
 

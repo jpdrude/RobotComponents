@@ -15,5 +15,5 @@ behind the component, and every RAPID snippet is checked on an ABB Virtual Contr
 | [B5 Operator interaction](b5-operator-interaction/index.md) | [[Message Box]] · [[Numeric Entry Box]] | [[abb:TPReadFK]] + [[abb:TEST]]/`CASE`, [[abb:TPReadNum]] |
 | [B6 Interrupts](b6-interrupts/index.md) | [[Connect Interrupt]] · [[Signal Types]]; a [[Routine]] of type TRAP | `CONNECT … WITH`, `ISignalDI/DO/AI/AO/GI/GO` |
 | [B7 Raw code](b7-raw-code/index.md) | [[Code]] · [[Code Types]] · [[Comment]] · [[Empty Line]] | hand-written RAPID lines, comments; the code-line sanitizer |
-| [B8 Tutorials](b8-tutorials/index.md) | parametric routine library · operator-driven loop · sensor-triggered stop · looping over an array of targets · relative moves from the current position | — |
+| [B8 Tutorials](b8-tutorials/index.md) | a row of points with a loop · one routine, two places · a function returning the current height · an operator-driven loop · counting sensor hits · looping over an array · a routine library | — |
 | [B9 Pitfalls and limits](b9-pitfalls.md) | naming rules, scope conflicts, what the [[Path Generator]] ignores, upgrading old files | — |

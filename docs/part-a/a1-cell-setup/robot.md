@@ -13,7 +13,7 @@ in [[Robot Preset]], or a customised one. For ABB's catalogue robots, use the pr
 
 [[io:Robot]]
 
-- **Name** must match the robot model on the controller (e.g. `IRB1200-5/0.9`).
+- **Name**: a name for the robot, e.g. its model (`IRB1200-5/0.9`). It isn't written to RAPID.
 - **Meshes**: one mesh per link, base first, in the robot's home pose (all joints at 0).
 - **Axis Limits**: six intervals in degrees, from the robot's datasheet.
 

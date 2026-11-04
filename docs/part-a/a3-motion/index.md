@@ -2,17 +2,15 @@
 
 How the robot moves between targets: movement type, speed, zone, and the settings that shape the path.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[Acceleration Set]] · [[Path Acceleration Limitation]] · [[Velocity Set]] | ✅ written |
-| [[Circle Path Mode]] · [[Circle Path Modes]] | ✅ written |
-| [[Joint Configuration Control]] · [[Linear Configuration Control]] | ✅ written |
-| [[Move]] · [[Movement Types]] | ✅ written |
-| [[Override Robot Tool]] | ✅ written |
-| [[Predefined Speed Data]] · [[Speed Data]] | ✅ written |
-| [[Predefined Zone Data]] · [[Zone Data]] | ✅ written |
+| [[Move]] · [[Movement Types]] | Create one robot movement (MoveAbsJ, MoveL, MoveJ or MoveC) per target. |
+| [[Predefined Speed Data]] · [[Speed Data]] | How fast the robot moves, from predefined values (v5 … v7000) or your own. |
+| [[Predefined Zone Data]] · [[Zone Data]] | How closely the robot passes a target, from a stop exactly on the point (fine) to smooth rounded corners (z5 … z200). |
+| [[Circle Path Mode]] · [[Circle Path Modes]] | Choose how the tool turns along circular (MoveC) movements. |
+| [[Joint Configuration Control]] · [[Linear Configuration Control]] | Switch the controller's arm-configuration check on or off for MoveJ and MoveL. |
+| [[Acceleration Set]] · [[Path Acceleration Limitation]] · [[Velocity Set]] | Slow down acceleration or cap the speed for all following movements. |
+| [[Override Robot Tool]] | Switch to another tool for all following movements, e.g. after a tool change. |
 
 ## Chapter exercises
 

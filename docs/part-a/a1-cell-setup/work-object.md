@@ -60,9 +60,10 @@ warnings, cycle time **10.5 s**.
 
 ## In RAPID
 
-`wobjdata` holds two frames: the **user frame** (here the table, `[[350, -150, 150], …]`)
-and an **object frame** inside it (here none, `[[0, 0, 0], [1, 0, 0, 0]]`). Targets used
-with `\WObj:=table` are measured from that frame. ABB's reference:
+`wobjdata` holds two frames: the **user frame** (here none: `[[0, 0, 0], [1, 0, 0, 0]]`,
+the robot's base) and the **object frame** inside it (here the table,
+`[[350, -150, 150], …]`). The [[Work Object]] component writes its *Plane* as the object
+frame. Targets used with `\WObj:=table` are measured from the object frame. ABB's reference:
 [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:wobjdata]]).
 
 ## Gotchas

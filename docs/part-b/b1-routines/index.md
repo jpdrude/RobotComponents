@@ -2,15 +2,13 @@
 
 Your own PROC, FUNC and TRAP routines: write a sequence once, call it with arguments, return values, load modules.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[Load Module]] | ✅ written |
-| [[Return]] | ✅ written |
-| [[Routine Argument]] | ✅ written |
-| [[Routine Call]] | ✅ written |
-| [[Predefined Scopes]] · [[Routine]] · [[Routine Types]] | ✅ written |
+| [[Predefined Scopes]] · [[Routine]] · [[Routine Types]] | Write your own RAPID procedure (PROC), function (FUNC) or interrupt routine (TRAP) and call it from main. |
+| [[Routine Argument]] | Define a parameter of your own routine, and use it inside the routine body. |
+| [[Routine Call]] | Call a routine (PROC or FUNC) by name, with argument values. |
+| [[Return]] | End a routine, and hand a value back from a function (RETURN). |
+| [[Load Module]] | Load and unload extra RAPID modules while the program runs, synchronously or in the background. |
 
 ## Chapter exercises
 

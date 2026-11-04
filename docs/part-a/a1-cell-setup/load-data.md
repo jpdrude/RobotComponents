@@ -19,8 +19,11 @@ The load becomes part of the [[abb:tooldata]]. The [[Robot Tool]] example has th
 
 ```
 PERS tooldata pen := [TRUE, [[0, 0, 120], [1, 0, 0, 0]], [0.001, [0, 0, 0.001], [1, 0, 0, 0], 0, 0, 0]];
-                                                           ^ mass  ^ centre of gravity          ^ inertia
 ```
+
+The last bracket is the load, in the order of the inputs: *Mass* `0.001` kg, *Center of
+Gravity* `[0, 0, 0.001]` mm, *Axes of Moment* `[1, 0, 0, 0]` and the three *Inertial
+Moments* `0, 0, 0`.
 
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:loaddata]]).
 

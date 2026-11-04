@@ -2,14 +2,12 @@
 
 Switching outputs, waiting for signals and waiting for time: how the robot program talks to grippers, sensors and other machines.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[Invert Digital Output]] · [[Pulse Digital Output]] · [[Set Analog Output]] · [[Set Digital Output]] · [[Set Group Output]] | ✅ written |
-| [[Wait for Robot]] | ✅ written |
-| [[Wait for Analog Input]] · [[Wait for Analog Output]] · [[Wait for Digital Input]] · [[Wait for Digital Output]] · [[Wait for Group Input]] · [[Wait for Group Output]] | ✅ written |
-| [[Wait Time]] | ✅ written |
+| [[Invert Digital Output]] · [[Pulse Digital Output]] · [[Set Analog Output]] · [[Set Digital Output]] · [[Set Group Output]] | Switch the robot's output signals (gripper, lamp, valve) from the program. |
+| [[Wait for Analog Input]] · [[Wait for Analog Output]] · [[Wait for Digital Input]] · [[Wait for Digital Output]] · [[Wait for Group Input]] · [[Wait for Group Output]] | Pause the program until an input or output signal has a certain value. |
+| [[Wait Time]] | Pause the program for a number of seconds. |
+| [[Wait for Robot]] | Pause the program until the robot has finished its movement. |
 
 ## Chapter exercises
 

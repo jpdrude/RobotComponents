@@ -7,6 +7,7 @@ reference-only page (I/O tables).
 """
 
 import posixpath
+import re
 from pathlib import Path
 
 import yaml
@@ -66,6 +67,15 @@ EXTRA = {
 }
 
 
+def _description(page: Path) -> str:
+    """The page's front-matter description (one line), for the chapter table."""
+    text = page.read_text(encoding="utf-8")
+    if text.startswith("---"):
+        front = yaml.safe_load(text.split("---", 2)[1]) or {}
+        return " ".join(str(front.get("description", "")).split()).replace("|", r"\|")
+    return ""
+
+
 def main() -> None:
     reg = yaml.safe_load((DOCS / "data" / "registry.yml").read_text(encoding="utf-8"))
     ex_file = DOCS / "data" / "exercises.yml"
@@ -73,21 +83,22 @@ def main() -> None:
     pages: dict[str, list[str]] = {}
     for name, entry in reg["components"].items():
         pages.setdefault(entry["page"], []).append(name)
+    nav = (DOCS.parent / "mkdocs.yml").read_text(encoding="utf-8")
+    order = {m: i for i, m in enumerate(re.findall(r"^\s*-\s*(?:[^:\n]+:\s*)?(\S+\.md)\s*$", nav, re.M))}
     written = 0
     for chapter, (title, intro) in CHAPTERS.items():
         rows = []
-        for page in sorted(p for p in pages if posixpath.dirname(p) == chapter and not p.endswith("index.md")):
+        in_chapter = [p for p in pages if posixpath.dirname(p) == chapter and not p.endswith("index.md")]
+        for page in sorted(in_chapter, key=lambda p: (order.get(p, len(order)), p)):
             names = sorted(pages[page])
             exists = (DOCS / page).exists()
-            status = "✅ written" if exists else "reference tables only"
             link_names = " · ".join(f"[[{n}]]" for n in names)
-            rows.append((0 if exists else 1, f"| {link_names} | {status} |"))
-        rows.sort(key=lambda r: r[0])
+            what = _description(DOCS / page) if exists else "*reference tables only, tutorial text follows*"
+            rows.append((0 if exists else 1, f"| {link_names} | {what} |"))
+        rows.sort(key=lambda r: r[0])  # stable: written pages first, each in nav (reading) order
         written += sum(1 for r in rows if r[0] == 0)
         lines = [f"# {title}", "", intro, "",
-                 "Pages marked *reference tables only* already show the component's description and its "
-                 "inputs and outputs; the tutorial text follows.", "",
-                 "| Components | Status |", "|---|---|", *[r[1] for r in rows], ""]
+                 "| Components | What for |", "|---|---|", *[r[1] for r in rows], ""]
         for extra in EXTRA.get(chapter, []):
             lines += [extra, ""]
         tasks = exercises.get(chapter, [])

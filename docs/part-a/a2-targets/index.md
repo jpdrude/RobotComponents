@@ -2,18 +2,16 @@
 
 Where the robot should go: positions and orientations from planes, joint angles, external axis positions and the axis configuration the robot should use. In RAPID these are [[abb:robtarget]] and [[abb:jointtarget]], with [[abb:confdata]] and [[abb:extjoint]] inside.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[Configuration Data]] | ✅ written |
-| [[External Joint Position]] | ✅ written |
-| [[Flip Plane X]] · [[Flip Plane Y]] | ✅ written |
-| [[Joint Target]] | ✅ written |
-| [[Plane to Quaternion]] · [[Quaternion to Plane]] | ✅ written |
-| [[Plane Visualizer]] | ✅ written |
-| [[Robot Joint Position]] | ✅ written |
-| [[Robot Target]] | ✅ written |
+| [[Robot Target]] | Turn a plane into a position and orientation the robot's tool should reach. |
+| [[Robot Joint Position]] | Six joint angles in degrees: a robot pose given by the joints instead of the tool position. |
+| [[Joint Target]] | Combine robot joint angles and external axis positions into one joint target. |
+| [[External Joint Position]] | Where the external axes (track, turntable) should be at a target. |
+| [[Configuration Data]] | Tell the robot which of its possible arm poses to use for a target. |
+| [[Flip Plane X]] · [[Flip Plane Y]] | Turn a plane upside down so the tool points the other way. |
+| [[Plane to Quaternion]] · [[Quaternion to Plane]] | Convert between Rhino planes and the position + quaternion numbers used by ABB robots. |
+| [[Plane Visualizer]] | Draw a plane's axes as coloured arrows in Rhino to check orientations. |
 
 ## Chapter exercises
 

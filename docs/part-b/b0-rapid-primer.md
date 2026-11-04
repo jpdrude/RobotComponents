@@ -17,7 +17,7 @@ For the complete language rules, see ABB's [RAPID kernel][abb-kernel] and
 
 | Level | What it is | In Robot Components |
 |---|---|---|
-| **Task** | One program running on the controller, usually one per robot (`T_ROB1`). | One [[RAPID Generator]] per task; several in [Multi Move](../part-a/index.md). |
+| **Task** | One program running on the controller, usually one per robot (`T_ROB1`). | One [[RAPID Generator]] per task; several in [Multi Move](../part-a/a7-multi-move/index.md). |
 | **Module** | A file of code inside a task: `MODULE … ENDMODULE`. A task can load several. | The *Module* output of the [[RAPID Generator]] (default name `MainModule`). |
 | **Routine** | A named block of instructions inside a module. | `PROC main()` from your actions; more with [[Routine]]. |
 
@@ -66,7 +66,7 @@ ABB's reference: [[abb-kernel:Variable declarations|variable]], [[abb-kernel:Per
 !!! warning "Initial values must be constants"
     The value after `:=` in a declaration must be a **literal or a `CONST`**, never another
     `VAR`. `VAR jointtarget j := [home, …];` (where `home` is a `VAR`) is rejected
-    when the module loads. That is exactly the [known Joint Target issue](../part-a/a3-motion/move.md#gotchas).
+    when the module loads. That is exactly the [known Joint Target issue](../part-a/a2-targets/joint-target.md#gotchas).
 
 ### Scope: who can see it
 
@@ -157,4 +157,4 @@ PERS num partCount := 0;
 
 ## Next
 
-[B1 Routines](index.md): write your own `PROC`, `FUNC` and `TRAP` with [[Routine]].
+[B1 Routines](b1-routines/index.md): write your own `PROC`, `FUNC` and `TRAP` with [[Routine]].

@@ -7,7 +7,7 @@ part-a/a1-cell-setup:
     solution: "Every Move line now says `pen` instead of `tool0`, and (with right-click → *Add Tool Data* on the [[RAPID Generator]]) a `PERS tooldata pen := [TRUE, [[0, 0, 120], …]` declaration appears. The targets stay the same: they describe where the **pen tip** goes, so the flange now stops 120 mm higher."
   - level: 2
     task: "In the [[Work Object]] example, move the table 100 mm further in X. Which numbers in the RAPID change?"
-    solution: "Only the user frame inside `wobjdata table` (`[[450, -150, 150], …]`). The four robtargets stay `[0, 0, 0]`, `[100, 0, 0]`, … because they are relative to the table, which is the point of a work object."
+    solution: "Only the object frame inside `wobjdata table` (`[[450, -150, 150], …]`). The four robtargets stay `[0, 0, 0]`, `[100, 0, 0]`, … because they are relative to the table, which is the point of a work object."
 
 part-a/a2-targets:
   - level: 1

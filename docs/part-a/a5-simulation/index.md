@@ -2,16 +2,14 @@
 
 Preview and check programs in Rhino before they reach a controller: kinematics, path preview, timing, and checking every action.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[Check Actions]] | ✅ written |
-| [[Check Variable Names]] | ✅ written |
-| [[Forward Kinematics]] | ✅ written |
-| [[Inverse Kinematics]] | ✅ written |
-| [[Path Generator]] | ✅ written |
-| [[Timed Path Generator]] | ✅ written |
+| [[Inverse Kinematics]] | Compute the joint angles the robot needs to reach a target, and see the robot posed there. |
+| [[Forward Kinematics]] | Pose the robot from joint angles and get the resulting tool position. |
+| [[Path Generator]] | Preview the robot moving through your program in Rhino, and estimate the cycle time. |
+| [[Timed Path Generator]] | Like the Path Generator, but every step along the path lasts the same time, for animations and time-based checks. |
+| [[Check Actions]] | Check every action of a program for reachability and joint limits before you generate code. |
+| [[Check Variable Names]] | Switch the document-wide check for duplicate RAPID names on or off. |
 
 ## Chapter exercises
 

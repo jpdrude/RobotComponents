@@ -1,6 +1,6 @@
 ---
 title: Robot Joint Position
-description: Six joint angles in degrees: a robot pose given by the joints instead of the tool position.
+description: "Six joint angles in degrees: a robot pose given by the joints instead of the tool position."
 ---
 
 # ![](../../assets/icons/rc/robot-joint-position.png){ .rc-icon--title } Robot Joint Position

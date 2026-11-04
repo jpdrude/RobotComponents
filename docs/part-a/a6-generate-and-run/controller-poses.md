@@ -26,6 +26,19 @@ against your model.
 ### Get Robot Tool Planes
 [[io:Get Robot Tool Planes]]
 
+??? info "Inputs and outputs of the other pose components"
+    #### Get Joint Targets
+    [[io:Get Joint Targets]]
+
+    #### Get External Joint Positions
+    [[io:Get External Joint Positions]]
+
+    #### Get External Axis Planes
+    [[io:Get External Axis Planes]]
+
+    #### Get Robot Base Frames
+    [[io:Get Robot Base Frames]]
+
 ## See also
 
 [[Get Controller]] · [[Robot Tool Calibration]] · [[Forward Kinematics]]

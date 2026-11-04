@@ -1,3 +1,8 @@
+---
+title: Page template
+description: "How a wiki page is built: sections, shortcodes for icons and links, and what to do after adding a page."
+---
+
 # Page template
 
 Every component page uses these sections, in this order. [Move](../part-a/a3-motion/move.md)

@@ -58,7 +58,7 @@ Move targets away from them.
     No GoFa Virtual Controller was available for this wiki; these numbers come from the
     Grasshopper solver only. Check GoFa programs in RobotStudio before running them.
 
-!!! warning "Configuration data and issue #19"
+!!! warning "Copying the configuration into a Configuration Data component"
     The first target's configuration is `[0, -1, 0, 0]`: joint 4 at −0.01° counts as quadrant
     −1. Copying that into a [[Configuration Data]] component currently turns the `-1` into `0`
     (see the known issue on [[Configuration Data]]). Use the IK output directly instead.

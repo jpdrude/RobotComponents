@@ -1,3 +1,8 @@
+---
+title: ABB manuals
+description: "Which ABB RAPID manuals the wiki links to, how page links work and how they are kept up to date."
+---
+
 # ABB manuals
 
 This wiki **links** to ABB's RAPID documentation but never copies it. Every ABB manual

@@ -2,13 +2,11 @@
 
 Declare your own RAPID data, change it while the program runs, index arrays and build conditions.
 
-Pages marked *reference tables only* already show the component's description and its inputs and outputs; the tutorial text follows.
-
-| Components | Status |
+| Components | What for |
 |---|---|
-| [[Assign Variable Value]] | ✅ written |
-| [[Comparison Expression]] · [[Comparison Operators]] · [[Inequality Symbols]] | ✅ written |
-| [[RAPID Variable]] | ✅ written |
+| [[RAPID Variable]] | Declare your own RAPID data (VAR, PERS, CONST) and reference it from other components. |
+| [[Assign Variable Value]] | Give a RAPID variable a new value while the program runs (name := value;). |
+| [[Comparison Expression]] · [[Comparison Operators]] · [[Inequality Symbols]] | Build a true/false condition such as count >= 100 for IF statements and loops. |
 
 Tutorial: [a row of points with a loop](../b8-tutorials/row-loop.md).
 
