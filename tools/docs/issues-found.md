@@ -24,7 +24,7 @@ Not published on the wiki site.
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | by design (documented) |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
-| 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
+| 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | by design (documented) |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | fixed (`fix/wiki-issues`) |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
@@ -410,6 +410,13 @@ name (`i`) into a panel.
 **Fix ideas:** document that the *Counter* output is for use after the loop, or drop it. The
 auto-created `i` could be exposed differently (e.g. a separate "Loop Counter" component that
 only outputs the name).
+
+**Decision (2026-11-05): by design.** The body is an input of the loop, so any feedback from the loop's
+own output is a cycle Grasshopper never allows. The For Loop is meant for sequences with a known number
+of repetitions, using its counter by name; for everything else users create their own RAPID Variables
+(counter used in several places, counts that persist, condition-based repetition with While Loop). The
+For Loop page now has a "When to use it" section saying so; the Counter output is documented as "for
+after the loop".
 
 ---
 
