@@ -26,7 +26,7 @@ Not published on the wiki site.
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
-| 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | open |
+| 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
@@ -374,6 +374,12 @@ Source: `RobotComponents.ABB/Actions/Instructions/PathAccelerationLimitation.cs:
 
 **Workaround (documented):** a Code component with the `PathAccLim` line.
 **Fix:** emit `PathAccLim`. Check whether the Deconstruct/serialization keeps working (the class name can stay).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** `ToRAPIDInstruction` writes `PathAccLim`. The class,
+component, Deconstruct and serialization are unchanged (only the RAPID text changed). All four
+combinations as generated (`FALSE, FALSE` / `TRUE\AccMax:=2, FALSE` / `FALSE, TRUE\DecelMax:=3` /
+`TRUE\AccMax:=2.5, TRUE\DecelMax:=4`) run on the VC (`simulate_program`: ok). Unit test
+`BothDisabled_ProducesFalseFalse` updated. Worth reporting upstream.
 
 ---
 

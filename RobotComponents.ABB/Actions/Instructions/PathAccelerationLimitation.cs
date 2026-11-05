@@ -101,7 +101,7 @@ namespace RobotComponents.ABB.Actions.Instructions
         {
             string acceleration = !_accelerationLimitation ? "FALSE" : $"TRUE\\AccMax:={_accelerationMaxExpr}";
             string deceleration = !_decelerationLimitation ? "FALSE" : $"TRUE\\DecelMax:={_decelerationMaxExpr}";
-            return $"PathAccelerationLimitation {acceleration}, {deceleration};";
+            return $"PathAccLim {acceleration}, {deceleration};";
         }
 
         public void ToRAPIDGenerator(RAPIDGenerator RAPIDGenerator)
