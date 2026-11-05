@@ -21,7 +21,7 @@ Not published on the wiki site.
 | 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
-| 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
+| 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | fixed (`fix/wiki-issues`) |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
@@ -250,8 +250,9 @@ Configuration Data are written as their values (Robot/Joint Target via `ToRAPID(
 no declaration is needed. Used by Routine Argument (instead of `ToString()`) and Routine Call (which
 had the related gap: a named target resolved to an undeclared name). `INOUT`/`PERS` parameters still
 need a RAPID Variable (documented). `visit [[400, -100, 300], …];` into `PROC visit(robtarget p)`
-runs on the VC. **Not run as a component in Rhino:** it needs the new RobotComponents.ABB.dll
-loaded (`ToRAPID(bool)`), which a from-bytes copy can't provide; check once the build is installed.
+runs on the VC. Component check in Rhino (new build installed): Routine Argument and Routine Call
+with Robot Target `pickA` both give `go [[400, -100, 300], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`, and
+the generated module runs on the VC.
 The shared resolver was deliberately not changed: tool/wobj in CRobT, Offs and Assign need names.
 
 ---
@@ -270,6 +271,16 @@ the parameter) and make the calls with a separate **Routine Call** component who
 
 **Fix ideas:** make *Variable* a single item independent of *Value* (it is the parameter, not
 the call), or document that *Value* is only for a single self-call.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** *Value* is now a **list** input; the component runs once
+per branch, uses the first value and warns when there are more (pointing to Routine Call). Skipping
+iterations with an item input doesn't work: Grasshopper still writes a null item per skipped
+iteration, so the Routine would still run twice. Changing access is safe for saved files: the
+`param_input` chunk stores Description, InstanceGuid, Name, NickName, Optional, SourceCount, no
+access (checked by serializing the component). Checked in Rhino with the installed build + the new
+.gha from bytes: `[-150, 150]` gives one Argument, one Variable, one `PROC visit(num y)`; a Routine
+Call with the list gives `visit -150;` / `visit 150;`; the module with #12's `go [[400, -100, 300], …];`
+runs on the VC.
 
 ---
 

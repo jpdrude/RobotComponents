@@ -94,10 +94,10 @@ ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Routine declarations|r
 
 ## Gotchas
 
-!!! bug "Leave *Value* on the Routine Argument empty"
-    A list on the argument's *Value* doesn't just make several calls: it also runs everything
-    connected to the argument's *Variable* once per value. The body is duplicated and the
-    routine is declared twice, so the module won't load. Use a [[Routine Call]] for the values.
+!!! warning "Several calls: use Routine Call"
+    The Routine's own *Routine Call* output makes one call, with the arguments' *Value*. A list
+    on a Routine Argument's *Value* uses only the first value (with a warning). For several
+    calls, wire the values into a [[Routine Call]].
 
 !!! info "Robot Targets as values"
     A Robot Target (or Joint Target, joint position, Configuration Data) on the argument's *Value* or a [[Routine Call]]'s *Argument Value* is written

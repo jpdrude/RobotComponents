@@ -30,10 +30,10 @@ Full example: [[Routine]].
 
 ## Gotchas
 
-!!! bug "Use *Value* only for a single call"
-    *Value* is the value for the Routine's own *Routine Call* output. A **list** of values
-    duplicates the routine (see [[Routine]] → Gotchas). For several calls, leave *Value* empty and
-    use a [[Routine Call]] component.
+!!! warning "*Value* is for a single call"
+    *Value* is the value for the Routine's own *Routine Call* output. With a list, only the
+    first value is used and the component warns. For several calls, use a [[Routine Call]]
+    component with the list on its *Argument Value*.
 
 !!! info "Robot Targets as values"
     A Robot Target (or Joint Target, joint position, Configuration Data) on *Value* is written
