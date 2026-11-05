@@ -128,10 +128,11 @@ do on the controller, ABB documents [[abb:MoveAbsJ]], [[abb:MoveL]], [[abb:MoveJ
     target outputs on `{0}`. The [[RAPID Generator]] makes **one module per branch**. Fix:
     right-click its *Actions* input → **Flatten**.
 
-!!! warning "Type defaults to MoveAbsJ"
-    With nothing connected to *Type*, every movement is a `MoveAbsJ`. A [[type:Robot Target]]
-    is then converted to a joint target, and the component warns *"An Absolute Joint Movement
-    instruction is combined with a Robot Target"*. Always connect [[Movement Types]].
+!!! note "The Movement Types list starts at MoveAbsJ"
+    When you place a Move, it creates a [[Movement Types]] list on *Type* by itself (and again if
+    you delete it). The list starts at `MoveAbsJ`: pick `MoveL` or `MoveJ` there. A
+    [[type:Robot Target]] with `MoveAbsJ` is converted to a joint target, and the component warns
+    *"An Absolute Joint Movement instruction is combined with a Robot Target"*.
 
 !!! warning "Override Work Object: targets are measured from the work object"
     With a work object on the Move, the Robot Targets' coordinates are measured from that work

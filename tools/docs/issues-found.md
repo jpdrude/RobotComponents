@@ -11,7 +11,7 @@ Not published on the wiki site.
 |---|---|---|---|---|
 | 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | fixed (`fix/wiki-issues`) |
 | 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | fixed (`fix/wiki-issues`) |
-| 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | open |
+| 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | by design (documented) |
 | 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | open |
 | 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
@@ -126,6 +126,14 @@ target is a Robot Target. Beginners expect MoveL/MoveJ. Upstream behavior.
 
 **Ideas:** a remark when *Type* is unconnected, or an explicit default shown in the
 component message.
+
+**Decision (2026-11-05): by design.** On the canvas *Type* can't stay unconnected: after the first
+solve `_add` is true, and every solve with `SourceCount == 0` creates and connects a *Movement Types*
+value list (`MoveComponent.cs:143`), also after deleting it; files keep the wire. The list starts at
+MoveAbsJ, which is intended. Only a Move in a document other than the active canvas stays unconnected
+(`CreateValueList` adds to `Instances.ActiveCanvas.Document`): scripted/headless builds like the wiki
+example scripts (where this was found), possibly clusters (not checked). No error added (it would only
+flash on placement). Wiki: Move gotcha rewritten as a note, B9 row removed.
 
 ---
 
