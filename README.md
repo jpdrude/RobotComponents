@@ -11,6 +11,10 @@
   <img src="https://img.shields.io/github/license/jpdrude/RobotComponents">
 </p>
 
+<p align="center">
+  <b><a href="https://jpdrude.github.io/RobotComponents/">📖 Learning wiki</a></b>: every component, step-by-step tutorials and the RAPID behind them
+</p>
+
 ---
 
 > **⚠️ MODIFIED VERSION**  
