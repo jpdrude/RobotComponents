@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 // RobotComponents Libs
@@ -104,7 +105,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             RAPIDVariable counter = counterGoo?.Value;
             bool autoCreated = counter == null || string.IsNullOrEmpty(counter.Name);
             if (autoCreated)
-                counter = new RAPIDVariable(RAPIDVariableLevel.Routine, Scope.LOCAL, RAPIDVariableKeyword.VAR, "num", "i");
+                counter = new RAPIDVariable(RAPIDVariableLevel.Routine, Scope.LOCAL, RAPIDVariableKeyword.VAR, "num", GetFreeCounterName(bodyActions));
 
             // Type check only when user supplied the variable
             if (!autoCreated && !string.Equals(counter.Type, "num", StringComparison.OrdinalIgnoreCase))
@@ -147,6 +148,35 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             HelperMethods.SetActionList(DA, 0, loopCode);
             DA.SetData(1, new GH_RAPIDVariable(counter));
+        }
+
+        /// <summary>
+        /// Returns the first of i, j, k, l, m, n that no FOR loop inside the body already uses as its
+        /// counter. Nested loops are built inside out (the inner loop is an input of the outer one), so
+        /// an outer loop without a Counter sees the inner loop's "FOR i ..." line and takes j instead of
+        /// hiding the inner counter behind its own i.
+        /// </summary>
+        /// <param name="bodyActions"> The actions inside the loop. </param>
+        /// <returns> The counter name. </returns>
+        private static string GetFreeCounterName(List<IAction> bodyActions)
+        {
+            HashSet<string> used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (IAction action in bodyActions)
+            {
+                if (action is CodeLine codeLine && codeLine.Type == CodeType.Instruction)
+                {
+                    Match match = Regex.Match(codeLine.Code.Trim(), @"^FOR\s+([A-Za-z_][A-Za-z0-9_]*)\s+FROM\b", RegexOptions.IgnoreCase);
+                    if (match.Success) { used.Add(match.Groups[1].Value); }
+                }
+            }
+
+            foreach (string name in new[] { "i", "j", "k", "l", "m", "n" })
+            {
+                if (!used.Contains(name)) { return name; }
+            }
+
+            return "i" + used.Count;
         }
 
         #region properties

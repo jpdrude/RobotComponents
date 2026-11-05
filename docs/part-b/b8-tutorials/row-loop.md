@@ -99,7 +99,7 @@ warnings, cycle time **5.1 s**. (Header comments removed.)
 ## Try it
 
 - [ ] **More points, smaller steps.** Visit 6 points, 50 mm apart. Which two inputs change?
-- [ ] **Two rows.** Wrap the loop in a second [[For Loop]] that moves the row in X. Give it its own counter: a new [[RAPID Variable]] named `j` (type `num`, Level `Routine`, Scope `LOCAL`) on its *Counter* input. Without it, both loops would use `i`. What does the *X* input of [[Offset Target]] become?
+- [ ] **Two rows.** Wrap the loop in a second [[For Loop]] that moves the row in X. Leave its *Counter* empty: the inner loop already counts with `i`, so the outer one counts with `j`. What does the *X* input of [[Offset Target]] become?
 - [ ] **Counting runs, not points.** Move the `count := count + 1` out of the loop so it counts program runs. Where do you wire it?
 
 ??? success "Solutions"

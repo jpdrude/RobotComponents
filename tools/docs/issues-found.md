@@ -18,7 +18,7 @@ Not published on the wiki site.
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
 | 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | fixed (`fix/wiki-issues`) |
 | 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | fixed (`fix/wiki-issues`) |
-| 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
+| 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | fixed (`fix/wiki-issues`) |
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | by design (documented) |
@@ -252,6 +252,11 @@ outer counter can't be used inside the inner loop, which is the usual reason for
 
 **Fix ideas:** pick the first free name (`i`, `j`, `k`, …) when nesting is detected, or warn.
 Also: `VAR num i;` is declared in the routine, but RAPID declares FOR counters implicitly; harmless.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** an auto counter takes the first of i, j, k, l, m, n that no
+`FOR … FROM` line in the loop's own body uses. Nested loops are built inside out, so the outer loop sees
+the inner's counter. Checked in Rhino: two levels → `FOR j … FOR i`, three → `k / j / i`, inner with
+explicit `j` → outer `i`; the Counter output reports the chosen name; the generated module runs on the VC.
 
 ---
 

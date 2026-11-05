@@ -15,7 +15,8 @@ example in an [[Offset Target]] (`i * 100`) to move a little further each time.
 
 [[io:For Loop]]
 
-*Counter* is optional. Leave it empty and the loop counts with `i`. To use another
+*Counter* is optional. Leave it empty and the loop counts with `i`, or with `j`, `k`, … if a
+loop inside it already uses `i`. To use another
 name, wire a [[RAPID Variable]]'s *Variable* output (type [[abb:num]], Level `Routine`). The
 *Counter* output passes the counter on for components **after** the loop (not inside it; see Gotchas).
 
@@ -46,10 +47,9 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
 
 ## Gotchas
 
-!!! warning "Nested loops: give each one its own counter"
-    Two For Loops without a *Counter*, one inside the other, both count with `i`
-    (`FOR i … FOR i …`). It loads, but the inner `i` hides the outer one. Give the outer loop a
-    [[RAPID Variable]] counter (e.g. `j`).
+!!! info "Nested loops get their own counters"
+    Without a *Counter*, an outer loop takes the first of `i`, `j`, `k`, … that no loop inside
+    it uses: `FOR j … DO FOR i … DO`. Its *Counter* output tells you which one it is.
 
 !!! warning "The *Counter* output can't be used inside the same loop"
     The loop's actions are an *input* of the loop, so wiring its *Counter* output into them makes
