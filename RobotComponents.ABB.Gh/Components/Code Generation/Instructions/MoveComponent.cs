@@ -177,8 +177,24 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             {
                 if (!DA.GetData(_variableInputParameters[1].Name, ref target))
                 {
+                    // Wired but no data: something upstream failed. Say so instead of silently
+                    // falling back to a default joint target (which then fails for MoveL/J/C).
+                    if (Params.Input.First(x => x.Name == _variableInputParameters[1].Name).SourceCount > 0)
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Target input has no data. Check the component that feeds it.");
+                        return;
+                    }
+
                     target = new JointTarget(new RobotJointPosition());
                 }
+            }
+
+            // A Joint Target (including the default when Target is unconnected) only works with MoveAbsJ.
+            if (target is JointTarget && movementType != 0)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "MoveL, MoveJ and MoveC need a Robot Target. " +
+                    "A Joint Target (or no Target at all) only works with MoveAbsJ (Type 0).");
+                return;
             }
             if (Params.Input.Any(x => x.Name == _variableInputParameters[2].Name))
             {

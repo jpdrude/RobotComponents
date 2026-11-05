@@ -59,9 +59,10 @@ PERS num count := 0;
 ## Gotchas
 
 !!! warning "Wire *Variable Declaration* into Actions, not *Variable*"
-    *Variable* is the first output and the one you need everywhere else, but in the
-    [[RAPID Generator]]'s *Actions* it fails: *"Data conversion failed from RAPID Variable to
-    Action"* plus a solution exception, and no module at all.
+    *Variable* is the first output and the one you need everywhere else, but it isn't an
+    action: in the [[RAPID Generator]]'s *Actions* it gives *"Data conversion failed from RAPID
+    Variable to Action"*, and the generator skips it with a warning, so the declaration is
+    missing from the module.
 
 !!! warning "Routine-level data can't be global"
     Level `Routine` with Scope `GLOBAL` gives *"Routine variables cannot be global. Scope set

@@ -186,6 +186,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             DA.GetData(0, ref robot);
             if (!DA.GetDataList(1, actions)) { return; }
 
+            // Items that couldn't be converted to an action arrive as null (Grasshopper already shows
+            // "Data conversion failed"). Skip them instead of failing with a null reference.
+            int skipped = actions.RemoveAll(action => action == null);
+            if (skipped > 0)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, skipped + " item(s) on Actions are not actions and were skipped. " +
+                    "A common cause: the Variable output of a RAPID Variable instead of its Variable Declaration output, " +
+                    "or a component upstream that produced no data.");
+            }
+
             // Creates the input value list for the scope and attachs it to the input parameter
             int scopeParamIndex = FindVariableInputIndex(3);
             if (_routineScopeParam && scopeParamIndex != -1 && this.Params.Input[scopeParamIndex].SourceCount == 0)

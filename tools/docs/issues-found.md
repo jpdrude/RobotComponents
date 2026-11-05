@@ -17,7 +17,7 @@ Not published on the wiki site.
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
 | 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | fixed (`fix/wiki-issues`) |
-| 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | open |
+| 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | fixed (`fix/wiki-issues`) |
 | 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
@@ -25,7 +25,7 @@ Not published on the wiki site.
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
-| 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
+| 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | fixed (`fix/wiki-issues`) |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | fixed (`fix/wiki-issues`) |
@@ -207,6 +207,10 @@ first output.
 **Fix ideas:** skip null actions in the generator with a clear warning ("RAPID Variable: wire its
 *Variable Declaration* output into Actions"), or let `GH_Action` cast a RAPIDVariable to its declaration.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** the RAPID Generator removes null items from *Actions* and
+warns ("N item(s) on Actions are not actions and were skipped", naming this cause). Checked in Rhino:
+RAPID Variable *Variable* + a Code line → warning, module with the Code line.
+
 ---
 
 ## 10 🟡 For Loop auto counter is always `i`
@@ -383,6 +387,13 @@ resulting null in the RAPID Generator gives a second *"Object reference not set�
 
 **Fix ideas:** if *Target* has no data, add an error "Target input has no data" and return early
 (no output) instead of falling back to a joint target. Make the generator skip nulls with a warning (see #9).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** Move: *Target* wired but without data → warning "The Target
+input has no data. Check the component that feeds it.", no movement. Unconnected *Target* keeps the
+default joint target for MoveAbsJ; MoveL/MoveJ/MoveC with a Joint Target (or none) → error
+"MoveL, MoveJ and MoveC need a Robot Target…" instead of the exception. Generator skips the null (#9).
+Checked in Rhino: all four cases (wired-empty, MoveL unconnected, MoveAbsJ unconnected → `MoveAbsJ
+[[0, 0, 0, 0, 0, 0], …]` as before).
 
 ---
 
