@@ -13,6 +13,42 @@ Fork of [RobotComponents/RobotComponents](https://github.com/RobotComponents/Rob
 - `origin` → `jpdrude/RobotComponents` (working fork)
 - `upstream` → `RobotComponents/RobotComponents` (upstream)
 
+## Keep the learning wiki in sync — REQUIRED for every component change
+
+The learning wiki lives in `docs/` (MkDocs Material; config `mkdocs.yml`, build hook
+`tools/docs/rc_links.py`). `.github/workflows/docs.yml` publishes it from `main` to
+<https://jpdrude.github.io/RobotComponents/>. It documents every component, the RAPID each one
+generates, and known bugs. **Any change that alters what a user sees or gets must update the wiki
+in the same branch/commit series**: adding, removing or renaming a component; adding, removing or
+retyping inputs, outputs or right-click options; changing defaults, behaviour, warnings, or the
+RAPID a component writes; and fixing a bug the wiki lists.
+
+1. **I/O tables:** the `[[io:Name]]` tables come from `docs/data/io.json`. Regenerate it with
+   `tools/docs/extract_io.csx` in the user's running Rhino 8 with the **new build** loaded (Rhino
+   MCP `run_csharp`; never launch Rhino yourself — ask the user to start it and run `MCPStart`),
+   then review `git diff docs/data/io.json`.
+2. **New or renamed components:** run `tools/docs/extract_icons.csx` (icons + `manifest.json`), add
+   the component to `docs/data/registry.yml` (`icon`, `page`), write or extend its page following
+   `docs/reference/page-template.md`, add new pages to `nav` in `mkdocs.yml`, give every page a
+   front-matter `title` and quoted `description`, then run `python tools/docs/make_chapter_indexes.py`.
+3. **Page text:** update the component page's description, *In RAPID* block, Gotchas and Try it.
+   RAPID shown in the wiki must be exactly what Robot Components generates. Snippets with a
+   "RAPID checked" badge are re-verified on the Virtual Controller (rapid-verifier MCP); otherwise
+   remove the badge.
+4. **Bug fixes:** remove or rewrite the matching "Known issue" box on every page that has one
+   (`grep -rn "Known issue" docs/`), the row in `docs/part-b/b9-pitfalls.md`, and set the
+   issue's status in `tools/docs/issues-found.md` (the running list of bugs found while writing the
+   wiki; add newly found ones there too).
+5. **Examples:** if a change affects a downloadable example in `docs/examples/` (e.g. a component
+   there becomes `_OBSOLETE`), upgrade the `.gh` file and re-capture its screenshots.
+6. **ABB references:** link with `[[abb:Name]]` / `[[abb-kernel:...]]` / `[[abb-overview:...]]`
+   only. ABB's manuals must never be copied or committed (`.gitignore` blocks the PDFs).
+7. **Check:** `mkdocs build --strict` must pass (dependencies in `docs/requirements.txt`). Mention
+   the wiki update in the commit message.
+
+If a change is too small to need any of this (internal refactor, no user-visible effect), say so
+explicitly instead of silently skipping the wiki.
+
 ## Changing a shipped GH component's parameter shape or type — REQUIRED pattern
 
 Grasshopper components are matched to a saved `.gh`/`.ghx` file's data purely by `ComponentGuid`.
