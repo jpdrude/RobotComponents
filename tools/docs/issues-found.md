@@ -10,7 +10,7 @@ Not published on the wiki site.
 | # | Sev | Area | Title | Status |
 |---|---|---|---|---|
 | 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | fixed (`fix/wiki-issues`) |
-| 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | open |
+| 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | fixed (`fix/wiki-issues`) |
 | 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | open |
 | 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | open |
 | 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
@@ -101,6 +101,18 @@ check the *Target* input label.
 **Fix ideas:** check that `CanvasFullNamesChanged` actually fires on toggle and that
 `SweepDrawFullNames` reaches IGH_VariableParameterComponent params (Move registers them via
 `Params.RegisterInputParam` at runtime). Compare with a component where the sweep does work.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** the event fires and the sweep runs; it just never looked
+at these parameters. Move's `OptionalParameterDefaults` left out Target, Speed Data and Zone Data
+(and both Path Generators left out "Path") on the assumption that GH's own conversion covers them.
+It doesn't: GH converts a parameter only if its NickName still matches a freshly constructed
+reference instance, and these constructors apply the *current* preference (`ApplyFullNamesPreference`),
+so the reference already says "Target" and the real "TA" looks user-renamed. Found by constructing
+every GH_RobotComponent with the preference off and on: exactly these five parameters differ and
+were missing from the lists. All are listed now. Checked in Rhino: built with full names off →
+sweep(full) gives Target / Speed Data / Zone Data / Path, sweep(short) gives TA / SD / ZD / P back,
+a hand-renamed "myTarget" is left alone. (The issue's script repro set the property only; it fires
+the same event, so that wasn't the cause.)
 
 ---
 

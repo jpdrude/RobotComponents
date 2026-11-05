@@ -67,12 +67,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // See PathGeneratorComponent's constructor for why this is the one safe point to
             // apply the Draw Full Names preference to every optional input this instance can
             // ever show, without risking overwriting a name customized after one is shown, and
-            // why the snapshot below must be taken before that loop runs. Indices 1 (Target), 2
-            // (Speed Data) and 4 (Zone Data) are excluded: RegisterInputParams below registers
-            // those three itself (via AddParameter), so they're already part of the component's
-            // normal default shape and already covered by GH's own Draw Full Names conversion.
-            _optionalParameterDefaults = new[] { 0, 3, 5, 6, 7 }
-                .Select(i => (_variableInputParameters[i].Name, _variableInputParameters[i].NickName)).ToList();
+            // why the snapshot below must be taken before that loop runs. All eight are listed,
+            // including Target, Speed Data and Zone Data, which RegisterInputParams registers by
+            // default: GH's own Draw Full Names conversion does NOT cover them. It only converts a
+            // parameter whose NickName still matches a freshly constructed reference instance, and
+            // the loop below gives that reference the current preference already ("Target"), so
+            // the real "TA" looks user-renamed and is skipped (checked in Rhino, issue #2).
+            _optionalParameterDefaults = _variableInputParameters
+                .Select(param => (param.Name, param.NickName)).ToList();
 
             for (int i = 0; i < _variableInputParameters.Length; i++)
             {

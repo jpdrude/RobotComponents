@@ -86,8 +86,8 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             // See PathGeneratorComponent's constructor for why this is the one safe point to
             // apply the Draw Full Names preference to every optional output this instance can
             // ever show, without risking overwriting a name customized after one is shown, and
-            // why the snapshot below must be taken before that loop runs.
-            _optionalParameterDefaults = _variableOutputParameters.Skip(1).Select(p => (p.Name, p.NickName)).ToList();
+            // why the snapshot below must be taken before that loop runs (and why "Path" is listed too).
+            _optionalParameterDefaults = _variableOutputParameters.Select(p => (p.Name, p.NickName)).ToList();
 
             for (int i = 0; i < _variableOutputParameters.Length; i++)
             {
