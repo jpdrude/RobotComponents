@@ -171,13 +171,15 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!DA.GetDataList(1, message)) { return; }
             if (!DA.GetDataList(2, buttons)) { return; }
 
+            // One entry per button input, in button order. A button without actions gets an empty
+            // list instead of being skipped, so that entry i always belongs to button i + 1 (the
+            // value UIMessageBox returns for it).
             for (int i = _staticInputCount; i < Params.Input.Count; i++)
             {
                 List<IAction> list = new List<IAction>();
-                if (DA.GetDataList(i, list))
-                {
-                    btnActions.Add(list);
-                }
+                DA.GetDataList(i, list);
+                list.RemoveAll(action => action == null);
+                btnActions.Add(list);
             }
 
             //Generate/Mainain button-specific inputs
@@ -229,23 +231,28 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // equivalent of a switch/case, no fall-through and no BREAK needed between cases) is
             // both the more idiomatic RAPID construct here and matches what actual RAPID code for
             // this exact UIMessageBox/msgBoxAnswer pattern conventionally looks like.
-            msgBoxCode.Add(new CodeLine("TEST msgBoxAnswer", CodeType.Instruction));
-
-            int answerCounter = 1;
-            foreach (List<IAction> btnCode in btnActions)
+            // The CASE number is the button's position (UIMessageBox returns 1 for the first
+            // button, 2 for the second, ...), not a count of the buttons that have actions.
+            // Buttons without actions get no CASE; if no button has actions, no TEST is written.
+            if (btnActions.Exists(list => list.Count > 0))
             {
-                msgBoxCode.Add(new CodeLine($"CASE {answerCounter}:", CodeType.Instruction));
-                foreach (IAction action in btnCode)
+                msgBoxCode.Add(new CodeLine("TEST msgBoxAnswer", CodeType.Instruction));
+
+                for (int i = 0; i < btnActions.Count; i++)
                 {
-                    IAction dup = action.DuplicateAction();
-                    dup.IndentationLevel = action.IndentationLevel + 1;
-                    msgBoxCode.Add(dup);
+                    if (btnActions[i].Count == 0) { continue; }
+
+                    msgBoxCode.Add(new CodeLine($"CASE {i + 1}:", CodeType.Instruction));
+                    foreach (IAction action in btnActions[i])
+                    {
+                        IAction dup = action.DuplicateAction();
+                        dup.IndentationLevel = action.IndentationLevel + 1;
+                        msgBoxCode.Add(dup);
+                    }
                 }
 
-                ++answerCounter;
+                msgBoxCode.Add(new CodeLine("ENDTEST", CodeType.Instruction));
             }
-
-            msgBoxCode.Add(new CodeLine("ENDTEST", CodeType.Instruction));
 
             //Set Output
             DA.SetDataList(0, msgBoxCode);

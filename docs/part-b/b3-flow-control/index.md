@@ -20,4 +20,4 @@ Tutorial: [a row of points with a loop](../b8-tutorials/row-loop.md).
 
 ??? success "Solutions"
     1. *From* `3`, *To* `0`. RAPID's FOR counts down by itself when *From* > *To* (checked on the Virtual Controller).
-    2. Wrap the row in a [[While Loop]] with a [[abb:bool]] condition and end it from a [[Message Box]], as in the [operator loop](../b5-operator-interaction/message-box.md). Remember to wire something into **every** button.
+    2. Wrap the row in a [[While Loop]] with a [[abb:bool]] condition and end it from a [[Message Box]], as in the [operator loop](../b5-operator-interaction/message-box.md).

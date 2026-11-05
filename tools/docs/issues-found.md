@@ -22,7 +22,7 @@ Not published on the wiki site.
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
-| 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | open |
+| 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | open |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
@@ -263,6 +263,13 @@ every button's *Actions* input. Then `CASE 1:` (empty) / `CASE 2: again := FALSE
 
 **Fix:** add an empty list for unwired buttons (keep the index), or emit `CASE {i - _staticInputCount + 1}`
 from the parameter index. Empty buttons can then be omitted from the TEST entirely.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** every button input now gets a list (empty if unwired,
+nulls removed), and the `CASE` number is the button's position. Buttons without actions get no
+`CASE`; with no actions at all, no `TEST` is written. Checked in Rhino with the new build loaded
+from bytes: Yes/No with only No wired → `CASE 2:` only; A/B/C with A and C wired → `CASE 1:` /
+`CASE 3:`; none wired → only the `UIMessageBox` line. All three shapes pass `verify_syntax` (IRB
+1200, RW 6.10). No parameter change, so no Obsolete snapshot needed.
 
 ---
 
