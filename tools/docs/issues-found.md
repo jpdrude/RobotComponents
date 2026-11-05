@@ -12,7 +12,7 @@ Not published on the wiki site.
 | 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | fixed (`fix/wiki-issues`) |
 | 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | fixed (`fix/wiki-issues`) |
 | 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | by design (documented) |
-| 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | open |
+| 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | by design (documented) |
 | 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
@@ -146,6 +146,11 @@ Upstream behavior (one module per branch may be intended).
 
 **Ideas:** a remark when *Actions* has more than one branch ("N modules generated, one per
 branch; flatten Actions for a single module").
+
+**Decision (2026-11-05): by design.** One module per branch is Grasshopper's normal data matching
+(same reasoning as #13). Since #8 the flow-control components no longer add branches, so this only
+happens with the user's own split data (e.g. Moves from Discontinuity points). Documented on the RAPID
+Generator page ("Several modules instead of one") and in B9; no remark added.
 
 ---
 
