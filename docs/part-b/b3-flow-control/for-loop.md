@@ -62,9 +62,12 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
 
 ## Gotchas
 
-!!! info "Nested loops get their own counters"
-    Without a *Counter*, an outer loop takes the first of `i`, `j`, `k`, … that no loop inside
-    it uses: `FOR j … DO FOR i … DO`. Its *Counter* output tells you which one it is.
+!!! info "Nested loops: the innermost loop counts with `i`"
+    Without a *Counter*, each loop takes the first of `i`, `j`, `k`, … that no loop inside it
+    uses. Grasshopper builds nested loops from the inside out, so the **innermost** loop gets
+    `i` and the ones around it `j`, `k`, …: `FOR j … DO FOR i … DO`. That's the reverse of the
+    usual convention (outer `i`, inner `j`). Each loop's *Counter* output tells you its name. If you
+    prefer the usual order, give the loops their own counters with [[RAPID Variable]].
 
 !!! warning "The *Counter* output is for after the loop"
     The body is an *input* of the loop, so wiring the loop's own *Counter* output into it makes the

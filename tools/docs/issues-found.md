@@ -264,6 +264,11 @@ Also: `VAR num i;` is declared in the routine, but RAPID declares FOR counters i
 the inner's counter. Checked in Rhino: two levels → `FOR j … FOR i`, three → `k / j / i`, inner with
 explicit `j` → outer `i`; the Counter output reports the chosen name; the generated module runs on the VC.
 
+**Decision (2026-11-05):** kept as is, although it reverses the usual convention (outer `i`, inner `j`).
+The inner loop is solved first and can't know it will be nested; renaming afterwards or late binding in
+the generator were judged too fragile/large. Documented on the For Loop page ("the innermost loop counts
+with `i`"), with explicit RAPID Variable counters for the conventional order.
+
 ---
 
 ## 11 ⚪ Typo in generated comment
