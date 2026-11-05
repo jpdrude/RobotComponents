@@ -417,7 +417,7 @@ namespace RobotComponents.ABB.Kinematics
 
                 if (_externalJointPosition[index] == 9e9)
                 {
-                    _errorText.Add($"The position of external logical axis {logic} is not definied.");
+                    _errorText.Add($"The position of external logical axis {logic} is not defined.");
                     _isInLimits = false;
                 }
 

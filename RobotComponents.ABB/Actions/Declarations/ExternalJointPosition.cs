@@ -90,7 +90,7 @@ namespace RobotComponents.ABB.Actions.Declarations
 
         #region constructors
         /// <summary>
-        /// Initializes a new instance of the External Joint Position class with an empty name and undefinied positions of the external logical axes.
+        /// Initializes a new instance of the External Joint Position class with an empty name and undefined positions of the external logical axes.
         /// </summary>
         public ExternalJointPosition()
         {
@@ -396,7 +396,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
         }
@@ -437,7 +437,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
         }
@@ -478,7 +478,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
         }
@@ -528,7 +528,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
         }
@@ -549,7 +549,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             double[] result = new double[6];
             int n = Math.Min(axisValues.Count, 6);
 
-            // Copy definied joint positions
+            // Copy defined joint positions
             for (int i = 0; i < n; i++)
             {
                 result[i] = double.IsNaN(axisValues[i]) ? _defaultValue : axisValues[i];
@@ -925,7 +925,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
 
@@ -956,7 +956,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
 
@@ -987,7 +987,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
 
@@ -1023,7 +1023,7 @@ namespace RobotComponents.ABB.Actions.Declarations
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A definied joint position [on index {i}] is combined with an undefinied joint position.");
+                    throw new InvalidOperationException($"Mismatch between two External Joint Positions. A defined joint position [on index {i}] is combined with an undefined joint position.");
                 }
             }
 

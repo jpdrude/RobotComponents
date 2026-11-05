@@ -19,7 +19,7 @@ Not published on the wiki site.
 | 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | fixed (`fix/wiki-issues`) |
 | 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | fixed (`fix/wiki-issues`) |
 | 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | fixed (`fix/wiki-issues`) |
-| 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
+| 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | fixed (`fix/wiki-issues`) |
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | by design (documented) |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
@@ -29,7 +29,7 @@ Not published on the wiki site.
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | fixed (`fix/wiki-issues`) |
-| 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
+| 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | fixed (`fix/wiki-issues`) |
 | 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | fixed (`fix/wiki-issues`) |
 | 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | fixed (`fix/wiki-issues`) |
 
@@ -264,6 +264,10 @@ explicit `j` → outer `i`; the Counter output reports the chosen name; the gene
 
 `! User definied code lines` in every module with user declarations (also "definied" in
 `Routine.cs` / `RoutineArgument.cs` doc comments).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** "definied"/"undefinied" → "defined"/"undefined" in all 12
+files: the generated comment (`! User defined code lines`), the error messages of Joint Target,
+External Joint Position and Forward Kinematics, and doc comments.
 
 ---
 
@@ -543,6 +547,9 @@ the zip, copy to `%appdata%\Grasshopper\Libraries`. The wiki's Getting Started n
 release notes.
 
 **Fix:** update the README's *Installation* section to match `INSTALL.md` (or link to it).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** the README no longer describes the installation; it points
+to the releases page (each release carries its own instructions) and the wiki's Getting started.
 
 ---
 

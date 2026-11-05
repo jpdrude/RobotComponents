@@ -326,7 +326,7 @@ namespace RobotComponents.ABB.Actions.Declarations
 
                 if (_externalJointPosition[number] == 9e9)
                 {
-                    errors.Add($"Joint Target {_name}: The position of external logical axis {logic} is not definied (9E9).");
+                    errors.Add($"Joint Target {_name}: The position of external logical axis {logic} is not defined (9E9).");
                 }
 
                 else if (robot.ExternalAxes[i].AxisLimits.IncludesParameter(_externalJointPosition[number], false) == false)

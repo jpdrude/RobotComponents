@@ -22,7 +22,7 @@ using RobotComponents.ABB.Enumerations;
 namespace RobotComponents.ABB.Actions.Declarations
 {
     /// <summary>
-    /// Represents a custom (user definied) RAPID Routine.
+    /// Represents a custom (user defined) RAPID Routine.
     /// </summary>
     [Serializable()]
     public class Routine : ISerializable
