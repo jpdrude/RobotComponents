@@ -133,6 +133,12 @@ do on the controller, ABB documents [[abb:MoveAbsJ]], [[abb:MoveL]], [[abb:MoveJ
     is then converted to a joint target, and the component warns *"An Absolute Joint Movement
     instruction is combined with a Robot Target"*. Always connect [[Movement Types]].
 
+!!! warning "Override Work Object: targets are measured from the work object"
+    With a work object on the Move, the Robot Targets' coordinates are measured from that work
+    object. Targets drawn in world coordinates need the work object's plane as their
+    *Reference Plane*. The Move warns when a target looks like it is in world coordinates. See
+    [[Work Object]] → Gotchas.
+
 !!! bug "Known issue: Joint Target with a named Robot Joint Position does not load"
     [[Joint Target]] → [[Move]] produces `VAR jointtarget home := [home_rj, …];`. RAPID only
     accepts constant values in a `VAR` declaration, so the controller rejects the module (load

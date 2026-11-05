@@ -234,6 +234,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 _isCircularMovement = true;
             }
 
+            // Robot targets are written relative to the work object. A target drawn in world
+            // coordinates (no Reference Plane on the Robot Target) gets the work object's offset
+            // applied a second time. Warn when that looks like what happened.
+            if (target is RobotTarget robotTarget && LooksLikeWorldCoordinates(robotTarget.Plane, workObject))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "A Robot Target looks like it is given in world coordinates, " +
+                    "but this Move uses work object <" + workObject.Name + ">. Robot targets are measured from the work object, so " +
+                    "its offset would be applied twice. Set the work object's plane as the Robot Target's Reference Plane (right-click the Robot Target).");
+            }
+
             // Check if a right value is used for the movement type
             if (movementType != 0 && movementType != 1 && movementType != 2 && movementType != 3)
             {
@@ -314,6 +324,39 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 }
             }
         }
+
+        #region work object check
+        /// <summary>
+        /// Returns true if a robot target plane looks like it was given in world coordinates while
+        /// the movement uses a work object, i.e. the work object's offset would be applied twice.
+        /// </summary>
+        /// <remarks>
+        /// The Robot Target does not keep whether a Reference Plane was used, so this is a
+        /// heuristic: the target is much closer to the work object's origin than to the world
+        /// origin. Targets written relative to the work object are typically near the world origin
+        /// (their coordinates are small); targets drawn on the work object in world coordinates are
+        /// near the work object. Work objects at (or near) the world origin are not checked, since
+        /// there both readings give nearly the same position.
+        /// </remarks>
+        /// <param name="targetPlane"> The robot target plane as written to RAPID. </param>
+        /// <param name="workObject"> The work object of the movement. </param>
+        /// <returns> True if the target looks like it is in world coordinates. </returns>
+        internal static bool LooksLikeWorldCoordinates(Plane targetPlane, WorkObject workObject)
+        {
+            if (workObject == null || !targetPlane.IsValid) { return false; }
+
+            Point3d wobjOrigin = workObject.GlobalWorkObjectPlane.Origin;
+            double wobjOffset = wobjOrigin.DistanceTo(Point3d.Origin);
+
+            // Work object (nearly) at the world origin: both readings are close, nothing to tell apart.
+            if (wobjOffset < 50.0) { return false; }
+
+            double toWorkObject = targetPlane.Origin.DistanceTo(wobjOrigin);
+            double toWorld = targetPlane.Origin.DistanceTo(Point3d.Origin);
+
+            return toWorkObject < 0.5 * toWorld && toWorkObject < 0.5 * wobjOffset;
+        }
+        #endregion
 
         #region properties
         /// <summary>

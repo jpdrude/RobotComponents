@@ -23,7 +23,7 @@ Not published on the wiki site.
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
-| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | open |
+| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | open |
@@ -310,6 +310,19 @@ and dangerous mistake: the simulation and the real robot disagree.
 **Fix ideas:** when a Move has a Work Object and its Robot Target has no Reference Plane, either
 convert using the work object's plane automatically, or warn ("target is in world coordinates
 but used with work object X").
+
+**Fixed with a warning (2026-11-05, `fix/wiki-issues`):** correction to the text above: the
+simulation does **not** disagree with the robot. `Movement.GetGlobalTargetPlane` applies the work
+object too, so the Path Generator shows the same doubled offset; the trap is that the points are
+not where they were drawn. A `RobotTarget` doesn't keep whether a Reference Plane was used
+(the plane is converted in the constructor), so the Move can only guess:
+`MoveComponent.LooksLikeWorldCoordinates` flags a target that is closer to the work object's origin
+than half its distance to the world origin (and than half the work object's offset); work objects
+within 50 mm of the world origin are skipped. Checked with the pen-on-table geometry: all four
+world-coordinate corners and a 50 mm approach point warn; the same points relative to the table, and
+long local paths (500, 0, 0) / (600, 200, 0), don't; a real Move with a world target warns, with the
+Reference Plane set it doesn't. Auto-converting was not done: it would change the RAPID of every
+existing file that uses relative targets on purpose.
 
 ---
 
