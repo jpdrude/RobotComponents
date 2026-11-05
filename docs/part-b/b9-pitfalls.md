@@ -19,7 +19,6 @@ Grasshopper.
 | **Work Object on a Move doesn't convert targets.** World coordinates get offset by the work object a second time. The [[Move]] warns when a target looks like world coordinates. | Give the [[Robot Target]] the work object's plane as *Reference Plane*. | [[Work Object]] |
 | **Nested loops share the counter `i`.** | Give the outer [[For Loop]] its own [[RAPID Variable]] counter. | [[For Loop]] |
 | **Move *Type* unconnected = MoveAbsJ.** | Always connect [[Movement Types]]. | [[Move]] |
-| **The path preview doesn't follow a new movement type or speed.** [[Path Generator]] and [[Timed Path Generator]] keep the old path and time. | Nudge *Interpolations* / *Time Interval* after changing a [[Move]]'s type or speed. | [[Path Generator]] |
 
 ## Programs that don't load
 

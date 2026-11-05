@@ -38,21 +38,13 @@ but an estimate. The controller's acceleration and corner zones decide the real 
 | how [[abb:MoveJ]] and [[abb:MoveL]] paths differ | the exact path inside corner zones |
 | roughly how long the program takes | anything that is only known on the controller: [Part B](../../part-b/index.md) variables, `Offs(…, i * 100, …)`, operator input |
 
-!!! bug "Known issue: changing a Move's type or speed doesn't update the preview"
-    The Path Generator only recalculates when a **target**, the robot or *Interpolations*
-    changes. Switching a [[Move]] from `MoveL` to `MoveJ`, or its speed from `v200` to `v50`,
-    keeps showing the **old** path and *Program Time* (checked: the time stayed at 0.099 min
-    after switching the square to `v50`; the correct value is 0.395 min). The same applies to
-    the [[Timed Path Generator]]. **Until it's fixed**, nudge *Interpolations* (e.g. 5 → 6 → 5)
-    after such a change to force a recalculation.
-
 !!! tip "Hide the Robot Preset preview"
     [[Robot Preset]] draws its own robot in the home pose. Right-click it → *Preview* off,
     so only the animated robot is visible.
 
 ## Try it
 
-- [ ] Switch the square's movement type to `MoveJ` and compare the paths between the corners. *(Nudge Interpolations afterwards; see the known issue above.)*
+- [ ] Switch the square's movement type to `MoveJ` and compare the paths between the corners.
 - [ ] Add the *Error Messages* output and push the square out of reach (X slider to 600, Size to 300, so the far corners are at X = 900, about 1 m from the robot base). What does it say?
 
 ??? success "Solutions"

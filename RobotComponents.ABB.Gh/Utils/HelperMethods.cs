@@ -36,6 +36,57 @@ namespace RobotComponents.ABB.Gh.Utils
     /// </summary>
     internal static class HelperMethods
     {
+        #region path generator hashing
+        /// <summary>
+        /// Returns a hash of everything in an action that can change a calculated path or its timing.
+        /// </summary>
+        /// <remarks>
+        /// Used by the (Timed) Path Generator to decide whether a cached path is still valid. For a
+        /// Movement: type, target, circle point, speed, time, zone, work object, tool and digital output.
+        /// Any other instruction is hashed by its RAPID line, so new or changed instructions (e.g. Velocity
+        /// Set, Acceleration Set) also cause a recalculation.
+        /// </remarks>
+        /// <param name="action"> The action. </param>
+        /// <param name="robot"> The robot the path is calculated for. </param>
+        /// <returns> The hash. </returns>
+        public static int GetPathRelevantHash(RobotComponents.ABB.Actions.IAction action, RobotComponents.ABB.Definitions.Robot robot)
+        {
+            if (action == null) { return 0; }
+
+            string text;
+
+            if (action is RobotComponents.ABB.Actions.Instructions.Movement movement)
+            {
+                text = string.Join("|",
+                    movement.MovementType.ToString(),
+                    movement.Target?.ToRAPID() ?? "",
+                    movement.CircularPoint != null && movement.CircularPoint.Plane.IsValid ? movement.CircularPoint.ToRAPID() : "",
+                    movement.SpeedData?.Name ?? "", movement.SpeedData?.ToRAPID() ?? "",
+                    movement.Time.ToString(CultureInfo.InvariantCulture),
+                    movement.ZoneData?.Name ?? "", movement.ZoneData?.ToRAPID() ?? "",
+                    movement.WorkObject?.Name ?? "", movement.WorkObject?.ToRAPID() ?? "",
+                    movement.RobotTool?.Name ?? "", movement.RobotTool?.ToRAPID() ?? "",
+                    movement.SetDigitalOutput != null && movement.SetDigitalOutput.IsValid ? movement.SetDigitalOutput.ToRAPIDInstruction(robot) : "");
+            }
+            else if (action is RobotComponents.ABB.Actions.Instructions.OverrideRobotTool overrideRobotTool)
+            {
+                // The RAPID line only names the tool; the path depends on its data (TCP).
+                text = "OverrideRobotTool|" + (overrideRobotTool.RobotTool?.Name ?? "") + "|" + (overrideRobotTool.RobotTool?.ToRAPID() ?? "");
+            }
+            else if (action is RobotComponents.ABB.Actions.Instructions.IInstruction instruction)
+            {
+                try { text = action.GetType().Name + "|" + instruction.ToRAPIDInstruction(robot); }
+                catch { text = action.GetType().Name + "|" + action.ToString(); }
+            }
+            else
+            {
+                text = action.GetType().Name + "|" + action.ToString();
+            }
+
+            return text.GetHashCode();
+        }
+        #endregion
+
         #region typed action trees
         /// <summary>
         /// Rebuilds a typed data tree from an output that carries actions (Param_Action), keeping

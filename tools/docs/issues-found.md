@@ -31,7 +31,7 @@ Not published on the wiki site.
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | fixed (`fix/wiki-issues`) |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
 | 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | fixed (`fix/wiki-issues`) |
-| 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | open |
+| 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | fixed (`fix/wiki-issues`) |
 
 ---
 
@@ -534,3 +534,11 @@ which is worse there because its step timing depends on the speed. Toggling *Upd
 time and DO) plus the target's RAPID, or simply `MovementType`, `SpeedData.ToRAPID()`,
 `ZoneData.ToRAPID()`, `Time`, `WorkObject.ToRAPID()`, `RobotTool?.ToRAPID()`; same in the Timed
 component.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** shared `HelperMethods.GetPathRelevantHash(action, robot)`
+used by both components. Movement: type, target, circle point, speed (name + data), time, zone,
+work object, tool, DO. Override Robot Tool: tool name + data. Any other instruction: its RAPID line
+(so Velocity Set, Acceleration Set, … now also trigger a recalculation). Checked in Rhino with a
+square: installed (old) build keeps 0.0 mm / same time after MoveL → MoveJ; new build: MoveJ edges
+12.3 mm off straight, time 5.56 → 5.80 s, v200 → v50 5.80 → 23.20 s; Timed Path Generator v200 → v50:
+16 → 61 steps at 0.1 s, 4.56 → 18.24 s.

@@ -992,44 +992,9 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             //Generate action hash
             foreach (Actions.IAction action in ungrouped)
             {
-                if (action == null)
-                {
-                    continue;
-                }
-
-                if (action is OverrideRobotTool overrideRobotTool)
-                {
-                    hash = hash * 31 + overrideRobotTool.RobotTool.Name.GetHashCode();
-                    hash = hash * 31 + overrideRobotTool.RobotTool.ToRAPID().GetHashCode();
-                }
-
-                else if (action is JointConfigurationControl jointConfigurationControl)
-                {
-                    hash = hash * 31 + jointConfigurationControl.IsActive.GetHashCode();
-                }
-
-                else if (action is LinearConfigurationControl linearConfigurationControl)
-                {
-                    hash = hash * 31 + linearConfigurationControl.IsActive.GetHashCode();
-                }
-
-                else if (action is CirclePathMode circlePathMode)
-                {
-                    hash = hash * 31 + circlePathMode.Mode.GetHashCode();
-                }
-
-                else if (action is WaitTime waitTime)
-                {
-                    hash = hash * 31 + waitTime.Duration.GetHashCode();
-                }
-
-                else if (action is Movement movement)
-                {
-                    if (movement.Target != null)
-                    {
-                        hash = hash * 31 + movement.Target.ToRAPID().GetHashCode();
-                    }
-                }
+                // Everything in the action that changes the path or its timing: movement type,
+                // speed, zone, time, tool, work object, ... (the target alone wasn't enough).
+                hash = hash * 31 + HelperMethods.GetPathRelevantHash(action, robot);
             }
             return hash;
         }
