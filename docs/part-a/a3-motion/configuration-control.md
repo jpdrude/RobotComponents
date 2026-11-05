@@ -9,7 +9,8 @@ description: Switch the controller's arm-configuration check on or off for MoveJ
 <span class="rc-badge rc-badge--verified">RAPID syntax checked on IRB 1200 · RobotWare 6.10</span>
 
 A six-axis robot can usually reach a target in several ways: elbow up or down, wrist
-flipped or not. A target's [[Configuration Data]] says which one you want. With
+flipped or not (the [RAPID primer](../../part-b/b0-rapid-primer.md#arm-configuration-confdata) shows
+them). A target's [[Configuration Data]] says which one you want. With
 **configuration control on** (the default), the controller checks that the robot really
 arrives in that configuration and stops with an error if it can't. With it **off**, the
 controller picks the configuration nearest to where the robot is. That's convenient, but

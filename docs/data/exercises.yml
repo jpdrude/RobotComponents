@@ -63,4 +63,4 @@ part-b/b3-flow-control:
     solution: "*From* `3`, *To* `0`. RAPID's FOR counts down by itself when *From* > *To* (checked on the Virtual Controller)."
   - level: 2
     task: "Repeat the row until the operator says stop, instead of a fixed number of times."
-    solution: "Wrap the row in a [[While Loop]] with a [[abb:bool]] condition and end it from a [[Message Box]], as in the [operator loop](../b5-operator-interaction/message-box.md). Remember to wire something into **every** button."
+    solution: "Wrap the row in a [[While Loop]] with a [[abb:bool]] condition and end it from a [[Message Box]], as in the [operator loop](../b5-operator-interaction/message-box.md)."

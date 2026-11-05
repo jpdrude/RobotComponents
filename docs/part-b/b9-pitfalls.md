@@ -19,7 +19,6 @@ Grasshopper.
 | **Work Object on a Move doesn't convert targets.** World coordinates get offset by the work object a second time. | Give the [[Robot Target]] the work object's plane as *Reference Plane*. | [[Work Object]] |
 | **Nested loops share the counter `i`.** | Give the outer [[For Loop]] its own [[RAPID Variable]] counter. | [[For Loop]] |
 | **Move *Type* unconnected = MoveAbsJ.** | Always connect [[Movement Types]]. | [[Move]] |
-| **Negative configuration quadrants become `0`** in [[Configuration Data]]. | Check the generated robtarget; take the configuration from [[Inverse Kinematics]] directly. | [[Configuration Data]] |
 | **The path preview doesn't follow a new movement type or speed.** [[Path Generator]] and [[Timed Path Generator]] keep the old path and time. | Nudge *Interpolations* / *Time Interval* after changing a [[Move]]'s type or speed. | [[Path Generator]] |
 
 ## Programs that don't load

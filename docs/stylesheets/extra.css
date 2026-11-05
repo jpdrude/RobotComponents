@@ -48,3 +48,10 @@
 
 /* Page number after links to ABB's manuals ([[abb:...]]): many PDF viewers ignore #page=N */
 .rc-abb-page { color: var(--md-default-fg-color--light); font-size: 0.85em; white-space: nowrap; }
+
+/* Side-by-side robot pose images with captions (two per row, one on phones) */
+.rc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem 1.2rem; margin: 1em 0; }
+.rc-grid figure { margin: 0; }
+.rc-grid img { width: 100%; border-radius: 0.2rem; }
+.rc-grid figcaption { font-size: 0.72rem; margin-top: 0.3em; max-width: none; }
+@media screen and (max-width: 44.9375em) { .rc-grid { grid-template-columns: minmax(0, 1fr); } }

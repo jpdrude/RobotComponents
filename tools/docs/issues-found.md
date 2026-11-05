@@ -27,7 +27,7 @@ Not published on the wiki site.
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | open |
-| 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | open |
+| 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
 | 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | open |
@@ -386,6 +386,21 @@ convention it was written for, but not ABB's cfx definition for other robot fami
 **Fix ideas:** use a nullable/optional input or a separate sentinel (e.g. leave the input empty)
 for "not provided" instead of `< 0`; never clamp provided values; only compute CFX when the
 robot is a CRB 15000 (or document which robots it's for).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** the component mixed up two things. cf1/cf4/cf6 are
+axis quadrants (`floor(angle / 90)`, negative is normal); cfx is the 3-bit posture (bit 2 wrist
+center behind axis 1, bit 1 behind the lower arm, bit 0 axis 5 negative), the same order
+`IkGeoSolver` sorts its solutions by (its local `Cf1/Cf4/Cf6` are those bits, not quadrants,
+which is probably where the mix-up came from). Neither can be derived from the other.
+Configuration Data now passes all four through (defaults 0, a remark if CFX is outside 0..7)
+with a new GUID; the old one is frozen as `Obsolete/v8/ConfigurationDataComponent_OBSOLETE`
+with `Upgraders/v8/ConfigurationDataComponentUpgrader` (wires + typed values, old `-1` "unset"
+becomes 0). New component **Configuration Number** builds cfx from Shoulder/Elbow/Wrist
+booleans. Bit meanings checked on the VC with `CRobT` (a5 −30° → cfx 1, a2 −90° → 4,
+a3 −100° → 6; the four in-limit IK solutions of one target read back as cfx 0, 1, 6, 7 matching
+Robot Components' IK order). Effect of the old clamping shown on the VC: from axis 6 at −309.8°,
+`MoveJ` to the same target with `cf6 = 0` instead of `-4` turns axis 6 a full revolution; `MoveL`
+stops with 50442. Wiki: new primer section *Arm configuration: confdata* with pose renders.
 
 ---
 

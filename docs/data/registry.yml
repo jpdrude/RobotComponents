@@ -40,6 +40,9 @@ components:
   "Configuration Data":
     icon: assets/icons/rc/configuration-data.png
     page: part-a/a2-targets/configuration-data.md
+  "Configuration Number":
+    icon: assets/icons/rc/configuration-number.png
+    page: part-a/a2-targets/configuration-data.md#configuration-number
   "Connect Interrupt":
     icon: assets/icons/rc/connect-interrupt.png
     page: part-b/b6-interrupts/connect-interrupt.md
