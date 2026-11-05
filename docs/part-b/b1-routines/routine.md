@@ -99,9 +99,11 @@ ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Routine declarations|r
     connected to the argument's *Variable* once per value. The body is duplicated and the
     routine is declared twice, so the module won't load. Use a [[Routine Call]] for the values.
 
-!!! bug "Don't pass a Robot Target as an argument value"
-    It ends up as `visit Robot Target (pickA_0);` (not RAPID), and the target isn't declared.
-    Pass numbers and build the target inside the routine with [[Offset Target]], as above.
+!!! info "Robot Targets as values"
+    A Robot Target (or Joint Target, joint position, Configuration Data) on the argument's *Value* or a [[Routine Call]]'s *Argument Value* is written
+    as its value, e.g. `visit [[400, -100, 300], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`, so
+    it needs no declaration. An `INOUT` or `PERS` parameter needs a variable instead: pass a
+    [[RAPID Variable]].
 
 !!! info "Routines and the Path Generator"
     Movements inside a routine whose targets depend on arguments only exist on the

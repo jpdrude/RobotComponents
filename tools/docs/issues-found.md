@@ -20,7 +20,7 @@ Not published on the wiki site.
 | 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | open |
 | 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
-| 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
+| 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
 | 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
@@ -243,6 +243,16 @@ Routine; wire the Routine's *Routine Call* into the RAPID Generator.
 inline RAPID value if unnamed) and make sure named declarations reach the generator.
 **Workaround used in the wiki:** pass numbers (or text) and build targets inside the routine
 with Offset Target.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** new `HelperMethods.ResolveRAPIDArgumentValue`: like
+`ResolveRAPIDValueExpression`, but Robot Target / Joint Target / Robot and External Joint Position /
+Configuration Data are written as their values (Robot/Joint Target via `ToRAPID(false)` from #1), so
+no declaration is needed. Used by Routine Argument (instead of `ToString()`) and Routine Call (which
+had the related gap: a named target resolved to an undeclared name). `INOUT`/`PERS` parameters still
+need a RAPID Variable (documented). `visit [[400, -100, 300], …];` into `PROC visit(robtarget p)`
+runs on the VC. **Not run as a component in Rhino:** it needs the new RobotComponents.ABB.dll
+loaded (`ToRAPID(bool)`), which a from-bytes copy can't provide; check once the build is installed.
+The shared resolver was deliberately not changed: tool/wobj in CRobT, Offs and Assign need names.
 
 ---
 

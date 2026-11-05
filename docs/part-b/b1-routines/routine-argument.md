@@ -35,9 +35,11 @@ Full example: [[Routine]].
     duplicates the routine (see [[Routine]] → Gotchas). For several calls, leave *Value* empty and
     use a [[Routine Call]] component.
 
-!!! bug "Robot Targets as values don't work yet"
-    A Robot Target on *Value* is written as `Robot Target (name)` instead of its RAPID name.
-    Pass numbers or text instead.
+!!! info "Robot Targets as values"
+    A Robot Target (or Joint Target, joint position, Configuration Data) on *Value* is written
+    as its value, e.g. `visit [[400, -100, 300], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`, so
+    it needs no declaration. An `INOUT` or `PERS` parameter needs a variable instead: pass a
+    [[RAPID Variable]].
 
 ## See also
 

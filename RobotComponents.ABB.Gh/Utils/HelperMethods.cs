@@ -215,6 +215,37 @@ namespace RobotComponents.ABB.Gh.Utils
         }
 
         /// <summary>
+        /// Resolves a routine argument value to RAPID text. Like <see cref="ResolveRAPIDValueExpression"/>,
+        /// except that robot targets, joint targets, robot/external joint positions and configuration
+        /// data are always written as their values, never by name.
+        /// </summary>
+        /// <param name="raw"> The raw value, either an <see cref="IGH_Goo"/> or an already-unwrapped object. </param>
+        /// <returns> The RAPID text for <paramref name="raw"/>, or null if <paramref name="raw"/> is null. </returns>
+        public static string ResolveRAPIDArgumentValue(object raw)
+        {
+            // Target data passed as a routine argument is written as its value. By name it would
+            // need a declaration, and nothing declares a target that is only used as an argument
+            // (the call is plain text). A value is always valid for a by-value argument.
+            object value = raw is IGH_Goo goo ? goo.ScriptVariable() : raw;
+
+            switch (value)
+            {
+                case RobotTarget robotTarget:
+                    return robotTarget.ToRAPID(false);
+                case JointTarget jointTarget:
+                    return jointTarget.ToRAPID(false);
+                case RobotJointPosition robotJointPosition:
+                    return robotJointPosition.ToRAPID();
+                case ExternalJointPosition externalJointPosition:
+                    return externalJointPosition.ToRAPID();
+                case ConfigurationData configurationData:
+                    return configurationData.ToRAPID();
+                default:
+                    return ResolveRAPIDValueExpression(raw);
+            }
+        }
+
+        /// <summary>
         /// Resolves an arbitrary input value (typically read via <c>DA.GetData(i, ref object)</c>) to the
         /// RAPID text it should contribute to generated code, e.g. an argument value or the right-hand side
         /// of an assignment. A RAPID declaration/variable (Robot Target, Speed Data, RAPID Variable, ...) is

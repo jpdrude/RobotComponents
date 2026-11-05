@@ -101,8 +101,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!string.IsNullOrEmpty(keyword))
                 keyword = keyword.ToUpper().Trim();
 
+            // ToString() gave display text such as "Robot Target (pickA_0)" for Robot Components data.
             if (valueObject != null)
-                value = valueObject.ToString();
+                value = HelperMethods.ResolveRAPIDArgumentValue(valueObject) ?? "null";
 
             // Resolve the argument keyword to a RAPIDVariableKeyword (defaults to VAR for
             // unmarked / by-value arguments, which behave as plain local variables in the body).
