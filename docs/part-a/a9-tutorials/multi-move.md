@@ -72,11 +72,6 @@ SyncMoveOff apart;                              SyncMoveOff apart;
     Grasshopper checks neither collisions between the robots nor with the cell. Check in
     RobotStudio.
 
-## Known issue
-
-The three sync components show an error badge (*"After Solution exception"*) on every solve.
-The generated RAPID is correct, but duplicate Sync IDs aren't detected; see [[Wait Sync Task]].
-
 ## See also
 
 [[Task List]] · [[Wait Sync Task]] · [[Sync Move On]] · [[Sync Move Off]]

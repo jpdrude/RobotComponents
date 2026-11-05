@@ -44,7 +44,6 @@ The controller rejects the module, usually with load error 40322 and a line numb
 | *"Recursive data stream found"* around a [[For Loop]]. | Don't wire the loop's *Counter* output into its own body; use a [[RAPID Variable]] counter. | [Array tutorial](b8-tutorials/array-offsets.md) |
 | *"A Joint Target cannot be combined with a MoveL…"* on a [[Move]] that has no joint target. | The Move's *Target* got no data; fix whatever feeds it. | [[Move]] |
 | *"Routine variables cannot be global. Scope set to LOCAL."* | Level `Routine` data is always local. Set Scope `LOCAL`. | [[RAPID Variable]] |
-| *"After Solution exception: Object reference not set…"* on [[Sync Move On]], [[Sync Move Off]] or [[Wait Sync Task]]. | The RAPID is still correct; use a different Sync ID for every sync point, since duplicates aren't detected. | [[Wait Sync Task]] |
 
 ## What the simulation can't know
 

@@ -25,10 +25,10 @@ WaitSyncTask \InPos, sync1, allTasks;
 Wait Sync Task (same *Sync ID*, same [[Task List]]) into every task's program at the matching
 point. ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:WaitSyncTask]], [[abb:syncident]]).
 
-!!! bug "Known issue: error badge on the component"
-    The component shows *"After Solution exception: Object reference not set…"* on every
-    solve. The generated RAPID is still correct, but duplicate Sync IDs aren't detected. Use a
-    different Sync ID for every meeting point.
+!!! tip "One component per sync point, shared by all tasks"
+    Wire the same component into every task's [[RAPID Generator]], as in the
+    [Multi Move tutorial](../a9-tutorials/multi-move.md). A second component with the same
+    *Sync ID* shows *"The variable name "…" is already in use."*
 
 ## See also
 

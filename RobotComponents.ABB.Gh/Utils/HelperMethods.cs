@@ -26,6 +26,7 @@ using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Gh.Goos.Actions;
 using RobotComponents.ABB.Gh.Goos.Definitions;
 
 namespace RobotComponents.ABB.Gh.Utils
@@ -35,6 +36,44 @@ namespace RobotComponents.ABB.Gh.Utils
     /// </summary>
     internal static class HelperMethods
     {
+        #region typed action trees
+        /// <summary>
+        /// Rebuilds a typed data tree from an output that carries actions (Param_Action), keeping
+        /// the paths and the very same action objects.
+        /// </summary>
+        /// <remarks>
+        /// Components whose output became Param_Action still keep a typed tree for their
+        /// after-solve bookkeeping (unique names, object manager). Casting the volatile data to
+        /// that typed structure returns null, because the output now holds GH_Action items.
+        /// The wrapped objects are the output's own, so renaming them (e.g. SyncID) changes the
+        /// output data as before.
+        /// </remarks>
+        /// <typeparam name="T"> The action type, e.g. SyncMoveOn. </typeparam>
+        /// <typeparam name="TGoo"> The goo type of the typed tree, e.g. GH_SyncMoveOn. </typeparam>
+        /// <param name="output"> The output parameter. </param>
+        /// <param name="wrap"> Wraps an action in its goo without copying it. </param>
+        /// <returns> The typed tree. </returns>
+        public static GH_Structure<TGoo> GetTypedActionTree<T, TGoo>(IGH_Param output, Func<T, TGoo> wrap)
+            where T : class
+            where TGoo : IGH_Goo
+        {
+            GH_Structure<TGoo> tree = new GH_Structure<TGoo>();
+
+            foreach (GH_Path path in output.VolatileData.Paths)
+            {
+                foreach (object item in output.VolatileData.get_Branch(path))
+                {
+                    if (item is GH_Action action && action.Value is T value)
+                    {
+                        tree.Append(wrap(value), path);
+                    }
+                }
+            }
+
+            return tree;
+        }
+        #endregion
+
         #region action output
         /// <summary>
         /// Sets a list of actions on an output without the extra data-tree level Grasshopper

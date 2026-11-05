@@ -90,7 +90,7 @@ namespace RobotComponents.ABB.Gh.Utils
                         // Duplicate varialble name
                         if (_names.Contains(managedComponent.ToRegister[i]))
                         {
-                            component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The variable name \"" + managedComponent.ToRegister[i] + "\" is aleady in use.");
+                            component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The variable name \"" + managedComponent.ToRegister[i] + "\" is already in use.");
                             managedComponent.IsUnique = false;
                             managedComponent.LastName = "";
                             break;

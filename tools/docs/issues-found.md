@@ -28,7 +28,7 @@ Not published on the wiki site.
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
-| 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
+| 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | fixed (`fix/wiki-issues`) |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
 | 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | fixed (`fix/wiki-issues`) |
 | 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | open |
@@ -467,6 +467,15 @@ fork-only. A grep over all `Param_Action` components found only these three.
 
 **Fix:** cast to `GH_Structure<GH_Action>` and read the sync ID from
 `(item.Value as SyncMoveOn)?.SyncID` (etc.), like the other refactored components do.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** no other component had a typed `_tree` on a `Param_Action`
+output, so there was no pattern to copy. New `HelperMethods.GetTypedActionTree<T, TGoo>` rebuilds the
+typed tree from the `GH_Action` items (same paths, same objects, so the SyncID renaming still changes
+the output), used by all three components. Checked in Rhino (new .gha from bytes): no exception,
+RAPID unchanged; two Sync Move On with `sync1` → the second warns *"The variable name "sync1" is
+already in use."* (the typo "aleady" in `ObjectManager` fixed on the way); one component with two IDs
+→ `sync1_0`, `sync2_1` as before. The intended use is one shared component per sync point (as in the
+Multi Move tutorial), so the warning doesn't fire on correct definitions.
 
 ---
 
