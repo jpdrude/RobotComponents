@@ -58,11 +58,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             pManager.AddTextParameter("Keyword", "K", "Optional Argument keyword (INOUT, PERS)", GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Argument Data Type", GH_ParamAccess.item);
             pManager.AddTextParameter("Name", "N", "Argument Name", GH_ParamAccess.item);
-            // List access: one Routine Argument is one parameter, so the component must run once per
-            // branch even when several values arrive (an item input would make one argument, and one
-            // Variable, per value and duplicate the routine). Access isn't stored in .gh files.
-            pManager.AddGenericParameter("Value", "V", "Argument value for the Routine's own Routine Call output (one value). " +
-                "To call the routine with several values, use a Routine Call component.", GH_ParamAccess.list);
+            pManager.AddGenericParameter("Value", "V", "Argument Value", GH_ParamAccess.item);
 
             pManager[0].Optional = true;
             pManager[3].Optional = true;
@@ -91,22 +87,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             string type = "";
             string name = "";
             string value = "null";
-            List<object> valueObjects = new List<object>();
+            object valueObject = null;
 
             // Catch the input data
             if (!DA.GetData(0, ref keyword)) {}
             if (!DA.GetData(1, ref type)) { return; }
             if (!DA.GetData(2, ref name)) { return; }
-            if (!DA.GetDataList(3, valueObjects)) {}
-
-            if (valueObjects.Count > 1)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    "A Routine Argument is one parameter: only the first value is used. " +
-                    "To call the routine with several values, use a Routine Call component with the list on its Argument Value.");
-            }
-
-            object valueObject = valueObjects.Count > 0 ? valueObjects[0] : null;
+            if (!DA.GetData(3, ref valueObject)) {}
 
             type = type.Trim();
             name = name.Trim();

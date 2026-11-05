@@ -94,10 +94,11 @@ ABB's reference: [RAPID kernel][abb-kernel] ([[abb-kernel:Routine declarations|r
 
 ## Gotchas
 
-!!! warning "Several calls: use Routine Call"
-    The Routine's own *Routine Call* output makes one call, with the arguments' *Value*. A list
-    on a Routine Argument's *Value* uses only the first value (with a warning). For several
-    calls, wire the values into a [[Routine Call]].
+!!! warning "One routine per argument value"
+    A list on a [[Routine Argument]]'s *Value* gives one argument per value, so Grasshopper
+    builds the routine once per value, with everything connected to the argument's *Variable*.
+    Two `PROC` with the same name don't load. For several calls with different values, leave
+    *Value* empty and wire the values into a [[Routine Call]].
 
 !!! info "Robot Targets as values"
     A Robot Target (or Joint Target, joint position, Configuration Data) on the argument's *Value* or a [[Routine Call]]'s *Argument Value* is written

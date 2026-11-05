@@ -30,10 +30,11 @@ Full example: [[Routine]].
 
 ## Gotchas
 
-!!! warning "*Value* is for a single call"
-    *Value* is the value for the Routine's own *Routine Call* output. With a list, only the
-    first value is used and the component warns. For several calls, use a [[Routine Call]]
-    component with the list on its *Argument Value*.
+!!! warning "A list on *Value* makes one argument per value"
+    Like any Grasshopper component, Routine Argument runs once per value: a list gives one
+    argument (and one *Variable*) per value, so the [[Routine]] is built once per value too
+    (see [[Routine]] → Gotchas). *Value* is meant for the Routine's own single call. For several
+    calls, leave *Value* empty and use a [[Routine Call]] component.
 
 !!! info "Robot Targets as values"
     A Robot Target (or Joint Target, joint position, Configuration Data) on *Value* is written
