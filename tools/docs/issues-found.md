@@ -13,7 +13,7 @@ Not published on the wiki site.
 | 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | fixed (`fix/wiki-issues`) |
 | 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | by design (documented) |
 | 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | by design (documented) |
-| 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
+| 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | fixed (`fix/wiki-issues`) |
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
 | 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | fixed (`fix/wiki-issues`) |
@@ -163,6 +163,12 @@ private `_robotPreset` field via reflection before adding.
 
 **Ideas:** only show the form from the canvas/UI path (e.g. on placement via the toolbar),
 or expose a settable preset property for scripting.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** the picker only opens when the component is in the active
+canvas's document (placement from the toolbar, right-click → Pick Robot Preset). In any other
+document it adds the remark "No robot preset picked yet. Right-click → Pick Robot Preset." and
+outputs nothing. Checked in Rhino with a separate document: no dialog, remark shown. The canvas
+path is unchanged (not testable from a script without blocking Rhino).
 
 ---
 
