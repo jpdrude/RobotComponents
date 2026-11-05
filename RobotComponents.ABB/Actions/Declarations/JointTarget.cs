@@ -352,8 +352,22 @@ namespace RobotComponents.ABB.Actions.Declarations
         /// </returns>
         public string ToRAPID()
         {
-            string robotJointPosition = _robotJointPosition.Name == "" ? _robotJointPosition.ToRAPID() : _robotJointPosition.Name;
-            string externalJointPosition = _externalJointPosition.Name == "" ? _externalJointPosition.ToRAPID() : _externalJointPosition.Name;
+            return ToRAPID(true);
+        }
+
+        /// <summary>
+        /// Returns the Joint Target in RAPID code format.
+        /// </summary>
+        /// <param name="useNames">
+        /// True to refer to a named Robot Joint Position and External Joint Position by name (valid in
+        /// instructions); false to always write their values. A declaration's initial value must be
+        /// a literal or a CONST, so it can't refer to another VAR or PERS.
+        /// </param>
+        /// <returns> The RAPID data string. </returns>
+        public string ToRAPID(bool useNames)
+        {
+            string robotJointPosition = !useNames || _robotJointPosition.Name == "" ? _robotJointPosition.ToRAPID() : _robotJointPosition.Name;
+            string externalJointPosition = !useNames || _externalJointPosition.Name == "" ? _externalJointPosition.ToRAPID() : _externalJointPosition.Name;
             string code = $"[{robotJointPosition}, {externalJointPosition}]";
 
             return code;
@@ -371,7 +385,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             if (_name != "")
             {
                 string result = _scope == Scope.GLOBAL ? "" : $"{Enum.GetName(typeof(Scope), _scope)} ";
-                result += $"{Enum.GetName(typeof(VariableType), _variableType)} {_datatype} {_name} := {ToRAPID()};";
+                result += $"{Enum.GetName(typeof(VariableType), _variableType)} {_datatype} {_name} := {ToRAPID(false)};";
 
                 return result;
             }

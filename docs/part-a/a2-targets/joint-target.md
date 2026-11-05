@@ -21,22 +21,13 @@ A `jointtarget` is the six robot joints plus the six external axes:
 VAR jointtarget home := [[0, 0, 0, 0, 30, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];
 ```
 
-Robot Components currently writes the robot joints by name instead of these numbers, which
-the controller rejects; see Gotchas.
+The [[Robot Joint Position]] has a name of its own (`home_rj`), and it is declared too. The
+`jointtarget` declaration still contains its **values**, not its name: the value after `:=`
+must be a literal or a `CONST` (see the [primer](../../part-b/b0-rapid-primer.md#data-three-kinds-of-storage)).
+Where a Robot Joint Position is used directly in an instruction, it is written by name:
+`MoveAbsJ [home_rj, [9E9, …]], …`.
 
 ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:jointtarget]]).
-
-## Gotchas
-
-!!! bug "Known issue: does not load with a named Robot Joint Position"
-    Robot Components writes the robot joints **by name**:
-    `VAR jointtarget home := [home_rj, [9E9, …]];`. RAPID only accepts constant values in a
-    `VAR` declaration, so the controller rejects the module (checked on a Virtual Controller).
-    The *Name* of [[Robot Joint Position]] is required, so this always happens.
-
-    **Workaround:** without external axes, skip the Joint Target and wire the
-    [[Robot Joint Position]] directly into the [[Move]]. It is then written inline
-    (`MoveAbsJ [home, [9E9, …]], …`) and loads.
 
 ## See also
 

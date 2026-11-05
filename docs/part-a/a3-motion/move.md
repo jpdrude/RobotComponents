@@ -139,13 +139,6 @@ do on the controller, ABB documents [[abb:MoveAbsJ]], [[abb:MoveL]], [[abb:MoveJ
     *Reference Plane*. The Move warns when a target looks like it is in world coordinates. See
     [[Work Object]] → Gotchas.
 
-!!! bug "Known issue: Joint Target with a named Robot Joint Position does not load"
-    [[Joint Target]] → [[Move]] produces `VAR jointtarget home := [home_rj, …];`. RAPID only
-    accepts constant values in a `VAR` declaration, so the controller rejects the module (load
-    error at that line). This affects the upstream project too.
-    **Workaround:** wire the [[type:Robot Joint Position]] directly into the Move's *Target*, as
-    in the example above; it is then written inline in the `MoveAbsJ` line.
-
 ## See also
 
 [[Robot Target]] · [[Speed Data]] · [[Zone Data]] · [[Path Generator]] · [[RAPID Generator]]

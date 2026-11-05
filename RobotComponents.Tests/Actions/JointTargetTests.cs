@@ -86,6 +86,17 @@ namespace RobotComponents.Tests.Actions
         }
 
         [Fact]
+        public void ToRAPIDDeclaration_NamedRobotJointPosition_WritesValuesNotName()
+        {
+            // A declaration's initial value can't refer to another VAR (load error 40322).
+            RobotJointPosition rjp = new RobotJointPosition("home_rj", 0, 0, 0, 0, 30, 0);
+            JointTarget jt = new JointTarget("home", rjp);
+
+            Assert.Equal("VAR jointtarget home := [[0, 0, 0, 0, 30, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];", jt.ToRAPIDDeclaration(null));
+            Assert.Equal("[home_rj, [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]]", jt.ToRAPID());
+        }
+
+        [Fact]
         public void ToRAPIDDeclaration_Unnamed_ReturnsEmpty()
         {
             RobotJointPosition rjp = new RobotJointPosition(0, 0, 0, 0, 0, 0);

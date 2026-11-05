@@ -27,7 +27,7 @@ The controller rejects the module, usually with load error 40322 and a line numb
 
 | Trap | Fix | Details |
 |---|---|---|
-| A `VAR` declaration whose value refers to another `VAR`: [[Joint Target]] with a [[Robot Joint Position]] does this. | Wire the Robot Joint Position straight into the [[Move]]. | [[Joint Target]] |
+| A `VAR` declaration whose value refers to another `VAR`, e.g. a [[RAPID Variable]] whose *Value* is another variable. | Use a literal or a `CONST` as the initial value, and assign the other variable later with [[Assign Variable Value]]. | [Primer](b0-rapid-primer.md#data-three-kinds-of-storage) |
 | A list of values on a [[Routine Argument]] declares the routine twice. | Leave *Value* empty; make the calls with [[Routine Call]]. | [[Routine]] |
 | A [[type:Robot Target]] as routine argument value becomes `Robot Target (name)`. | Pass numbers; build the target inside the routine with [[Offset Target]]. | [[Routine]] |
 | A direct call to a routine in a module that [[Load Module]] only loads later. | Give the [[Routine Call]] the *Module Name*: the call is then late-bound. | [[Routine Call]] |

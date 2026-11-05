@@ -66,7 +66,9 @@ ABB's reference: [[abb-kernel:Variable declarations|variable]], [[abb-kernel:Per
 !!! warning "Initial values must be constants"
     The value after `:=` in a declaration must be a **literal or a `CONST`**, never another
     `VAR`. `VAR jointtarget j := [home, …];` (where `home` is a `VAR`) is rejected
-    when the module loads. That is exactly the [known Joint Target issue](../part-a/a2-targets/joint-target.md#gotchas).
+    when the module loads. Robot Components' own declarations ([[Joint Target]],
+    [[Robot Target]]) therefore write the values of their named parts, not their names. In
+    an instruction, names are fine: `MoveAbsJ [home, …], …` loads.
 
 ### Scope: who can see it
 

@@ -9,7 +9,7 @@ Not published on the wiki site.
 
 | # | Sev | Area | Title | Status |
 |---|---|---|---|---|
-| 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | open |
+| 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | fixed (`fix/wiki-issues`) |
 | 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | open |
 | 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | open |
 | 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | open |
@@ -66,6 +66,16 @@ or declare referenced robjoint/extjoint as `CONST`.
 
 **To check with the same fix:** a named External Joint Position inside a Joint Target, and
 a Robot Target with a named Configuration Data (same pattern may apply).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** confirmed for Robot Target too: `VAR robtarget p :=
+[…, cfg, ej];` fails with 40322 at `cfg` (line 4, col 54). `JointTarget.ToRAPID(bool useNames)` and
+`RobotTarget.ToRAPID(bool useNames)`: declarations (`ToRAPIDDeclaration`) write the values of named
+Robot Joint Position / External Joint Position / Configuration Data; `ToRAPID()` (inline in
+instructions, Offs, …) still uses the names, which is valid there. The named parts are still declared.
+New output (`VAR jointtarget home := [[0, 0, 0, 0, 30, 0], [9E9, …]];`, `VAR robtarget p := [[400, 0,
+400], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`) plus `MoveAbsJ home` / `MoveJ p` and the inline-by-name
+forms run on the VC. Unit tests added (JointTarget, RobotTarget; not run here, need Rhino).
+Upstream has the same code.
 
 ---
 
