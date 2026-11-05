@@ -26,7 +26,7 @@ them with [[abb:MoveL]]. Here the curve is a circle; swap it for any curve from 
 <span>[[RAPID Generator]]</span>
 </div>
 
-Plus Grasshopper: [[gh:Construct Point]] · *Circle* · *Divide Curve* · *List Item* · [[gh:XY Plane]] · [[gh:Number Slider]] · [[gh:Panel]]
+Plus Grasshopper: [[gh:Construct Point]] · [[gh:Circle]] · [[gh:Divide Curve]] · [[gh:List Item]] · [[gh:XY Plane]] · [[gh:Number Slider]] · [[gh:Panel]]
 
 <div class="rc-canvas" markdown>
 ![Grasshopper definition: a circle divided into 24 points becomes 24 downward targets; one Move goes to the first target with MoveJ, one traces all targets with MoveL z1, one returns to the first target with fine](../../assets/images/part-a/follow-curve-canvas.png)
@@ -36,13 +36,13 @@ Plus Grasshopper: [[gh:Construct Point]] · *Circle* · *Divide Curve* · *List 
 
 ## Step by step
 
-1. **The curve.** *Circle* with centre (420, 0, 300) and radius 100. Any curve works: reference
-   one from Rhino with a *Curve* parameter instead.
-2. **Points.** *Divide Curve* with *Count* 24 gives 24 points along it. More points follow
+1. **The curve.** [[gh:Circle]] with centre (420, 0, 300) and radius 100. Any curve works: reference
+   one from Rhino with a [[ghtype:Curve]] parameter instead.
+2. **Points.** [[gh:Divide Curve]] with *Count* 24 gives 24 points along it. More points follow
    the curve more closely.
 3. **Targets.** Each point → [[gh:XY Plane]] → [[Flip Plane X]] (tool down) →
    [[Robot Target]] named `c`, which gives `c_0` … `c_23`.
-4. **Approach.** *List Item* with index `0` picks the first target. A [[Move]] goes there
+4. **Approach.** [[gh:List Item]] with index `0` picks the first target. A [[Move]] goes there
    with [[abb:MoveJ]] and `fine`: get to the start quickly, then stop.
 5. **Trace.** One [[Move]] with **all** targets, `MoveL`, `v100`, zone **`z1`**: the robot
    blends through the points without stopping, so the motion is smooth.
@@ -76,7 +76,7 @@ points (here about 26 mm), or the robot cuts the curve short.
 - [ ] Set *Count* to 6. What shape does the robot actually draw, and why?
 
 ??? success "Solutions"
-    1. A *Curve* parameter (Params tab): right-click → *Set one Curve* and pick it in Rhino.
+    1. A [[ghtype:Curve]] parameter (Params tab): right-click → *Set one Curve* and pick it in Rhino.
        Mind the units: Robot Components works in mm.
     2. Wire the `MoveL` Move into *Actions* a second time, before the closing move. The targets
        are declared only once.

@@ -62,7 +62,7 @@ Examples: [Getting started](../../getting-started/index.md), [[Move]].
 
 !!! warning "Wire order is program order"
     Actions run in the order the wires were connected to *Actions*. To reorder, disconnect and
-    reconnect them, or collect them in a Grasshopper *Merge* component first, whose numbered
+    reconnect them, or collect them in a Grasshopper [[gh:Merge]] component first, whose numbered
     inputs make the order visible.
 
 ## See also

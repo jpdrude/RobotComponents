@@ -506,6 +506,36 @@ types:
     page: part-a/a3-motion/zone-data.md
 
 grasshopper:
+  "Boolean Toggle":
+    icon: assets/icons/gh/boolean-toggle.png
+    url: https://grasshopperdocs.com/components/grasshopperparams/booleanToggle.html
+  "Button":
+    icon: assets/icons/gh/button.png
+    url: https://grasshopperdocs.com/components/grasshopperparams/button.html
+  "Circle":
+    icon: assets/icons/gh/circle.png
+    url: https://grasshopperdocs.com/components/grasshoppercurve/circle.html
+  "Construct Domain":
+    icon: assets/icons/gh/construct-domain.png
+    url: https://grasshopperdocs.com/components/grasshoppermaths/constructDomain.html
+  "Divide Curve":
+    icon: assets/icons/gh/divide-curve.png
+    url: https://grasshopperdocs.com/components/grasshoppercurve/divideCurve.html
+  "List Item":
+    icon: assets/icons/gh/list-item.png
+    url: https://grasshopperdocs.com/components/grasshoppersets/listItem.html
+  "Merge":
+    icon: assets/icons/gh/merge.png
+    url: https://grasshopperdocs.com/components/grasshoppersets/merge.html
+  "Plane Origin":
+    icon: assets/icons/gh/plane-origin.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/planeOrigin.html
+  "Relay":
+    icon: assets/icons/gh/relay.png
+    url: https://grasshopperdocs.com/components/grasshopperparams/relay.html
+  "Rotate Plane":
+    icon: assets/icons/gh/rotate-plane.png
+    url: https://grasshopperdocs.com/components/grasshoppervector/rotatePlane.html
   "Construct Plane":
     icon: assets/icons/gh/construct-plane.png
     url: https://grasshopperdocs.com/components/grasshoppervector/constructPlane.html

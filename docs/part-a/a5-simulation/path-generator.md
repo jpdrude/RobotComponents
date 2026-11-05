@@ -38,14 +38,32 @@ but an estimate. The controller's acceleration and corner zones decide the real 
 | how [[abb:MoveJ]] and [[abb:MoveL]] paths differ | the exact path inside corner zones |
 | roughly how long the program takes | anything that is only known on the controller: [Part B](../../part-b/index.md) variables, `Offs(…, i * 100, …)`, operator input |
 
+!!! bug "Known issue: changing a Move's type or speed doesn't update the preview"
+    The Path Generator only recalculates when a **target**, the robot or *Interpolations*
+    changes. Switching a [[Move]] from `MoveL` to `MoveJ`, or its speed from `v200` to `v50`,
+    keeps showing the **old** path and *Program Time* (checked: the time stayed at 0.099 min
+    after switching the square to `v50`; the correct value is 0.395 min). The same applies to
+    the [[Timed Path Generator]]. **Until it's fixed**, nudge *Interpolations* (e.g. 5 → 6 → 5)
+    after such a change to force a recalculation.
+
 !!! tip "Hide the Robot Preset preview"
     [[Robot Preset]] draws its own robot in the home pose. Right-click it → *Preview* off,
     so only the animated robot is visible.
 
 ## Try it
 
-- [ ] Switch the square's movement type to `MoveJ` and compare the paths between the corners.
-- [ ] Add the *Error Messages* output and push the square out of reach (X slider to 600, Size to 300, so the far corners are 900 mm away). What does it say?
+- [ ] Switch the square's movement type to `MoveJ` and compare the paths between the corners. *(Nudge Interpolations afterwards; see the known issue above.)*
+- [ ] Add the *Error Messages* output and push the square out of reach (X slider to 600, Size to 300, so the far corners are at X = 900, about 1 m from the robot base). What does it say?
+
+??? success "Solutions"
+    1. With `MoveL` every edge is a straight 200 mm line. With `MoveJ` the tool tip curves away
+       from each edge, by about 9–10 mm in the middle (each edge becomes about 201 mm long), and the
+       move from the start pose to the first corner bulges by 73 mm. *Program Time* hardly changes
+       (0.096 → 0.099 min). That's why `MoveJ` is for getting somewhere, and `MoveL` for working
+       along a line.
+    2. *"Movement p_1\wobj0: The target is out of reach (elbow singularity)."* and the same for
+       `p_2`: the two corners at X = 900 (`p_0` and `p_3`, at X = 600, are still reachable). The
+       component also shows them as warnings.
 
 ## See also
 

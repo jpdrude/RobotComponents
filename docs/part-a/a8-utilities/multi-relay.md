@@ -10,7 +10,7 @@ description: Route many wires through one tidy point on the canvas without touch
 
 **Multi Relay** is pure canvas tidying: every input goes straight through to its matching
 output, unchanged. Use it to bundle long wires (the robot, the speed, the tool…) that cross
-a big definition, so the canvas stays readable, a bit like Grasshopper's Relay but for many
+a big definition, so the canvas stays readable, a bit like Grasshopper's [[gh:Relay]] but for many
 wires at once.
 
 [[io:Multi Relay]]

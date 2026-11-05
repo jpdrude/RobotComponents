@@ -34,7 +34,7 @@ and writes it into the target.
 
 1. **The track.** [[External Linear Axis]] named `TRACK_1`. *Attachment Plane* = World XY
    (the robot's position when the track is at 0), *Axis* = [[gh:Unit X]] (it travels along X),
-   *Axis Limits* = 0 to 9900 mm (a *Construct Domain*). This matches the controller's track.
+   *Axis Limits* = 0 to 9900 mm (a [[gh:Construct Domain]]). This matches the controller's track.
 2. **The robot.** [[Robot Preset]] *IRB4600-40/2.55*, with the track on its *External Axis* input.
 3. **Targets.** Three points at X = 1000, 4000, 7000 (Y 1200, Z 600) → [[gh:XY Plane]] →
    [[Flip Plane X]] → [[Robot Target]] `t`.

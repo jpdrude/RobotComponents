@@ -35,7 +35,7 @@ With ABB's **MultiMove**, one controller drives several robots, each with its ow
 ## Step by step
 
 1. **Two robots.** Two [[Robot Preset]]s (IRB1200-5/0.9): one at the origin, one at
-   X = 1000 turned 180° (*Rotate Plane*, angle in degrees).
+   X = 1000 turned 180° ([[gh:Rotate Plane]], angle in degrees).
 2. **One [[Task List]]** `allTasks` with `T_ROB1` and `T_ROB2`, shared by everything below.
 3. **Shared sync components:** [[Wait Sync Task]] (`ready`, *In Position* `True`),
    [[Sync Move On]] (`together`) and [[Sync Move Off]] (`apart`).

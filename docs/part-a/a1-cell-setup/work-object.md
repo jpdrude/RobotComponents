@@ -46,10 +46,10 @@ MoveL p_0, v100, fine, pen\WObj:=table;
 **Checked on a Virtual Controller** (IRB 1200-5/0.9, RobotWare 6.10): runs with no
 warnings, cycle time **10.5 s**.
 
-1. **The table:** a point (350, −150, 150) → [[gh:XY Plane]] → *Rotate Plane* by 30° (switch
+1. **The table:** a point (350, −150, 150) → [[gh:XY Plane]] → [[gh:Rotate Plane]] by 30° (switch
    its *Angle* input to **degrees**: right-click → *Degrees*) → [[Work Object]] named `table`.
 2. **The square on it:** a [[gh:Rectangle]] in the table plane → [[gh:Discontinuity]] gives the
-   corners → *Plane Origin* moves the table plane to each corner → [[Flip Plane X]] points the
+   corners → [[gh:Plane Origin]] moves the table plane to each corner → [[Flip Plane X]] points the
    tool down.
 3. **The targets:** [[Robot Target]] with right-click → **Reference Plane** = the table plane.
    This writes the coordinates **relative to the table**: `[0, 0, 0]`, `[100, 0, 0]`, ….

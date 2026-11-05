@@ -9,7 +9,7 @@ description: Pack a list of actions into one item and unpack it again.
 
 **Group Actions** packs a list of actions into a single [[type:Action Group]]. It travels
 through Grasshopper as **one item**, so a whole sequence ("approach, grip, retract") can be
-treated like a single step: copied into a list several times, picked with *List Item*,
+treated like a single step: copied into a list several times, picked with [[gh:List Item]],
 reordered. **Ungroup Actions** unpacks it again.
 
 ### Group Actions

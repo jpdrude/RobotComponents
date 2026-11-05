@@ -68,6 +68,16 @@ Move targets away from them.
 - [ ] Move the second target 150 mm forward (X 150). Does the warning disappear?
 - [ ] Find a target where the wrist singularity warning appears. *(Hint: joint 5 near 0°: tool axis parallel to the forearm.)*
 
+??? success "Solutions"
+    1. Yes. At (150, 0, 800) IK gives `[0.01, -42.62, 15.95, -0.01, 116.67, 0]` and no warning:
+       the wrist is no longer on axis 1, so axis 1 has a clear answer (0°) instead of an
+       arbitrary 88°.
+    2. Lower the first target to Z 0: (400, 0, 0), tool still pointing down. IK gives joint 5 =
+       0.01° and *"The robot is near a wrist singularity."* A sweep of tool-down targets
+       (X 200…1000, Z −200…1000, Y 0) found the same warning at (300, 0, 100) and at several
+       points with X 500–600 below Z 0: all low targets close in front of the robot, where the
+       forearm points straight down along the tool.
+
 ## See also
 
 [[Inverse Kinematics]] · [[Robot Preset]] · [[Path Generator]] · [[Configuration Data]]

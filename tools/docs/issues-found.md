@@ -31,6 +31,7 @@ Not published on the wiki site.
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
 | 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | open |
+| 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | open |
 
 ---
 
@@ -411,3 +412,26 @@ the Virtual Controller rejects the module with a syntax/semantic error at that l
 **Fix ideas:** write `AIO_ABOVE_HIGH, <value>, 0, 0` for a single value, or add a condition input
 (above high / below low / between / outside) with high and low values, like `WaitAI`'s
 *Inequality*. Remember the obsolete-snapshot pattern if inputs change.
+
+---
+
+## 23 🟠 Path Generator caches stale paths after a movement type or speed change
+
+**Found:** 2026-11-05 while writing the Path Generator Try-it solutions. In the Move square,
+switching the square's Move from `MoveL` to `MoveJ` left the path exactly straight (0.0 mm off
+the edges) and *Program Time* at 0.096 min. Switching its speed to `v50` left the time at
+0.099 min. Only after nudging *Interpolations* (5 → 6 → 5) did it recalculate: MoveJ edges 8.6–9.9
+mm off the straight line, approach 73 mm, time 0.395 min at `v50`.
+
+**Cause (verified in source):** `CreateInputHash` in `PathGeneratorComponent.cs` (added in
+`78c2c321`, fork-only) hashes a `Movement` only by `movement.Target.ToRAPID()`. Movement type,
+speed data, zone data, *Time*, work object, tool override and the DO of MoveLDO/MoveJDO are not in
+the hash, so `(update && inputHash != _lastInputHash) | !_calculated` stays false and the old
+`PathGenerator` result is reused. `TimedPathGeneratorComponent.CreateInputHash` has the same gap,
+which is worse there because its step timing depends on the speed. Toggling *Update* or F5
+(Recompute) doesn't help: `_calculated` stays true and the hash is unchanged.
+
+**Fix:** hash `movement.ToRAPIDInstruction(robot)` (covers type, speed, zone, tool, work object,
+time and DO) plus the target's RAPID, or simply `MovementType`, `SpeedData.ToRAPID()`,
+`ZoneData.ToRAPID()`, `Time`, `WorkObject.ToRAPID()`, `RobotTool?.ToRAPID()`; same in the Timed
+component.

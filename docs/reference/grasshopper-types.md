@@ -30,7 +30,7 @@ MoveL, `2` MoveJ, `3` MoveC), scopes, keywords, signal types. Use the drop-down 
 ## ![](../assets/icons/gh/param-boolean.png){ .rc-icon } Boolean { #boolean }
 
 `True` or `False`. Used for switches: *Update*, *Upload*, *Run*, *Is Active*, *In Position*.
-A *Boolean Toggle* or *Button* (Params tab) provides it; a button gives `True` only while
+A [[gh:Boolean Toggle]] or [[gh:Button]] (Params tab) provides it; a button gives `True` only while
 pressed.
 
 ## ![](../assets/icons/gh/param-plane.png){ .rc-icon } Plane { #plane }
@@ -61,7 +61,7 @@ and simulation.
 ## ![](../assets/icons/gh/param-domain.png){ .rc-icon } Domain { #domain }
 
 A range from one number to another (`0 To 9900`): axis limits, the input range of a
-[[Numeric Entry Box]]. *Construct Domain* (Maths tab) builds one; a [[gh:Panel]] with
+[[Numeric Entry Box]]. [[gh:Construct Domain]] (Maths tab) builds one; a [[gh:Panel]] with
 `0 To 300` works too.
 
 ## ![](../assets/icons/gh/param-generic-data.png){ .rc-icon } Generic Data { #generic-data }

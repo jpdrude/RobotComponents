@@ -18,8 +18,8 @@ The chain: [[Get Controller]] → [[Upload Program]] → [[Run Program]].
 [[io:Upload Program]]
 
 Set *Upload* to `True` to send the *Module* text to the controller. *Status* reports what
-happened. Use a Grasshopper **Button** (it is `True` only while you click it), not a Boolean
-Toggle that stays `True`, or every change in the definition uploads again.
+happened. Use a Grasshopper [[gh:Button]] (it is `True` only while you click it), not a
+[[gh:Boolean Toggle]] that stays `True`, or every change in the definition uploads again.
 
 ## Run Program
 
