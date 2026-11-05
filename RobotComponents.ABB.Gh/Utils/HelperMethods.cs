@@ -142,12 +142,24 @@ namespace RobotComponents.ABB.Gh.Utils
         /// branch as every other action. Several iterations on the same branch are appended in
         /// iteration order.
         /// </remarks>
+        /// <para>
+        /// SetDataTree appends to the output. If a component's solve runs again inside the running
+        /// solve (e.g. when it creates a value list on its first solve), both runs would write and the
+        /// actions would appear twice. So the output is emptied on the first iteration: a nested run's
+        /// data is discarded, and the following iterations append as usual.
+        /// </para>
         /// <typeparam name="T"> The item type. </typeparam>
+        /// <param name="component"> The component that sets the data. </param>
         /// <param name="DA"> The data access object of the current iteration. </param>
         /// <param name="index"> The output index. </param>
         /// <param name="data"> The actions to output. </param>
-        public static void SetActionList<T>(IGH_DataAccess DA, int index, IEnumerable<T> data)
+        public static void SetActionList<T>(GH_Component component, IGH_DataAccess DA, int index, IEnumerable<T> data)
         {
+            if (DA.Iteration == 0)
+            {
+                component.Params.Output[index].VolatileData.Clear();
+            }
+
             DataTree<T> tree = new DataTree<T>();
             tree.AddRange(data, DA.ParameterTargetPath(index));
             DA.SetDataTree(index, tree);

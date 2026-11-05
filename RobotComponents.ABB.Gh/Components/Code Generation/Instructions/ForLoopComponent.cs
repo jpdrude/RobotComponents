@@ -146,7 +146,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
             loopCode.Add(new CodeLine("ENDFOR", CodeType.Instruction));
 
-            HelperMethods.SetActionList(DA, 0, loopCode);
+            HelperMethods.SetActionList(this, DA, 0, loopCode);
             DA.SetData(1, new GH_RAPIDVariable(counter));
         }
 

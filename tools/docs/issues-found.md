@@ -225,6 +225,12 @@ texts) stay on that branch in item order; separate input branches stay separate.
 that flatten these outputs are unaffected (flattening `{0}` is a no-op). Behaviour change: a
 producer fed several items on one branch no longer grafts them into separate branches.
 
+**Follow-up (2026-11-05):** `SetDataTree` appends, so a component whose solve runs again inside the
+running solve (Routine creating its value lists on first placement) wrote its actions twice or three
+times (seen in the demo file: `go [...]` ×3 until F5). `SetActionList` now empties the output on
+iteration 0 before writing. Checked on a canvas: Routine call once right after the first solve;
+3 lines on one branch and two separate branches unchanged.
+
 ---
 
 ## 9 🟠 RAPID Variable *Variable* output into *Actions* crashes the RAPID Generator
