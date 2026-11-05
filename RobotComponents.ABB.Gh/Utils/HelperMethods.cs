@@ -23,6 +23,7 @@ using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Special;
 using Grasshopper.Kernel.Types;
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
 using RobotComponents.ABB.Gh.Goos.Definitions;
@@ -34,6 +35,35 @@ namespace RobotComponents.ABB.Gh.Utils
     /// </summary>
     internal static class HelperMethods
     {
+        #region action output
+        /// <summary>
+        /// Sets a list of actions on an output without the extra data-tree level Grasshopper
+        /// adds on its own.
+        /// </summary>
+        /// <remarks>
+        /// Grasshopper appends the iteration index to the path of every list output of a
+        /// component that has at least one item-access input ({0} becomes {0;0}, {0;0} becomes
+        /// {0;0;0}). For components that produce a block of RAPID actions (loops, IF, Code, ...)
+        /// that extra level is harmful: a Move outputs on {0}, an IF on {0;0}, and merged action
+        /// lists are then ordered by branch path instead of by wire order (and list-access
+        /// consumers run once per branch, e.g. one module or one loop per branch).
+        /// The index is appended inside SetDataList; ParameterTargetPath still returns the input
+        /// branch's path. Setting the list as a tree on that path keeps the actions on the same
+        /// branch as every other action. Several iterations on the same branch are appended in
+        /// iteration order.
+        /// </remarks>
+        /// <typeparam name="T"> The item type. </typeparam>
+        /// <param name="DA"> The data access object of the current iteration. </param>
+        /// <param name="index"> The output index. </param>
+        /// <param name="data"> The actions to output. </param>
+        public static void SetActionList<T>(IGH_DataAccess DA, int index, IEnumerable<T> data)
+        {
+            DataTree<T> tree = new DataTree<T>();
+            tree.AddRange(data, DA.ParameterTargetPath(index));
+            DA.SetDataTree(index, tree);
+        }
+        #endregion
+
         #region fields
         /// <summary>
         /// The RAPID comparison operator symbols, in the exact order of the ComparisonOperator

@@ -16,7 +16,6 @@ Grasshopper.
 
 | Trap | Fix | Details |
 |---|---|---|
-| **Program order follows data-tree branches, not wires.** Loops, IFs, [[Code]], [[Connect Interrupt]] and [[Message Box]] output one branch level deeper than a [[Move]]. With the generator's *Actions* flattened, actions get sorted by branch level first. | Flatten the **outputs** of those components instead of the generator input. | [Row tutorial](b8-tutorials/row-loop.md#step-by-step) |
 | **Work Object on a Move doesn't convert targets.** World coordinates get offset by the work object a second time. | Give the [[Robot Target]] the work object's plane as *Reference Plane*. | [[Work Object]] |
 | **Nested loops share the counter `i`.** | Give the outer [[For Loop]] its own [[RAPID Variable]] counter. | [[For Loop]] |
 | **Move *Type* unconnected = MoveAbsJ.** | Always connect [[Movement Types]]. | [[Move]] |

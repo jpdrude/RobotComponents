@@ -234,7 +234,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             //Set output data
-            DA.SetDataList(0, codeLines);
+            HelperMethods.SetActionList(DA, 0, codeLines);
         }
 
         #region menu items

@@ -255,7 +255,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             //Set Output
-            DA.SetDataList(0, msgBoxCode);
+            HelperMethods.SetActionList(DA, 0, msgBoxCode);
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ Not published on the wiki site.
 | 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
-| 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | open |
+| 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | fixed (`fix/wiki-issues`) |
 | 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | open |
 | 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
 | 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
@@ -169,6 +169,20 @@ action source) instead of the generator's input; everything is then on `{0}` and
 **Fix ideas:** have flow-control components output their action list on the same path as
 their input branch (no extra level), or have the RAPID Generator ignore branch structure for
 ordering (e.g. treat all *Actions* as one list in wire order unless multi-module is intended).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** cause is Grasshopper itself: a list output of a
+component with any item-access input gets the iteration index appended inside `SetDataList`
+(tested with native Series / Shift List: `{0}` → `{0;0}`, `{0;1}` → `{0;1;0}`), while
+`DA.ParameterTargetPath` still returns the un-appended path. New `HelperMethods.SetActionList`
+sets the list with `SetDataTree` on `ParameterTargetPath`; used by For Loop, While Loop, IF
+Statement, Message Box, Code, Comment, Connect Interrupt (*Connect Code*) and Routine (*Routine
+Call*). Checked in Rhino (new build loaded from bytes): everything on `{0}`, also nested loops;
+an unflattened RAPID Generator writes one module in wire order (`MoveAbsJ, MoveJ, FOR (FOR), IF,
+code, comment, WHILE`; the old build put the IF before the FOR); a While Loop body with a Move
+and an IF is one loop. Module passes `verify_syntax`. Several items on one branch (Code with 3
+texts) stay on that branch in item order; separate input branches stay separate. Existing files
+that flatten these outputs are unaffected (flattening `{0}` is a no-op). Behaviour change: a
+producer fed several items on one branch no longer grafts them into separate branches.
 
 ---
 

@@ -75,4 +75,4 @@ of [[Connect Interrupt]].
 *list of …* in a table means the input takes **many** items at once (e.g. *Actions*).
 Otherwise it takes one item, and Grasshopper repeats the component for each item you give it.
 That's how one [[Move]] makes four movements from four targets. *tree of …* keeps
-Grasshopper's branch structure; see the [flatten warning](../part-b/b8-tutorials/row-loop.md#step-by-step).
+Grasshopper's branch structure; see the [RAPID Generator's gotchas](../part-a/a6-generate-and-run/rapid-generator.md#gotchas).

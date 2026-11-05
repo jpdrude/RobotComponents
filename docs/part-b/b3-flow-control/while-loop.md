@@ -35,11 +35,11 @@ Full example: [[Message Box]] (operator-driven loop).
 
 ## Gotchas
 
-!!! warning "Flatten what goes in, and what comes out"
-    Actions on different data-tree branches give **one loop per branch**. In the example, the
-    [[Message Box]] on its own branch produced a second `WHILE` loop. Flatten the outputs that
-    feed the loop, and the loop's own output (see the
-    [row tutorial](../b8-tutorials/row-loop.md#step-by-step)).
+!!! warning "One loop per data-tree branch"
+    Actions on different data-tree branches give **one loop per branch**. All Robot Components
+    actions come out on the branch they were given, so this only happens when your own data
+    is split, e.g. Moves made from [[gh:Discontinuity]] points. Flatten that data, or the
+    loop's *Actions* input.
 
 ## See also
 

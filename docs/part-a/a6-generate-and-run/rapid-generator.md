@@ -56,9 +56,7 @@ Examples: [Getting started](../../getting-started/index.md), [[Move]].
 !!! warning "Several modules instead of one"
     The generator writes **one module per data-tree branch** of *Actions*. If actions arrive on
     different branches (e.g. points from [[gh:Discontinuity]]), you get several
-    `MODULE MainModule` blocks. Right-click *Actions* → **Flatten**. If you use loops or IFs
-    ([Part B](../../part-b/index.md)), flatten *their outputs* instead, so the order stays
-    right (see the [row tutorial](../../part-b/b8-tutorials/row-loop.md#step-by-step)).
+    `MODULE MainModule` blocks. Right-click *Actions* → **Flatten**.
 
 !!! warning "Wire order is program order"
     Actions run in the order the wires were connected to *Actions*. To reorder, disconnect and

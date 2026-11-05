@@ -89,7 +89,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
             loopCode.Add(new CodeLine("ENDWHILE", CodeType.Instruction));
 
-            DA.SetDataList(0, loopCode);
+            HelperMethods.SetActionList(DA, 0, loopCode);
         }
 
         #region properties

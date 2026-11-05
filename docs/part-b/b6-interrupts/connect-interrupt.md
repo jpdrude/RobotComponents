@@ -82,12 +82,6 @@ ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
     then `CONNECT int_p WITH pTrap;` and `ISignalAI aiPressure, AIO_ABOVE_HIGH, 2.5, 0, 0, int_p;`
     (fires when the value rises above 2.5; checked: loads).
 
-!!! warning "Flatten the outputs"
-    *Connect Code* (like [[Code]], loops and IF) outputs on a deeper data-tree branch than a
-    [[Move]] or [[Wait Time]]. Without flattening, the [[Wait Time]] wired *after* the interrupt
-    was generated *before* `CONNECT`. Right-click *Connect Code* → **Flatten**. See the
-    [row tutorial](../b8-tutorials/row-loop.md#step-by-step).
-
 !!! tip "Keep TRAP routines short"
     A TRAP interrupts the program. Set a flag or count, as here, and let `main` react,
     rather than moving the robot inside the TRAP.

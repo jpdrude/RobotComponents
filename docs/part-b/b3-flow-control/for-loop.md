@@ -58,12 +58,6 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
     body, or type its name (`i`) into a [[gh:Panel]] as in the
     [row tutorial](../b8-tutorials/row-loop.md). See [looping over an array](../b8-tutorials/array-offsets.md).
 
-!!! warning "Flatten the loop's output"
-    The loop puts its output one data-tree level deeper than a [[Move]]. If the
-    [[RAPID Generator]]'s *Actions* is flattened, actions can end up **in the wrong order**
-    around nested loops. Right-click the loop's *For Loop* output → **Flatten** instead. See
-    the [tutorial warning](../b8-tutorials/row-loop.md#step-by-step).
-
 ## See also
 
 [[While Loop]] · [[IF Statement]] · [[Offset Target]] · [[RAPID Variable]]

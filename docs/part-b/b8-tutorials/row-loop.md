@@ -86,14 +86,10 @@ warnings, cycle time **5.1 s**. (Header comments removed.)
 7. **Generate.** *Actions* of the [[RAPID Generator]], in order: the counter's declaration,
    the home Move, the base Move, the For Loop, the IF Statement. *Actions* is flattened.
 
-!!! warning "Wire order is not always program order"
-    [[For Loop]], [[While Loop]] and [[IF Statement]] put their output one data-tree level
-    deeper (`{0;0}`) than a [[Move]] (`{0}`); a loop inside a loop goes deeper still. When
-    the generator's *Actions* input is flattened, Grasshopper sorts by that level **before**
-    wire order. Here it happens to come out right. Once you nest loops (Try it 2), the
-    IF jumps in front of the loop.
-    **Fix:** instead of flattening the generator input, right-click the **output** of each
-    For Loop / While Loop / IF Statement → **Flatten**. Then wire order is program order.
+!!! info "Wire order is program order"
+    [[For Loop]], [[While Loop]], [[IF Statement]] and the other components that write a block
+    of RAPID output on the same data-tree branch as a [[Move]], also when loops are nested. The
+    order of the wires into *Actions* is the order of the program.
 
 !!! info "What the Path Generator can show"
     The offsets `i * 100` only exist on the controller. Grasshopper cannot know `i`, so the
@@ -109,8 +105,7 @@ warnings, cycle time **5.1 s**. (Header comments removed.)
 ??? success "Solutions"
     1. *To* becomes `5` and *Y* becomes `i * 50`.
     2. `j * 100`. The inner loop goes into the outer loop's *Actions*; the outer loop goes into
-       the generator in place of the inner one. Flatten the outer loop's and the IF's outputs (see
-       the warning above), otherwise the IF ends up before the loops. The result
+       the generator in place of the inner one. The result
        (`FOR j FROM 0 TO 1 DO FOR i FROM 0 TO 3 DO MoveL Offs(base, j * 100, i * 100, 0) …`)
        loads on the Virtual Controller.
     3. Directly into the [[RAPID Generator]]'s *Actions*, after the For Loop and before the IF Statement, instead of into the loop's *Actions*.

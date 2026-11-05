@@ -80,12 +80,6 @@ The `CASE` number is the button's position in the *Buttons* list. A button with 
 gets no `CASE`: pressing it just continues after `ENDTEST`. If no button has actions, no
 `TEST` is written at all, only the `UIMessageBox` call.
 
-## Gotchas
-
-!!! warning "Flatten the output inside loops"
-    Message Box outputs on a different data-tree branch than the other actions. In a
-    [[While Loop]] this produced **two** separate loops. Right-click *Message Box* → **Flatten**.
-
 ## See also
 
 [[Numeric Entry Box]] · [[While Loop]] · [[IF Statement]]
