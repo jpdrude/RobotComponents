@@ -79,6 +79,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 GH_ParamAccess.item);
             pManager.AddNumberParameter("Signal Value", "SV",
                 "Value of the signal that triggers the interrupt when the signal changes to this value. " +
+                "For analog signals (AI, AO) the interrupt fires when the signal rises above this value. " +
                 "If not connected, the interrupt fires on every change of the signal. " +
                 "Not used for group signals (GI, GO) and in Persistent Data mode: the RAPID ISignalGI, " +
                 "ISignalGO and IPers instructions have no triggering value and always fire on every change.",
@@ -167,7 +168,11 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // Without a Signal Value the interrupt fires on every change of the signal:
             // trigger value 2 (both edges) for digital signals, condition AIO_ALWAYS for analog signals.
             string digitalTrigger = hasSignalValue ? ((int)signalValue).ToString() : "2";
-            string analogTrigger = hasSignalValue ? signalValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : "AIO_ALWAYS, 0, 0, 0";
+            // ISignalAI/ISignalAO take Condition, HighValue, LowValue, DeltaValue: a single value is
+            // read as "rises above it" (AIO_ABOVE_HIGH), the low and delta values are then unused.
+            string analogTrigger = hasSignalValue
+                ? "AIO_ABOVE_HIGH, " + signalValue.ToString(System.Globalization.CultureInfo.InvariantCulture) + ", 0, 0"
+                : "AIO_ALWAYS, 0, 0, 0";
 
             // Optional override for the generated intnum variable name. Needed to connect more
             // than one interrupt to the same TRAP routine: the default int_<TrapRoutineName>

@@ -30,7 +30,7 @@ Not published on the wiki site.
 | 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
 | 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
 | 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
-| 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | open |
+| 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | fixed (`fix/wiki-issues`) |
 | 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | open |
 
 ---
@@ -477,6 +477,13 @@ the Virtual Controller rejects the module with a syntax/semantic error at that l
 **Fix ideas:** write `AIO_ABOVE_HIGH, <value>, 0, 0` for a single value, or add a condition input
 (above high / below low / between / outside) with high and low values, like `WaitAI`'s
 *Inequality*. Remember the obsolete-snapshot pattern if inputs change.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** a single *Signal Value* on AI/AO now writes
+`AIO_ABOVE_HIGH, <value>, 0, 0` ("rises above"); no inputs changed, so no obsolete snapshot. The
+input description says so; other conditions via Code (documented). Output of the new build checked
+in Rhino (AI with/without value, AO, DI unchanged); `ISignalAI … AIO_ABOVE_HIGH, 2.5, 0, 0, …` and the
+AO variant pass `verify_syntax`. The frozen v5/v7 obsolete snapshots keep the old line (frozen by
+design; Upgrade Components moves files to the live component).
 
 ---
 
