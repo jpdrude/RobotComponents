@@ -38,7 +38,7 @@ The controller rejects the module, usually with load error 40322 and a line numb
 | Trap | Fix | Details |
 |---|---|---|
 | Several `MODULE MainModule` texts instead of one. | Flatten (see above). | [[RAPID Generator]] |
-| *"Data conversion failed from RAPID Variable to Action"*; the generator warns *"Some actions are invalid and were skipped."* | Wire *Variable Declaration*, not *Variable*, into *Actions*. | [[RAPID Variable]] |
+| *"Data conversion failed from RAPID Variable to Action"*; the generator reports *"An input is invalid: some actions are missing and were skipped."* | Wire *Variable Declaration*, not *Variable*, into *Actions*. | [[RAPID Variable]] |
 | *"Recursive data stream found"* around a [[For Loop]]. | Don't wire the loop's *Counter* output into its own body; use a [[RAPID Variable]] counter. | [Array tutorial](b8-tutorials/array-offsets.md) |
 | *"The Target input has no data."* on a [[Move]]. | Something upstream failed; fix whatever feeds *Target*. | [[Move]] |
 | *"Routine variables cannot be global. Scope set to LOCAL."* | Level `Routine` data is always local. Set Scope `LOCAL`. | [[RAPID Variable]] |
