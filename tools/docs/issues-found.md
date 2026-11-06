@@ -525,6 +525,15 @@ Robot Components' IK order). Effect of the old clamping shown on the VC: from ax
 `MoveJ` to the same target with `cf6 = 0` instead of `-4` turns axis 6 a full revolution; `MoveL`
 stops with 50442. Wiki: new primer section *Arm configuration: confdata* with pose renders.
 
+**Follow-up (2026-11-06): validity.** Configuration Data can't validate on its own (a quadrant's
+validity depends on target and robot; `ConfigurationData.IsValid` is always true). Now: CFX outside
+0..7 is an Error with no output (was a remark; since pass-through such a value made the IK throw an
+index exception at `_robotJointPositions[Cfx]`). Inverse Kinematics: guard for cfx outside 0..7
+(message, no solution), and `CheckQuadrant` after `AdjustJoint` warns when cf1/cf4/cf6 isn't
+reachable for the target ("cf6 = 1 is not possible for this target (robot joint 6 is at 50 degrees,
+cf6 = 0)"); a joint exactly on a quadrant boundary accepts both neighbouring quadrants. Only in
+`Calculate`, not in `CalculateClosestRobotJointPosition` (configuration control off).
+
 ---
 
 ## 20 🟠 Multi Move components throw after every solve

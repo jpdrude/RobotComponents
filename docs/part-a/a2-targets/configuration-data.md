@@ -17,7 +17,7 @@ down, wrist flipped or not, and axes 1, 4 and 6 a full turn further. **Configura
 The four values are written exactly as you give them. *CF1*, *CF4* and *CF6* are the
 quadrants of axes 1, 4 and 6 (negative values are normal); *CFX* is the arm's posture. They
 are independent of each other. The [RAPID primer](../../part-b/b0-rapid-primer.md#arm-configuration-confdata)
-explains both with pictures.
+explains both with pictures. *CFX* must be 0 to 7; anything else is an error and gives no output.
 
 ## In RAPID
 
@@ -58,6 +58,12 @@ Wire its *CFX* output into Configuration Data's *CFX* input. It does not touch t
 give those separately.
 
 ## Gotchas
+
+!!! note "Whether a configuration is possible depends on the target"
+    Configuration Data can't check its values on its own: whether a quadrant can be reached
+    depends on the target and the robot. [[Inverse Kinematics]] and the [[Path Generator]] check it
+    and warn, e.g. *"cf6 = 1 is not possible for this target (robot joint 6 is at 50 degrees,
+    cf6 = 0)"*. On the controller the same mistake stops a `MoveL` with error 50442.
 
 !!! note "Older files: Upgrade Components"
     Up to version 1.4.5 this component replaced negative quadrants with `0` and worked out

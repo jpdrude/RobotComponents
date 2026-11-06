@@ -197,7 +197,8 @@ the Virtual Controller, starting with axis 6 at −309.8°:
 !!! tip "Where the values come from"
     You rarely type `confdata` by hand. [[Inverse Kinematics]] returns it together with the
     joint angles, and the [[Path Generator]] outputs it along a path. To write one yourself,
-    use [[Configuration Data]] with [[Configuration Number]] for `cfx`. An axis at exactly 0°
+    use [[Configuration Data]] with [[Configuration Number]] for `cfx`; [[Inverse Kinematics]]
+    and the [[Path Generator]] warn when a quadrant isn't possible for the target. An axis at exactly 0°
     often reads back as `-1` because the controller stops a hair below zero, so a `-1` there
     isn't a mistake.
 

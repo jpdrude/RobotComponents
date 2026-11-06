@@ -96,8 +96,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // values, passed through unchanged (negative quadrants are valid).
             if (cfx < 0 || cfx > 7)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "CFX <" + cfx + "> is outside 0 to 7. " +
-                    "For most robots it describes the arm configuration with three bits; use Configuration Number to build it.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "CFX <" + cfx + "> is outside 0 to 7. " +
+                    "It selects one of the arm's eight configurations; use Configuration Number to build it.");
+                return;
             }
 
             // Replace spaces

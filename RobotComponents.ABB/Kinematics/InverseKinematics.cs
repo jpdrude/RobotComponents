@@ -70,6 +70,7 @@ namespace RobotComponents.ABB.Kinematics
         private bool[] _wristSingularities = Enumerable.Repeat(false, 8).ToArray();
         private bool[] _noSolverResults = Enumerable.Repeat(false, 8).ToArray();
         private readonly List<string> _errorText = new List<string>();
+        private readonly List<string> _quadrantWarnings = new List<string>();
         private readonly RobotJointPosition[] _robotJointPositions = new RobotJointPosition[8].Select(item => new RobotJointPosition()).ToArray();
         private RobotJointPosition _robotJointPosition = new RobotJointPosition();
         private ExternalJointPosition _externalJointPosition = new ExternalJointPosition();
@@ -211,6 +212,7 @@ namespace RobotComponents.ABB.Kinematics
             CalculateExternalJointPosition();
             CheckInternalAxisLimits();
             CheckExternalAxisLimits();
+            _errorText.AddRange(_quadrantWarnings);
         }
 
         /// <summary>
@@ -243,6 +245,15 @@ namespace RobotComponents.ABB.Kinematics
 
             if (_movement.Target is RobotTarget robotTarget)
             {
+                // cfx selects one of the eight arm solutions; anything else has no solution.
+                int cfx = robotTarget.ConfigurationData.Cfx;
+                if (cfx < 0 || cfx > 7)
+                {
+                    _errorText.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: The configuration data's cfx ({cfx}) is outside 0 to 7. No inverse kinematics solution can be calculated.");
+                    _isInLimits = false;
+                    return;
+                }
+
                 // OPW kinematics solver
                 if (_robot.RobotKinematicParameters.A3 == 0)
                 {
@@ -317,6 +328,12 @@ namespace RobotComponents.ABB.Kinematics
                 AdjustJoint(3, robotTarget.ConfigurationData.Cf4);
                 AdjustJoint(5, robotTarget.ConfigurationData.Cf6);
 
+                // AdjustJoint can only add whole turns; a quadrant that isn't the same angle a whole
+                // number of turns away can't be reached for this target and arm solution.
+                CheckQuadrant(0, robotTarget.ConfigurationData.Cf1, "cf1");
+                CheckQuadrant(3, robotTarget.ConfigurationData.Cf4, "cf4");
+                CheckQuadrant(5, robotTarget.ConfigurationData.Cf6, "cf6");
+
                 // Set configuration data
                 _selectedSolution = robotTarget.ConfigurationData.Cfx;
                 SetConfigurationData(robotTarget.ConfigurationData.Name);
@@ -381,6 +398,30 @@ namespace RobotComponents.ABB.Kinematics
                     _robotJointPosition[jointPositionIndex] += (diff + 1) / 4 * 360;
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds a warning if a joint isn't in the requested configuration quadrant after the adjustment.
+        /// </summary>
+        /// <remarks>
+        /// A joint exactly on a quadrant boundary (0, 90, ... degrees) counts as being in both neighbouring
+        /// quadrants: the controller often reports such a joint in the lower one (e.g. -1 for 0 degrees).
+        /// </remarks>
+        /// <param name="jointPositionIndex"> The joint index (0, 3 or 5). </param>
+        /// <param name="requested"> The requested quadrant. </param>
+        /// <param name="label"> The confdata field name for the message (cf1, cf4, cf6). </param>
+        private void CheckQuadrant(int jointPositionIndex, int requested, string label)
+        {
+            double angle = _robotJointPosition[jointPositionIndex];
+            if (angle == _missingJointValue) { return; }
+
+            int actual = (int)Math.Floor(angle / 90);
+            bool onBoundary = Math.Abs(angle / 90 - Math.Round(angle / 90)) < 1e-9;
+
+            if (requested == actual || (onBoundary && requested == actual - 1)) { return; }
+
+            _quadrantWarnings.Add($"Movement {_movement.Target.Name}\\{_movement.WorkObject.Name}: {label} = {requested} is not possible for this target " +
+                $"(robot joint {jointPositionIndex + 1} is at {angle.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)} degrees, {label} = {actual}).");
         }
 
         /// <summary>
@@ -577,6 +618,7 @@ namespace RobotComponents.ABB.Kinematics
             ResetExternalJointPosition();
 
             _errorText.Clear();
+            _quadrantWarnings.Clear();
             _isInLimits = true;
             _wristSingularity = false;
             _elbowSingularity = false;
