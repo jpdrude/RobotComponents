@@ -59,8 +59,8 @@ namespace RobotComponents.ABB.Gh.Utils
             {
                 text = string.Join("|",
                     movement.MovementType.ToString(),
-                    movement.Target?.ToRAPID() ?? "",
-                    movement.CircularPoint != null && movement.CircularPoint.Plane.IsValid ? movement.CircularPoint.ToRAPID() : "",
+                    TargetValues(movement.Target),
+                    movement.CircularPoint != null && movement.CircularPoint.Plane.IsValid ? movement.CircularPoint.ToRAPID(false) : "",
                     movement.SpeedData?.Name ?? "", movement.SpeedData?.ToRAPID() ?? "",
                     movement.Time.ToString(CultureInfo.InvariantCulture),
                     movement.ZoneData?.Name ?? "", movement.ZoneData?.ToRAPID() ?? "",
@@ -84,6 +84,24 @@ namespace RobotComponents.ABB.Gh.Utils
             }
 
             return text.GetHashCode();
+        }
+
+        /// <summary>
+        /// The RAPID values of a target for hashing: named parts (Robot Joint Position, Configuration
+        /// Data, External Joint Position) as their values, not their names, so that changing a joint
+        /// value or a quadrant also changes the hash.
+        /// </summary>
+        private static string TargetValues(RobotComponents.ABB.Actions.Declarations.ITarget target)
+        {
+            switch (target)
+            {
+                case null: return "";
+                case RobotTarget robotTarget: return robotTarget.ToRAPID(false);
+                case JointTarget jointTarget: return jointTarget.ToRAPID(false);
+                // Offs(pickA, ...) names its base target; include the base target's values too.
+                case OffsetTarget offsetTarget: return offsetTarget.ToRAPID() + "|" + TargetValues(offsetTarget.Target);
+                default: return target.ToRAPID();
+            }
         }
         #endregion
 

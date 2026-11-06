@@ -630,3 +630,10 @@ work object, tool, DO. Override Robot Tool: tool name + data. Any other instruct
 square: installed (old) build keeps 0.0 mm / same time after MoveL → MoveJ; new build: MoveJ edges
 12.3 mm off straight, time 5.56 → 5.80 s, v200 → v50 5.80 → 23.20 s; Timed Path Generator v200 → v50:
 16 → 61 steps at 0.1 s, 4.56 → 18.24 s.
+
+**Follow-up (2026-11-06, reported by the user):** changing a joint value of a Joint Target still didn't
+update the path. The hash used the target's RAPID *with names*: a Joint Target from a named Robot Joint
+Position is `[home_rj, …]`, so the values never reached the hash (same for a Robot Target with a named
+Configuration Data, and for an Offset Target's base target). The hash now uses the values
+(`ToRAPID(false)`, plus the base target of an Offset Target). Checked in Rhino: installed build keeps
+joint 1 at 0 after changing it to 45; new build follows to 45.
