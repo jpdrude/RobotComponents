@@ -56,9 +56,13 @@ Examples: [Getting started](../../getting-started/index.md), [[Move]].
 !!! warning "Several modules instead of one"
     The generator writes **one module per data-tree branch** of *Actions*. If actions arrive on
     different branches (e.g. points from [[gh:Discontinuity]]), you get several
-    `MODULE MainModule` blocks. Right-click *Actions* → **Flatten**. If you use loops or IFs
-    ([Part B](../../part-b/index.md)), flatten *their outputs* instead, so the order stays
-    right (see the [row tutorial](../../part-b/b8-tutorials/row-loop.md#step-by-step)).
+    `MODULE MainModule` blocks. Right-click *Actions* → **Flatten**.
+
+!!! warning "Items on *Actions* that aren't actions"
+    Anything on *Actions* that isn't an action is skipped, and the generator says so: first
+    *"The RAPID Generator encountered errors…"*, then one error per item with its index and what it
+    is, e.g. *"Actions item 1: a RAPID Variable is not an action. Use its Variable Declaration
+    output."* The module is written from the rest.
 
 !!! warning "Wire order is program order"
     Actions run in the order the wires were connected to *Actions*. To reorder, disconnect and

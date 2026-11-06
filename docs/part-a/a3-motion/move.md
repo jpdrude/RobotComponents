@@ -128,17 +128,16 @@ do on the controller, ABB documents [[abb:MoveAbsJ]], [[abb:MoveL]], [[abb:MoveJ
     target outputs on `{0}`. The [[RAPID Generator]] makes **one module per branch**. Fix:
     right-click its *Actions* input → **Flatten**.
 
-!!! warning "Type defaults to MoveAbsJ"
-    With nothing connected to *Type*, every movement is a `MoveAbsJ`. A [[type:Robot Target]]
-    is then converted to a joint target, and the component warns *"An Absolute Joint Movement
-    instruction is combined with a Robot Target"*. Always connect [[Movement Types]].
+!!! note "The Movement Types list starts at MoveAbsJ"
+    When you place a Move, it creates a [[Movement Types]] list on *Type* by itself (and again if
+    you delete it). The list starts at `MoveAbsJ`: pick `MoveL` or `MoveJ` there. A
+    [[type:Robot Target]] with `MoveAbsJ` is converted to a joint target, and the component warns
+    *"An Absolute Joint Movement instruction is combined with a Robot Target"*.
 
-!!! bug "Known issue: Joint Target with a named Robot Joint Position does not load"
-    [[Joint Target]] → [[Move]] produces `VAR jointtarget home := [home_rj, …];`. RAPID only
-    accepts constant values in a `VAR` declaration, so the controller rejects the module (load
-    error at that line). This affects the upstream project too.
-    **Workaround:** wire the [[type:Robot Joint Position]] directly into the Move's *Target*, as
-    in the example above; it is then written inline in the `MoveAbsJ` line.
+!!! warning "Override Work Object: targets are measured from the work object"
+    With a work object on the Move, the Robot Targets' coordinates are measured from that work
+    object. Targets drawn in world coordinates need the work object's plane as their
+    *Reference Plane*. See [[Work Object]] → Gotchas.
 
 ## See also
 

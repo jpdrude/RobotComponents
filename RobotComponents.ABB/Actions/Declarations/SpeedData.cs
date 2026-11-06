@@ -26,7 +26,7 @@ using RobotComponents.ABB.Utils;
 namespace RobotComponents.ABB.Actions.Declarations
 {
     /// <summary>
-    /// Represents a predefined or user definied Speed Data declaration.
+    /// Represents a predefined or user defined Speed Data declaration.
     /// </summary>
     /// <remarks>
     /// This action is used to specify the velocity at which both the robot and the external axes move.

@@ -24,11 +24,6 @@ The right-click outputs are the same as on the [[Path Generator]].
     controller's motion planning aren't modelled, so the real robot takes somewhat longer. In the
     [[Move]] example the [[Path Generator]] estimated 5.8 s; the Virtual Controller measured 6.2 s.
 
-!!! bug "Known issue: stale results after changing a speed"
-    Like the [[Path Generator]], it only recalculates when a target, the robot or *Time
-    Interval* changes. A new speed or movement type on a [[Move]] keeps the old steps, although
-    the step timing depends on exactly that speed. Nudge *Time Interval* after such a change.
-
 ## See also
 
 [[Path Generator]] · [[Speed Data]] · [[Check Actions]]

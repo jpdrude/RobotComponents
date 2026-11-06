@@ -10,14 +10,30 @@ description: Repeat a set of actions a fixed number of times with a counter (FOR
 <span class="rc-badge rc-badge--verified">RAPID checked on IRB 1200 · RobotWare 6.10</span>
 
 **For Loop** repeats its *Actions* once for every whole number from *From* to *To*. The
-counter (by default `i`) holds the current number and can be used inside the loop, for
-example in an [[Offset Target]] (`i * 100`) to move a little further each time.
+counter (by default `i`) holds the current number and can be used inside the loop by its name,
+for example in an [[Offset Target]] (`i * 100`) to move a little further each time.
 
 [[io:For Loop]]
 
-*Counter* is optional. Leave it empty and the loop counts with `i`. To use another
-name, wire a [[RAPID Variable]]'s *Variable* output (type [[abb:num]], Level `Routine`). The
-*Counter* output passes the counter on for components **after** the loop (not inside it; see Gotchas).
+## When to use it
+
+The For Loop is made for a **sequence with a known number of repetitions**: visit 4 points of a
+row, stack 10 parts, draw 3 passes. Leave *Counter* empty: the loop counts with `i` (or `j`, `k`, …
+if a loop inside it already uses `i`), and the body refers to it by that name, typed into a
+[[gh:Panel]] or an expression.
+
+For **everything else**, create your own variables with [[RAPID Variable]] and set them with
+[[Assign Variable Value]]:
+
+- a counter you need in several places, or under a name of your own: a [[RAPID Variable]]
+  (`num`, Level `Routine`) wired into *Counter* **and** into the body components (as in
+  [looping over an array](../b8-tutorials/array-offsets.md));
+- a count that has to survive the loop or the program run (parts made, cycles): a `PERS`
+  variable you increase yourself (as in the [row tutorial](../b8-tutorials/row-loop.md));
+- repeating until something happens (a sensor, an operator's answer) rather than a fixed number of
+  times: a [[While Loop]] with a [[abb:bool]] variable.
+
+The *Counter* output hands the counter on to components **after** the loop.
 
 ## In RAPID
 
@@ -46,23 +62,18 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
 
 ## Gotchas
 
-!!! warning "Nested loops: give each one its own counter"
-    Two For Loops without a *Counter*, one inside the other, both count with `i`
-    (`FOR i … FOR i …`). It loads, but the inner `i` hides the outer one. Give the outer loop a
-    [[RAPID Variable]] counter (e.g. `j`).
+!!! info "Nested loops: the innermost loop counts with `i`"
+    Without a *Counter*, each loop takes the first of `i`, `j`, `k`, … that no loop inside it
+    uses. Grasshopper builds nested loops from the inside out, so the **innermost** loop gets
+    `i` and the ones around it `j`, `k`, …: `FOR j … DO FOR i … DO`. That's the reverse of the
+    usual convention (outer `i`, inner `j`). Each loop's *Counter* output tells you its name. If you
+    prefer the usual order, give the loops their own counters with [[RAPID Variable]].
 
-!!! warning "The *Counter* output can't be used inside the same loop"
-    The loop's actions are an *input* of the loop, so wiring its *Counter* output into them makes
-    the loop depend on itself (*"Recursive data stream found"*). To use the counter inside the
-    body, create it as a [[RAPID Variable]] and wire that into both the *Counter* input and the
-    body, or type its name (`i`) into a [[gh:Panel]] as in the
-    [row tutorial](../b8-tutorials/row-loop.md). See [looping over an array](../b8-tutorials/array-offsets.md).
-
-!!! warning "Flatten the loop's output"
-    The loop puts its output one data-tree level deeper than a [[Move]]. If the
-    [[RAPID Generator]]'s *Actions* is flattened, actions can end up **in the wrong order**
-    around nested loops. Right-click the loop's *For Loop* output → **Flatten** instead. See
-    the [tutorial warning](../b8-tutorials/row-loop.md#step-by-step).
+!!! warning "The *Counter* output is for after the loop"
+    The body is an *input* of the loop, so wiring the loop's own *Counter* output into it makes the
+    loop depend on itself (*"Recursive data stream found"*). That's how Grasshopper works, not a
+    bug. Inside the body, use the counter's name, or your own [[RAPID Variable]] (see
+    [When to use it](#when-to-use-it)).
 
 ## See also
 

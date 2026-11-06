@@ -48,6 +48,7 @@ namespace RobotComponents.ABB.Kinematics
         private readonly List<ExternalJointPosition> _externalJointPositions; // The external joint position needed to follow the path
         private readonly List<ConfigurationData> _configurationDatas; // The configurations datas for each robot joint position
         private readonly List<bool> _isInLimits; // Indicates whether or not the joint positions are within their limits
+        private readonly List<(int LastPlane, List<string> Warnings)> _configurationWarnings = new List<(int LastPlane, List<string> Warnings)>();
         private List<string> _errorText = new List<string>(); // List with collected error messages
         private readonly List<string> _remarksText = new List<string>(); // List with collected non-critical remarks
 
@@ -121,6 +122,7 @@ namespace RobotComponents.ABB.Kinematics
             _isInLimits.Clear();
             _errorText.Clear();
             _remarksText.Clear();
+            _configurationWarnings.Clear();
 
             // Reinitiate starting values
             _currentTool = _initialTool;
@@ -150,6 +152,22 @@ namespace RobotComponents.ABB.Kinematics
         }
 
         /// <summary>
+        /// Returns the configuration quadrant warnings of the movement a path plane belongs to (the
+        /// target the robot is moving to at that point of the path).
+        /// </summary>
+        /// <param name="planeIndex"> The index in Planes, e.g. from the animation slider. </param>
+        /// <returns> The warnings; empty if there are none. </returns>
+        public List<string> GetConfigurationWarnings(int planeIndex)
+        {
+            foreach ((int lastPlane, List<string> warnings) in _configurationWarnings)
+            {
+                if (planeIndex <= lastPlane) { return warnings; }
+            }
+
+            return new List<string>();
+        }
+
+        /// <summary>
         /// Calculates the path from a list with Actions.
         /// </summary>
         /// <param name="actions"> The list with Actions. </param>
@@ -169,6 +187,9 @@ namespace RobotComponents.ABB.Kinematics
 
             // Ungroup actions
             IList<Actions.IAction> ungrouped = UngroupActions(actions);
+
+            // Configuration quadrant warnings are collected per movement (see below), not in ErrorText
+            _robot.InverseKinematics.CheckConfigurationQuadrants = false;
 
             // Check first movement
             _isFirstMovementMoveAbsJ = CheckFirstMovement(ungrouped);
@@ -243,6 +264,15 @@ namespace RobotComponents.ABB.Kinematics
                         _errorText.Add($"Movement {movement.Target.Name}\\{movement.WorkObject.Name}: The target is a RAPID expression whose value is unknown in Grasshopper. This movement is not simulated.");
                     }
 
+                    // Configuration quadrants of this movement's target, kept per movement so that the
+                    // component can show only the target the animation slider points to. Not when
+                    // configuration control is off: the controller then ignores the quadrants.
+                    bool configurationControl = movement.MovementType == MovementType.MoveL || movement.MovementType == MovementType.MoveC
+                        ? _linearConfigurationControl : _jointConfigurationControl;
+                    List<string> configurationWarnings = movement.Target is RobotTarget && configurationControl
+                        ? new List<string>(_robot.InverseKinematics.ConfigurationWarnings) : new List<string>();
+                    _configurationWarnings.Add((_planes.Count - 1, configurationWarnings));
+
                     // Track how many steps the first movement produced for RemoveRange below
                     if (!firstMovementDone && counter > 0)
                     {
@@ -266,6 +296,17 @@ namespace RobotComponents.ABB.Kinematics
 
             // Remove first path
             _paths.RemoveAt(0);
+
+            // The first dummy path planes were removed: shift the stored plane indices accordingly
+            if (counter > 0)
+            {
+                for (int i = 0; i < _configurationWarnings.Count; i++)
+                {
+                    _configurationWarnings[i] = (_configurationWarnings[i].LastPlane - firstN, _configurationWarnings[i].Warnings);
+                }
+            }
+
+            _robot.InverseKinematics.CheckConfigurationQuadrants = true;
 
             // Remove duplicates from error text
             _errorText = _errorText.Distinct().ToList();

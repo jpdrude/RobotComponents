@@ -389,7 +389,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             // Sets Output
             DA.SetData(0, method);
-            DA.SetDataList(1, routineCall);
+            HelperMethods.SetActionList(this, DA, 1, routineCall);
 
             // For FUNC routines, output the call expression so it can be wired into value inputs
             if (_isFunc && Params.Output.Count > 2)

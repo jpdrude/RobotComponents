@@ -98,7 +98,8 @@ namespace RobotComponents.ABB.Gh.Components.MultiMove
         {
             base.AfterSolveInstance();
 
-            _tree = this.Params.Output[0].VolatileData as GH_Structure<GH_SyncMoveOn>;
+            // The output is a Param_Action, so its data are GH_Action items, not GH_SyncMoveOn.
+            _tree = HelperMethods.GetTypedActionTree<SyncMoveOn, GH_SyncMoveOn>(this.Params.Output[0], value => new GH_SyncMoveOn(value));
 
             if (_tree.Branches.Count != 0)
             {

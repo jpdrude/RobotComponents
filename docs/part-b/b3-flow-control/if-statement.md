@@ -51,13 +51,6 @@ Full example: [row tutorial](../b8-tutorials/row-loop.md).
     A [[RAPID Variable]] `full` (type `bool`). Two [[Assign Variable Value]]s: `TRUE` into
     *IF Actions*, `FALSE` into *ELSE Actions*.
 
-## Gotchas
-
-!!! warning "Flatten the output"
-    Like the loops, IF Statement outputs one data-tree level deeper than a [[Move]]. Flatten
-    its output (right-click → **Flatten**) so the [[RAPID Generator]] keeps your wire order.
-    See the [tutorial warning](../b8-tutorials/row-loop.md#step-by-step).
-
 ## See also
 
 [[Comparison Expression]] · [[While Loop]] · [[Message Box]] (operator choices with [[abb:TEST]]/`CASE`)

@@ -604,7 +604,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             double[] result = new double[6];
             int n = Math.Min(jointPositions.Count, 6);
 
-            // Copy and check definied joint positions
+            // Copy and check defined joint positions
             for (int i = 0; i < n; i++)
             {
                 result[i] = double.IsNaN(jointPositions[i]) ? _defaultValue : jointPositions[i];

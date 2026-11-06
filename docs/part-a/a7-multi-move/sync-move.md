@@ -36,9 +36,10 @@ You only have to keep the count equal in every task. ABB's reference:
 [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:SyncMoveOn]], [[abb:SyncMoveOff]]), and
 ABB's MultiMove application manual.
 
-!!! bug "Known issue: error badge on the components"
-    Both show *"After Solution exception: Object reference not set…"* on every solve. The
-    generated RAPID is still correct, but duplicate Sync IDs aren't detected.
+!!! tip "One component per sync point, shared by all tasks"
+    Wire the same component into every task's [[RAPID Generator]], as in the
+    [Multi Move tutorial](../a9-tutorials/multi-move.md). A second component with the same
+    *Sync ID* shows *"The variable name "…" is already in use."*
 
 ## See also
 

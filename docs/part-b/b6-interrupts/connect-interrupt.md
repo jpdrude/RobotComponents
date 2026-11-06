@@ -20,6 +20,26 @@ signal to a TRAP routine you build with [[Routine]] (Type `TRAP`).
 or **Persistent Data**, which watches a `PERS` variable instead of a signal. Right-click →
 *Override Interrupt Variable Name* to connect several interrupts to the same TRAP.
 
+For an **analog** signal the component adds a ***Condition*** input with its own drop-down
+(*Always*, *Above*, *Below*, *Between* or *Outside*) and a ***Tolerance*** input. *Between* and
+*Outside* also add a ***Low Value*** input; *Signal Value* is then the upper limit. The inputs
+disappear again when you switch to another signal type. The drop-down starts at *Above* if a
+*Signal Value* is connected, otherwise at *Always*.
+
+*Tolerance* is RAPID's *DeltaValue*: after an interrupt, the signal has to change by more than
+this before the next one can fire, so a noisy signal around the limit doesn't fire over and over.
+Leave it empty for `0` (every change counts).
+
+| *Condition* | Fires when the signal … | RAPID |
+|---|---|---|
+| Always | changes at all | `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
+| Above | rises above *Signal Value* | `ISignalAI sig, AIO_ABOVE_HIGH, 2.5, 0, 0, int;` |
+| Below | falls below *Signal Value* | `ISignalAI sig, AIO_BELOW_HIGH, 2.5, 0, 0, int;` |
+| Between | is between *Low Value* and *Signal Value* | `ISignalAI sig, AIO_BETWEEN, 2.5, 1, 0, int;` |
+| Outside | is outside *Low Value* … *Signal Value* | `ISignalAI sig, AIO_OUTSIDE, 2.5, 1, 0, int;` |
+
+With a *Tolerance* of 0.2 the last number becomes `0.2`, e.g. `ISignalAI sig, AIO_OUTSIDE, 2.5, 1, 0.2, int;`.
+
 ## Example: count sensor hits
 
 [:material-download: part-sensor-interrupt.gh](../../examples/part-b/part-sensor-interrupt.gh){ .md-button download="part-sensor-interrupt.gh" }
@@ -62,7 +82,7 @@ interrupt needs the real signal.
 | Signal Type | With *Signal Value* | Without *Signal Value* (fires on every change) |
 |---|---|---|
 | Digital input / output | `ISignalDI sig, 1, int;` | trigger value `2` = both edges |
-| Analog input / output | *(doesn't load yet, see Gotchas)* | `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
+| Analog input / output | depends on *Condition* (table above) | *Condition* Always: `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
 | Group input / output | *(not possible; warning)* | `ISignalGI sig, int;` |
 | Persistent Data | *(not used; warning)* | `IPers myPers, int;` |
 
@@ -73,20 +93,9 @@ ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
 
 ## Gotchas
 
-!!! bug "Known issue: analog interrupts with a *Signal Value* don't load"
-    With an analog signal and a *Signal Value*, the component writes
-    `ISignalAI aiPressure, 2.5, int_p;`. `ISignalAI` needs a condition and limits, so the
-    controller rejects the module (checked on a Virtual Controller). **Until it's fixed**,
-    leave *Signal Value* empty (fires on every change), or skip Connect Interrupt and write
-    the three lines with [[Code]] components: the declaration `VAR intnum int_p;` (*Type* `1`),
-    then `CONNECT int_p WITH pTrap;` and `ISignalAI aiPressure, AIO_ABOVE_HIGH, 2.5, 0, 0, int_p;`
-    (fires when the value rises above 2.5; checked: loads).
-
-!!! warning "Flatten the outputs"
-    *Connect Code* (like [[Code]], loops and IF) outputs on a deeper data-tree branch than a
-    [[Move]] or [[Wait Time]]. Without flattening, the [[Wait Time]] wired *after* the interrupt
-    was generated *before* `CONNECT`. Right-click *Connect Code* → **Flatten**. See the
-    [row tutorial](../b8-tutorials/row-loop.md#step-by-step).
+!!! info "Switching away from Between / Outside"
+    *Low Value* is removed when you pick another condition or signal type, and with it its wire.
+    Reconnect it when you switch back.
 
 !!! tip "Keep TRAP routines short"
     A TRAP interrupts the program. Set a flag or count, as here, and let `main` react,

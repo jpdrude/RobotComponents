@@ -26,6 +26,8 @@ using System.Windows.Forms;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Data;
+using Grasshopper.Kernel.Types;
 using GH_IO.Serialization;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions;
@@ -163,6 +165,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            // The Actions input adds Grasshopper's own "Data conversion failed from ... to Action" while
+            // collecting its data. This component reports every such item itself, with its index and
+            // kind (see below), so the input's generic message is removed.
+            if (DA.Iteration == 0)
+            {
+                Params.Input[1].ClearRuntimeMessages();
+            }
+
             // Input variables
             Robot robot = null;
             List<RobotComponents.ABB.Actions.IAction> actions = new List<RobotComponents.ABB.Actions.IAction>();
@@ -185,6 +195,27 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             // the actions turn out to need one (movement instructions) after all.
             DA.GetData(0, ref robot);
             if (!DA.GetDataList(1, actions)) { return; }
+
+            // Items that aren't actions arrive as null: a component upstream produced nothing, or the
+            // Actions input couldn't convert what it got (a RAPID Variable, a RAPID Expression, ...).
+            // One summary error first, then one error per item with its index and kind; the items are
+            // skipped and the module is generated from the rest.
+            if (actions.Any(action => action == null))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The RAPID Generator encountered errors. Check the following error messages for details.");
+
+                GH_Path actionsPath = Params.Input[1].VolatileData.PathCount > DA.Iteration ? Params.Input[1].VolatileData.get_Path(DA.Iteration) : new GH_Path(0);
+                string branch = Params.Input[1].VolatileData.PathCount > 1 ? $" {actionsPath}" : "";
+                List<object> sourceItems = GetSourceItems(Params.Input[1], actionsPath, actions.Count);
+
+                for (int i = 0; i < actions.Count; i++)
+                {
+                    if (actions[i] != null) { continue; }
+
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"Actions{branch} item {i}: " + DescribeInvalidAction(sourceItems?[i]));
+                }
+            }
+            actions.RemoveAll(action => action == null);
 
             // Creates the input value list for the scope and attachs it to the input parameter
             int scopeParamIndex = FindVariableInputIndex(3);
@@ -472,6 +503,58 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         public override Guid ComponentGuid
         {
             get { return new Guid("0BA943C5-D728-4FBC-861B-07F1EB184AFD"); }
+        }
+        #endregion
+
+        #region invalid actions
+        /// <summary>
+        /// Returns the items the sources deliver for one branch of an input, in the order the input
+        /// merges them, or null when that order can't be reconstructed (e.g. a grafted input) or the
+        /// count doesn't match. The input itself only holds null for items it couldn't convert, so this
+        /// is the only way to tell what such an item was.
+        /// </summary>
+        private static List<object> GetSourceItems(IGH_Param input, GH_Path path, int expectedCount)
+        {
+            if (input.DataMapping == GH_DataMapping.Graft) { return null; }
+
+            List<object> items = new List<object>();
+
+            foreach (IGH_Param source in input.Sources)
+            {
+                IGH_Structure data = source.VolatileData;
+
+                if (input.DataMapping == GH_DataMapping.Flatten)
+                {
+                    items.AddRange(data.AllData(false).Cast<object>());
+                }
+                else if (data.PathExists(path))
+                {
+                    items.AddRange(data.get_Branch(path).Cast<object>());
+                }
+            }
+
+            return items.Count == expectedCount ? items : null;
+        }
+
+        /// <summary>
+        /// Says what kind of input took the place of an action, and what to do about it.
+        /// </summary>
+        private static string DescribeInvalidAction(object sourceItem)
+        {
+            object value = sourceItem is IGH_Goo goo ? goo.ScriptVariable() : sourceItem;
+
+            switch (value)
+            {
+                case null:
+                    return "no data (null). Check the component that feeds it.";
+                case RAPIDVariable _:
+                    return "a RAPID Variable is not an action. Use its Variable Declaration output.";
+                case RAPIDExpression _:
+                    return "a RAPID Expression is a value, not an action. Use it as an input of an instruction (e.g. Assign Variable Value).";
+                default:
+                    string typeName = sourceItem is IGH_Goo typedGoo ? typedGoo.TypeName : value.GetType().Name;
+                    return $"{typeName} is not an action and doesn't fit here.";
+            }
         }
         #endregion
 

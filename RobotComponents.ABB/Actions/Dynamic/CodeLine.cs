@@ -25,7 +25,7 @@ using RobotComponents.ABB.Utils;
 namespace RobotComponents.ABB.Actions.Dynamic
 {
     /// <summary>
-    /// Represents a custom (user definied) RAPID Code Line.
+    /// Represents a custom (user defined) RAPID Code Line.
     /// </summary>
     [Serializable()]
     public class CodeLine : IAction, IDynamic, ISerializable

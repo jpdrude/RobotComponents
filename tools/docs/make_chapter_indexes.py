@@ -82,7 +82,7 @@ def main() -> None:
     exercises = yaml.safe_load(ex_file.read_text(encoding="utf-8")) if ex_file.exists() else {}
     pages: dict[str, list[str]] = {}
     for name, entry in reg["components"].items():
-        pages.setdefault(entry["page"], []).append(name)
+        pages.setdefault(entry["page"].split("#")[0], []).append(name)  # "page.md#section" shares the page
     nav = (DOCS.parent / "mkdocs.yml").read_text(encoding="utf-8")
     order = {m: i for i, m in enumerate(re.findall(r"^\s*-\s*(?:[^:\n]+:\s*)?(\S+\.md)\s*$", nav, re.M))}
     written = 0

@@ -110,7 +110,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             // Sets Output
-            DA.SetDataList(0, comments);
+            HelperMethods.SetActionList(this, DA, 0, comments);
         }
 
         #region properties

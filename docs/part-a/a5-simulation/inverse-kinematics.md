@@ -49,6 +49,13 @@ can't handle. In this fork, IK uses a dedicated solver for them and also detects
 elbow and shoulder **singularities**: poses where the robot loses a degree of freedom and
 moves badly.
 
+!!! info "Configuration quadrants that can't be reached"
+    IK checks that the target's *cf1*, *cf4* and *cf6* can be reached and warns otherwise, e.g.
+    *"cf6 = 1 is not possible for this target (robot joint 6 is at 50.2 degrees, cf6 = 0)"*. A
+    quadrant of `0` isn't checked: that's also what you get without [[Configuration Data]], or with
+    only a *CFX*. The [[Path Generator]] shows the warning only for the target the *Animation Slider*
+    currently points to.
+
 !!! info "Check the whole path, not just targets"
     IK checks one pose. A [[abb:MoveL]] between two reachable targets can still pass through a
     singularity or out of reach. Check the whole program with the [[Path Generator]] or

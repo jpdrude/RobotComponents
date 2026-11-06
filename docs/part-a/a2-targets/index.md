@@ -8,7 +8,7 @@ Where the robot should go: positions and orientations from planes, joint angles,
 | [[Robot Joint Position]] | Six joint angles in degrees: a robot pose given by the joints instead of the tool position. |
 | [[Joint Target]] | Combine robot joint angles and external axis positions into one joint target. |
 | [[External Joint Position]] | Where the external axes (track, turntable) should be at a target. |
-| [[Configuration Data]] | Tell the robot which of its possible arm poses to use for a target. |
+| [[Configuration Data]] · [[Configuration Number]] | Tell the robot which of its possible arm poses to use for a target. |
 | [[Flip Plane X]] · [[Flip Plane Y]] | Turn a plane upside down so the tool points the other way. |
 | [[Plane to Quaternion]] · [[Quaternion to Plane]] | Convert between Rhino planes and the position + quaternion numbers used by ABB robots. |
 | [[Plane Visualizer]] | Draw a plane's axes as coloured arrows in Rhino to check orientations. |

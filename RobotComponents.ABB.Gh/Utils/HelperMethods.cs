@@ -23,8 +23,10 @@ using Grasshopper;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Special;
 using Grasshopper.Kernel.Types;
+using Grasshopper.Kernel.Data;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Declarations;
+using RobotComponents.ABB.Gh.Goos.Actions;
 using RobotComponents.ABB.Gh.Goos.Definitions;
 
 namespace RobotComponents.ABB.Gh.Utils
@@ -34,6 +36,154 @@ namespace RobotComponents.ABB.Gh.Utils
     /// </summary>
     internal static class HelperMethods
     {
+        #region path generator hashing
+        /// <summary>
+        /// Returns a hash of everything in an action that can change a calculated path or its timing.
+        /// </summary>
+        /// <remarks>
+        /// Used by the (Timed) Path Generator to decide whether a cached path is still valid. For a
+        /// Movement: type, target, circle point, speed, time, zone, work object, tool and digital output.
+        /// Any other instruction is hashed by its RAPID line, so new or changed instructions (e.g. Velocity
+        /// Set, Acceleration Set) also cause a recalculation.
+        /// </remarks>
+        /// <param name="action"> The action. </param>
+        /// <param name="robot"> The robot the path is calculated for. </param>
+        /// <returns> The hash. </returns>
+        public static int GetPathRelevantHash(RobotComponents.ABB.Actions.IAction action, RobotComponents.ABB.Definitions.Robot robot)
+        {
+            if (action == null) { return 0; }
+
+            string text;
+
+            if (action is RobotComponents.ABB.Actions.Instructions.Movement movement)
+            {
+                text = string.Join("|",
+                    movement.MovementType.ToString(),
+                    TargetValues(movement.Target),
+                    movement.CircularPoint != null && movement.CircularPoint.Plane.IsValid ? movement.CircularPoint.ToRAPID(false) : "",
+                    movement.SpeedData?.Name ?? "", movement.SpeedData?.ToRAPID() ?? "",
+                    movement.Time.ToString(CultureInfo.InvariantCulture),
+                    movement.ZoneData?.Name ?? "", movement.ZoneData?.ToRAPID() ?? "",
+                    movement.WorkObject?.Name ?? "", movement.WorkObject?.ToRAPID() ?? "",
+                    movement.RobotTool?.Name ?? "", movement.RobotTool?.ToRAPID() ?? "",
+                    movement.SetDigitalOutput != null && movement.SetDigitalOutput.IsValid ? movement.SetDigitalOutput.ToRAPIDInstruction(robot) : "");
+            }
+            else if (action is RobotComponents.ABB.Actions.Instructions.OverrideRobotTool overrideRobotTool)
+            {
+                // The RAPID line only names the tool; the path depends on its data (TCP).
+                text = "OverrideRobotTool|" + (overrideRobotTool.RobotTool?.Name ?? "") + "|" + (overrideRobotTool.RobotTool?.ToRAPID() ?? "");
+            }
+            else if (action is RobotComponents.ABB.Actions.Instructions.IInstruction instruction)
+            {
+                try { text = action.GetType().Name + "|" + instruction.ToRAPIDInstruction(robot); }
+                catch { text = action.GetType().Name + "|" + action.ToString(); }
+            }
+            else
+            {
+                text = action.GetType().Name + "|" + action.ToString();
+            }
+
+            return text.GetHashCode();
+        }
+
+        /// <summary>
+        /// The RAPID values of a target for hashing: named parts (Robot Joint Position, Configuration
+        /// Data, External Joint Position) as their values, not their names, so that changing a joint
+        /// value or a quadrant also changes the hash.
+        /// </summary>
+        private static string TargetValues(RobotComponents.ABB.Actions.Declarations.ITarget target)
+        {
+            switch (target)
+            {
+                case null: return "";
+                case RobotTarget robotTarget: return robotTarget.ToRAPID(false);
+                case JointTarget jointTarget: return jointTarget.ToRAPID(false);
+                // Offs(pickA, ...) names its base target; include the base target's values too.
+                case OffsetTarget offsetTarget: return offsetTarget.ToRAPID() + "|" + TargetValues(offsetTarget.Target);
+                default: return target.ToRAPID();
+            }
+        }
+        #endregion
+
+        #region typed action trees
+        /// <summary>
+        /// Rebuilds a typed data tree from an output that carries actions (Param_Action), keeping
+        /// the paths and the very same action objects.
+        /// </summary>
+        /// <remarks>
+        /// Components whose output became Param_Action still keep a typed tree for their
+        /// after-solve bookkeeping (unique names, object manager). Casting the volatile data to
+        /// that typed structure returns null, because the output now holds GH_Action items.
+        /// The wrapped objects are the output's own, so renaming them (e.g. SyncID) changes the
+        /// output data as before.
+        /// </remarks>
+        /// <typeparam name="T"> The action type, e.g. SyncMoveOn. </typeparam>
+        /// <typeparam name="TGoo"> The goo type of the typed tree, e.g. GH_SyncMoveOn. </typeparam>
+        /// <param name="output"> The output parameter. </param>
+        /// <param name="wrap"> Wraps an action in its goo without copying it. </param>
+        /// <returns> The typed tree. </returns>
+        public static GH_Structure<TGoo> GetTypedActionTree<T, TGoo>(IGH_Param output, Func<T, TGoo> wrap)
+            where T : class
+            where TGoo : IGH_Goo
+        {
+            GH_Structure<TGoo> tree = new GH_Structure<TGoo>();
+
+            foreach (GH_Path path in output.VolatileData.Paths)
+            {
+                foreach (object item in output.VolatileData.get_Branch(path))
+                {
+                    if (item is GH_Action action && action.Value is T value)
+                    {
+                        tree.Append(wrap(value), path);
+                    }
+                }
+            }
+
+            return tree;
+        }
+        #endregion
+
+        #region action output
+        /// <summary>
+        /// Sets a list of actions on an output without the extra data-tree level Grasshopper
+        /// adds on its own.
+        /// </summary>
+        /// <remarks>
+        /// Grasshopper appends the iteration index to the path of every list output of a
+        /// component that has at least one item-access input ({0} becomes {0;0}, {0;0} becomes
+        /// {0;0;0}). For components that produce a block of RAPID actions (loops, IF, Code, ...)
+        /// that extra level is harmful: a Move outputs on {0}, an IF on {0;0}, and merged action
+        /// lists are then ordered by branch path instead of by wire order (and list-access
+        /// consumers run once per branch, e.g. one module or one loop per branch).
+        /// The index is appended inside SetDataList; ParameterTargetPath still returns the input
+        /// branch's path. Setting the list as a tree on that path keeps the actions on the same
+        /// branch as every other action. Several iterations on the same branch are appended in
+        /// iteration order.
+        /// </remarks>
+        /// <para>
+        /// SetDataTree appends to the output. If a component's solve runs again inside the running
+        /// solve (e.g. when it creates a value list on its first solve), both runs would write and the
+        /// actions would appear twice. So the output is emptied on the first iteration: a nested run's
+        /// data is discarded, and the following iterations append as usual.
+        /// </para>
+        /// <typeparam name="T"> The item type. </typeparam>
+        /// <param name="component"> The component that sets the data. </param>
+        /// <param name="DA"> The data access object of the current iteration. </param>
+        /// <param name="index"> The output index. </param>
+        /// <param name="data"> The actions to output. </param>
+        public static void SetActionList<T>(GH_Component component, IGH_DataAccess DA, int index, IEnumerable<T> data)
+        {
+            if (DA.Iteration == 0)
+            {
+                component.Params.Output[index].VolatileData.Clear();
+            }
+
+            DataTree<T> tree = new DataTree<T>();
+            tree.AddRange(data, DA.ParameterTargetPath(index));
+            DA.SetDataTree(index, tree);
+        }
+        #endregion
+
         #region fields
         /// <summary>
         /// The RAPID comparison operator symbols, in the exact order of the ComparisonOperator
@@ -185,6 +335,37 @@ namespace RobotComponents.ABB.Gh.Utils
         }
 
         /// <summary>
+        /// Resolves a routine argument value to RAPID text. Like <see cref="ResolveRAPIDValueExpression"/>,
+        /// except that robot targets, joint targets, robot/external joint positions and configuration
+        /// data are always written as their values, never by name.
+        /// </summary>
+        /// <param name="raw"> The raw value, either an <see cref="IGH_Goo"/> or an already-unwrapped object. </param>
+        /// <returns> The RAPID text for <paramref name="raw"/>, or null if <paramref name="raw"/> is null. </returns>
+        public static string ResolveRAPIDArgumentValue(object raw)
+        {
+            // Target data passed as a routine argument is written as its value. By name it would
+            // need a declaration, and nothing declares a target that is only used as an argument
+            // (the call is plain text). A value is always valid for a by-value argument.
+            object value = raw is IGH_Goo goo ? goo.ScriptVariable() : raw;
+
+            switch (value)
+            {
+                case RobotTarget robotTarget:
+                    return robotTarget.ToRAPID(false);
+                case JointTarget jointTarget:
+                    return jointTarget.ToRAPID(false);
+                case RobotJointPosition robotJointPosition:
+                    return robotJointPosition.ToRAPID();
+                case ExternalJointPosition externalJointPosition:
+                    return externalJointPosition.ToRAPID();
+                case ConfigurationData configurationData:
+                    return configurationData.ToRAPID();
+                default:
+                    return ResolveRAPIDValueExpression(raw);
+            }
+        }
+
+        /// <summary>
         /// Resolves an arbitrary input value (typically read via <c>DA.GetData(i, ref object)</c>) to the
         /// RAPID text it should contribute to generated code, e.g. an argument value or the right-hand side
         /// of an assignment. A RAPID declaration/variable (Robot Target, Speed Data, RAPID Variable, ...) is
@@ -282,6 +463,11 @@ namespace RobotComponents.ABB.Gh.Utils
         {
             try
             {
+                // Lay out the component first: a parameter registered a moment ago (e.g. a dynamically
+                // added input) still has its grip at the origin, which put the value list near (0, 0).
+                component.Attributes.ExpireLayout();
+                component.Attributes.PerformLayout();
+
                 var parameter = component.Params.Input[index];
 
                 // Create the value list

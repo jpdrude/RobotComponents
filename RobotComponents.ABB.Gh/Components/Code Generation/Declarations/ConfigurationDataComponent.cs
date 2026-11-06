@@ -17,6 +17,7 @@
 // System Libs
 using System;
 using System.Collections.Generic;
+using System.Linq;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
@@ -58,10 +59,10 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddTextParameter("Name", "N", "Name of the Configuration Data as text", GH_ParamAccess.item, string.Empty);
-            pManager.AddIntegerParameter("CF1", "CF1", "The current quadrant of axis 1 as a number", GH_ParamAccess.item, -1);
-            pManager.AddIntegerParameter("CF4", "CF4", "The current quadrant of axis 4 as a number", GH_ParamAccess.item, -1);
-            pManager.AddIntegerParameter("CF6", "CF6", "The current quadrant of axis 6 as a number", GH_ParamAccess.item, -1);
-            pManager.AddIntegerParameter("CFX", "CFX", "The current robot configuration as a number", GH_ParamAccess.item, -1);
+            pManager.AddIntegerParameter("CF1", "CF1", "The quadrant of axis 1 as a number: floor(angle / 90), e.g. -1 for -90...0 degrees", GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("CF4", "CF4", "The quadrant of axis 4 as a number: floor(angle / 90), e.g. -1 for -90...0 degrees", GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("CF6", "CF6", "The quadrant of axis 6 as a number: floor(angle / 90), e.g. -1 for -90...0 degrees", GH_ParamAccess.item, 0);
+            pManager.AddIntegerParameter("CFX", "CFX", "The robot configuration (0 to 7): which of the arm's solutions (shoulder, elbow, wrist) is meant. Use Configuration Number to build it.", GH_ParamAccess.item, 0);
         }
 
         /// <summary>
@@ -92,41 +93,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (!DA.GetData(3, ref cf6)) { return; }
             if (!DA.GetData(4, ref cfx)) { return; }
 
-            // Warn user if both Cfx and Cf1, Cf4, or Cf6 values are given
-            if ((cf1 >= 0 || cf4 >= 0 || cf6 >= 0) && cfx >= 0)
+            // cf1, cf4 and cf6 are axis quadrants and cfx is the arm configuration: independent
+            // values, passed through unchanged (negative quadrants are valid).
+            if (cfx < 0 || cfx > 7)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Can't construct configuration data from Cfx and quadrant data, as these depend on one another. Will default to Cfx.");
-            }
-
-            //Default missing Cf values to 0
-            cf1 = cf1 < 0 ? 0 : cf1;
-            cf4 = cf4 < 0 ? 0 : cf4;
-            cf6 = cf6 < 0 ? 0 : cf6;
-
-            //If Cfx is empty, check Cf inputs to construct Cfx bitmask
-            if (cfx == -1)
-            {
-                int bit1 = 0;
-                int bit2 = 0;
-                int bit3 = 0;
-
-                if (cf1 > 0)
-                    bit1 = 1 << 2;
-
-                if (cf4 > 0)
-                    bit2 = 1 << 1;
-
-                if (cf6 > 0)
-                    bit3 = 1;
-
-                cfx = bit1 | bit2 | bit3;
-            }
-            else
-            {
-                // Derive Cf1, Cf4, Cf6 from Cfx
-                cf1 = (cfx & (1 << 2)) >> 2;
-                cf4 = (cfx & (1 << 1)) >> 1;
-                cf6 = cfx & 1;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "CFX <" + cfx + "> is outside 0 to 7. " +
+                    "It selects one of the arm's eight configurations; use Configuration Number to build it.");
+                return;
             }
 
             // Replace spaces
@@ -146,6 +119,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             base.AfterSolveInstance();
 
             _tree = this.Params.Output[0].VolatileData as GH_Structure<GH_ConfigurationData>;
+
+            // An iteration that returned without output (e.g. CFX out of range, shown as an error)
+            // leaves a null item: skip the renaming and register no names in that case.
+            if (_tree == null || _tree.AllData(false).Any(item => item == null))
+            {
+                _toRegister.Clear();
+                GH_Document document = this.OnPingDocument();
+                if (document != null)
+                {
+                    _objectManager = DocumentManager.GetDocumentObjectManager(document);
+                    _objectManager.CheckVariableNames(this);
+                }
+                return;
+            }
 
             if (_tree.Branches.Count != 0)
             {
@@ -219,7 +206,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("F41C3E63-C063-4783-866D-566AF7E01C35"); }
+            get { return new Guid("d9d6d79d-e967-447e-b26e-fc6bd9aa0d42"); }
         }
         #endregion
 

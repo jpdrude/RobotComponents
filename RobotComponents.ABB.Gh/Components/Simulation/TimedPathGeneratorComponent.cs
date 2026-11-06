@@ -86,8 +86,8 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             // See PathGeneratorComponent's constructor for why this is the one safe point to
             // apply the Draw Full Names preference to every optional output this instance can
             // ever show, without risking overwriting a name customized after one is shown, and
-            // why the snapshot below must be taken before that loop runs.
-            _optionalParameterDefaults = _variableOutputParameters.Skip(1).Select(p => (p.Name, p.NickName)).ToList();
+            // why the snapshot below must be taken before that loop runs (and why "Path" is listed too).
+            _optionalParameterDefaults = _variableOutputParameters.Select(p => (p.Name, p.NickName)).ToList();
 
             for (int i = 0; i < _variableOutputParameters.Length; i++)
             {
@@ -215,6 +215,12 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
 
             // Get the index number of the current target
             int index = (int)((_pathGenerators[DA.Iteration].Planes.Count - 1) * interpolationSlider);
+
+            // Configuration quadrants that can't be reached: only for the target the slider points to
+            foreach (string warning in _pathGenerators[DA.Iteration].GetConfigurationWarnings(index))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warning);
+            }
 
             // Calculate forward kinematics
             if (_previewMesh == true | _outputMesh == true)
@@ -815,39 +821,9 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
 
             foreach (Actions.IAction action in ungrouped)
             {
-                if (action == null)
-                {
-                    continue;
-                }
-
-                if (action is OverrideRobotTool overrideRobotTool)
-                {
-                    hash = hash * 31 + overrideRobotTool.RobotTool.Name.GetHashCode();
-                    hash = hash * 31 + overrideRobotTool.RobotTool.ToRAPID().GetHashCode();
-                }
-                else if (action is JointConfigurationControl jointConfigurationControl)
-                {
-                    hash = hash * 31 + jointConfigurationControl.IsActive.GetHashCode();
-                }
-                else if (action is LinearConfigurationControl linearConfigurationControl)
-                {
-                    hash = hash * 31 + linearConfigurationControl.IsActive.GetHashCode();
-                }
-                else if (action is CirclePathMode circlePathMode)
-                {
-                    hash = hash * 31 + circlePathMode.Mode.GetHashCode();
-                }
-                else if (action is WaitTime waitTime)
-                {
-                    hash = hash * 31 + waitTime.Duration.GetHashCode();
-                }
-                else if (action is Movement movement)
-                {
-                    if (movement.Target != null)
-                    {
-                        hash = hash * 31 + movement.Target.ToRAPID().GetHashCode();
-                    }
-                }
+                // Everything in the action that changes the path or its timing: movement type,
+                // speed, zone, time, tool, work object, ... (the target alone wasn't enough).
+                hash = hash * 31 + HelperMethods.GetPathRelevantHash(action, robot);
             }
             return hash;
         }

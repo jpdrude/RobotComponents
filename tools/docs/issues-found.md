@@ -9,29 +9,29 @@ Not published on the wiki site.
 
 | # | Sev | Area | Title | Status |
 |---|---|---|---|---|
-| 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | open |
-| 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | open |
-| 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | open |
-| 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | open |
-| 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | open |
+| 1 | 🔴 | Code generation | Joint Target with a named Robot Joint Position produces RAPID that does not load | fixed (`fix/wiki-issues`) |
+| 2 | 🟠 | GH UI | "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs | fixed (`fix/wiki-issues`) |
+| 3 | 🟡 | Move | *Type* silently defaults to MoveAbsJ when unconnected | by design (documented) |
+| 4 | 🟡 | RAPID Generator | Actions on several branches silently produce several modules | by design (documented) |
+| 5 | 🟡 | Robot Preset | Modal picker dialog on first solve blocks scripted/automated use | fixed (`fix/wiki-issues`) |
 | 6 | ⚪ | rapid-verifier | First Virtual Controller cold boot hung past the 210 s deadline | open |
 | 7 | ⚪ | Docs tooling | Material for MkDocs reaches end of life in May 2027 | open |
-| 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | open |
-| 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | open |
-| 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | open |
-| 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | open |
-| 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | open |
-| 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | open |
-| 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | open |
-| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | open |
-| 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | open |
-| 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | open |
-| 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | open |
-| 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | open |
-| 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | open |
-| 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | open |
-| 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | open |
-| 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | open |
+| 8 | 🔴 | Flow control / RAPID Generator | Program order follows data-tree branches, not wire order, once loops/IFs are nested | fixed (`fix/wiki-issues`) |
+| 9 | 🟠 | RAPID Generator | Wiring a RAPID Variable's *Variable* output into *Actions* throws a null-reference solution exception | fixed (`fix/wiki-issues`) |
+| 10 | 🟡 | For Loop | Auto counter is always `i`, so nested loops without explicit counters shadow each other | fixed (`fix/wiki-issues`) |
+| 11 | ⚪ | RAPID Generator | Typo in generated comment: "User definied code lines" | fixed (`fix/wiki-issues`) |
+| 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
+| 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | by design (documented) |
+| 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
+| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | documented (warning removed) |
+| 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | by design (documented) |
+| 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | fixed (`fix/wiki-issues`) |
+| 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
+| 19 | 🔴 | Configuration Data | Negative quadrant values (cf1/cf4/cf6 = -1, -2, …) are treated as "unset" and clamped to 0 | fixed (`fix/wiki-issues`) |
+| 20 | 🟠 | Multi Move | Sync Move On/Off and Wait Sync Task throw "After Solution exception" on every solve; duplicate sync IDs are never checked | fixed (`fix/wiki-issues`) |
+| 21 | ⚪ | README | Installation section contradicts the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip) | fixed (`fix/wiki-issues`) |
+| 22 | 🔴 | Connect Interrupt | Analog interrupt **with** a Signal Value writes `ISignalAI sig, 2.5, int;`, which doesn't load | fixed (`fix/wiki-issues`) |
+| 23 | 🟠 | Simulation | Path Generator / Timed Path Generator cache ignores movement type, speed, zone, …: stale path and program time | fixed (`fix/wiki-issues`) |
 
 ---
 
@@ -67,6 +67,16 @@ or declare referenced robjoint/extjoint as `CONST`.
 **To check with the same fix:** a named External Joint Position inside a Joint Target, and
 a Robot Target with a named Configuration Data (same pattern may apply).
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** confirmed for Robot Target too: `VAR robtarget p :=
+[…, cfg, ej];` fails with 40322 at `cfg` (line 4, col 54). `JointTarget.ToRAPID(bool useNames)` and
+`RobotTarget.ToRAPID(bool useNames)`: declarations (`ToRAPIDDeclaration`) write the values of named
+Robot Joint Position / External Joint Position / Configuration Data; `ToRAPID()` (inline in
+instructions, Offs, …) still uses the names, which is valid there. The named parts are still declared.
+New output (`VAR jointtarget home := [[0, 0, 0, 0, 30, 0], [9E9, …]];`, `VAR robtarget p := [[400, 0,
+400], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`) plus `MoveAbsJ home` / `MoveJ p` and the inline-by-name
+forms run on the VC. Unit tests added (JointTarget, RobotTarget; not run here, need Rhino).
+Upstream has the same code.
+
 ---
 
 ## 2 🟠 "Draw Full Names" Tier 2 sweep does not rename Move's dynamic inputs
@@ -92,6 +102,18 @@ check the *Target* input label.
 `SweepDrawFullNames` reaches IGH_VariableParameterComponent params (Move registers them via
 `Params.RegisterInputParam` at runtime). Compare with a component where the sweep does work.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** the event fires and the sweep runs; it just never looked
+at these parameters. Move's `OptionalParameterDefaults` left out Target, Speed Data and Zone Data
+(and both Path Generators left out "Path") on the assumption that GH's own conversion covers them.
+It doesn't: GH converts a parameter only if its NickName still matches a freshly constructed
+reference instance, and these constructors apply the *current* preference (`ApplyFullNamesPreference`),
+so the reference already says "Target" and the real "TA" looks user-renamed. Found by constructing
+every GH_RobotComponent with the preference off and on: exactly these five parameters differ and
+were missing from the lists. All are listed now. Checked in Rhino: built with full names off →
+sweep(full) gives Target / Speed Data / Zone Data / Path, sweep(short) gives TA / SD / ZD / P back,
+a hand-renamed "myTarget" is left alone. (The issue's script repro set the property only; it fires
+the same event, so that wasn't the cause.)
+
 ---
 
 ## 3 🟡 Move *Type* silently defaults to MoveAbsJ when unconnected
@@ -105,6 +127,14 @@ target is a Robot Target. Beginners expect MoveL/MoveJ. Upstream behavior.
 **Ideas:** a remark when *Type* is unconnected, or an explicit default shown in the
 component message.
 
+**Decision (2026-11-05): by design.** On the canvas *Type* can't stay unconnected: after the first
+solve `_add` is true, and every solve with `SourceCount == 0` creates and connects a *Movement Types*
+value list (`MoveComponent.cs:143`), also after deleting it; files keep the wire. The list starts at
+MoveAbsJ, which is intended. Only a Move in a document other than the active canvas stays unconnected
+(`CreateValueList` adds to `Instances.ActiveCanvas.Document`): scripted/headless builds like the wiki
+example scripts (where this was found), possibly clusters (not checked). No error added (it would only
+flash on placement). Wiki: Move gotcha rewritten as a note, B9 row removed.
+
 ---
 
 ## 4 🟡 Actions on several branches silently produce several modules
@@ -117,6 +147,11 @@ Upstream behavior (one module per branch may be intended).
 **Ideas:** a remark when *Actions* has more than one branch ("N modules generated, one per
 branch; flatten Actions for a single module").
 
+**Decision (2026-11-05): by design.** One module per branch is Grasshopper's normal data matching
+(same reasoning as #13). Since #8 the flow-control components no longer add branches, so this only
+happens with the user's own split data (e.g. Moves from Discontinuity points). Documented on the RAPID
+Generator page ("Several modules instead of one") and in B9; no remark added.
+
 ---
 
 ## 5 🟡 Robot Preset opens a modal dialog on first solve
@@ -128,6 +163,12 @@ private `_robotPreset` field via reflection before adding.
 
 **Ideas:** only show the form from the canvas/UI path (e.g. on placement via the toolbar),
 or expose a settable preset property for scripting.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** the picker only opens when the component is in the active
+canvas's document (placement from the toolbar, right-click → Pick Robot Preset). In any other
+document it adds the remark "No robot preset picked yet. Right-click → Pick Robot Preset." and
+outputs nothing. Checked in Rhino with a separate document: no dialog, remark shown. The canvas
+path is unchanged (not testable from a script without blocking Rhino).
 
 ---
 
@@ -170,6 +211,26 @@ action source) instead of the generator's input; everything is then on `{0}` and
 their input branch (no extra level), or have the RAPID Generator ignore branch structure for
 ordering (e.g. treat all *Actions* as one list in wire order unless multi-module is intended).
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** cause is Grasshopper itself: a list output of a
+component with any item-access input gets the iteration index appended inside `SetDataList`
+(tested with native Series / Shift List: `{0}` → `{0;0}`, `{0;1}` → `{0;1;0}`), while
+`DA.ParameterTargetPath` still returns the un-appended path. New `HelperMethods.SetActionList`
+sets the list with `SetDataTree` on `ParameterTargetPath`; used by For Loop, While Loop, IF
+Statement, Message Box, Code, Comment, Connect Interrupt (*Connect Code*) and Routine (*Routine
+Call*). Checked in Rhino (new build loaded from bytes): everything on `{0}`, also nested loops;
+an unflattened RAPID Generator writes one module in wire order (`MoveAbsJ, MoveJ, FOR (FOR), IF,
+code, comment, WHILE`; the old build put the IF before the FOR); a While Loop body with a Move
+and an IF is one loop. Module passes `verify_syntax`. Several items on one branch (Code with 3
+texts) stay on that branch in item order; separate input branches stay separate. Existing files
+that flatten these outputs are unaffected (flattening `{0}` is a no-op). Behaviour change: a
+producer fed several items on one branch no longer grafts them into separate branches.
+
+**Follow-up (2026-11-05):** `SetDataTree` appends, so a component whose solve runs again inside the
+running solve (Routine creating its value lists on first placement) wrote its actions twice or three
+times (seen in the demo file: `go [...]` ×3 until F5). `SetActionList` now empties the output on
+iteration 0 before writing. Checked on a canvas: Routine call once right after the first solve;
+3 lines on one branch and two separate branches unchanged.
+
 ---
 
 ## 9 🟠 RAPID Variable *Variable* output into *Actions* crashes the RAPID Generator
@@ -183,6 +244,17 @@ first output.
 **Fix ideas:** skip null actions in the generator with a clear warning ("RAPID Variable: wire its
 *Variable Declaration* output into Actions"), or let `GH_Action` cast a RAPIDVariable to its declaration.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** the RAPID Generator removes null items from *Actions* and
+reports a summary Error first ("The RAPID Generator encountered errors. Check the following error
+messages for details.") and then one Error per invalid item with its index and kind: "Actions item 1:
+a RAPID Variable is not an action. Use its Variable Declaration output.", "…: no data (null)…", "…: a
+RAPID Expression is a value, not an action…", "…: Plane is not an action and doesn't fit here." (plus
+the branch path when Actions has several branches). The kind comes from the sources feeding Actions
+(matched by index; the input itself only keeps null for items it couldn't convert); for a grafted
+input it falls back to "no data". The module is still written from the remaining actions. Shaped on
+request in several rounds (warning → one error → per-null errors → summary + per-item kind). Checked in Rhino:
+RAPID Variable *Variable* + a Code line → warning, module with the Code line.
+
 ---
 
 ## 10 🟡 For Loop auto counter is always `i`
@@ -194,12 +266,26 @@ outer counter can't be used inside the inner loop, which is the usual reason for
 **Fix ideas:** pick the first free name (`i`, `j`, `k`, …) when nesting is detected, or warn.
 Also: `VAR num i;` is declared in the routine, but RAPID declares FOR counters implicitly; harmless.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** an auto counter takes the first of i, j, k, l, m, n that no
+`FOR … FROM` line in the loop's own body uses. Nested loops are built inside out, so the outer loop sees
+the inner's counter. Checked in Rhino: two levels → `FOR j … FOR i`, three → `k / j / i`, inner with
+explicit `j` → outer `i`; the Counter output reports the chosen name; the generated module runs on the VC.
+
+**Decision (2026-11-05):** kept as is, although it reverses the usual convention (outer `i`, inner `j`).
+The inner loop is solved first and can't know it will be nested; renaming afterwards or late binding in
+the generator were judged too fragile/large. Documented on the For Loop page ("the innermost loop counts
+with `i`"), with explicit RAPID Variable counters for the conventional order.
+
 ---
 
 ## 11 ⚪ Typo in generated comment
 
 `! User definied code lines` in every module with user declarations (also "definied" in
 `Routine.cs` / `RoutineArgument.cs` doc comments).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** "definied"/"undefinied" → "defined"/"undefined" in all 12
+files: the generated comment (`! User defined code lines`), the error messages of Joint Target,
+External Joint Position and Forward Kinematics, and doc comments.
 
 ---
 
@@ -220,6 +306,17 @@ inline RAPID value if unnamed) and make sure named declarations reach the genera
 **Workaround used in the wiki:** pass numbers (or text) and build targets inside the routine
 with Offset Target.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** new `HelperMethods.ResolveRAPIDArgumentValue`: like
+`ResolveRAPIDValueExpression`, but Robot Target / Joint Target / Robot and External Joint Position /
+Configuration Data are written as their values (Robot/Joint Target via `ToRAPID(false)` from #1), so
+no declaration is needed. Used by Routine Argument (instead of `ToString()`) and Routine Call (which
+had the related gap: a named target resolved to an undeclared name). `INOUT`/`PERS` parameters still
+need a RAPID Variable (documented). `visit [[400, -100, 300], …];` into `PROC visit(robtarget p)`
+runs on the VC. Component check in Rhino (new build installed): Routine Argument and Routine Call
+with Robot Target `pickA` both give `go [[400, -100, 300], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`, and
+the generated module runs on the VC.
+The shared resolver was deliberately not changed: tool/wobj in CRobT, Offs and Assign need names.
+
 ---
 
 ## 13 🔴 A list on Routine Argument *Value* duplicates the routine
@@ -236,6 +333,13 @@ the parameter) and make the calls with a separate **Routine Call** component who
 
 **Fix ideas:** make *Variable* a single item independent of *Value* (it is the parameter, not
 the call), or document that *Value* is only for a single self-call.
+
+**Decision (2026-11-05): by design.** A list on an item input runs the component once per item;
+one routine per value is the Grasshopper behaviour users expect. A fix (Value as list input, first
+value + warning) was implemented and reverted for that reason. Documented on the Routine and Routine
+Argument pages (and B9): for several calls use Routine Call. Note for later: Access is not stored in
+.gh files (param_input chunk: Description, InstanceGuid, Name, NickName, Optional, SourceCount), and
+skipping iterations with an item input still writes a null item per skipped iteration.
 
 ---
 
@@ -264,6 +368,13 @@ every button's *Actions* input. Then `CASE 1:` (empty) / `CASE 2: again := FALSE
 **Fix:** add an empty list for unwired buttons (keep the index), or emit `CASE {i - _staticInputCount + 1}`
 from the parameter index. Empty buttons can then be omitted from the TEST entirely.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** every button input now gets a list (empty if unwired,
+nulls removed), and the `CASE` number is the button's position. Buttons without actions get no
+`CASE`; with no actions at all, no `TEST` is written. Checked in Rhino with the new build loaded
+from bytes: Yes/No with only No wired → `CASE 2:` only; A/B/C with A and C wired → `CASE 1:` /
+`CASE 3:`; none wired → only the `UIMessageBox` line. All three shapes pass `verify_syntax` (IRB
+1200, RW 6.10). No parameter change, so no Obsolete snapshot needed.
+
 ---
 
 ## 15 🔴 Work Object on a Move doesn't convert the target coordinates
@@ -290,6 +401,24 @@ and dangerous mistake: the simulation and the real robot disagree.
 convert using the work object's plane automatically, or warn ("target is in world coordinates
 but used with work object X").
 
+**Fixed with a warning (2026-11-05, `fix/wiki-issues`):** correction to the text above: the
+simulation does **not** disagree with the robot. `Movement.GetGlobalTargetPlane` applies the work
+object too, so the Path Generator shows the same doubled offset; the trap is that the points are
+not where they were drawn. A `RobotTarget` doesn't keep whether a Reference Plane was used
+(the plane is converted in the constructor), so the Move can only guess:
+`MoveComponent.LooksLikeWorldCoordinates` flags a target that is closer to the work object's origin
+than half its distance to the world origin (and than half the work object's offset); work objects
+within 50 mm of the world origin are skipped. Checked with the pen-on-table geometry: all four
+world-coordinate corners and a 50 mm approach point warn; the same points relative to the table, and
+long local paths (500, 0, 0) / (600, 200, 0), don't; a real Move with a world target warns, with the
+Reference Plane set it doesn't. Auto-converting was not done: it would change the RAPID of every
+existing file that uses relative targets on purpose.
+
+**Decision (2026-11-06): warning removed again.** With a robot on a 10 m track and a large build
+platform as work object, relative targets routinely lie near the work object's origin, so the
+heuristic would warn about correct definitions. The trap stays documented (Work Object and Move
+gotchas, B9); no check in the Move.
+
 ---
 
 ## 16 🟡 For Loop *Counter* output can't feed the loop's own body
@@ -309,6 +438,13 @@ name (`i`) into a panel.
 auto-created `i` could be exposed differently (e.g. a separate "Loop Counter" component that
 only outputs the name).
 
+**Decision (2026-11-05): by design.** The body is an input of the loop, so any feedback from the loop's
+own output is a cycle Grasshopper never allows. The For Loop is meant for sequences with a known number
+of repetitions, using its counter by name; for everything else users create their own RAPID Variables
+(counter used in several places, counts that persist, condition-based repetition with While Loop). The
+For Loop page now has a "When to use it" section saying so; the Counter output is documented as "for
+after the loop".
+
 ---
 
 ## 17 🟠 Move: misleading exception when the Target is missing
@@ -321,6 +457,13 @@ resulting null in the RAPID Generator gives a second *"Object reference not set�
 
 **Fix ideas:** if *Target* has no data, add an error "Target input has no data" and return early
 (no output) instead of falling back to a joint target. Make the generator skip nulls with a warning (see #9).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** Move: *Target* wired but without data → warning "The Target
+input has no data. Check the component that feeds it.", no movement. Unconnected *Target* keeps the
+default joint target for MoveAbsJ; MoveL/MoveJ/MoveC with a Joint Target (or none) → error
+"MoveL, MoveJ and MoveC need a Robot Target…" instead of the exception. Generator skips the null (#9).
+Checked in Rhino: all four cases (wired-empty, MoveL unconnected, MoveAbsJ unconnected → `MoveAbsJ
+[[0, 0, 0, 0, 0, 0], …]` as before).
 
 ---
 
@@ -340,6 +483,12 @@ Source: `RobotComponents.ABB/Actions/Instructions/PathAccelerationLimitation.cs:
 
 **Workaround (documented):** a Code component with the `PathAccLim` line.
 **Fix:** emit `PathAccLim`. Check whether the Deconstruct/serialization keeps working (the class name can stay).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** `ToRAPIDInstruction` writes `PathAccLim`. The class,
+component, Deconstruct and serialization are unchanged (only the RAPID text changed). All four
+combinations as generated (`FALSE, FALSE` / `TRUE\AccMax:=2, FALSE` / `FALSE, TRUE\DecelMax:=3` /
+`TRUE\AccMax:=2.5, TRUE\DecelMax:=4`) run on the VC (`simulate_program`: ok). Unit test
+`BothDisabled_ProducesFalseFalse` updated. Worth reporting upstream.
 
 ---
 
@@ -366,6 +515,57 @@ convention it was written for, but not ABB's cfx definition for other robot fami
 for "not provided" instead of `< 0`; never clamp provided values; only compute CFX when the
 robot is a CRB 15000 (or document which robots it's for).
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** the component mixed up two things. cf1/cf4/cf6 are
+axis quadrants (`floor(angle / 90)`, negative is normal); cfx is the 3-bit posture (bit 2 wrist
+center behind axis 1, bit 1 behind the lower arm, bit 0 axis 5 negative), the same order
+`IkGeoSolver` sorts its solutions by (its local `Cf1/Cf4/Cf6` are those bits, not quadrants,
+which is probably where the mix-up came from). Neither can be derived from the other.
+Configuration Data now passes all four through (defaults 0, a remark if CFX is outside 0..7)
+with a new GUID; the old one is frozen as `Obsolete/v8/ConfigurationDataComponent_OBSOLETE`
+with `Upgraders/v8/ConfigurationDataComponentUpgrader` (wires + typed values, old `-1` "unset"
+becomes 0). New component **Configuration Number** builds cfx from Shoulder/Elbow/Wrist
+booleans. Bit meanings checked on the VC with `CRobT` (a5 −30° → cfx 1, a2 −90° → 4,
+a3 −100° → 6; the four in-limit IK solutions of one target read back as cfx 0, 1, 6, 7 matching
+Robot Components' IK order). Effect of the old clamping shown on the VC: from axis 6 at −309.8°,
+`MoveJ` to the same target with `cf6 = 0` instead of `-4` turns axis 6 a full revolution; `MoveL`
+stops with 50442. Wiki: new primer section *Arm configuration: confdata* with pose renders.
+
+**Follow-up (2026-11-06): validity.** Configuration Data can't validate on its own (a quadrant's
+validity depends on target and robot; `ConfigurationData.IsValid` is always true). Now: CFX outside
+0..7 is an Error with no output (was a remark; since pass-through such a value made the IK throw an
+index exception at `_robotJointPositions[Cfx]`). Inverse Kinematics: guard for cfx outside 0..7
+(message, no solution), and `CheckQuadrant` after `AdjustJoint` warns when cf1/cf4/cf6 isn't
+reachable for the target ("cf6 = 1 is not possible for this target (robot joint 6 is at 50 degrees,
+cf6 = 0)"); a joint exactly on a quadrant boundary accepts both neighbouring quadrants. Only in
+`Calculate`, not in `CalculateClosestRobotJointPosition` (configuration control off).
+Checked in Rhino with the installed build (target 250/300/600 down): [0,0,0,0] and [0,1,-2,1] no
+message; [0,0,-4,0] gives axis 6 at -309.81; cf6 = 1 and cf1 = -1 each warn with the actual angle;
+CFX 9 errors in Configuration Data. That test showed an "After Solution exception" after the CFX error
+(the null item left by the early return); AfterSolveInstance now skips null items.
+
+**Regression found in the final review (2026-11-06):** the quadrant check also ran for targets without
+Configuration Data (an unnamed [0, 0, 0, 0], so every target with a negative quadrant warned) and for
+every interpolation step of a MoveL/MoveC (the steps carry the end target's confdata, so each step in
+another quadrant warned with its own angle). Now: only configuration data that was given (named or not
+all zero) is checked, and `InverseKinematics.CheckConfigurationQuadrants` is switched off by both path
+generators for all interpolation steps but the last one (the target). Wiki: IK page note, Configuration
+Data note.
+Checked in Rhino with the installed build (Path Generator, home MoveAbsJ + one move): MoveL to
+(400, -150, 400) without Configuration Data → no message; MoveL to (250, 300, 600) with named
+[0, 0, 0, 0] → no message; MoveL and MoveJ there with cf6 = 1 → exactly one warning each.
+
+**Adjusted on request (2026-11-06):** (1) a quadrant of 0 isn't checked at all: an unconnected CF1/CF4/CF6,
+a target without configuration data and a CFX-only Configuration Data all give 0, which can't be told
+apart from "not given" (trade-off: an explicitly entered impossible 0 isn't flagged). (2) The Path
+Generators no longer put quadrant warnings into ErrorText: `InverseKinematics.ConfigurationWarnings` is
+stored per movement with the movement's last path plane (only with configuration control on), and the
+components show the warnings of the movement the Animation Slider points to
+(`PathGenerator.GetConfigurationWarnings(index)`). The IK component still warns for its own targets.
+Checked in Rhino with the installed build: path home -> MoveL pGood (no confdata) -> MoveL pBad (cf6 = 1):
+slider 0 and 0.3 no warning, 0.55 / 0.8 / 1 the pBad warning, same in the Timed Path Generator; a
+CFX-only target on the -Y side gives none; the IK component on pBad still warns. Demo:
+fix-demos/fix-demo-4-quadrant-check.gh.
+
 ---
 
 ## 20 🟠 Multi Move components throw after every solve
@@ -385,6 +585,15 @@ fork-only. A grep over all `Param_Action` components found only these three.
 **Fix:** cast to `GH_Structure<GH_Action>` and read the sync ID from
 `(item.Value as SyncMoveOn)?.SyncID` (etc.), like the other refactored components do.
 
+**Fixed (2026-11-05, `fix/wiki-issues`):** no other component had a typed `_tree` on a `Param_Action`
+output, so there was no pattern to copy. New `HelperMethods.GetTypedActionTree<T, TGoo>` rebuilds the
+typed tree from the `GH_Action` items (same paths, same objects, so the SyncID renaming still changes
+the output), used by all three components. Checked in Rhino (new .gha from bytes): no exception,
+RAPID unchanged; two Sync Move On with `sync1` → the second warns *"The variable name "sync1" is
+already in use."* (the typo "aleady" in `ObjectManager` fixed on the way); one component with two IDs
+→ `sync1_0`, `sync2_1` as before. The intended use is one shared component per sync point (as in the
+Multi Move tutorial), so the warning doesn't fire on correct definitions.
+
 ---
 
 ## 21 ⚪ README installation text is out of date
@@ -397,6 +606,9 @@ the zip, copy to `%appdata%\Grasshopper\Libraries`. The wiki's Getting Started n
 release notes.
 
 **Fix:** update the README's *Installation* section to match `INSTALL.md` (or link to it).
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** the README no longer describes the installation; it points
+to the releases page (each release carries its own instructions) and the wiki's Getting started.
 
 ---
 
@@ -412,6 +624,33 @@ the Virtual Controller rejects the module with a syntax/semantic error at that l
 **Fix ideas:** write `AIO_ABOVE_HIGH, <value>, 0, 0` for a single value, or add a condition input
 (above high / below low / between / outside) with high and low values, like `WaitAI`'s
 *Inequality*. Remember the obsolete-snapshot pattern if inputs change.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** a single *Signal Value* on AI/AO now writes
+`AIO_ABOVE_HIGH, <value>, 0, 0` ("rises above"); no inputs changed, so no obsolete snapshot. The
+input description says so; other conditions via Code (documented). Output of the new build checked
+in Rhino (AI with/without value, AO, DI unchanged); `ISignalAI … AIO_ABOVE_HIGH, 2.5, 0, 0, …` and the
+AO variant pass `verify_syntax`. The frozen v5/v7 obsolete snapshots keep the old line (frozen by
+design; Upgrade Components moves files to the live component).
+
+**Follow-up (2026-11-06, user request): all analog conditions.** For an analog Signal Type the
+component adds a *Condition* input (value list Always / Above / Below / Between / Outside →
+AIO_ALWAYS / AIO_ABOVE_HIGH / AIO_BELOW_HIGH / AIO_BETWEEN / AIO_OUTSIDE) and, for Between and
+Outside, a *Low Value* input (Signal Value = upper limit). Inputs are added/removed in a scheduled
+solution like the Message Box's buttons; the auto-created value list is removed with the input if it
+feeds nothing else. No Obsolete snapshot needed: Connect Interrupt is an IGH_VariableParameterComponent,
+and GH stores such inputs in a `ParameterData` chunk (InputCount + InputId type guids) and rebuilds
+exactly them on load, so old files load with their four inputs and get *Condition* on the first solve
+(list starts at Above with a Signal Value, else Always: same RAPID as before). Checked on a canvas: all
+five conditions, Low Value only for Between/Outside, error without Low Value, save/load round trip,
+back to digital removes inputs and list; all five ISignalAI lines pass `verify_syntax`. The user asked
+for the second value only with Outside; Between needs it too (ISignalAI uses Low and High for it).
+
+**Follow-up (2026-11-06):** a *Tolerance* input (ISignalAI/AO DeltaValue, default 0, negative = error)
+appears with Condition for every analog condition. The Condition value list was placed near the
+canvas origin: the names-list overload of `HelperMethods.CreateValueList` lacked the layout pass the
+enum overload has for just-added inputs; added. Checked on a canvas: list next to the input, Tolerance
+written as 5th argument, keeps its wire when Low Value is inserted, all removed when switching to
+digital; `AIO_OUTSIDE, 2.5, 1, 0.2` and `AIO_ALWAYS, 0, 0, 0.5` pass verify_syntax.
 
 ---
 
@@ -435,3 +674,18 @@ which is worse there because its step timing depends on the speed. Toggling *Upd
 time and DO) plus the target's RAPID, or simply `MovementType`, `SpeedData.ToRAPID()`,
 `ZoneData.ToRAPID()`, `Time`, `WorkObject.ToRAPID()`, `RobotTool?.ToRAPID()`; same in the Timed
 component.
+
+**Fixed (2026-11-05, `fix/wiki-issues`):** shared `HelperMethods.GetPathRelevantHash(action, robot)`
+used by both components. Movement: type, target, circle point, speed (name + data), time, zone,
+work object, tool, DO. Override Robot Tool: tool name + data. Any other instruction: its RAPID line
+(so Velocity Set, Acceleration Set, … now also trigger a recalculation). Checked in Rhino with a
+square: installed (old) build keeps 0.0 mm / same time after MoveL → MoveJ; new build: MoveJ edges
+12.3 mm off straight, time 5.56 → 5.80 s, v200 → v50 5.80 → 23.20 s; Timed Path Generator v200 → v50:
+16 → 61 steps at 0.1 s, 4.56 → 18.24 s.
+
+**Follow-up (2026-11-06, reported by the user):** changing a joint value of a Joint Target still didn't
+update the path. The hash used the target's RAPID *with names*: a Joint Target from a named Robot Joint
+Position is `[home_rj, …]`, so the values never reached the hash (same for a Robot Target with a named
+Configuration Data, and for an Offset Target's base target). The hash now uses the values
+(`ToRAPID(false)`, plus the base target of an Offset Target). Checked in Rhino: installed build keeps
+joint 1 at 0 after changing it to 45; new build follows to 45.

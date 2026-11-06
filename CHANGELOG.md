@@ -3,8 +3,618 @@
 ## All notable changes to this modified version of Robot Components are documented here.
 
 ### Changelog 
- Generated on: 2026-11-04 10:40 
+ Generated on: 2026-11-06 18:30 
  --- 
+ - Issues list: slider-dependent quadrant warning verified in Rhino Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `362232c` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Quadrant warning: skip quadrants of 0; Path Generator warns for the slider's target only - A configuration quadrant of 0 is no longer checked. An unconnected CF1/CF4/CF6, a target without configuration data and a CFX-only Configuration Data all give 0, which can't be told apart from "not given". 
+ 	 - The path generators no longer add quadrant warnings to ErrorText. The IK exposes them as ConfigurationWarnings; the path generators keep them per movement (with configuration control on) together with the movement's last path plane, and the Path Generator / Timed Path Generator components show only the warnings of the movement the Animation Slider points to. The IK component still warns for its own targets. 
+ - Wiki: Inverse Kinematics and Configuration Data notes updated. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `405e9ab` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Issues list: final IK quadrant check verified in Rhino Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `4e8095b` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - IK quadrant check: only given configuration data, only at targets; wiki review fixes Final review found a regression in the configuration-quadrant warning: - targets without Configuration Data (an unnamed [0, 0, 0, 0]) were checked too, so every target with a negative quadrant warned; - for MoveL/MoveC the path generators run the IK for every interpolation step with the end target's confdata, so each step in another quadrant warned with its own angle. 
+ - Now only given configuration data (named or not all zero) is checked, and InverseKinematics.CheckConfigurationQuadrants is off for all interpolation steps but the last (the target) in both path generators. 
+ - Wiki review: removed the stale #1 known-issue box on Robot Joint Position; notes on the quadrant warning (Inverse Kinematics, Configuration Data) and on the per-item errors (RAPID Generator). 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `310248b` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - RAPID Generator: drop the Actions input's generic conversion message Grasshopper's "Data conversion failed from ... to Action" on the Actions input is replaced by the generator's own per-item errors (index and kind), so it's cleared on the first iteration. Only the generator's Actions input is affected. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d8e90de` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - RAPID Generator: summary error first, then one error per invalid action with its kind When Actions contains items that aren't actions, the generator now reports "The RAPID Generator encountered errors. Check the following error messages for details." first, then one error per item with its index and what it is: no data (null), a RAPID Variable (use Variable Declaration), a RAPID Expression (a value, not an action), or another type that doesn't fit. The Actions input only keeps null for items it couldn't convert, so the kind is read from the sources feeding it, matched by index (flattened inputs included; grafted inputs fall back to "no data"). The module is still written from the remaining actions. 
+ - Checked in Rhino with a valid line, a RAPID Variable, a null, a RAPID Expression and a plane, as wired and flattened. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d7643af` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Connect Interrupt: Tolerance input; condition value list placed next to its input - Tolerance (ISignalAI/ISignalAO DeltaValue): optional input for every analog condition, default 0, negative is an error. Written as the 5th argument, e.g. "ISignalAI sig, AIO_OUTSIDE, 2.5, 1, 0.2, int;". Added and removed together with Condition. 
+ 	 - The Condition value list appeared near the canvas origin: the names-list overload of HelperMethods.CreateValueList read the grip of a just-added input before it was laid out. It now lays the component out first, like the enum overload. 
+ - Checked on a canvas (list next to the input, Tolerance in the RAPID and kept wired when Low Value is inserted, everything removed for digital); the lines pass verify_syntax. Wiki: Tolerance explained on the Connect Interrupt page; issue #22 updated. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `dd1dee4` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - RAPID Generator: one error per null action, with its position "Actions item 2 is null (no action) and was skipped. Check the component that feeds it." (with the branch path when Actions has several branches), instead of one combined message. The module is still written from the remaining actions. Checked in Rhino. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `c2a13de` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Configuration Data: no after-solve exception when CFX is out of range The early return for CFX outside 0..7 leaves a null item, which AfterSolveInstance then dereferenced. It now skips renaming and registers no names when an item is null. Checked in Rhino. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `4f63fb4` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Connect Interrupt: Condition and Low Value inputs for analog signals For an analog Signal Type the component adds a Condition input with its own value list (Always / Above / Below / Between / Outside -> AIO_ALWAYS / AIO_ABOVE_HIGH / AIO_BELOW_HIGH / AIO_BETWEEN / AIO_OUTSIDE), and for Between and Outside a Low Value input (Signal Value is then the upper limit). Like the Message Box's buttons, the inputs are added and removed in a scheduled solution; the value list created with Condition is removed with it if it feeds nothing else. 
+ - No Obsolete snapshot: Connect Interrupt is an IGH_VariableParameterComponent, and Grasshopper stores such inputs with their type (ParameterData chunk) and rebuilds exactly them on load. Old files load with their four inputs and get Condition on the first solve, starting at Above with a Signal Value and Always without one, so they generate the same RAPID. 
+ - Checked on a canvas: all five conditions, Low Value only for Between and Outside, error without it, save/load round trip, switching back to a digital signal removes inputs and list. All five ISignalAI lines pass verify_syntax. Wiki: condition table, signal table, note on Low Value; io.json and issue #22 updated. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d0f2691` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Path Generators: hash target values, not names (#23 follow-up) Changing a joint value of a Joint Target didn't update the path: the hash used the target's RAPID with names, and a Joint Target built from a named Robot Joint Position is "[home_rj, ...]". The same gap existed for a Robot Target with a named Configuration Data and for an Offset Target's base target. The hash now uses ToRAPID(false) and includes the base target of an Offset Target. Checked in Rhino: joint 1 changed from 0 to 45 now shows in the path (the installed build stays at 0). 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `4d9ec43` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Configuration validity: CFX 0..7 enforced, IK warns about unreachable quadrants Configuration Data can't validate its values on its own: whether a quadrant is possible depends on the target and the robot. 
+ 	 - Configuration Data: CFX outside 0..7 is an error with no output (was a remark). Since the values pass through, such a CFX made the inverse kinematics throw an index exception. 
+ 	 - Inverse Kinematics: guard for cfx outside 0..7 (message, no solution); after the whole-turn adjustment of axes 1/4/6, a requested quadrant that can't be reached gives a warning naming the actual angle and quadrant. A joint exactly on a quadrant boundary accepts both neighbouring quadrants. Shown by the IK component and both Path Generators; not in the configuration-control-off path. 
+ - Wiki: Configuration Data (CFX range, validity note) and primer tip. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `1294cc3` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Update installation instructions in README.md Added information about installing the original version via the Rhino Package Manager. 
+  
+   **Commit:** `3d1618b` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - RAPID Generator: missing actions are an error, not a warning "An input is invalid: some actions are missing and were skipped. Check the error and warning messages to resolve them." The module is still written from the remaining actions. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `b57f9c4` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Move: remove the "looks like world coordinates" warning again (#15) The heuristic warned when a target was much closer to the work object's origin than to the world origin. With a robot on a 10 m track and a large build platform as work object, correct relative targets routinely lie there, so it would warn about correct definitions. The trap stays documented on the Work Object and Move pages and in B9. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `c5d193d` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - RAPID Generator: shorter warning for skipped actions "Some actions are invalid and were skipped. Check the error and warning messages to resolve them." The cause is already shown by Grasshopper's own conversion error or by the upstream component's warning. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `9e6a757` | **Date:** 2026-11-06 
+ 
+ --- 
+ 
+ - Wiki: nested For Loops - the innermost loop counts with i Kept the inside-out naming (#10) and say plainly that it reverses the usual convention; explicit RAPID Variable counters give the usual order. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d5ae7ca` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - SetActionList: empty the output on the first iteration (fixes a #8 regression) SetDataTree appends to the output. When a component's solve runs again inside the running solve, e.g. a Routine creating its Type/Scope value lists right after placement, both runs wrote and the actions appeared twice or more (a Routine's own call came out three times in the demo file until a full recompute). The helper now clears the output on iteration 0, so a nested run's data is discarded and later iterations append as before. Checked on a canvas: one call right after the first solve; several lines on one branch and separate branches unchanged. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `68977d1` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Fix the "definied" typo; README points to the releases for installation (issues #11, #21) #11: "definied"/"undefinied" -> "defined"/"undefined" in 12 files: the generated "! User defined code lines" comment, error messages of Joint Target, External Joint Position and Forward Kinematics, and doc comments. 
+ - #21: the README's installation text contradicted the release notes (Rhino 7 / Package Manager vs. Rhino 8 only / GitHub zip). It now points to the releases page, where each release has its own instructions, and to the wiki's Getting started. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `94e1465` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Wiki: For Loop is for known repetition counts; #16 is by design The For Loop's Counter output can't feed the loop's own body: the body is an input of the loop, so that's a cycle Grasshopper never allows. 
+ - The For Loop page gets a "When to use it" section: a sequence with a known number of repetitions, using the counter by name; for everything else (counter in several places, counts that persist, repeating until something happens) create your own RAPID Variables or use a While Loop. 
+ - The Counter gotcha now says the output is for after the loop. Issue #16 recorded as by design. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `57abf15` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - For Loop: an auto counter avoids the counters of loops inside it (fixes issue #10) Two For Loops without a Counter, one inside the other, both counted with i, so the inner i hid the outer one. An auto counter now takes the first of i, j, k, l, m, n that no FOR line in its own body uses; nested loops are built inside out, so the outer loop gets j. The Counter output reports the chosen name. Checked in Rhino (2 and 3 levels, inner loop with explicit j); the generated module runs on the VC. 
+ - Wiki: For Loop text and gotcha, row tutorial Try-it 2 (no extra RAPID Variable needed); issue #10 marked fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `c897c92` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Robot Preset: picker dialog only for the canvas the user sees (fixes issue #5) The modal "pick robot" form opened on the first solve wherever the component lived. In a document built by a script or headless nobody can answer it, and Rhino blocks. It now opens only when the component is in the active canvas's document (placement from the toolbar, or right-click -> Pick Robot Preset); elsewhere it shows a remark and outputs nothing. Canvas behaviour is unchanged. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `e95054d` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Issues list: #4 (one module per branch) is by design Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `e7ac5a6` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Wiki: Move's Movement Types list is created automatically; #3 is by design On the canvas Move's Type can't stay unconnected: it creates (and recreates) a Movement Types value list that starts at MoveAbsJ. The Move gotcha becomes a note, the B9 row goes, and issue #3 is recorded as by design with the explanation. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `48fd8d3` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Draw Full Names also converts Move's Target/Speed/Zone and the Path outputs (fixes issue #2) Move's OptionalParameterDefaults left out Target, Speed Data and Zone Data, and both Path Generators left out "Path", assuming Grasshopper's own Draw Full Names conversion covers parameters registered by default. 
+ - It doesn't: GH only converts a parameter whose NickName matches a freshly constructed reference instance, and these constructors apply the current preference, so the reference already shows the full name and the real short one looks user-renamed. Constructing every component with the preference off and on shows exactly these five parameters. 
+ - All are listed now, so RobotComponentsPriority's sweep converts them both ways; hand-renamed parameters are still left alone. Checked in Rhino. No user-facing wiki text affected; issue #2 marked fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `f84b9d1` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Generator skips non-actions; Move reports a missing Target clearly (fixes issues #9, #17) #9: a RAPID Variable's Variable output (or any item that doesn't convert to an action) arrived as null in the RAPID Generator's Actions and ended in "Object reference not set". The generator now removes nulls and warns, naming the usual cause (Variable instead of Variable Declaration). 
+ - #17: a Move whose Target was wired but had no data fell back to a default joint target and then threw "A Joint Target cannot be combined with a MoveL...". It now warns "The Target input has no data" and outputs nothing. Unconnected Target keeps the default joint target for MoveAbsJ; MoveL/J/C with a joint target (or none) get a clear error instead of an exception. 
+ - Checked in Rhino with all four cases. Wiki: RAPID Variable gotcha and two B9 rows describe the new messages; issues #9 and #17 marked fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `ac309d0` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Path Generators recalculate when a movement's type, speed, zone, ... change (fixes issue #23) CreateInputHash hashed a Movement only by its target's RAPID, so switching MoveL -> MoveJ or v200 -> v50 kept the cached path and program time (the Timed Path Generator too, whose steps depend on the speed). Update and F5 didn't help. 
+ - New HelperMethods.GetPathRelevantHash, used by both components: for a Movement type, target, circle point, speed, time, zone, work object, tool and DO; for Override Robot Tool the tool data; for any other instruction its RAPID line. Checked in Rhino: the old build keeps the straight path and time after MoveL -> MoveJ; the new one bows the edges (12.3 mm) and updates the time; v50 updates time and timed steps. 
+ - Wiki: known-issue boxes on Path Generator and Timed Path Generator and the "nudge Interpolations" hint in the Try-it removed; B9 row removed; #23 marked fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `b087e75` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Multi Move sync components: no after-solve exception, duplicate check works (fixes issue #20) Sync Move On, Sync Move Off and Wait Sync Task cast their Param_Action output to GH_Structure<GH_SyncMoveOn> (etc.) after solving. The cast returned null, so every solve ended in "After Solution exception" and the SyncID renaming / duplicate-name check never ran. 
+ - New HelperMethods.GetTypedActionTree rebuilds the typed tree from the GH_Action items (same paths, same objects). Checked in Rhino: no exception, same RAPID; a second component with the same Sync ID now warns; several IDs on one component are numbered as before. Also fixes the typo "aleady" in the object manager's warning. 
+ - Wiki: known-issue boxes on Sync Move, Wait Sync Task and the Multi Move tutorial replaced by a tip (one shared component per sync point); B9 row removed; #20 marked fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `fb38f20` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Revert the Routine Argument list-input change; #13 is by design Reverts the code of 934243fb: a list on Routine Argument's Value runs the component once per value, and one routine per value is the Grasshopper behaviour users expect. Value is an item input again. 
+ - Kept from 934243fb: io.json and the icon manifest regenerated by the extraction scripts (io.json's Value entry back to item access), and the #12 Rhino test note in the issues list. 
+ - Wiki: Routine and Routine Argument explain one-routine-per-value as normal behaviour (warning, not bug) and point to Routine Call for several calls; B9 row restored; #13 recorded as by design. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `3666cd1` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Routine Argument: Value is a list input, one argument per branch (fixes issue #13) With an item input, a list on Value ran the component once per value: one argument and one Variable each, so the Routine was built and declared once per value and its body duplicated (module failed to load). 
+ - Skipping extra iterations doesn't help: Grasshopper writes a null item for each skipped iteration. 
+ - Value is now list access: the component runs once per branch, uses the first value and warns when there are more (pointing to Routine Call). 
+ - Access isn't stored in .gh files (param_input holds Description, InstanceGuid, Name, NickName, Optional, SourceCount; checked by serializing the component), so saved files load unchanged. 
+ - Checked in Rhino (installed build + this .gha): [-150, 150] gives one argument, one Variable, one PROC visit(num y); Routine Call with the list gives visit -150; / visit 150;. With #12's Robot Target argument (go [[400, -100, 300], ...];) the generated module runs on the VC. 
+ - Wiki: io.json and the icon manifest regenerated with extract_io.csx / extract_icons.csx from the installed build (no content change except the Routine Argument Value entry, updated for this change); Routine and Routine Argument boxes rewritten, B9 row removed, #12/#13 in the issues list updated. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `934243f` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Routine arguments: targets are written as values (fixes issue #12) Routine Argument turned its Value into text with ToString(), so a Robot Target became "visit Robot Target (pickA_0);". Routine Call resolved a named target to its name, which nothing declared. 
+ - New HelperMethods.ResolveRAPIDArgumentValue writes Robot Target, Joint Target, Robot/External Joint Position and Configuration Data as their values (no declaration needed) and resolves everything else as before. 
+ - Used by Routine Argument and Routine Call. The shared resolver is unchanged (CRobT tool/wobj, Offs and Assign need names). A call with a robtarget value into PROC visit(robtarget p) runs on the VC; the component itself still needs a check in Rhino with the new build. 
+ - Wiki: bug boxes on Routine and Routine Argument replaced by a note (values, INOUT/PERS need a RAPID Variable); B9 row removed; #12 fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `cb4988b` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Connect Interrupt: analog Signal Value writes AIO_ABOVE_HIGH (fixes issue #22) With an analog signal and a Signal Value the component wrote "ISignalAI sig, 2.5, int;", but ISignalAI/ISignalAO need Condition, HighValue, LowValue, DeltaValue, so the module failed to load. A single value now means "rises above": "ISignalAI sig, AIO_ABOVE_HIGH, 2.5, 0, 0, int;" (AI and AO pass verify_syntax). No inputs changed; the Signal Value description says what it means for analog signals. 
+ - Wiki: signal table shows the analog form, the known-issue box became a note on other conditions (via Code), B9 row removed, io.json description and issue #22 updated. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `8ea526e` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Target declarations write the values of their named parts (fixes issue #1) A declaration's initial value must be a literal or a CONST, but Joint Target wrote a named Robot Joint Position by name (VAR jointtarget home := [home_rj, ...]) and Robot Target did the same for a named Configuration Data / External Joint Position. The controller rejects both with 40322 (checked on the VC; upstream too). 
+ - JointTarget/RobotTarget.ToRAPID(bool useNames): ToRAPIDDeclaration now writes the values; ToRAPID() keeps using the names for inline use in instructions, where they are valid. The named parts are still declared. 
+ - New declarations plus MoveAbsJ/MoveJ by name and the inline-by-name forms run on the VC. Unit tests added (not run here: need Rhino). 
+ - Wiki: known-issue boxes removed from Joint Target and Move; Joint Target's In RAPID explains values vs names; primer and B9 row updated; #1 fixed. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `35df560` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Path Acceleration Limitation writes PathAccLim (fixes issue #18) It wrote "PathAccelerationLimitation ...;", which is not a RAPID instruction, so the module failed to load (upstream has the same line). 
+ - All four combinations as now generated run on the VC. Only the RAPID text changes; class, component and serialization are untouched. 
+ - Wiki: removed the known-issue box and the B9 row; the RAPID example shows the generated text exactly (TRUE\AccMax, no space); issue #18 marked fixed. Unit test expectation updated (not run here: needs Rhino). 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `c78fb34` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Move warns when a Robot Target looks like world coordinates on a work object (issue #15) A robtarget is measured from its work object, so a target drawn in world coordinates without a Reference Plane gets the work object's offset twice. The Path Generator shows the same offset (the issue's claim that simulation and robot disagree was wrong), so the trap is that the points are not where they were drawn. 
+ - RobotTarget doesn't keep whether a Reference Plane was used, so the Move uses a heuristic (LooksLikeWorldCoordinates): warn when the target is much closer to the work object's origin than to the world origin; work objects within 50 mm of the world origin are skipped. No automatic conversion: that would change the RAPID of files that use relative targets on purpose. 
+ - Wiki: the Work Object gotcha is now a warning that mentions the Move's check and that the preview shows the same offset; new gotcha on the Move page; B9 row and issues list updated. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `5a3d7c0` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Wiki: confdata top views show the whole quadrant disc Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `00d6e9f` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Configuration Data passes quadrants and cfx through; new Configuration Number (fixes issue #19) cf1/cf4/cf6 are axis quadrants (floor(angle / 90), negative values are normal) and cfx is the arm posture as three bits (wrist center behind axis 1, behind the lower arm, axis 5 negative). The component treated the quadrants as those bits: it clamped negative quadrants to 0, derived cfx from them and overwrote them from cfx. Checked on the VC: with axis 6 at -309.8 deg, MoveJ to the same target with cf6 0 instead of -4 turns axis 6 a full revolution; MoveL stops with 50442. 
+ 	 - Configuration Data: all four values pass through unchanged, defaults 0, a remark when CFX is outside 0..7. New GUID. 
+ 	 - Obsolete/v8/ConfigurationDataComponent_OBSOLETE: frozen copy with the original GUID, so existing files behave exactly as before. 
+ 	 - Upgraders/v8/ConfigurationDataComponentUpgrader: wires and typed values move over; the old "-1 = not set" default becomes 0. 
+ 	 - New Configuration Number: Shoulder/Elbow/Wrist booleans -> CFX (4/2/1), the bit order the IK uses; checked against the VC with CRobT. 
+ - Wiki: new RAPID primer section "Arm configuration: confdata" with pose renders (four postures of one target, axis 1 quadrant top views) and the VC results; Configuration Data page rewritten with a Configuration Number section and an upgrade note; GoFa note, Part A index, B9 row and the issues list updated; io.json, registry and icon manifest entries added. Also: make_chapter_indexes handles page#anchor entries, and the B3 Try-it text from the #14 fix now lives in exercises.yml. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `1b59d15` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Action blocks stay on their input branch, so wire order is program order (fixes issue #8) Grasshopper appends the iteration index to every list output of a component that has an item-access input ({0} -> {0;0}, nested loops {0;0;0}), while a Move outputs on {0}. Merged into the RAPID Generator (or a loop's Actions), actions were then sorted by branch path first: an IF wired after a nested FOR was generated before it, a Wait Time after Connect Interrupt before CONNECT, and an unflattened generator or loop split into one module/loop per branch. 
+ - New HelperMethods.SetActionList sets the list with SetDataTree on DA.ParameterTargetPath, which is the un-appended path. Used by For Loop, While Loop, IF Statement, Message Box, Code, Comment, Connect Interrupt (Connect Code) and Routine (Routine Call). No parameter change; files that flatten these outputs keep working. 
+ - Wiki: removed the "flatten the output" warnings (For Loop, IF, While Loop, Code, Connect Interrupt, Message Box, RAPID Generator, row tutorial and its Try-it solution) and the B9 pitfall row; marked #8 fixed in tools/docs/issues-found.md. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `1e1bfa9` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Message Box: number CASE by button position (fixes issue #14) Buttons without wired actions were skipped when collecting the action lists, so the CASE counter shifted: with buttons Yes/No and only No wired, No's actions were written under CASE 1 and ran when the operator pressed Yes. Every button input now gets a list (empty if unwired), the CASE number is the button's position, buttons without actions get no CASE, and no TEST is written when no button has actions. Output shape unchanged, so no Obsolete snapshot is needed. 
+ - Wiki: removed the known-issue box on the Message Box page and the B9 pitfall row, described the CASE numbering, reworded the Empty Line tip and the B3 Try-it, and marked #14 fixed in tools/docs/issues-found.md. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `c8ec075` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Merge pull request #41 from jpdrude/docs/readme-wiki-link README: link the learning wiki 
+  
+   **Commit:** `464de8a` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - README: link the learning wiki Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `8c6c871` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Merge pull request #40 from jpdrude/docs/wiki Learning wiki (MkDocs) with GitHub Pages deployment 
+  
+   **Commit:** `c247357` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - CLAUDE.md: component changes must update the wiki; add the extraction scripts - New REQUIRED section: what to update in docs/ when a component changes (io.json, icons, registry, page text, known-issue boxes, B9, issues list, examples, strict build). 
+ 	 - tools/docs/extract_io.csx and extract_icons.csx: the Grasshopper-side scripts that produce docs/data/io.json and the icons/manifest (previously only run inline). Both re-run against the current build: io.json identical, manifest same 172 entries. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `839c0a5` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Docs workflow: also run when the build scripts in tools/docs change Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `f018d14` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Wiki: icons for the last Grasshopper components; Try-it solutions from Rhino runs - Registry + 24px icons (extracted from Grasshopper) for Circle, Divide Curve, List Item, Rotate Plane, Plane Origin, Construct Domain, Boolean Toggle, Button, Merge, Relay; all plain-text mentions now link (Curve parameter -> [[ghtype:Curve]], grasshopperdocs has no page) - GoFa solutions, from the example in Rhino: (150, 0, 800) clears the shoulder warning; (400, 0, 0) gives the wrist singularity warning (grid sweep) - Path Generator solutions: MoveJ edges 8.6-9.9 mm off the line, approach 73 mm; X 600 / Size 300 puts p_1/p_2 out of reach (elbow singularity); "900 mm away" corrected - New issue 23: Path/Timed Path Generator cache ignores movement type and speed (stale path and program time; verified in Rhino and source). Known-issue boxes + B9 row. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `b4345fe` | **Date:** 2026-11-05 
+ 
+ --- 
+ 
+ - Wiki review (Part B, reference): late-bound routine calls, analog interrupt bug, fixes Checked on the Virtual Controller during the review: - Routine Call with Module Name writes a late-bound call (%"Module:routine"%); a direct call to a routine in a not-yet-loaded module fails to load, the late-bound one loads and runs. 
+ - Documented on Routine Call, Load Module, routine library, B9. 
+ 	 - Connect Interrupt, analog signal with Signal Value: ISignalAI sig, 2.5, int; doesn't load (new issue 22); AIO_ALWAYS and an AIO_ABOVE_HIGH workaround load. Page + B9 updated. 
+ 	 - Assigning to a CONST fails to load; array index 5 of {4} stops with 40204 (solutions/details). 
+ 	 - New routine-library solution (retract with Offs(CRobT(), 0, 0, 200)) runs clean. 
+ - Also: Part B overview named TPReadFK/TPReadNum (components use UIMessageBox/UINumEntry); Assign Variable Value menu names; B9 lists all known traps; exercise wording; page template. 
+ - Hook: [[io:...]] inside an admonition keeps its indentation (fold-out tables rendered raw). 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `f906fff` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki review (Part A + B0): fix factual errors, broken front matter, wrong links - Work Object: the plane is the object frame (user frame is World XY), page + exercise - Load Data: caret labels pointed at the wrong numbers; explained in prose instead - Robot: Name isn't checked against the controller - Joint Target: In RAPID block now says RC currently writes it differently - Wait Time gotcha corrected (any non-zero number = True, Duration default 1 s) - Front matter of two pages was invalid YAML (title/description silently dropped); added front matter to the two reference pages - Chapter pages: page descriptions instead of a status column, in nav order - Missing I/O tables: wait-for-output components, all controller signal/pose components - Upload and run: explain Upload Helper Modules and Get Task Names; button vs toggle - Info version v1.4.4 -> v1.4.5; linear track distance; no internal issue numbers - B0 primer: Next link went to Part B overview, Multi Move link to Part A overview, Joint Target issue link; Part B overview listed B8 tutorials by wrong names Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `46d87d4` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: show the page number next to every ABB manual link; link RAPID types on every page Browsers' PDF viewers often ignore #page=N, so [[abb:...]] links now read "MoveL p. 462". 
+ - The first prose mention of each RAPID instruction/function/data type on a page links to ABB (83 mentions on 38 pages + exercises), and the type pages that had no RAPID link got one: Robot and external axes (mecunit, robjoint, extjoint), Controller signals (signalxx), RAPID Expression and Code (kernel Expressions/Statements), A1/A2 chapter intros. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `ab080d2` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: ABB links open in a new tab and jump to the right page Page links now point to the PDF itself (library.e.abb.com, without the expiring signature) instead of Download.aspx, whose redirect made browsers drop #page=N and open the cover. abb_pages.py records that address per manual and --check fails when it changes (new revision). All links to ABB manuals get target="_blank" rel="noopener". 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `42da5c8` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: link ABB manuals directly (PDF) and to the exact page of each instruction ([[abb:...]]); page index from the PDF bookmarks (tools/docs/abb_pages.py, docs/data/abb-pages.yml), checked on every publish; gitignore ABB manual PDFs Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d4e1a30` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Grasshopper data type icons (Text, Number, Integer, Boolean, Plane, ...) in all I/O tables, new reference page Grasshopper data types, [[ghtype:...]] shortcode; hidden RC types Controller/Signal/Set Digital Output with icons Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `babace8` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: align install instructions with the v1.4.5 release notes (Rhino 8 only, GitHub zip, unblock, Libraries folder, EDEK presets, Upgrade Components); issue 21 (README) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `b76cfca` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: tutorial Two robots with Multi Move (generated, marked as not controller-checked) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `b8ae0f9` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: tutorial A routine library (system module + program module) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `677c41e` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: tutorial Working with a GoFa (IkGeo solver, singularity warnings) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `9360417` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: chapter exercises with solutions (docs/data/exercises.yml, generated into chapter pages) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `2dc7e5b` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: tutorial A robot on a linear track (verified on IRB 4600 + track Virtual Controller) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `e978c0b` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: tutorial Pick and place (motion simulated, I/O syntax-checked) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d25c595` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: tutorial Following a curve (verified on Virtual Controller) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `6a6fe71` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: cleaner Inverse Kinematics viewport image (GH preview) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `6a44b65` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: remaining Part A pages (cell setup, external axes, controller utilities, Multi Move, Deconstruct) and RAPID Expression; issue 20. Every component now has a written page. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `473e79c` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Inverse and Forward Kinematics pages with IK/FK round-trip example Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `4bed4e3` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: plane helpers, Check Variable Names, Group Actions, Object Manager, Info pages; B9 name-check fix Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `e21e81c` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: A3 motion settings, Configuration Data, Wait for Robot pages; issues 18-19 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `deab864` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: array tutorial, Get Array At Index, Load Module, Comment, Empty Line; issues 16-17; Part B complete Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `4e1d531` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: B9 Pitfalls and limits checklist; chapter-page step in page template Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d6790d9` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: chapter landing pages for every chapter (generated from the registry), tutorial overviews A9/B8, chapter links in nav and part indexes Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `d283593` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Check Actions, Timed Path Generator, Upload and run, Multi Relay pages Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `0814aef` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: clearer pen-on-table viewport image; A3 chapter status Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `f804ee3` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Robot Tool and Work Object pages with verified pen-on-table example; issue 15 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `70cc191` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Part A I/O pages (Set outputs, Wait for signals, Wait Time) with syntax-checked example Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `34590f7` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Path Generator (with viewport preview) and RAPID Generator pages Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `237520c` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Part A pages Robot Preset, Robot Target, Robot Joint Position, Joint Target, Speed Data, Zone Data Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `418d5ba` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Message Box, Numeric Entry Box, While Loop pages (operator-loop example); Part B navigation; issue 14 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `f4d8200` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Connect Interrupt and Code pages (syntax-checked interrupt example); issue 8 extended Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `f9c948f` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Current Robot Target, Get Robtarget Members, Return pages with verified FUNC example Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `9c49233` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Routine, Routine Argument, Routine Call pages with verified example; issues 12-13 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `4ab6bd5` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Part B row-loop tutorial and pages for RAPID Variable, Assign Variable Value, Comparison Expression, For Loop, IF Statement, Offset Target Verified on the Virtual Controller; issues 8-11 added to tools/docs/issues-found.md. 
+ - Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `38b7e36` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: B0 RAPID primer (verified on Virtual Controller) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `cd2ee25` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: Getting Started page with verified first program Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `2039b4e` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Wiki: auto-generated input/output tables from live components ([[io:Name]]) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `b771205` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Add learning wiki skeleton (MkDocs) with Move page and icon/link shortcodes - MkDocs Material site in docs/ with Part A (essentials) and Part B (advanced RAPID) structure - Move page: example built in Grasshopper, RAPID verified on an IRB 1200 Virtual Controller - 172 toolbar icons and a registry; [[Name]] / [[type:Name]] / [[gh:Name]] shortcodes render icon + link via tools/docs/rc_links.py, planned pages generated as stubs - ABB manuals linked centrally, never copied - tools/docs/issues-found.md: problems found while building the wiki - GitHub Pages workflow (deploys from main only) Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `619932b` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Push version number Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `9e62fc3` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - Merge pull request #39 from jpdrude/fix/for-loop-counter-declaration For Loop: declare auto-created counter at start of routine 
+  
+   **Commit:** `55c0893` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
+ - For Loop: declare auto-created counter at the start of the routine The automatic "VAR num i" counter was never declared. CodeLine gains an IsRoutineLocal flag; the RAPID generator collects such declarations per routine, de-duplicates them and writes them directly below the PROC/FUNC/TRAP header (main procedure and additional routines). 
+ - Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com> 
+  
+   **Commit:** `3905ef9` | **Date:** 2026-11-04 
+ 
+ --- 
+ 
  - Push version number 
   
    **Commit:** `ad27725` | **Date:** 2026-10-12 

@@ -133,6 +133,20 @@ namespace RobotComponents.Tests.Actions
 
         [Fact]
         [Trait("Category", "RequiresRhino")]
+        public void ToRAPIDDeclaration_NamedConfigData_WritesValuesNotName()
+        {
+            // A declaration's initial value can't refer to another VAR (load error 40322).
+            ConfigurationData cd = new ConfigurationData("myconf", 1, 2, 3, 4);
+            RobotTarget rt = new RobotTarget("t1", Plane.WorldXY, cd, new ExternalJointPosition());
+
+            string result = rt.ToRAPIDDeclaration(null);
+
+            Assert.DoesNotContain("myconf", result);
+            Assert.Contains("[1, 2, 3, 4]", result);
+        }
+
+        [Fact]
+        [Trait("Category", "RequiresRhino")]
         public void ToRAPIDDeclaration_Unnamed_ReturnsEmpty()
         {
             RobotTarget rt = new RobotTarget(Plane.WorldXY);

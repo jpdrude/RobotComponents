@@ -312,8 +312,22 @@ namespace RobotComponents.ABB.Actions.Declarations
         /// </returns>
         public string ToRAPID()
         {
-            string externalJointPosition = _externalJointPosition.Name;
-            string configurationData = _configurationData.Name;
+            return ToRAPID(true);
+        }
+
+        /// <summary>
+        /// Returns the Robot Target in RAPID code format.
+        /// </summary>
+        /// <param name="useNames">
+        /// True to refer to a named Configuration Data and External Joint Position by name (valid in
+        /// instructions); false to always write their values. A declaration's initial value must be
+        /// a literal or a CONST, so it can't refer to another VAR or PERS.
+        /// </param>
+        /// <returns> The string with robot target values. </returns>
+        public string ToRAPID(bool useNames)
+        {
+            string externalJointPosition = useNames ? _externalJointPosition.Name : "";
+            string configurationData = useNames ? _configurationData.Name : "";
 
             if (externalJointPosition == "")
             {
@@ -350,7 +364,7 @@ namespace RobotComponents.ABB.Actions.Declarations
             if (_name != "")
             {
                 string result = _scope == Scope.GLOBAL ? "" : $"{Enum.GetName(typeof(Scope), _scope)} ";
-                result += $"{Enum.GetName(typeof(VariableType), _variableType)} {_datatype} {_name} := {ToRAPID()};";
+                result += $"{Enum.GetName(typeof(VariableType), _variableType)} {_datatype} {_name} := {ToRAPID(false)};";
 
                 return result;
             }

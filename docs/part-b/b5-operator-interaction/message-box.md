@@ -67,7 +67,8 @@ button. (Generated lines are shown wrapped here.)
 3. [[Numeric Entry Box]] asks for a height and stores it in `h`. A [[Move]] goes to
    [[Offset Target]] `Offs(base, 0, 0, h)`.
 4. Message Box with buttons `Yes` and `No`. *Actions No* gets an [[Assign Variable Value]]
-   `again := FALSE`; *Actions Yes* gets an [[Empty Line]] (see the bug below).
+   `again := FALSE`; *Actions Yes* gets an [[Empty Line]], which writes the empty `CASE 1:`.
+   Without it, *Yes* would get no `CASE` at all, which does the same thing.
 
 ## In RAPID
 
@@ -75,16 +76,9 @@ button. (Generated lines are shown wrapped here.)
 1. `TEST … CASE … ENDTEST` runs the block that matches the number. ABB's reference:
 [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:UIMessageBox]], [[abb:TEST]], [[abb:btnres]]).
 
-## Gotchas
-
-!!! bug "Wire something into every button, or the wrong button acts"
-    Buttons without actions are skipped when the `CASE` numbers are generated. With only
-    *Actions No* wired, its actions end up in `CASE 1`, which is the **Yes** button. Until this
-    is fixed, give every button at least an [[Empty Line]].
-
-!!! warning "Flatten the output inside loops"
-    Message Box outputs on a different data-tree branch than the other actions. In a
-    [[While Loop]] this produced **two** separate loops. Right-click *Message Box* → **Flatten**.
+The `CASE` number is the button's position in the *Buttons* list. A button with nothing wired
+gets no `CASE`: pressing it just continues after `ENDTEST`. If no button has actions, no
+`TEST` is written at all, only the `UIMessageBox` call.
 
 ## See also
 

@@ -194,7 +194,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 object arg = null;
                 if (DA.GetData(i, ref arg))
                 {
-                    argValues.Add(HelperMethods.ResolveRAPIDValueExpression(arg));
+                    argValues.Add(HelperMethods.ResolveRAPIDArgumentValue(arg));
                 }
             }
 

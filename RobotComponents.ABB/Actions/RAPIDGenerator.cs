@@ -452,7 +452,7 @@ namespace RobotComponents.ABB.Actions
 
                 if (uniqueDecls.Count != 0)
                 {
-                    _module.Add("    " + "! User definied code lines");
+                    _module.Add("    " + "! User defined code lines");
                     _module.AddRange(uniqueDecls);
                     AddUniqueIdentifiers(uniqueDecls);
                     _module.Add("    ");

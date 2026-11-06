@@ -32,10 +32,6 @@ RAPID kernel manual, and each instruction in [RAPID Instructions, Functions and 
     Typos only show up when the controller loads the module. Check it with
     RobotStudio or a Virtual Controller.
 
-!!! warning "Flatten the output"
-    *Code* outputs on a deeper data-tree branch than a [[Move]]. To keep your wire order,
-    right-click its output → **Flatten** (see [[Connect Interrupt]] → Gotchas).
-
 ## See also
 
 [[Comment]] · [[Empty Line]] · [[Code Types]]

@@ -18,7 +18,7 @@ namespace RobotComponents.Tests.Actions
         {
             PathAccelerationLimitation pal = new PathAccelerationLimitation(false, 0.0, false, 0.0);
 
-            Assert.Equal("PathAccelerationLimitation FALSE, FALSE;", pal.ToRAPIDInstruction(null));
+            Assert.Equal("PathAccLim FALSE, FALSE;", pal.ToRAPIDInstruction(null));
         }
 
         [Fact]

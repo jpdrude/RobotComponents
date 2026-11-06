@@ -20,6 +20,7 @@ using Rhino.Geometry;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Parameters;
+using Grasshopper.Kernel.Special;
 using GH_IO.Serialization;
 // RobotComponents Libs
 using RobotComponents.ABB.Actions.Instructions;
@@ -47,6 +48,15 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         private bool _expire = false;
         private bool _interruptNameInputParam = false;
         private const string _interruptNameParamName = "Interrupt Variable Name";
+
+        // Analog signals (AI, AO): a Condition input appears, and a Low Value input for Between/Outside.
+        private const string _conditionParamName = "Condition";
+        private const string _lowValueParamName = "Low Value";
+        private const string _toleranceParamName = "Tolerance";
+        private static readonly List<string> _conditionNames = new List<string> { "Always", "Above", "Below", "Between", "Outside" };
+        private static readonly string[] _conditionRapid = { "AIO_ALWAYS", "AIO_ABOVE_HIGH", "AIO_BELOW_HIGH", "AIO_BETWEEN", "AIO_OUTSIDE" };
+        private const int _conditionAlways = 0, _conditionAbove = 1, _conditionBetween = 3, _conditionOutside = 4;
+        private bool _analogParamsPending = false;
         #endregion
 
         /// <summary>
@@ -65,6 +75,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         public override IReadOnlyList<(string Name, string NickName)> OptionalParameterDefaults => new[]
         {
             (_interruptNameParamName, "IVN"),
+            (_conditionParamName, "C"),
+            (_lowValueParamName, "LV"),
+            (_toleranceParamName, "TOL"),
         };
 
         /// <summary>
@@ -79,7 +92,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                 GH_ParamAccess.item);
             pManager.AddNumberParameter("Signal Value", "SV",
                 "Value of the signal that triggers the interrupt when the signal changes to this value. " +
-                "If not connected, the interrupt fires on every change of the signal. " +
+                "For analog signals (AI, AO) it is the threshold for Condition Above/Below, or the upper limit for Between/Outside. " +
+                "If not connected, a digital interrupt fires on every change of the signal. " +
                 "Not used for group signals (GI, GO) and in Persistent Data mode: the RAPID ISignalGI, " +
                 "ISignalGO and IPers instructions have no triggering value and always fire on every change.",
                 GH_ParamAccess.item);
@@ -164,10 +178,85 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     "Disconnect it to remove this warning.");
             }
 
-            // Without a Signal Value the interrupt fires on every change of the signal:
-            // trigger value 2 (both edges) for digital signals, condition AIO_ALWAYS for analog signals.
+            // Without a Signal Value a digital interrupt fires on every change of the signal (trigger value 2, both edges).
             string digitalTrigger = hasSignalValue ? ((int)signalValue).ToString() : "2";
-            string analogTrigger = hasSignalValue ? signalValue.ToString(System.Globalization.CultureInfo.InvariantCulture) : "AIO_ALWAYS, 0, 0, 0";
+
+            // Analog signals get a Condition input (and a Low Value input for Between/Outside). The inputs are
+            // added/removed in a scheduled solution, as the Message Box does with its button inputs.
+            bool analog = signalTypeInt == (int)SignalType.AnalogInput || signalTypeInt == (int)SignalType.AnalogOutput;
+            int conditionIndex = Params.Input.FindIndex(x => x.Name == _conditionParamName);
+            int condition = -1;
+            if (conditionIndex != -1 && !DA.GetData(conditionIndex, ref condition)) { condition = -1; }
+            bool wantLowValue = analog && (condition == _conditionBetween || condition == _conditionOutside);
+            int lowValueIndex = Params.Input.FindIndex(x => x.Name == _lowValueParamName);
+            int toleranceIndex = Params.Input.FindIndex(x => x.Name == _toleranceParamName);
+
+            if ((conditionIndex != -1) != analog || (lowValueIndex != -1) != wantLowValue || (toleranceIndex != -1) != analog)
+            {
+                ScheduleAnalogParameters(analog, wantLowValue, hasSignalValue);
+                return;
+            }
+
+            // ISignalAI/ISignalAO take Condition, HighValue, LowValue, DeltaValue.
+            string analogTrigger = "AIO_ALWAYS, 0, 0, 0";
+            if (analog)
+            {
+                string Num(double value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+                // DeltaValue: the signal must differ by more than this from the value at the last
+                // interrupt before a new interrupt is generated. 0 when not connected.
+                double tolerance = 0;
+                if (!DA.GetData(toleranceIndex, ref tolerance)) { tolerance = 0; }
+                if (tolerance < 0)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Tolerance can't be negative.");
+                    return;
+                }
+
+                if (condition < 0 || condition >= _conditionRapid.Length)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Condition must be 0 to 4: Always, Above, Below, Between or Outside.");
+                    return;
+                }
+
+                if (condition == _conditionAlways)
+                {
+                    if (hasSignalValue)
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Signal Value isn't used with Condition Always: the interrupt fires on every change.");
+                    }
+                }
+                else if (!hasSignalValue)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"Condition {_conditionNames[condition]} needs a Signal Value.");
+                    return;
+                }
+                else if (condition == _conditionBetween || condition == _conditionOutside)
+                {
+                    double lowValue = 0;
+                    if (!DA.GetData(lowValueIndex, ref lowValue))
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"Condition {_conditionNames[condition]} needs a Low Value (the Signal Value is the upper limit).");
+                        return;
+                    }
+
+                    if (lowValue >= signalValue)
+                    {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Low Value should be below the Signal Value (the upper limit).");
+                    }
+
+                    analogTrigger = $"{_conditionRapid[condition]}, {Num(signalValue)}, {Num(lowValue)}, {Num(tolerance)}";
+                }
+                else
+                {
+                    analogTrigger = $"{_conditionRapid[condition]}, {Num(signalValue)}, 0, {Num(tolerance)}";
+                }
+
+                if (condition == _conditionAlways)
+                {
+                    analogTrigger = $"AIO_ALWAYS, 0, 0, {Num(tolerance)}";
+                }
+            }
 
             // Optional override for the generated intnum variable name. Needed to connect more
             // than one interrupt to the same TRAP routine: the default int_<TrapRoutineName>
@@ -234,8 +323,128 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             }
 
             //Set output data
-            DA.SetDataList(0, codeLines);
+            HelperMethods.SetActionList(this, DA, 0, codeLines);
         }
+
+        #region analog condition inputs
+        /// <summary>
+        /// Adds or removes the Condition, Low Value and Tolerance inputs in a scheduled solution (inputs can't change
+        /// while this component is being solved). A new Condition input gets a value list, starting at
+        /// Above when a Signal Value is connected and at Always otherwise, so files from before keep
+        /// generating the same RAPID.
+        /// </summary>
+        private void ScheduleAnalogParameters(bool wantCondition, bool wantLowValue, bool hasSignalValue)
+        {
+            if (_analogParamsPending) { return; }
+
+            GH_Document document = OnPingDocument();
+            if (document == null) { return; }
+
+            _analogParamsPending = true;
+
+            document.ScheduleSolution(5, d =>
+            {
+                _analogParamsPending = false;
+
+                IGH_Param conditionParam = Params.Input.FirstOrDefault(x => x.Name == _conditionParamName);
+                IGH_Param lowValueParam = Params.Input.FirstOrDefault(x => x.Name == _lowValueParamName);
+                IGH_Param toleranceParam = Params.Input.FirstOrDefault(x => x.Name == _toleranceParamName);
+                bool createdCondition = false;
+
+                if (!wantCondition && toleranceParam != null)
+                {
+                    Params.UnregisterInputParameter(toleranceParam, true);
+                }
+
+                if (!wantLowValue && lowValueParam != null)
+                {
+                    Params.UnregisterInputParameter(lowValueParam, true);
+                }
+
+                if (!wantCondition && conditionParam != null)
+                {
+                    RemoveOwnValueLists(conditionParam, d);
+                    Params.UnregisterInputParameter(conditionParam, true);
+                    conditionParam = null;
+                }
+
+                if (wantCondition && conditionParam == null)
+                {
+                    conditionParam = new Param_Integer
+                    {
+                        Name = _conditionParamName,
+                        NickName = "C",
+                        Description = "When the analog interrupt fires: 0 Always (every change), 1 Above the Signal Value, " +
+                                      "2 Below the Signal Value, 3 Between Low Value and Signal Value, 4 Outside Low Value and Signal Value.",
+                        Access = GH_ParamAccess.item,
+                        Optional = true
+                    };
+                    HelperMethods.ApplyFullNamesPreference(conditionParam);
+                    Params.RegisterInputParam(conditionParam, 4);
+                    createdCondition = true;
+                }
+
+                if (wantLowValue && Params.Input.All(x => x.Name != _lowValueParamName))
+                {
+                    Param_Number newLowValue = new Param_Number
+                    {
+                        Name = _lowValueParamName,
+                        NickName = "LV",
+                        Description = "Lower limit for Condition Between and Outside (the Signal Value is the upper limit).",
+                        Access = GH_ParamAccess.item,
+                        Optional = true
+                    };
+                    HelperMethods.ApplyFullNamesPreference(newLowValue);
+                    Params.RegisterInputParam(newLowValue, Params.Input.IndexOf(conditionParam) + 1);
+                }
+
+                if (wantCondition && Params.Input.All(x => x.Name != _toleranceParamName))
+                {
+                    Param_Number newTolerance = new Param_Number
+                    {
+                        Name = _toleranceParamName,
+                        NickName = "TOL",
+                        Description = "DeltaValue of ISignalAI/ISignalAO: the signal must differ by more than this from its value " +
+                                      "at the last interrupt before a new interrupt is generated. 0 (default) = any change.",
+                        Access = GH_ParamAccess.item,
+                        Optional = true
+                    };
+                    HelperMethods.ApplyFullNamesPreference(newTolerance);
+                    int lastAnalog = Math.Max(Params.Input.IndexOf(conditionParam), Params.Input.FindIndex(x => x.Name == _lowValueParamName));
+                    Params.RegisterInputParam(newTolerance, lastAnalog + 1);
+                }
+
+                Params.OnParametersChanged();
+
+                if (createdCondition && conditionParam.SourceCount == 0)
+                {
+                    int index = Params.Input.IndexOf(conditionParam);
+                    if (HelperMethods.CreateValueList(this, _conditionNames, index) && conditionParam.Sources.FirstOrDefault() is GH_ValueList valueList)
+                    {
+                        valueList.NickName = "Analog Condition";
+                        valueList.SelectItem(hasSignalValue ? _conditionAbove : _conditionAlways);
+                    }
+                }
+
+                ExpireSolution(false);
+            });
+        }
+
+        /// <summary>
+        /// Deletes value lists that feed only this input (the one created with the Condition input), so
+        /// switching back to a digital signal doesn't leave an unconnected list on the canvas.
+        /// </summary>
+        private static void RemoveOwnValueLists(IGH_Param param, GH_Document document)
+        {
+            foreach (IGH_Param source in param.Sources.ToList())
+            {
+                if (source is GH_ValueList valueList && valueList.Recipients.Count == 1)
+                {
+                    document.RemoveObject(valueList, false);
+                }
+            }
+        }
+        #endregion
 
         #region menu items
         /// <summary>

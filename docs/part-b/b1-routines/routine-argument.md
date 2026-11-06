@@ -30,14 +30,17 @@ Full example: [[Routine]].
 
 ## Gotchas
 
-!!! bug "Use *Value* only for a single call"
-    *Value* is the value for the Routine's own *Routine Call* output. A **list** of values
-    duplicates the routine (see [[Routine]] → Gotchas). For several calls, leave *Value* empty and
-    use a [[Routine Call]] component.
+!!! warning "A list on *Value* makes one argument per value"
+    Like any Grasshopper component, Routine Argument runs once per value: a list gives one
+    argument (and one *Variable*) per value, so the [[Routine]] is built once per value too
+    (see [[Routine]] → Gotchas). *Value* is meant for the Routine's own single call. For several
+    calls, leave *Value* empty and use a [[Routine Call]] component.
 
-!!! bug "Robot Targets as values don't work yet"
-    A Robot Target on *Value* is written as `Robot Target (name)` instead of its RAPID name.
-    Pass numbers or text instead.
+!!! info "Robot Targets as values"
+    A Robot Target (or Joint Target, joint position, Configuration Data) on *Value* is written
+    as its value, e.g. `visit [[400, -100, 300], [0, 0, 1, 0], [0, 0, 0, 0], [9E9, …]];`, so
+    it needs no declaration. An `INOUT` or `PERS` parameter needs a variable instead: pass a
+    [[RAPID Variable]].
 
 ## See also
 

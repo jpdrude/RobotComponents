@@ -663,7 +663,7 @@ namespace RobotComponents.ABB.Definitions
         /// <param name="internalAxisPlanes"> The internal axes planes defined in the world coorindate space. </param>
         /// <param name="internalAxisLimits"> The internal axes limit. </param>
         /// <param name="basePlane"> The position and orientation of the robot base in the world coordinate space. </param>
-        /// <param name="mountingFrame"> The tool mounting frame definied in the world coordinate space. </param>
+        /// <param name="mountingFrame"> The tool mounting frame defined in the world coordinate space. </param>
         /// <param name="tool"> The Robot Tool. </param>
         [Obsolete("This constructor is OBSOLETE.", false)]
         public Robot(string name, IList<Mesh> meshes, IList<Plane> internalAxisPlanes, IList<Interval> internalAxisLimits, Plane basePlane, Plane mountingFrame, RobotTool tool)
@@ -704,7 +704,7 @@ namespace RobotComponents.ABB.Definitions
         /// <param name="internalAxisPlanes"> The internal axes planes defined in the world coorindate space. </param>
         /// <param name="internalAxisLimits"> The internal axes limit. </param>
         /// <param name="basePlane"> The position and orientation of the robot base in the world coordinate space. </param>
-        /// <param name="mountingFrame"> The tool mounting frame definied in the world coordinate space. </param>
+        /// <param name="mountingFrame"> The tool mounting frame defined in the world coordinate space. </param>
         /// <param name="tool"> The Robot Tool. </param>
         /// <param name="externalAxes"> The attached external axes. </param>
         [Obsolete("This constructor is OBSOLETE.", false)]

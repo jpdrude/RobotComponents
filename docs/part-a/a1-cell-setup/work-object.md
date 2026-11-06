@@ -68,12 +68,14 @@ frame. Targets used with `\WObj:=table` are measured from the object frame. ABB'
 
 ## Gotchas
 
-!!! bug "Set the Reference Plane, or every point is offset twice"
-    A Work Object on the Move does **not** convert the targets. Without *Reference Plane*,
-    the Robot Targets are written in world coordinates (`p_0 := [[350, -150, 150], …]`), and
-    the controller then measures them from the table: `p_0` would land at about
-    (728, −105, 300) instead of (350, −150, 150). Nothing warns. Always give targets used
-    with a work object that work object's plane as *Reference Plane*.
+!!! warning "Set the Reference Plane, or every point is offset twice"
+    A Work Object on the Move does **not** convert the targets: a robtarget is always measured
+    from its work object. Without *Reference Plane*, the Robot Targets are written in world
+    coordinates (`p_0 := [[350, -150, 150], …]`), and the controller then measures them from
+    the table: `p_0` would land at about (728, −105, 300) instead of (350, −150, 150). The
+    [[Path Generator]] shows the same offset, so the preview and the robot agree; the points
+    are just not where you drew them. Always give targets used with a work object that work
+    object's plane as *Reference Plane*.
 
 ## Try it
 

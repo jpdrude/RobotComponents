@@ -159,7 +159,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
             code.Add(new CodeLine("ENDIF", CodeType.Instruction));
 
-            DA.SetDataList(0, code);
+            HelperMethods.SetActionList(this, DA, 0, code);
         }
 
         #region IGH_VariableParameterComponent

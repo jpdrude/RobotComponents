@@ -25,7 +25,7 @@ using RobotComponents.ABB.Utils;
 namespace RobotComponents.ABB.Actions.Declarations
 {
     /// <summary>
-    /// Represents a predefined or user definied Zone Data declaration.
+    /// Represents a predefined or user defined Zone Data declaration.
     /// </summary>
     /// <remarks>
     /// This action is used to specify how a position is to be terminated.

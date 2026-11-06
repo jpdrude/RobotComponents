@@ -362,7 +362,7 @@ namespace RobotComponents.ABB.Definitions
             if (_externalAxis != null)
             {
                 // For an external axis the coordinate system of the work object plane
-                // is definied in the coordinate system of the external axis.
+                // is defined in the coordinate system of the external axis.
                 Transform orient2 = Transform.PlaneToPlane(Plane.WorldXY, _externalAxis.AttachmentPlane);
                 _globalPlane.Transform(orient2);
             }

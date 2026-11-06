@@ -44,18 +44,7 @@ Robot Components is a plugin for intuitive robot programming for ABB robots insi
 
 ## Getting Started
 ### Installation
-If you are using **Rhino 7 or higher**, you can install Robot Components via the **Package Manager**. For other versions, download the latest release directly from the repository's [releases page](https://github.com/jpdrude/RobotComponents/releases).
-
-After downloading, unzip the archive and copy all files into the Grasshopper Components folder (in Grasshopper, navigate to *File > Special Folders > Components Folder*). Ensure that all files are unblocked by right-clicking each file, selecting *Properties*, and clicking *Unblock* on the *General* tab. Restart Rhino, and you're ready to go!
-
-Robot Components supports the following Rhino versions:  
-
-- **Version 4 (v4):** Compatible with Rhino 8 or higher. 
-- **Version 3 (v3):** Compatible with Rhino 7 or higher.  
-- **Version 2 (v2):** Compatible with Rhino 6 or higher.  
-- **Version 1 (v1):** Compatible with Rhino 5 or higher.
-
-With each latest release, we aim to support the latest two major Rhino versions. 
+Download the latest version from the [releases page](https://github.com/jpdrude/RobotComponents/releases). Each release comes with its own installation instructions (supported Rhino version, where to copy the files, unblocking). The Rhino **Package Manager** installs the *original* Robot Components, not this modified version. You can also install the [original version](https://github.com/RobotComponents/RobotComponents) by Arjen Deetman via the Rhino Package Manager. Step-by-step instructions are also in the [learning wiki](https://jpdrude.github.io/RobotComponents/getting-started/).
 
 ### Example files and documentation
 Explore a collection of example files demonstrating Robot Components' main features in the repository's [Example Files](https://github.com/RobotComponents/RobotComponents/tree/master/ExampleFiles) folder. Comprehensive documentation for Grasshopper is available on our [documentation website](https://robotcomponents.github.io/RobotComponents-Documentation/) and API documentation can be found [here](https://robotcomponents.github.io/RobotComponents-API-Documentation/index.html).

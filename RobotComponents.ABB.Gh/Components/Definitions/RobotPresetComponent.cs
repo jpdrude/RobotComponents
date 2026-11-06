@@ -87,6 +87,16 @@ namespace RobotComponents.ABB.Gh.Components.Definitions
 
             if (_robotPreset == RobotPreset.EMPTY | _fromMenu)
             {
+                // The picker is a modal dialog: only show it for a component on the canvas the user
+                // is looking at. In any other document (built by a script, headless) nobody can answer
+                // it, and it would block Rhino.
+                GH_Document document = OnPingDocument();
+                if (document == null || document != Grasshopper.Instances.ActiveCanvas?.Document)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No robot preset picked yet. Right-click → Pick Robot Preset.");
+                    return;
+                }
+
                 _robotPreset = GetRobotPreset();
             }
 
