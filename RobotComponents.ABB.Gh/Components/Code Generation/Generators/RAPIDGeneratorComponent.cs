@@ -191,9 +191,8 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             int skipped = actions.RemoveAll(action => action == null);
             if (skipped > 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, skipped + " item(s) on Actions are not actions and were skipped. " +
-                    "A common cause: the Variable output of a RAPID Variable instead of its Variable Declaration output, " +
-                    "or a component upstream that produced no data.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some actions are invalid and were skipped. " +
+                    "Check the error and warning messages to resolve them.");
             }
 
             // Creates the input value list for the scope and attachs it to the input parameter

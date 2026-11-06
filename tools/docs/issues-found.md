@@ -245,7 +245,8 @@ first output.
 *Variable Declaration* output into Actions"), or let `GH_Action` cast a RAPIDVariable to its declaration.
 
 **Fixed (2026-11-05, `fix/wiki-issues`):** the RAPID Generator removes null items from *Actions* and
-warns ("N item(s) on Actions are not actions and were skipped", naming this cause). Checked in Rhino:
+warns ("Some actions are invalid and were skipped. Check the error and warning messages to resolve
+them."; first version named this cause, shortened on request). Checked in Rhino:
 RAPID Variable *Variable* + a Code line → warning, module with the Code line.
 
 ---
