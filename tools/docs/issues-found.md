@@ -600,6 +600,19 @@ in Rhino (AI with/without value, AO, DI unchanged); `ISignalAI … AIO_ABOVE_HIG
 AO variant pass `verify_syntax`. The frozen v5/v7 obsolete snapshots keep the old line (frozen by
 design; Upgrade Components moves files to the live component).
 
+**Follow-up (2026-11-06, user request): all analog conditions.** For an analog Signal Type the
+component adds a *Condition* input (value list Always / Above / Below / Between / Outside →
+AIO_ALWAYS / AIO_ABOVE_HIGH / AIO_BELOW_HIGH / AIO_BETWEEN / AIO_OUTSIDE) and, for Between and
+Outside, a *Low Value* input (Signal Value = upper limit). Inputs are added/removed in a scheduled
+solution like the Message Box's buttons; the auto-created value list is removed with the input if it
+feeds nothing else. No Obsolete snapshot needed: Connect Interrupt is an IGH_VariableParameterComponent,
+and GH stores such inputs in a `ParameterData` chunk (InputCount + InputId type guids) and rebuilds
+exactly them on load, so old files load with their four inputs and get *Condition* on the first solve
+(list starts at Above with a Signal Value, else Always: same RAPID as before). Checked on a canvas: all
+five conditions, Low Value only for Between/Outside, error without Low Value, save/load round trip,
+back to digital removes inputs and list; all five ISignalAI lines pass `verify_syntax`. The user asked
+for the second value only with Outside; Between needs it too (ISignalAI uses Low and High for it).
+
 ---
 
 ## 23 🟠 Path Generator caches stale paths after a movement type or speed change

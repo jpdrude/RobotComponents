@@ -20,6 +20,20 @@ signal to a TRAP routine you build with [[Routine]] (Type `TRAP`).
 or **Persistent Data**, which watches a `PERS` variable instead of a signal. Right-click →
 *Override Interrupt Variable Name* to connect several interrupts to the same TRAP.
 
+For an **analog** signal the component adds a ***Condition*** input with its own drop-down:
+*Always*, *Above*, *Below*, *Between* or *Outside*. *Between* and *Outside* also add a
+***Low Value*** input; *Signal Value* is then the upper limit. Both inputs disappear again when
+you switch to another signal type. The drop-down starts at *Above* if a *Signal Value* is
+connected, otherwise at *Always*.
+
+| *Condition* | Fires when the signal … | RAPID |
+|---|---|---|
+| Always | changes at all | `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
+| Above | rises above *Signal Value* | `ISignalAI sig, AIO_ABOVE_HIGH, 2.5, 0, 0, int;` |
+| Below | falls below *Signal Value* | `ISignalAI sig, AIO_BELOW_HIGH, 2.5, 0, 0, int;` |
+| Between | is between *Low Value* and *Signal Value* | `ISignalAI sig, AIO_BETWEEN, 2.5, 1, 0, int;` |
+| Outside | is outside *Low Value* … *Signal Value* | `ISignalAI sig, AIO_OUTSIDE, 2.5, 1, 0, int;` |
+
 ## Example: count sensor hits
 
 [:material-download: part-sensor-interrupt.gh](../../examples/part-b/part-sensor-interrupt.gh){ .md-button download="part-sensor-interrupt.gh" }
@@ -62,7 +76,7 @@ interrupt needs the real signal.
 | Signal Type | With *Signal Value* | Without *Signal Value* (fires on every change) |
 |---|---|---|
 | Digital input / output | `ISignalDI sig, 1, int;` | trigger value `2` = both edges |
-| Analog input / output | `ISignalAI sig, AIO_ABOVE_HIGH, 2.5, 0, 0, int;`: fires when the value rises above 2.5 | `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
+| Analog input / output | depends on *Condition* (table above) | *Condition* Always: `ISignalAI sig, AIO_ALWAYS, 0, 0, 0, int;` |
 | Group input / output | *(not possible; warning)* | `ISignalGI sig, int;` |
 | Persistent Data | *(not used; warning)* | `IPers myPers, int;` |
 
@@ -73,11 +87,9 @@ ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd]
 
 ## Gotchas
 
-!!! info "Other analog conditions"
-    For analog signals the *Signal Value* is always "rises above". To fire when the value
-    drops below a limit, or leaves or enters a band (`AIO_BELOW_LOW`, `AIO_OUTSIDE`,
-    `AIO_BETWEEN`), write the declaration `VAR intnum int_p;` (*Type* `1`), `CONNECT` and
-    `ISignalAI` with [[Code]] components. See [[abb:ISignalAI]].
+!!! info "Switching away from Between / Outside"
+    *Low Value* is removed when you pick another condition or signal type, and with it its wire.
+    Reconnect it when you switch back.
 
 !!! tip "Keep TRAP routines short"
     A TRAP interrupts the program. Set a flag or count, as here, and let `main` react,
