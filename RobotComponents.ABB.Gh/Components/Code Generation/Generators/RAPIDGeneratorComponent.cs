@@ -186,14 +186,18 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             DA.GetData(0, ref robot);
             if (!DA.GetDataList(1, actions)) { return; }
 
-            // Items that couldn't be converted to an action arrive as null (Grasshopper already shows
-            // "Data conversion failed"). Skip them instead of failing with a null reference.
-            int skipped = actions.RemoveAll(action => action == null);
-            if (skipped > 0)
+            // Null items (a component upstream produced nothing, or an item couldn't be converted to an
+            // action): one error per null, with its position, then skip them instead of failing.
+            string branch = Params.Input[1].VolatileData.PathCount > 1 ? $" {DA.ParameterTargetPath(0)}" : "";
+            for (int i = 0; i < actions.Count; i++)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "An input is invalid: some actions are missing and were skipped. " +
-                    "Check the error and warning messages to resolve them.");
+                if (actions[i] == null)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"Actions{branch} item {i} is null (no action) and was skipped. " +
+                        "Check the component that feeds it.");
+                }
             }
+            actions.RemoveAll(action => action == null);
 
             // Creates the input value list for the scope and attachs it to the input parameter
             int scopeParamIndex = FindVariableInputIndex(3);

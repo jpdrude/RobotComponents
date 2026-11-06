@@ -245,9 +245,10 @@ first output.
 *Variable Declaration* output into Actions"), or let `GH_Action` cast a RAPIDVariable to its declaration.
 
 **Fixed (2026-11-05, `fix/wiki-issues`):** the RAPID Generator removes null items from *Actions* and
-reports an Error ("An input is invalid: some actions are missing and were skipped. Check the error
-and warning messages to resolve them."; first a warning naming this cause, changed on request) and
-still writes the module from the remaining actions. Checked in Rhino:
+reports one Error per null item with its position ("Actions item 2 is null (no action) and was
+skipped. Check the component that feeds it.", plus the branch path when Actions has several branches;
+earlier versions gave one combined message, changed on request) and still writes the module from the
+remaining actions. Checked in Rhino:
 RAPID Variable *Variable* + a Code line → warning, module with the Code line.
 
 ---
