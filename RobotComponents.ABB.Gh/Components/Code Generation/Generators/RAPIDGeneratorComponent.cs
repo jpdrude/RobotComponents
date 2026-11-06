@@ -165,6 +165,14 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            // The Actions input adds Grasshopper's own "Data conversion failed from ... to Action" while
+            // collecting its data. This component reports every such item itself, with its index and
+            // kind (see below), so the input's generic message is removed.
+            if (DA.Iteration == 0)
+            {
+                Params.Input[1].ClearRuntimeMessages();
+            }
+
             // Input variables
             Robot robot = null;
             List<RobotComponents.ABB.Actions.IAction> actions = new List<RobotComponents.ABB.Actions.IAction>();
