@@ -550,6 +550,9 @@ another quadrant warned with its own angle). Now: only configuration data that w
 all zero) is checked, and `InverseKinematics.CheckConfigurationQuadrants` is switched off by both path
 generators for all interpolation steps but the last one (the target). Wiki: IK page note, Configuration
 Data note.
+Checked in Rhino with the installed build (Path Generator, home MoveAbsJ + one move): MoveL to
+(400, -150, 400) without Configuration Data → no message; MoveL to (250, 300, 600) with named
+[0, 0, 0, 0] → no message; MoveL and MoveJ there with cf6 = 1 → exactly one warning each.
 
 ---
 
