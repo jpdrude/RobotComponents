@@ -44,7 +44,7 @@ Robot Components is a plugin for intuitive robot programming for ABB robots insi
 
 ## Getting Started
 ### Installation
-Download the latest version from the [releases page](https://github.com/jpdrude/RobotComponents/releases). Each release comes with its own installation instructions (supported Rhino version, where to copy the files, unblocking). You can also install the [original version](https://github.com/RobotComponents/RobotComponents) by Arjen Deetman via the Rhino Package Manager. Step-by-step instructions are also in the [learning wiki](https://jpdrude.github.io/RobotComponents/getting-started/).
+Download the latest version from the [releases page](https://github.com/jpdrude/RobotComponents/releases). Each release comes with its own installation instructions (supported Rhino version, where to copy the files, unblocking). The Rhino **Package Manager** installs the *original* Robot Components, not this modified version. You can also install the [original version](https://github.com/RobotComponents/RobotComponents) by Arjen Deetman via the Rhino Package Manager. Step-by-step instructions are also in the [learning wiki](https://jpdrude.github.io/RobotComponents/getting-started/).
 
 ### Example files and documentation
 Explore a collection of example files demonstrating Robot Components' main features in the repository's [Example Files](https://github.com/RobotComponents/RobotComponents/tree/master/ExampleFiles) folder. Comprehensive documentation for Grasshopper is available on our [documentation website](https://robotcomponents.github.io/RobotComponents-Documentation/) and API documentation can be found [here](https://robotcomponents.github.io/RobotComponents-API-Documentation/index.html).
