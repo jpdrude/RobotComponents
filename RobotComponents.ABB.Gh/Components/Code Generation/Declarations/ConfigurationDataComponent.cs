@@ -17,6 +17,7 @@
 // System Libs
 using System;
 using System.Collections.Generic;
+using System.Linq;
 // Grasshopper Libs
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
@@ -118,6 +119,20 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             base.AfterSolveInstance();
 
             _tree = this.Params.Output[0].VolatileData as GH_Structure<GH_ConfigurationData>;
+
+            // An iteration that returned without output (e.g. CFX out of range, shown as an error)
+            // leaves a null item: skip the renaming and register no names in that case.
+            if (_tree == null || _tree.AllData(false).Any(item => item == null))
+            {
+                _toRegister.Clear();
+                GH_Document document = this.OnPingDocument();
+                if (document != null)
+                {
+                    _objectManager = DocumentManager.GetDocumentObjectManager(document);
+                    _objectManager.CheckVariableNames(this);
+                }
+                return;
+            }
 
             if (_tree.Branches.Count != 0)
             {

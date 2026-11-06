@@ -533,6 +533,10 @@ index exception at `_robotJointPositions[Cfx]`). Inverse Kinematics: guard for c
 reachable for the target ("cf6 = 1 is not possible for this target (robot joint 6 is at 50 degrees,
 cf6 = 0)"); a joint exactly on a quadrant boundary accepts both neighbouring quadrants. Only in
 `Calculate`, not in `CalculateClosestRobotJointPosition` (configuration control off).
+Checked in Rhino with the installed build (target 250/300/600 down): [0,0,0,0] and [0,1,-2,1] no
+message; [0,0,-4,0] gives axis 6 at -309.81; cf6 = 1 and cf1 = -1 each warn with the actual angle;
+CFX 9 errors in Configuration Data. That test showed an "After Solution exception" after the CFX error
+(the null item left by the early return); AfterSolveInstance now skips null items.
 
 ---
 
