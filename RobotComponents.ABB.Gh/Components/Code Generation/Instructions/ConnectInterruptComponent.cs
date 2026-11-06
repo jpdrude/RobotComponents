@@ -52,6 +52,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
         // Analog signals (AI, AO): a Condition input appears, and a Low Value input for Between/Outside.
         private const string _conditionParamName = "Condition";
         private const string _lowValueParamName = "Low Value";
+        private const string _toleranceParamName = "Tolerance";
         private static readonly List<string> _conditionNames = new List<string> { "Always", "Above", "Below", "Between", "Outside" };
         private static readonly string[] _conditionRapid = { "AIO_ALWAYS", "AIO_ABOVE_HIGH", "AIO_BELOW_HIGH", "AIO_BETWEEN", "AIO_OUTSIDE" };
         private const int _conditionAlways = 0, _conditionAbove = 1, _conditionBetween = 3, _conditionOutside = 4;
@@ -76,6 +77,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             (_interruptNameParamName, "IVN"),
             (_conditionParamName, "C"),
             (_lowValueParamName, "LV"),
+            (_toleranceParamName, "TOL"),
         };
 
         /// <summary>
@@ -187,8 +189,9 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (conditionIndex != -1 && !DA.GetData(conditionIndex, ref condition)) { condition = -1; }
             bool wantLowValue = analog && (condition == _conditionBetween || condition == _conditionOutside);
             int lowValueIndex = Params.Input.FindIndex(x => x.Name == _lowValueParamName);
+            int toleranceIndex = Params.Input.FindIndex(x => x.Name == _toleranceParamName);
 
-            if ((conditionIndex != -1) != analog || (lowValueIndex != -1) != wantLowValue)
+            if ((conditionIndex != -1) != analog || (lowValueIndex != -1) != wantLowValue || (toleranceIndex != -1) != analog)
             {
                 ScheduleAnalogParameters(analog, wantLowValue, hasSignalValue);
                 return;
@@ -199,6 +202,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
             if (analog)
             {
                 string Num(double value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+                // DeltaValue: the signal must differ by more than this from the value at the last
+                // interrupt before a new interrupt is generated. 0 when not connected.
+                double tolerance = 0;
+                if (!DA.GetData(toleranceIndex, ref tolerance)) { tolerance = 0; }
+                if (tolerance < 0)
+                {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Tolerance can't be negative.");
+                    return;
+                }
 
                 if (condition < 0 || condition >= _conditionRapid.Length)
                 {
@@ -232,11 +245,16 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Low Value should be below the Signal Value (the upper limit).");
                     }
 
-                    analogTrigger = $"{_conditionRapid[condition]}, {Num(signalValue)}, {Num(lowValue)}, 0";
+                    analogTrigger = $"{_conditionRapid[condition]}, {Num(signalValue)}, {Num(lowValue)}, {Num(tolerance)}";
                 }
                 else
                 {
-                    analogTrigger = $"{_conditionRapid[condition]}, {Num(signalValue)}, 0, 0";
+                    analogTrigger = $"{_conditionRapid[condition]}, {Num(signalValue)}, 0, {Num(tolerance)}";
+                }
+
+                if (condition == _conditionAlways)
+                {
+                    analogTrigger = $"AIO_ALWAYS, 0, 0, {Num(tolerance)}";
                 }
             }
 
@@ -310,7 +328,7 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
         #region analog condition inputs
         /// <summary>
-        /// Adds or removes the Condition and Low Value inputs in a scheduled solution (inputs can't change
+        /// Adds or removes the Condition, Low Value and Tolerance inputs in a scheduled solution (inputs can't change
         /// while this component is being solved). A new Condition input gets a value list, starting at
         /// Above when a Signal Value is connected and at Always otherwise, so files from before keep
         /// generating the same RAPID.
@@ -330,7 +348,13 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
 
                 IGH_Param conditionParam = Params.Input.FirstOrDefault(x => x.Name == _conditionParamName);
                 IGH_Param lowValueParam = Params.Input.FirstOrDefault(x => x.Name == _lowValueParamName);
+                IGH_Param toleranceParam = Params.Input.FirstOrDefault(x => x.Name == _toleranceParamName);
                 bool createdCondition = false;
+
+                if (!wantCondition && toleranceParam != null)
+                {
+                    Params.UnregisterInputParameter(toleranceParam, true);
+                }
 
                 if (!wantLowValue && lowValueParam != null)
                 {
@@ -372,6 +396,22 @@ namespace RobotComponents.ABB.Gh.Components.CodeGeneration
                     };
                     HelperMethods.ApplyFullNamesPreference(newLowValue);
                     Params.RegisterInputParam(newLowValue, Params.Input.IndexOf(conditionParam) + 1);
+                }
+
+                if (wantCondition && Params.Input.All(x => x.Name != _toleranceParamName))
+                {
+                    Param_Number newTolerance = new Param_Number
+                    {
+                        Name = _toleranceParamName,
+                        NickName = "TOL",
+                        Description = "DeltaValue of ISignalAI/ISignalAO: the signal must differ by more than this from its value " +
+                                      "at the last interrupt before a new interrupt is generated. 0 (default) = any change.",
+                        Access = GH_ParamAccess.item,
+                        Optional = true
+                    };
+                    HelperMethods.ApplyFullNamesPreference(newTolerance);
+                    int lastAnalog = Math.Max(Params.Input.IndexOf(conditionParam), Params.Input.FindIndex(x => x.Name == _lowValueParamName));
+                    Params.RegisterInputParam(newTolerance, lastAnalog + 1);
                 }
 
                 Params.OnParametersChanged();

@@ -463,6 +463,11 @@ namespace RobotComponents.ABB.Gh.Utils
         {
             try
             {
+                // Lay out the component first: a parameter registered a moment ago (e.g. a dynamically
+                // added input) still has its grip at the origin, which put the value list near (0, 0).
+                component.Attributes.ExpireLayout();
+                component.Attributes.PerformLayout();
+
                 var parameter = component.Params.Input[index];
 
                 // Create the value list

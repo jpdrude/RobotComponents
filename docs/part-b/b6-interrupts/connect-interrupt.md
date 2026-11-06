@@ -20,11 +20,15 @@ signal to a TRAP routine you build with [[Routine]] (Type `TRAP`).
 or **Persistent Data**, which watches a `PERS` variable instead of a signal. Right-click →
 *Override Interrupt Variable Name* to connect several interrupts to the same TRAP.
 
-For an **analog** signal the component adds a ***Condition*** input with its own drop-down:
-*Always*, *Above*, *Below*, *Between* or *Outside*. *Between* and *Outside* also add a
-***Low Value*** input; *Signal Value* is then the upper limit. Both inputs disappear again when
-you switch to another signal type. The drop-down starts at *Above* if a *Signal Value* is
-connected, otherwise at *Always*.
+For an **analog** signal the component adds a ***Condition*** input with its own drop-down
+(*Always*, *Above*, *Below*, *Between* or *Outside*) and a ***Tolerance*** input. *Between* and
+*Outside* also add a ***Low Value*** input; *Signal Value* is then the upper limit. The inputs
+disappear again when you switch to another signal type. The drop-down starts at *Above* if a
+*Signal Value* is connected, otherwise at *Always*.
+
+*Tolerance* is RAPID's *DeltaValue*: after an interrupt, the signal has to change by more than
+this before the next one can fire, so a noisy signal around the limit doesn't fire over and over.
+Leave it empty for `0` (every change counts).
 
 | *Condition* | Fires when the signal … | RAPID |
 |---|---|---|
@@ -33,6 +37,8 @@ connected, otherwise at *Always*.
 | Below | falls below *Signal Value* | `ISignalAI sig, AIO_BELOW_HIGH, 2.5, 0, 0, int;` |
 | Between | is between *Low Value* and *Signal Value* | `ISignalAI sig, AIO_BETWEEN, 2.5, 1, 0, int;` |
 | Outside | is outside *Low Value* … *Signal Value* | `ISignalAI sig, AIO_OUTSIDE, 2.5, 1, 0, int;` |
+
+With a *Tolerance* of 0.2 the last number becomes `0.2`, e.g. `ISignalAI sig, AIO_OUTSIDE, 2.5, 1, 0.2, int;`.
 
 ## Example: count sensor hits
 

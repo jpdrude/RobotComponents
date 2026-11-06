@@ -618,6 +618,13 @@ five conditions, Low Value only for Between/Outside, error without Low Value, sa
 back to digital removes inputs and list; all five ISignalAI lines pass `verify_syntax`. The user asked
 for the second value only with Outside; Between needs it too (ISignalAI uses Low and High for it).
 
+**Follow-up (2026-11-06):** a *Tolerance* input (ISignalAI/AO DeltaValue, default 0, negative = error)
+appears with Condition for every analog condition. The Condition value list was placed near the
+canvas origin: the names-list overload of `HelperMethods.CreateValueList` lacked the layout pass the
+enum overload has for just-added inputs; added. Checked on a canvas: list next to the input, Tolerance
+written as 5th argument, keeps its wire when Low Value is inserted, all removed when switching to
+digital; `AIO_OUTSIDE, 2.5, 1, 0.2` and `AIO_ALWAYS, 0, 0, 0.5` pass verify_syntax.
+
 ---
 
 ## 23 🟠 Path Generator caches stale paths after a movement type or speed change
