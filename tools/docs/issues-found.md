@@ -23,7 +23,7 @@ Not published on the wiki site.
 | 12 | 🔴 | Routine Argument | A Robot Target as argument *Value* is written as its display text (`visit Robot Target (pickA_0);`) and never declared | fixed (`fix/wiki-issues`) |
 | 13 | 🔴 | Routine Argument / Routine | A list on argument *Value* duplicates the routine body and declares the routine twice; module won't load | by design (documented) |
 | 14 | 🔴 | Message Box | Buttons without wired actions are skipped when numbering `CASE`, so actions run for the wrong button | fixed (`fix/wiki-issues`) |
-| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | fixed: warning (`fix/wiki-issues`) |
+| 15 | 🔴 | Move / Robot Target / Work Object | A Work Object on a Move does not convert its targets: world coordinates are written and then offset again by the work object | documented (warning removed) |
 | 16 | 🟡 | For Loop | The *Counter* output can't be used inside the same loop's body (recursive data stream) | by design (documented) |
 | 17 | 🟠 | Move | A missing/failed Target throws a misleading "Joint Target cannot be combined with MoveL" exception, and the null crashes the generator | fixed (`fix/wiki-issues`) |
 | 18 | 🔴 | Path Acceleration Limitation | Generates `PathAccelerationLimitation …;`, which is not RAPID; the module doesn't load (upstream too) | fixed (`fix/wiki-issues`) |
@@ -407,6 +407,11 @@ world-coordinate corners and a 50 mm approach point warn; the same points relati
 long local paths (500, 0, 0) / (600, 200, 0), don't; a real Move with a world target warns, with the
 Reference Plane set it doesn't. Auto-converting was not done: it would change the RAPID of every
 existing file that uses relative targets on purpose.
+
+**Decision (2026-11-06): warning removed again.** With a robot on a 10 m track and a large build
+platform as work object, relative targets routinely lie near the work object's origin, so the
+heuristic would warn about correct definitions. The trap stays documented (Work Object and Move
+gotchas, B9); no check in the Move.
 
 ---
 

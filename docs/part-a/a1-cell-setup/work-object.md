@@ -77,11 +77,6 @@ frame. Targets used with `\WObj:=table` are measured from the object frame. ABB'
     are just not where you drew them. Always give targets used with a work object that work
     object's plane as *Reference Plane*.
 
-    The [[Move]] warns when a target *looks like* world coordinates: when it is much closer to
-    the work object's origin than to the world origin. A Robot Target doesn't remember whether
-    a Reference Plane was used, so this is a guess. It doesn't check work objects within 50 mm
-    of the world origin, where both readings give nearly the same point.
-
 ## Try it
 
 - [ ] Turn the table by 45° instead of 30°. Which numbers in the RAPID change, and which stay the same?

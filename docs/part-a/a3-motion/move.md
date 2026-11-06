@@ -137,8 +137,7 @@ do on the controller, ABB documents [[abb:MoveAbsJ]], [[abb:MoveL]], [[abb:MoveJ
 !!! warning "Override Work Object: targets are measured from the work object"
     With a work object on the Move, the Robot Targets' coordinates are measured from that work
     object. Targets drawn in world coordinates need the work object's plane as their
-    *Reference Plane*. The Move warns when a target looks like it is in world coordinates. See
-    [[Work Object]] → Gotchas.
+    *Reference Plane*. See [[Work Object]] → Gotchas.
 
 ## See also
 
