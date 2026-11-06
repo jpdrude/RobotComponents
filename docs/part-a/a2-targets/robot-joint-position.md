@@ -31,12 +31,6 @@ ABB's reference: [RAPID Instructions, Functions and Data types][abb-ifd] ([[abb:
     Joint 5 at `0` lines up joints 4 and 6, a wrist **singularity** where the robot can't
     move smoothly. Start with joint 5 bent (e.g. 30°).
 
-## Gotchas
-
-!!! bug "Through a Joint Target it doesn't load"
-    [[Robot Joint Position]] → [[Joint Target]] → [[Move]] generates a declaration the controller
-    rejects. Wire the Robot Joint Position into the Move directly. See [[Joint Target]].
-
 ## See also
 
 [[Joint Target]] · [[Move]] · [[Forward Kinematics]]

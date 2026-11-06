@@ -543,6 +543,14 @@ message; [0,0,-4,0] gives axis 6 at -309.81; cf6 = 1 and cf1 = -1 each warn with
 CFX 9 errors in Configuration Data. That test showed an "After Solution exception" after the CFX error
 (the null item left by the early return); AfterSolveInstance now skips null items.
 
+**Regression found in the final review (2026-11-06):** the quadrant check also ran for targets without
+Configuration Data (an unnamed [0, 0, 0, 0], so every target with a negative quadrant warned) and for
+every interpolation step of a MoveL/MoveC (the steps carry the end target's confdata, so each step in
+another quadrant warned with its own angle). Now: only configuration data that was given (named or not
+all zero) is checked, and `InverseKinematics.CheckConfigurationQuadrants` is switched off by both path
+generators for all interpolation steps but the last one (the target). Wiki: IK page note, Configuration
+Data note.
+
 ---
 
 ## 20 🟠 Multi Move components throw after every solve

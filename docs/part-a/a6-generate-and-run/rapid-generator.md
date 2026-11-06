@@ -58,6 +58,12 @@ Examples: [Getting started](../../getting-started/index.md), [[Move]].
     different branches (e.g. points from [[gh:Discontinuity]]), you get several
     `MODULE MainModule` blocks. Right-click *Actions* → **Flatten**.
 
+!!! warning "Items on *Actions* that aren't actions"
+    Anything on *Actions* that isn't an action is skipped, and the generator says so: first
+    *"The RAPID Generator encountered errors…"*, then one error per item with its index and what it
+    is, e.g. *"Actions item 1: a RAPID Variable is not an action. Use its Variable Declaration
+    output."* The module is written from the rest.
+
 !!! warning "Wire order is program order"
     Actions run in the order the wires were connected to *Actions*. To reorder, disconnect and
     reconnect them, or collect them in a Grasshopper [[gh:Merge]] component first, whose numbered

@@ -212,7 +212,11 @@ namespace RobotComponents.ABB.Kinematics
             CalculateExternalJointPosition();
             CheckInternalAxisLimits();
             CheckExternalAxisLimits();
-            _errorText.AddRange(_quadrantWarnings);
+
+            if (CheckConfigurationQuadrants)
+            {
+                _errorText.AddRange(_quadrantWarnings);
+            }
         }
 
         /// <summary>
@@ -329,10 +333,19 @@ namespace RobotComponents.ABB.Kinematics
                 AdjustJoint(5, robotTarget.ConfigurationData.Cf6);
 
                 // AdjustJoint can only add whole turns; a quadrant that isn't the same angle a whole
-                // number of turns away can't be reached for this target and arm solution.
-                CheckQuadrant(0, robotTarget.ConfigurationData.Cf1, "cf1");
-                CheckQuadrant(3, robotTarget.ConfigurationData.Cf4, "cf4");
-                CheckQuadrant(5, robotTarget.ConfigurationData.Cf6, "cf6");
+                // number of turns away can't be reached for this target and arm solution. Only checked
+                // for configuration data that was actually given: a target without it gets an unnamed
+                // [0, 0, 0, 0], and warning about that would flag most targets.
+                ConfigurationData configurationData = robotTarget.ConfigurationData;
+                bool specified = configurationData.Name != "" || configurationData.Cf1 != 0 || configurationData.Cf4 != 0 ||
+                    configurationData.Cf6 != 0 || configurationData.Cfx != 0;
+
+                if (specified)
+                {
+                    CheckQuadrant(0, configurationData.Cf1, "cf1");
+                    CheckQuadrant(3, configurationData.Cf4, "cf4");
+                    CheckQuadrant(5, configurationData.Cf6, "cf6");
+                }
 
                 // Set configuration data
                 _selectedSolution = robotTarget.ConfigurationData.Cfx;
@@ -842,6 +855,14 @@ namespace RobotComponents.ABB.Kinematics
         /// <summary>
         /// Gets the collected error messages.
         /// </summary>
+        /// <summary>
+        /// Gets or sets whether Calculate reports configuration quadrants that can't be reached
+        /// (default true). The path generators switch it off for the interpolation steps between
+        /// targets: those steps carry the end target's configuration data, but the controller only
+        /// checks the configuration at the target itself.
+        /// </summary>
+        public bool CheckConfigurationQuadrants { get; set; } = true;
+
         public List<string> ErrorText
         {
             get { return _errorText; }

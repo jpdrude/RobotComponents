@@ -411,8 +411,10 @@ namespace RobotComponents.ABB.Kinematics
                 // Update movement
                 newMovement.Target = new RobotTarget(robotTarget.Name, plane, robotTarget.ConfigurationData.Duplicate(), newExternalJointPosition);
 
-                // Calculate joint positions
+                // Calculate joint positions (configuration quadrants are only checked at the target itself)
+                _robot.InverseKinematics.CheckConfigurationQuadrants = i == n - 1;
                 _robot.InverseKinematics.Calculate(newMovement);
+                _robot.InverseKinematics.CheckConfigurationQuadrants = true;
 
                 // Configuration control
                 if (_linearConfigurationControl == false)
@@ -725,8 +727,10 @@ namespace RobotComponents.ABB.Kinematics
                 newMovement.Target = new RobotTarget(robotTarget.Name, plane, robotTarget.ConfigurationData, newExternalJointPosition);
                 newMovement.CircularPoint.Plane = new Plane(circle.PointAt(dt * (i + 0.5)), newMovement.CircularPoint.Plane.XAxis, newMovement.CircularPoint.Plane.YAxis);
 
-                // Calculate joint positions
+                // Calculate joint positions (configuration quadrants are only checked at the target itself)
+                _robot.InverseKinematics.CheckConfigurationQuadrants = i == n - 1;
                 _robot.InverseKinematics.Calculate(newMovement);
+                _robot.InverseKinematics.CheckConfigurationQuadrants = true;
 
                 // Check for wrist singularity
                 if (Math.Sign(_robot.InverseKinematics.RobotJointPosition[4]) * Math.Sign(_robotJointPositions.Last()[4]) < 0)
