@@ -561,6 +561,10 @@ Generators no longer put quadrant warnings into ErrorText: `InverseKinematics.Co
 stored per movement with the movement's last path plane (only with configuration control on), and the
 components show the warnings of the movement the Animation Slider points to
 (`PathGenerator.GetConfigurationWarnings(index)`). The IK component still warns for its own targets.
+Checked in Rhino with the installed build: path home -> MoveL pGood (no confdata) -> MoveL pBad (cf6 = 1):
+slider 0 and 0.3 no warning, 0.55 / 0.8 / 1 the pBad warning, same in the Timed Path Generator; a
+CFX-only target on the -Y side gives none; the IK component on pBad still warns. Demo:
+fix-demos/fix-demo-4-quadrant-check.gh.
 
 ---
 
