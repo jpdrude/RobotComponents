@@ -333,19 +333,14 @@ namespace RobotComponents.ABB.Kinematics
                 AdjustJoint(5, robotTarget.ConfigurationData.Cf6);
 
                 // AdjustJoint can only add whole turns; a quadrant that isn't the same angle a whole
-                // number of turns away can't be reached for this target and arm solution. Only checked
-                // for configuration data that was actually given: a target without it gets an unnamed
-                // [0, 0, 0, 0], and warning about that would flag most targets.
+                // number of turns away can't be reached for this target and arm solution. A quadrant
+                // of 0 isn't checked: it is also what an unconnected CF1/CF4/CF6 (or a target without
+                // configuration data, or one with only a CFX) gives, so it can't be told apart from
+                // "not given".
                 ConfigurationData configurationData = robotTarget.ConfigurationData;
-                bool specified = configurationData.Name != "" || configurationData.Cf1 != 0 || configurationData.Cf4 != 0 ||
-                    configurationData.Cf6 != 0 || configurationData.Cfx != 0;
-
-                if (specified)
-                {
-                    CheckQuadrant(0, configurationData.Cf1, "cf1");
-                    CheckQuadrant(3, configurationData.Cf4, "cf4");
-                    CheckQuadrant(5, configurationData.Cf6, "cf6");
-                }
+                if (configurationData.Cf1 != 0) { CheckQuadrant(0, configurationData.Cf1, "cf1"); }
+                if (configurationData.Cf4 != 0) { CheckQuadrant(3, configurationData.Cf4, "cf4"); }
+                if (configurationData.Cf6 != 0) { CheckQuadrant(5, configurationData.Cf6, "cf6"); }
 
                 // Set configuration data
                 _selectedSolution = robotTarget.ConfigurationData.Cfx;
@@ -856,12 +851,21 @@ namespace RobotComponents.ABB.Kinematics
         /// Gets the collected error messages.
         /// </summary>
         /// <summary>
-        /// Gets or sets whether Calculate reports configuration quadrants that can't be reached
-        /// (default true). The path generators switch it off for the interpolation steps between
-        /// targets: those steps carry the end target's configuration data, but the controller only
-        /// checks the configuration at the target itself.
+        /// Gets or sets whether Calculate adds configuration quadrants that can't be reached to
+        /// ErrorText (default true). The path generators switch it off and read
+        /// ConfigurationWarnings per target instead, to show only the target the animation slider
+        /// points to.
         /// </summary>
         public bool CheckConfigurationQuadrants { get; set; } = true;
+
+        /// <summary>
+        /// Gets the configuration quadrant warnings of the last Calculate (also when
+        /// CheckConfigurationQuadrants is off).
+        /// </summary>
+        public IReadOnlyList<string> ConfigurationWarnings
+        {
+            get { return _quadrantWarnings; }
+        }
 
         public List<string> ErrorText
         {

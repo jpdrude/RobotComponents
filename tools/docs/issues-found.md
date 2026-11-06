@@ -554,6 +554,14 @@ Checked in Rhino with the installed build (Path Generator, home MoveAbsJ + one m
 (400, -150, 400) without Configuration Data → no message; MoveL to (250, 300, 600) with named
 [0, 0, 0, 0] → no message; MoveL and MoveJ there with cf6 = 1 → exactly one warning each.
 
+**Adjusted on request (2026-11-06):** (1) a quadrant of 0 isn't checked at all: an unconnected CF1/CF4/CF6,
+a target without configuration data and a CFX-only Configuration Data all give 0, which can't be told
+apart from "not given" (trade-off: an explicitly entered impossible 0 isn't flagged). (2) The Path
+Generators no longer put quadrant warnings into ErrorText: `InverseKinematics.ConfigurationWarnings` is
+stored per movement with the movement's last path plane (only with configuration control on), and the
+components show the warnings of the movement the Animation Slider points to
+(`PathGenerator.GetConfigurationWarnings(index)`). The IK component still warns for its own targets.
+
 ---
 
 ## 20 🟠 Multi Move components throw after every solve

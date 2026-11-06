@@ -61,10 +61,10 @@ give those separately.
 
 !!! note "Whether a configuration is possible depends on the target"
     Configuration Data can't check its values on its own: whether a quadrant can be reached
-    depends on the target and the robot. [[Inverse Kinematics]] and the [[Path Generator]] check it
-    at each target that has Configuration Data and warn, e.g. *"cf6 = 1 is not possible for this
-    target (robot joint 6 is at 50.2 degrees, cf6 = 0)"*. On the controller the same mistake stops a
-    `MoveL` with error 50442.
+    depends on the target and the robot. [[Inverse Kinematics]] and the [[Path Generator]] (for the
+    target its *Animation Slider* points to) check every quadrant that isn't `0` and warn, e.g.
+    *"cf6 = 1 is not possible for this target (robot joint 6 is at 50.2 degrees, cf6 = 0)"*. On the
+    controller the same mistake stops a `MoveL` with error 50442.
 
 !!! note "Older files: Upgrade Components"
     Up to version 1.4.5 this component replaced negative quadrants with `0` and worked out

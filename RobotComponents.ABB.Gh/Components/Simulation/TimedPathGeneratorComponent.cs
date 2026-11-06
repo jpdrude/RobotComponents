@@ -216,6 +216,12 @@ namespace RobotComponents.ABB.Gh.Components.Simulation
             // Get the index number of the current target
             int index = (int)((_pathGenerators[DA.Iteration].Planes.Count - 1) * interpolationSlider);
 
+            // Configuration quadrants that can't be reached: only for the target the slider points to
+            foreach (string warning in _pathGenerators[DA.Iteration].GetConfigurationWarnings(index))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warning);
+            }
+
             // Calculate forward kinematics
             if (_previewMesh == true | _outputMesh == true)
             {
